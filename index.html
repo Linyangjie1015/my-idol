@@ -1363,13 +1363,13 @@ function render() {
             case 'welcome':
                 var currentUser = localStorage.getItem('myIdolCurrentUser');
                 if (currentUser) {
-                    _checkAdmin(currentUser);
                     var saveKey = 'myIdolSave_' + currentUser;
                     var saveData = localStorage.getItem(saveKey);
                     if (saveData) {
                         try {
                             Object.assign(gameState, JSON.parse(saveData));
                             _ensureKakaoState();
+                            _checkAdmin(currentUser);
                             currentPage = 'home';
                             document.getElementById('statusBar').style.display = 'flex';
                             document.getElementById('restButtons').style.display = 'flex';
@@ -6426,10 +6426,10 @@ function _doRegister() {
     if (existing) { showToast('该昵称已注册'); return; }
     localStorage.setItem('myIdolAccount_' + nickname, JSON.stringify({ nickname: nickname, password: password, created: new Date().toISOString() }));
     localStorage.setItem('myIdolCurrentUser', nickname);
-    _checkAdmin(nickname);
     _closeAccountOverlay();
     showToast('注册成功');
     startNewGame(0);
+    _checkAdmin(nickname);
 }
 
 function _doLogin() {
@@ -6443,7 +6443,6 @@ function _doLogin() {
     var account = JSON.parse(data);
     if (account.password !== password) { showToast('密码错误'); return; }
     localStorage.setItem('myIdolCurrentUser', nickname);
-    _checkAdmin(nickname);
     _closeAccountOverlay();
     showToast('登录成功');
     var saveKey = 'myIdolSave_' + nickname;
@@ -6452,6 +6451,7 @@ function _doLogin() {
         try {
             Object.assign(gameState, JSON.parse(saveData));
             _ensureKakaoState();
+            _checkAdmin(nickname);
             currentPage = 'home';
             document.getElementById('statusBar').style.display = 'flex';
             document.getElementById('restButtons').style.display = 'flex';
