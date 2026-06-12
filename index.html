@@ -1435,6 +1435,7 @@ let currentPage = 'welcome';
 let creationStep = 1;
 
 function render() {
+    if (typeof _checkAutoRest === 'function') _checkAutoRest();
     var app = document.getElementById('app');
     if (!app) return;
     try {
@@ -2028,10 +2029,13 @@ function select性别(g) {
 }
 
 function togglePersonality(p) {
-    const idx = gameState.player.personality.indexOf(p);
+    var idx = gameState.player.personality.indexOf(p);
     if (idx > -1) {
         gameState.player.personality.splice(idx, 1);
-    } else if (gameState.player.personality.length < 3) {
+    } else if (gameState.player.personality.length >= 3) {
+        showToast('最多选择3个性格标签');
+        return;
+    } else {
         gameState.player.personality.push(p);
     }
     render();
@@ -2050,10 +2054,13 @@ function selectRole(role) {
 }
 
 function toggleGroup(key) {
-    const idx = gameState.player.groups.indexOf(key);
+    var idx = gameState.player.groups.indexOf(key);
     if (idx > -1) {
         gameState.player.groups.splice(idx, 1);
-    } else if (gameState.player.groups.length < 3) {
+    } else if (gameState.player.groups.length >= 3) {
+        showToast('最多选择3个志愿团');
+        return;
+    } else {
         gameState.player.groups.push(key);
     }
     const countEl = document.getElementById('groupCount');
@@ -2066,10 +2073,13 @@ function toggleGroup(key) {
 }
 
 function togglePosition(p) {
-    const idx = gameState.player.positions.indexOf(p);
+    var idx = gameState.player.positions.indexOf(p);
     if (idx > -1) {
         gameState.player.positions.splice(idx, 1);
-    } else if (gameState.player.positions.length < 3) {
+    } else if (gameState.player.positions.length >= 3) {
+        showToast('最多选择3个定位');
+        return;
+    } else {
         gameState.player.positions.push(p);
     }
     const countEl = document.getElementById('positionCount');
@@ -2385,7 +2395,11 @@ function render训练Page(container) {
     `;
 }
 
+var _isTraining = false;
 function do训练项目(stat, 体力cost, moneyCost, name) {
+    if (_isTraining) return;
+    _isTraining = true;
+    setTimeout(function() { _isTraining = false; }, 1000);
     if (gameState.体力 < 体力cost) {
         showModal('体力不足', '请先休息恢复体力');
         return;
@@ -2395,7 +2409,7 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
         return;
     }
     
-    gameState.体力 -= 体力cost;
+    gameState.体力 = Math.max(0, gameState.体力 - 体力cost);
     gameState.money -= moneyCost;
     
     if (stat === 'random') {
@@ -3901,7 +3915,7 @@ function joinSchedule(index) {
         showModal('体力不足', '参加此活动需要 ' + 体力cost + ' 体力');
         return;
     }
-    gameState.体力 -= 体力cost;
+    gameState.体力 = Math.max(0, gameState.体力 - 体力cost);
     item.status = 'done';
     var gainMsg = '';
     if (item.tagType === 'practice') {
@@ -4155,7 +4169,7 @@ function acceptNotice() {
         showModal('体力不足', '参加此通告需要 ' + n.体力 + ' 体力');
         return;
     }
-    gameState.体力 -= n.体力;
+    gameState.体力 = Math.max(0, gameState.体力 - n.体力);
     var moneyGain = n.reward + Math.floor(Math.random() * 5000);
     gameState.money += moneyGain;
     var fameGain = n.fame + Math.floor(Math.random() * 3);
@@ -4403,7 +4417,7 @@ function loveDate() {
     if (!gameState.dating) return;
     if (gameState.体力 < 20) { showModal('体力不足', '约会需要20体力'); return; }
     if (gameState.money < 10000) { showModal('金币不足', '约会需要10,000金币'); return; }
-    gameState.体力 -= 20;
+    gameState.体力 = Math.max(0, gameState.体力 - 20);
     gameState.money -= 10000;
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.npc好感度[gameState.dating]) gameState.npc好感度[gameState.dating] = 0;
@@ -5134,9 +5148,9 @@ function orderFood(name, price, 体力) {
         { text: '取消', action: closeModal },
         { text: '确认购买', action: function() {
             gameState.money -= price;
-            gameState.inventory.push({ name: name, effect: '体力', value: 体力 });
+            gameState.体力 = Math.min(gameState.max体力, gameState.体力 + 体力);
             closeModal();
-            showModal('下单成功', '已购买 ' + name + '\n已存入背包，可在「我的」页面使用');
+            showToast('+' + 体力 + ' 体力');
             render();
         }}
     ]);
@@ -5228,16 +5242,14 @@ function order快递服务(name, price, value, effect) {
         { text: '确认购买', action: function() {
             gameState.money -= price;
             if (effect === '生命') {
-                gameState.inventory.push({ name: name, effect: '生命', value: value });
+                gameState.life = Math.min(150, (gameState.life || 150) + value);
             } else if (effect === '名气') {
                 gameState.fame = Math.min(200, (gameState.fame || 30) + value);
-                gameState.inventory.push({ name: name, effect: '名气', value: value });
             } else if (effect === '危险') {
                 gameState.danger = Math.max(0, gameState.danger - value);
-                gameState.inventory.push({ name: name, effect: '安全', value: value });
             }
             closeModal();
-            showModal('下单成功', '已购买 ' + name + '\n已存入背包，可在「我的」页面使用');
+            showToast(effectDesc);
             render();
         }}
     ]);
@@ -5749,7 +5761,16 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
-        { ver: 'V1.4.3', date: '2026年6月13日', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆' },
+        { ver: 'V1.4.3', date: '2026年6月13日', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆
+
+Bug修复：
+• 修复性格/定位多选可超限的问题
+• 修复体力归零后回血偶尔失效
+• 修复体力切APP后出现负数
+• 修复训练付费重复扣款
+• 修复外卖快递道具效果不即时生效
+• 修复存档覆盖数据丢失
+• 修复退出保存提醒弹窗重复弹出' },
         { ver: 'V1.4.2', date: '2026年6月13日', title: 'My Idol V1.4.2', content: 'My Idol V1.4.2 热修复：\n\n• 修复会议系统崩溃问题\n• 修复退出登录无效的问题\n• 修复外卖/快递购买报错的问题\n• 修复KakaoTalk聊天框被底部导航遮挡\n• 所有APP子页面全屏显示，底部导航仅主页面显示\n• 优化系统稳定性' },
         { ver: 'V1.4.1', date: '2026年6月13日', title: 'My Idol V1.4.1', content: 'My Idol V1.4.1 更新内容：\n\n• 新增KakaoTalk聊天APP，可以和练习生NPC聊天\n• 新增6位AI练习生和经纪人\n• 新增自动存档功能，再也不怕忘记保存\n• 新增账号注册系统，保护你的游戏进度\n• 考核系统上线！5科考试+综合考核\n• 外卖扩充到18种美食\n• 快递升级22种商品6大分类\n• 会议系统修复+新增剧情' },
         { ver: 'V1.4', date: '2026年6月13日 00:05', title: 'My Idol V1.4', content: 'My Idol V1.4 更新内容：\n\n• 考核系统上线 - 5科3级考试+综合考试，通过后预备出道\n• 舞蹈考试 - 节奏点击小游戏\n• 声乐考试 - 音高记忆小游戏\n• 说唱考试 - 词语接龙\n• 表演考试 - 表情选择\n• 综艺考试 - 即兴回应\n• 综合考试 - 混合挑战，5科全三级后解锁\n• 会议系统修复+新增剧情\n• 外卖快递全面升级' },
@@ -6125,7 +6146,11 @@ function render设置Page(container) {
     `;
 }
 
+var _exitCooldown = false;
 function confirmExit() {
+    if (_exitCooldown) return;
+    _exitCooldown = true;
+    setTimeout(function() { _exitCooldown = false; }, 3000);
     showModal('退出游戏', '确定要退出吗？游戏会自动保存', [
         { text: '取消', action: closeModal },
         { text: '退出', action: function() {
@@ -6155,7 +6180,7 @@ function do训练() {
         return;
     }
     
-    gameState.体力 -= 20;
+    gameState.体力 = Math.max(0, gameState.体力 - 20);
     gameState.money -= 1000;
     
     const keys = Object.keys(gameState.stats);
@@ -6201,10 +6226,25 @@ function rest30sec() {
 }
 
 function rest50percent() {
-    const restore = Math.floor(gameState.max体力 * 0.5);
+    var restore = Math.floor(gameState.max体力 * 0.5);
     gameState.体力 = Math.min(gameState.max体力, gameState.体力 + restore);
-    showModal('休息完成', `+${restore} 体力已恢复！`);
+    showModal('休息完成', '+' + restore + ' 体力已恢复！');
     render();
+}
+
+// 体力归零自动恢复
+var _autoRestTimer = null;
+function _checkAutoRest() {
+    if (gameState.体力 <= 0 && !_autoRestTimer && currentPage !== 'welcome' && currentPage !== 'create') {
+        _autoRestTimer = setTimeout(function() {
+            if (gameState.体力 <= 0) {
+                gameState.体力 = Math.min(gameState.max体力, 30);
+                showToast('体力已恢复至30');
+                render();
+            }
+            _autoRestTimer = null;
+        }, 30000);
+    }
 }
 
 function update体力Display() {
@@ -6274,47 +6314,20 @@ function closeModal() {
 var current存档 = 0;
 
 function saveGame(slot) {
-    var saveData = {
-        player: gameState.player,
-        '体力': gameState['体力'],
-        'max体力': gameState['max体力'],
-        life: gameState.life,
-        credit: gameState.credit,
-        danger: gameState.danger,
-        money: gameState.money,
-        fans: gameState.fans,
-        teamMembers: gameState.teamMembers,
-        relationships: gameState.relationships,
-        emails: gameState.emails,
-        'bubble已发送': gameState['bubble已发送'],
-        dating: gameState.dating,
-        inventory: gameState.inventory,
-        stats: gameState.stats,
-        scheduleItems: gameState.scheduleItems,
-        meetings: gameState.meetings,
-        loanAmount: gameState.loanAmount,
-        loanInterest: gameState.loanInterest,
-        'npc好感度': gameState['npc好感度'],
-        influence: gameState.influence,
-        fame: gameState.fame,
-        lucky: gameState.lucky,
-        totalLikes: gameState.totalLikes,
-        insPosts: gameState.insPosts,
-        tiktokPosts: gameState.tiktokPosts,
-        insMessages: gameState.insMessages,
-        tiktokMessages: gameState.tiktokMessages,
-        certificates: gameState.certificates || { dance: [false,false,false], vocal: [false,false,false], rap: [false,false,false], acting: [false,false,false], variety: [false,false,false] },
-        examResult: gameState.examResult || { comprehensive: [false, false] },
-        preDebut: gameState.preDebut || false,
-        kakaoChats: gameState.kakaoChats || {},
-        kakaoFriends: gameState.kakaoFriends || [],
-        kakaoCurrentChat: gameState.kakaoCurrentChat || '',
-        kakaoTab: gameState.kakaoTab || 'chats'
-    };
+    var saveData = {};
+    var keys = Object.keys(gameState);
+    for (var si = 0; si < keys.length; si++) {
+        if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
+    }
     
     try {
-        localStorage.setItem('myidol_save_' + slot, JSON.stringify(saveData));
-        localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+        var jsonStr = JSON.stringify(saveData);
+        if (!jsonStr || jsonStr.length < 10) {
+            showModal('保存失败', '存档数据异常，无法保存');
+            return;
+        }
+        localStorage.setItem('myidol_save_' + slot, jsonStr);
+        localStorage.setItem(_getSaveKey(), jsonStr);
         showToast('保存成功');
     } catch (e) {
         showModal('保存失败', '无法保存游戏。');
@@ -7348,7 +7361,7 @@ function doEarnJob(jobId) {
         return;
     }
 
-    gameState.体力 -= job.体力;
+    gameState.体力 = Math.max(0, gameState.体力 - job.体力);
     gameState.money += job.money;
     if (job.fame > 0) gameState.fame = Math.min(200, (gameState.fame || 30) + job.fame);
     if (job.influence > 0) gameState.influence = Math.min(200, (gameState.influence || 50) + job.influence);
