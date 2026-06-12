@@ -1087,6 +1087,7 @@ let gameState = {
     insProfileView: null,
     influence: 50,
     fame: 30,
+    lucky: 50,
     totalLikes: 0,
     insPosts: [],
     tiktokPosts: [],
@@ -1282,6 +1283,7 @@ function startNewGame(slot = 0) {
         insProfileView: null,
         influence: 50,
         fame: 30,
+        lucky: 50,
         totalLikes: 0,
         insPosts: [],
         tiktokPosts: [],
@@ -1990,11 +1992,17 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     }
     
     var gain = Math.floor(Math.random() * 16) + 5;
+    var luckyBonus = 0;
+    if (Math.random() * 100 < (gameState.lucky || 50)) {
+        luckyBonus = Math.floor(Math.random() * 5) + 2;
+        gain += luckyBonus;
+    }
     gameState.stats[stat] = Math.min(100, gameState.stats[stat] + gain);
     gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1);
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
-    showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]);
+    var luckyMsg = luckyBonus > 0 ? '\n🌟 幸运加成 +' + luckyBonus + '!' : '';
+    showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat] + luckyMsg);
     render();
 }
 
@@ -2046,29 +2054,29 @@ function render我的Page(container) {
                 <div class="section-title">状态</div>
                 <div class="card">
                     <div class="stat-bar">
-                        <span class="stat-label">体力</span>
-                        <div class="stat-track"><div class="stat-fill 体力" style="width: ${(gameState.体力 / gameState.max体力) * 100}%;"></div></div>
-                        <span class="stat-value">${gameState.体力}</span>
-                    </div>
-                    <div class="stat-bar">
                         <span class="stat-label">生命</span>
                         <div class="stat-track"><div class="stat-fill life" style="width: ${gameState.life}%;"></div></div>
                         <span class="stat-value">${gameState.life}</span>
                     </div>
                     <div class="stat-bar">
-                        <span class="stat-label">信誉</span>
-                        <div class="stat-track"><div class="stat-fill credit" style="width: ${(gameState.credit / 150) * 100}%;"></div></div>
-                        <span class="stat-value">${gameState.credit}</span>
+                        <span class="stat-label">体力</span>
+                        <div class="stat-track"><div class="stat-fill 体力" style="width: ${(gameState.体力 / gameState.max体力) * 100}%;"></div></div>
+                        <span class="stat-value">${gameState.体力}</span>
                     </div>
                     <div class="stat-bar">
-                        <span class="stat-label" style="color: var(--color-danger);">危险</span>
-                        <div class="stat-track"><div class="stat-fill danger" style="width: ${Math.min(100, gameState.danger)}%;"></div></div>
-                        <span class="stat-value" style="color: ${gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)'};">${gameState.danger}</span>
+                        <span class="stat-label" style="color: #FFD700;">幸运</span>
+                        <div class="stat-track"><div class="stat-fill" style="width: ${(gameState.lucky || 50)}%;background:linear-gradient(90deg,#FFD700,#FFA500);"></div></div>
+                        <span class="stat-value" style="color: #DAA520;">${gameState.lucky || 50}</span>
                     </div>
                 </div>
                 
                 <div class="section-title">声望</div>
                 <div class="card">
+                    <div class="stat-bar">
+                        <span class="stat-label" style="color: var(--color-danger);">危险</span>
+                        <div class="stat-track"><div class="stat-fill danger" style="width: ${Math.min(100, gameState.danger)}%;"></div></div>
+                        <span class="stat-value" style="color: ${gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)'};">${gameState.danger}</span>
+                    </div>
                     <div class="stat-bar">
                         <span class="stat-label">影响力</span>
                         <div class="stat-track"><div class="stat-fill 体力" style="width: ${Math.min(100, (gameState.influence || 50) / 2)}%;"></div></div>
@@ -2078,11 +2086,6 @@ function render我的Page(container) {
                         <span class="stat-label">名气</span>
                         <div class="stat-track"><div class="stat-fill credit" style="width: ${Math.min(100, (gameState.fame || 30) / 2)}%;"></div></div>
                         <span class="stat-value">${gameState.fame || 30}</span>
-                    </div>
-                    <div class="stat-bar">
-                        <span class="stat-label" style="color: var(--color-danger);">危险</span>
-                        <div class="stat-track"><div class="stat-fill danger" style="width: ${Math.min(100, gameState.danger)}%;"></div></div>
-                        <span class="stat-value" style="color: ${gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)'};">${gameState.danger}</span>
                     </div>
                 </div>
                 
@@ -2498,34 +2501,39 @@ function skipSchedule(index) {
 }
 
 function render会议Page(container) {
-    if (!gameState.meetings || gameState.meetings.length === 0) {
-        initMeetings();
+    try {
+        if (!gameState.meetings || gameState.meetings.length === 0) {
+            initMeetings();
+        }
+        var unread = 0;
+        for (var ui = 0; ui < gameState.meetings.length; ui++) {
+            if (!gameState.meetings[ui].read) unread++;
+        }
+        var meetingsHtml = '';
+        for (var mi = 0; mi < gameState.meetings.length; mi++) {
+            var mt = gameState.meetings[mi];
+            meetingsHtml += '<div class="card" onclick="readMeeting(' + mi + ')">'
+                + '<div style="display:flex;align-items:flex-start;">'
+                + '<div class="meeting-dot ' + (mt.read ? 'read' : '') + '" style="margin-top:5px;"></div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-weight:600;margin-bottom:4px;">' + mt.title + '</div>'
+                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:4px;">' + mt.preview + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);">' + mt.time + '</div>'
+                + '</div></div></div>';
+        }
+        container.innerHTML = '<div class="page active">'
+            + '<div class="page-header">'
+            + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
+            + '<div class="page-title">会议 ' + (unread > 0 ? '(' + unread + ')' : '') + '</div>'
+            + '<div style="width:32px;"></div>'
+            + '</div>'
+            + '<div class="page-content">'
+            + meetingsHtml
+            + '</div></div>';
+    } catch(e) {
+        console.error('render会议Page error:', e);
+        container.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:var(--color-text-light);">会议页面加载出错</div><button class="btn btn-primary" onclick="goToPage(\'home\')" style="margin-top:16px;">返回首页</button></div></div>';
     }
-    const unread = gameState.meetings.filter(m => !m.read).length;
-    
-    container.innerHTML = `
-        <div class="page active">
-            <div class="page-header">
-                <div class="back-btn" onclick="goToPage('home')">‹ 首页</div>
-                <div class="page-title">会议 ${unread > 0 ? '(' + unread + ')' : ''}</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="page-content">
-                ${gameState.meetings.map((m, i) => `
-                    <div class="card" onclick="readMeeting(${i})">
-                        <div style="display: flex; align-items: flex-start;">
-                            <div class="meeting-dot ${m.read ? 'read' : ''}" style="margin-top: 5px;"></div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; margin-bottom: 4px;">${m.title}</div>
-                                <div style="font-size: 13px; color: var(--color-text-light); margin-bottom: 4px;">${m.preview}</div>
-                                <div style="font-size: 11px; color: var(--color-text-light);">${m.time}</div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
 }
 
 function initMeetings() {
@@ -2539,13 +2547,20 @@ function initMeetings() {
 }
 
 function readMeeting(index) {
-    var m = gameState.meetings[index];
-    m.read = true;
-    showModal(m.title, m.content, [
-        { text: '关闭', action: closeModal },
-        { text: '参加会议', action: function() { closeModal(); start会议Dialog(index); } }
-    ]);
-    render();
+    try {
+        var m = gameState.meetings[index];
+        if (!m) { goToPage('meeting'); return; }
+        m.read = true;
+        var meetIdx = index;
+        showModal(m.title, m.content, [
+            { text: '关闭', action: closeModal },
+            { text: '参加会议', action: function() { closeModal(); start会议Dialog(meetIdx); } }
+        ]);
+        render();
+    } catch(e) {
+        console.error('readMeeting error:', e);
+        goToPage('meeting');
+    }
 }
 
 function renderMailPage(container) {
@@ -2826,17 +2841,25 @@ function showInterest(name) {
 }
 
 function getAvailableNPCs() {
-    const npcs = [];
-    Object.values(COMPANIES).forEach(company => {
-        Object.values(company.groups).forEach(group => {
-            group.members.forEach(member => {
-                if (member.name !== gameState.player.name) {
-                    npcs.push(member.name);
+    var npcs = [];
+    var companyKeys = Object.keys(COMPANIES);
+    for (var ci = 0; ci < companyKeys.length; ci++) {
+        var company = COMPANIES[companyKeys[ci]];
+        var groupKeys = Object.keys(company.groups);
+        for (var gi = 0; gi < groupKeys.length; gi++) {
+            var group = company.groups[groupKeys[gi]];
+            for (var mi = 0; mi < group.members.length; mi++) {
+                if (group.members[mi].name !== gameState.player.name) {
+                    npcs.push(group.members[mi].name);
                 }
-            });
-        });
-    });
-    return [...new Set(npcs)];
+            }
+        }
+    }
+    var unique = [];
+    for (var ui = 0; ui < npcs.length; ui++) {
+        if (unique.indexOf(npcs[ui]) === -1) unique.push(npcs[ui]);
+    }
+    return unique;
 }
 
 function breakup() {
@@ -2949,15 +2972,22 @@ function renderWeversePage(container) {
         var p = weverseMultilangPosts[i];
         var langTag = p.lang === 'ko' ? '韩' : p.lang === 'ja' ? '日' : 'EN';
         var langColor = p.lang === 'ko' ? '#FF8FA3' : p.lang === 'ja' ? '#7EC8E3' : '#FFD700';
+        var isFollowed = insFollowedUsers && insFollowedUsers[p.user];
+        var followText = isFollowed ? '已关注' : '关注';
         postsHtml += '<div class="card bubble-msg-anim" style="animation-delay:' + (i * 0.1) + 's;">'
             + '<div style="display:flex;align-items:center;margin-bottom:10px;">'
             + '<div class="avatar-sm">' + p.avatar + '</div>'
             + '<div style="margin-left:8px;flex:1;">'
             + '<div style="font-weight:600;">' + p.user + ' <span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span></div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div>'
-            + '</div></div>'
+            + '</div>'
+            + '<button class="btn btn-sm ' + (isFollowed ? 'btn-secondary' : 'btn-primary') + '" onclick="toggleWeverseFollow(\'' + p.user + '\')" style="font-size:10px;padding:3px 8px;">' + followText + '</button>'
+            + '</div>'
             + '<p style="font-size:14px;" id="weverseMsg' + i + '">' + p.orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + i + ',\'' + p.zh.replace(/'/g, "\\'") + '\')">翻译</span></p>'
-            + '<div style="margin-top:10px;color:var(--color-text-light);font-size:13px;">' + p.likes + ' 点赞 | ' + p.comments + ' 评论</div>'
+            + '<div style="margin-top:10px;display:flex;gap:12px;align-items:center;">'
+            + '<span style="color:var(--color-text-light);font-size:13px;cursor:pointer;" onclick="likeWeversePost(' + i + ')">❤️ ' + p.likes + '</span>'
+            + '<span style="color:var(--color-text-light);font-size:13px;cursor:pointer;" onclick="commentWeversePost(' + i + ')">💬 ' + p.comments + '</span>'
+            + '</div>'
             + '</div>';
     }
     
@@ -2971,6 +3001,52 @@ function renderWeversePage(container) {
         + '<button class="btn btn-primary btn-lg" onclick="postToWeverse()" style="margin-bottom:16px;">+ 发布动态</button>'
         + postsHtml
         + '</div></div>';
+}
+
+function toggleWeverseFollow(user) {
+    if (!insFollowedUsers) insFollowedUsers = {};
+    if (insFollowedUsers[user]) {
+        insFollowedUsers[user] = false;
+        gameState.fans = Math.max(0, gameState.fans - 5);
+        showModal('取消关注', '已取消关注 ' + user);
+    } else {
+        insFollowedUsers[user] = true;
+        gameState.fans += 10;
+        if (!gameState.npc好感度) gameState.npc好感度 = {};
+        if (!gameState.npc好感度[user]) gameState.npc好感度[user] = 30;
+        gameState.npc好感度[user] = Math.min(100, (gameState.npc好感度[user] || 30) + 10);
+        showModal('关注成功', '已关注 ' + user + '\n+10 粉丝');
+    }
+    render();
+}
+
+function likeWeversePost(idx) {
+    weverseMultilangPosts[idx].likes += 1;
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var user = weverseMultilangPosts[idx].user;
+    if (!gameState.npc好感度[user]) gameState.npc好感度[user] = 30;
+    gameState.npc好感度[user] = Math.min(100, gameState.npc好感度[user] + 2);
+    render();
+}
+
+function commentWeversePost(idx) {
+    var user = weverseMultilangPosts[idx].user;
+    showModal('评论 ' + user + ' 的动态', '<input type="text" id="weverseComment" placeholder="写评论..." style="margin-bottom:0;">', [
+        { text: '取消', action: closeModal },
+        { text: '发送', action: function() {
+            var t = document.getElementById('weverseComment');
+            if (t && t.value) {
+                weverseMultilangPosts[idx].comments += 1;
+                gameState.fans += 3;
+                if (!gameState.npc好感度) gameState.npc好感度 = {};
+                if (!gameState.npc好感度[user]) gameState.npc好感度[user] = 30;
+                gameState.npc好感度[user] = Math.min(100, gameState.npc好感度[user] + 3);
+                closeModal();
+                showModal('已评论', '评论已发送！');
+                render();
+            }
+        }}
+    ]);
 }
 
 function translateWeverseMsg(idx, zhText) {
@@ -3003,6 +3079,72 @@ function postToWeverse() {
 // ==================== INS & TIKTOK ====================
 var insTab = 'home';
 var insMsgChatUser = '';
+var insFollowedUsers = {};
+
+function getSmartReply(userName, userMsg, platform) {
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var 好感 = gameState.npc好感度[userName] || 30;
+    var dailyReplies = ['今天过得怎么样？', '刚吃完午饭～', '天气真好啊！', '要不要一起练习？', '休息一下吧', '今天好累啊', '刚看完一部剧，超好看！'];
+    var trainReplies = ['舞蹈练习好辛苦', '今天声乐课有进步！', '说唱flow还需要练', '编舞好难记...', '体能训练太累了', '今天舞蹈老师夸我了！'];
+    var idolReplies = ['下周有音乐节目打歌', '新专辑概念照出炉了', '粉丝见面会好开心', '今天录了综艺，很搞笑', '演唱会准备中', 'MV拍摄终于结束了'];
+    var fanReplies = ['今天又涨粉了！', '粉丝送的礼物好感动', '看到粉丝的应援视频了', '签售会太幸福了', '粉丝做的项目好用心'];
+    var encourageReplies = ['加油！我们一起努力', '你是最棒的！', '相信自己，没问题', '坚持就是胜利', '明天会更好！', '你一定可以的'];
+    var coldReplies = ['嗯', '哦', '好吧', '知道了', '还行吧', '随便'];
+    
+    var allReplies;
+    if (好感 < 30) {
+        allReplies = coldReplies.concat(dailyReplies.slice(0, 2));
+    } else if (好感 < 60) {
+        allReplies = dailyReplies.concat(trainReplies).concat(encourageReplies);
+    } else {
+        allReplies = dailyReplies.concat(trainReplies).concat(idolReplies).concat(fanReplies).concat(encourageReplies);
+    }
+    
+    var msgLower = (userMsg || '').toLowerCase();
+    if (msgLower.indexOf('训练') > -1 || msgLower.indexOf('练习') > -1) {
+        allReplies = trainReplies.concat(encourageReplies);
+    } else if (msgLower.indexOf('粉丝') > -1 || msgLower.indexOf('应援') > -1) {
+        allReplies = fanReplies.concat(encourageReplies);
+    } else if (msgLower.indexOf('加油') > -1 || msgLower.indexOf('努力') > -1) {
+        allReplies = encourageReplies.concat(idolReplies);
+    } else if (msgLower.indexOf('演出') > -1 || msgLower.indexOf('舞台') > -1 || msgLower.indexOf('专辑') > -1) {
+        allReplies = idolReplies.concat(encourageReplies);
+    }
+    
+    var reply = allReplies[Math.floor(Math.random() * allReplies.length)];
+    if (好感 >= 80 && Math.random() > 0.5) {
+        reply = '❤️ ' + reply;
+    }
+    return reply;
+}
+
+function translateContent(text, idx, prefix) {
+    var el = document.getElementById(prefix + idx);
+    if (!el) return;
+    var simpleDict = {
+        'Practice makes perfect!': '熟能生巧！',
+        'Behind the scenes of our new MV shoot!': '新MV拍摄幕后！',
+        'Late night practice session. No pain no gain!': '深夜练习。一分耕耘一分收获！',
+        'Beautiful sunset after rehearsal today.': '今天排练后的美丽日落。',
+        'New choreography practice! #kpop #fyp': '新编舞练习！#kpop #fyp',
+        'Vocal cover of our new song! #vocal #cover': '新歌声乐翻唱！#声乐 #翻唱',
+        'Dance challenge with members! #challenge': '和成员们的舞蹈挑战！#挑战',
+        'Backstage moments before the show #bts': '演出前幕后花絮 #幕后',
+        'Official MV teaser! #comingsoon': '官方MV预告！#即将发布',
+        'Rap verse practice #hiphop #yg': 'Rap练习 #嘻哈 #yg',
+        'Great day!': '美好的一天！',
+        'Backstage': '幕后',
+        'Practice': '练习'
+    };
+    if (el.getAttribute('data-translated') === '1') {
+        el.innerHTML = text + ' <span class="translate-btn" onclick="translateContent(\'' + text.replace(/'/g, "\\'") + '\',' + idx + ',\'' + prefix + '\')">翻译</span>';
+        el.setAttribute('data-translated', '0');
+    } else {
+        var translated = simpleDict[text] || '[翻译] ' + text;
+        el.innerHTML = translated + ' <span class="translate-btn" onclick="translateContent(\'' + text.replace(/'/g, "\\'") + '\',' + idx + ',\'' + prefix + '\')">原文</span>';
+        el.setAttribute('data-translated', '1');
+    }
+}
 
 function renderInsPage(container) {
     if (!gameState.insPosts) gameState.insPosts = [];
@@ -3020,7 +3162,8 @@ function renderInsPage(container) {
         tabContent = '<div style="flex:1;overflow-y:auto;"><div style="display:flex;justify-content:flex-end;padding:8px 16px;"><button class="btn btn-sm btn-primary" onclick="postToIns()">+ 发动态</button></div>';
         for (var i = 0; i < allPosts.length; i++) {
             var p = allPosts[i];
-            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + p.user + '\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;">' + p.content + '</p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
+            var contentId = 'insPost' + i;
+            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + p.user + '\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '">' + p.content + ' <span class="translate-btn" onclick="translateContent(\'' + p.content.replace(/'/g, "\\'") + '\',' + i + ',\'insPost\')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
         }
         tabContent += '</div>';
     } else if (insTab === 'messages') {
@@ -3088,11 +3231,14 @@ function sendInsChat() {
     var msg = input.value.trim();
     input.value = '';
     if (!gameState.insMessages) gameState.insMessages = [];
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    if (!gameState.npc好感度[insMsgChatUser]) gameState.npc好感度[insMsgChatUser] = 30;
     gameState.insMessages.push({ with: insMsgChatUser, fromMe: true, text: msg });
     render();
     setTimeout(function() {
-        var replies = ['好的！', '收到~', '哈哈', '加油！', '下次一起练习吧', '今天辛苦了', '晚安~', '真的吗？', '太棒了！'];
-        gameState.insMessages.push({ with: insMsgChatUser, fromMe: false, text: replies[Math.floor(Math.random() * replies.length)] });
+        var reply = getSmartReply(insMsgChatUser, msg, 'ins');
+        gameState.npc好感度[insMsgChatUser] = Math.min(100, (gameState.npc好感度[insMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
+        gameState.insMessages.push({ with: insMsgChatUser, fromMe: false, text: reply });
         render();
     }, 1000 + Math.random() * 2000);
 }
@@ -3146,7 +3292,7 @@ function renderTiktokPage(container) {
         tabContent = '<div style="flex:1;overflow-y:auto;"><div style="display:flex;justify-content:flex-end;padding:8px 16px;"><button class="btn btn-sm btn-primary" onclick="postToTiktok()">+ 上传视频</button></div>';
         for (var vi = 0; vi < videos.length; vi++) {
             var v = videos[vi];
-            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + v.user + '\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" onclick="simulateVideoPlay(this,' + vi + ')"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;">' + v.desc + '</p></div>';
+            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + v.user + '\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" onclick="simulateVideoPlay(this,' + vi + ')"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(\'' + v.desc.replace(/'/g, "\\'") + '\',' + vi + ',\'ttDesc\')">翻译</span></p></div>';
         }
         tabContent += '</div>';
     } else if (tiktokTab === 'messages') {
@@ -3213,11 +3359,14 @@ function sendTiktokChat() {
     var msg = input.value.trim();
     input.value = '';
     if (!gameState.tiktokMessages) gameState.tiktokMessages = [];
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    if (!gameState.npc好感度[tiktokMsgChatUser]) gameState.npc好感度[tiktokMsgChatUser] = 30;
     gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: true, text: msg });
     render();
     setTimeout(function() {
-        var replies = ['太棒了！', '哈哈', '下次一起拍！', '加油~', '好好看', '舞蹈好厉害'];
-        gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: false, text: replies[Math.floor(Math.random() * replies.length)] });
+        var reply = getSmartReply(tiktokMsgChatUser, msg, 'tiktok');
+        gameState.npc好感度[tiktokMsgChatUser] = Math.min(100, (gameState.npc好感度[tiktokMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
+        gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: false, text: reply });
         render();
     }, 1000 + Math.random() * 2000);
 }
@@ -3237,7 +3386,7 @@ function simulateVideoPlay(el, index) {
 function showTiktokComment() {
     showModal('评论', '<input type="text" id="tiktokComment" placeholder="写评论..." style="margin-bottom:0;">', [
         { text: '取消', action: closeModal },
-        { text: '发送', action: () => { const t = document.getElementById('tiktokComment'); if (t && t.value) { gameState.fans += 2; closeModal(); } } }
+        { text: '发送', action: function() { var t = document.getElementById('tiktokComment'); if (t && t.value) { gameState.fans += 2; closeModal(); } } }
     ]);
 }
 
@@ -3261,10 +3410,10 @@ function postToTiktok() {
 }
 
 function selectTiktokVideo() {
-    const input = document.createElement('input');
+    var input = document.createElement('input');
     input.type = 'file';
     input.accept = 'video/*';
-    input.onchange = (e) => {
+    input.onchange = function(e) {
         showModal('已选择', '视频已选择');
     };
     input.click();
@@ -3707,13 +3856,13 @@ function toggleLiveSpeech() {
     }
 }
 
-let mediaStream = null;
-let isLive = false;
-let liveDanmakuTimer = null;
-let liveViewerTimer = null;
-let speechRecognition = null;
+var mediaStream = null;
+var isLive = false;
+var liveDanmakuTimer = null;
+var liveViewerTimer = null;
+var speechRecognition = null;
 
-const danmakuMessages = [
+var danmakuMessages = [
     '加油！', '好棒！', '爱你！', '太厉害了', '比心', '啊啊啊好帅',
     '今天状态很好', '唱歌好好听', '舞蹈绝了', '加油加油', '永远支持你',
     '好可爱', '笑死我了', '再来一个', '好想见你', '今天穿得好好看'
@@ -3840,7 +3989,7 @@ function startLiveSpeech() {
     speechRecognition = new SR();
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
-    speechRecognition.lang = 'ko-KR';
+    speechRecognition.lang = 'zh-CN';
     speechRecognition.onresult = function(event) {
         try {
             var transcript = '';
@@ -3883,7 +4032,7 @@ function toggleSpeechRecognition() {
     speechRecognition = new SpeechRecognition();
     speechRecognition.continuous = true;
     speechRecognition.interimResults = true;
-    speechRecognition.lang = 'ko-KR';
+    speechRecognition.lang = 'zh-CN';
     
     speechRecognition.onresult = function(event) {
         var transcript = '';
@@ -4143,56 +4292,82 @@ function choose会议Option(optionIndex) {
 
 // ==================== INS PROFILE PAGE ====================
 function renderInsProfilePage(container) {
-    const profileUser = gameState.insProfileView || gameState.player.name;
-    const posts = [
+    var profileUser = gameState.insProfileView || gameState.player.name;
+    var posts = [
         { img: 'https://picsum.photos/300/300?random=10', likes: 234, caption: 'Great day!' },
         { img: 'https://picsum.photos/300/300?random=11', likes: 456, caption: 'Backstage' },
         { img: 'https://picsum.photos/300/300?random=12', likes: 189, caption: 'Practice' }
     ];
-    const isSelf = profileUser === gameState.player.name;
+    var isSelf = profileUser === gameState.player.name;
+    var isFollowed = insFollowedUsers && insFollowedUsers[profileUser];
+    var followBtnText = isSelf ? '编辑资料' : (isFollowed ? '已关注' : '关注');
+    var followBtnClass = isSelf || isFollowed ? 'btn btn-sm btn-secondary' : 'btn btn-sm btn-primary';
+    var fansCount = Math.floor(Math.random() * 5000) + 1000;
+    if (isFollowed) fansCount += 1;
     
-    container.innerHTML = `
-        <div class="page active">
-            <div class="page-header">
-                <div class="back-btn" onclick="goToPage('ins')">‹ INS</div>
-                <div class="page-title">${profileUser}</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="page-content">
-                <div class="card" style="text-align: center; padding: 24px;">
-                    <div class="avatar" style="width: 72px; height: 72px; font-size: 28px; margin: 0 auto 12px;">${profileUser.charAt(0).toUpperCase()}</div>
-                    <div style="font-size: 18px; font-weight: 700;">${profileUser}</div>
-                    <div style="display: flex; justify-content: space-around; margin-top: 16px;">
-                        <div><div style="font-weight: 600;">${posts.length}</div><div style="font-size: 11px; color: var(--color-text-light);">动态</div></div>
-                        <div><div style="font-weight: 600;">${(Math.floor(Math.random() * 5000) + 1000).toLocaleString()}</div><div style="font-size: 11px; color: var(--color-text-light);">粉丝</div></div>
-                        <div><div style="font-weight: 600;">${Math.floor(Math.random() * 200) + 50}</div><div style="font-size: 11px; color: var(--color-text-light);">关注</div></div>
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-top: 16px; justify-content: center;">
-                        <button class="btn btn-sm btn-primary" onclick="toggleInsFollow()">${isSelf ? '编辑资料' : '关注'}</button>
-                        <button class="btn btn-sm btn-secondary" onclick="goToPage('ins');showInsDM('${profileUser}')">私信</button>
-                    </div>
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;">
-                    ${posts.map(p => `
-                        <div style="aspect-ratio: 1; background: var(--color-border); border-radius: 4px; overflow: hidden; cursor: pointer;" onclick="showModal('动态','${p.caption} - ${p.likes} 点赞')">
-                            <img src="${p.img}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.style.display='none'">
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        </div>
-    `;
+    var postsGridHtml = '';
+    for (var pi = 0; pi < posts.length; pi++) {
+        var pp = posts[pi];
+        postsGridHtml += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;cursor:pointer;" onclick="showModal(\'动态\',\'' + pp.caption + ' - ' + pp.likes + ' 点赞\')"><img src="' + pp.img + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"></div>';
+    }
+    
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'ins\')">‹ INS</div>'
+        + '<div class="page-title">' + profileUser + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;padding:24px;">'
+        + '<div class="avatar" style="width:72px;height:72px;font-size:28px;margin:0 auto 12px;">' + profileUser.charAt(0).toUpperCase() + '</div>'
+        + '<div style="font-size:18px;font-weight:700;">' + profileUser + '</div>'
+        + '<div style="display:flex;justify-content:space-around;margin-top:16px;">'
+        + '<div><div style="font-weight:600;">' + posts.length + '</div><div style="font-size:11px;color:var(--color-text-light);">动态</div></div>'
+        + '<div><div style="font-weight:600;">' + fansCount.toLocaleString() + '</div><div style="font-size:11px;color:var(--color-text-light);">粉丝</div></div>'
+        + '<div><div style="font-weight:600;">' + (Math.floor(Math.random() * 200) + 50) + '</div><div style="font-size:11px;color:var(--color-text-light);">关注</div></div>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;margin-top:16px;justify-content:center;">'
+        + '<button class="' + followBtnClass + '" onclick="toggleInsFollow()">' + followBtnText + '</button>'
+        + '<button class="btn btn-sm btn-secondary" onclick="startInsDMChat(\'' + profileUser.replace(/'/g, "\\'") + '\')">私信</button>'
+        + '</div>'
+        + '</div>'
+        + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">'
+        + postsGridHtml
+        + '</div>'
+        + '</div></div>';
 }
 
 function toggleInsFollow() {
-    showModal('操作成功', gameState.insProfileView === gameState.player.name ? '资料已更新' : '已关注 ' + gameState.insProfileView);
+    var profileUser = gameState.insProfileView || gameState.player.name;
+    if (profileUser === gameState.player.name) {
+        showModal('操作成功', '资料已更新');
+        return;
+    }
+    if (!insFollowedUsers) insFollowedUsers = {};
+    if (insFollowedUsers[profileUser]) {
+        insFollowedUsers[profileUser] = false;
+        gameState.fans = Math.max(0, gameState.fans - 5);
+        showModal('取消关注', '已取消关注 ' + profileUser);
+    } else {
+        insFollowedUsers[profileUser] = true;
+        gameState.fans += 10;
+        if (!gameState.npc好感度) gameState.npc好感度 = {};
+        if (!gameState.npc好感度[profileUser]) gameState.npc好感度[profileUser] = 30;
+        gameState.npc好感度[profileUser] = Math.min(100, (gameState.npc好感度[profileUser] || 30) + 10);
+        showModal('关注成功', '已关注 ' + profileUser + '\n+10 粉丝\n好感度 +10');
+    }
+    render();
+}
+
+function startInsDMChat(user) {
+    insTab = 'messages';
+    insMsgChatUser = user;
+    if (!gameState.insMessages) gameState.insMessages = [];
+    render();
 }
 
 function showInsDM(user) {
-    showModal('私信 ' + user, '<input type="text" id="dmText" placeholder="输入消息..." style="margin-bottom:0;">', [
-        { text: '取消', action: closeModal },
-        { text: '发送', action: function() { var t = document.getElementById('dmText'); if (t && t.value) { showModal('已发送', '消息已发送给 ' + user); } } }
-    ]);
+    startInsDMChat(user);
 }
 
 // ==================== SETTINGS PAGE ====================
@@ -4223,7 +4398,7 @@ function render设置Page(container) {
 function confirmExit() {
     showModal('退出游戏', '确定要退出吗？请先保存游戏', [
         { text: '取消', action: closeModal },
-        { text: '退出', action: () => {
+        { text: '退出', action: function() {
             currentPage = 'welcome';
             document.getElementById('statusBar').style.display = 'none';
             document.getElementById('restButtons').style.display = 'none';
@@ -4326,7 +4501,7 @@ function closeModal() {
 }
 
 // ==================== SAVE/LOAD ====================
-let current存档 = 0;
+var current存档 = 0;
 
 function saveGame(slot) {
     var saveData = {
@@ -4352,6 +4527,7 @@ function saveGame(slot) {
         'npc好感度': gameState['npc好感度'],
         influence: gameState.influence,
         fame: gameState.fame,
+        lucky: gameState.lucky,
         totalLikes: gameState.totalLikes,
         insPosts: gameState.insPosts,
         tiktokPosts: gameState.tiktokPosts,
