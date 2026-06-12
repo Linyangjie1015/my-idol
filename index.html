@@ -1966,6 +1966,11 @@ function render训练Page(container) {
                         </div>
                     </div>
                 `).join('')}
+                <div class="section-title" style="margin-top: 16px;">体力恢复</div>
+                <div class="card" id="restBtnCard" onclick="startRestRecovery()" style="text-align:center;cursor:pointer;">
+                    <div style="font-weight:600;">Rest 30s</div>
+                    <div style="font-size:12px;color:var(--color-text-light);">30秒不可操作，体力恢复至200</div>
+                </div>
             </div>
         </div>
     `;
@@ -1998,6 +2003,38 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]);
     render();
+}
+
+function startRestRecovery() {
+    if (isResting) return;
+    if (gameState.体力 >= gameState.max体力) {
+        showModal('体力已满', '当前体力已满，无需休息');
+        return;
+    }
+    isResting = true;
+    var remaining = 30;
+    var restCard = document.getElementById('restBtnCard');
+    if (restCard) {
+        restCard.innerHTML = '<div style="font-weight:600;color:var(--color-primary);">恢复中...</div><div style="font-size:24px;font-weight:700;color:var(--color-primary);">' + remaining + 's</div><div style="font-size:12px;color:var(--color-text-light);">请勿操作</div>';
+        restCard.onclick = null;
+        restCard.style.cursor = 'default';
+    }
+    restCountdown = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+            clearInterval(restCountdown);
+            restCountdown = null;
+            isResting = false;
+            gameState.体力 = gameState.max体力;
+            render();
+            showModal('恢复完成', '体力已恢复至 ' + gameState.max体力);
+            return;
+        }
+        var card = document.getElementById('restBtnCard');
+        if (card) {
+            card.innerHTML = '<div style="font-weight:600;color:var(--color-primary);">恢复中...</div><div style="font-size:24px;font-weight:700;color:var(--color-primary);">' + remaining + 's</div><div style="font-size:12px;color:var(--color-text-light);">请勿操作</div>';
+        }
+    }, 1000);
 }
 
 // ==================== EXAM PAGE ====================
@@ -2152,6 +2189,10 @@ function useItem(index) {
 
 // ==================== NAVIGATION ====================
 function goToPage(page) {
+    if (isResting) {
+        showModal('请等待', '体力恢复中，请等待');
+        return;
+    }
     _clearPageTimers();
     try {
         currentPage = page;
@@ -3018,7 +3059,11 @@ function postToWeverse() {
 }
 
 // ==================== INS & TIKTOK ====================
+var isResting = false;
+var restTimer = null;
+var restCountdown = null;
 var insTab = 'home';
+var insSelectedImage = '';
 var insMsgChatUser = '';
 var insFollowedUsers = {};
 
@@ -3185,17 +3230,18 @@ function sendInsChat() {
 }
 
 function postToIns() {
-    showModal('发布动态', '<textarea id="ins发布" placeholder="配文..." style="height: 60px; margin-bottom: 8px;"></textarea><div style="padding: 20px; background: var(--color-border); border-radius: 8px; text-align: center;">+ 添加图片</div>', [
+    showModal('发布动态', '<textarea id="ins发布" placeholder="配文..." style="height: 60px; margin-bottom: 8px;"></textarea><div id="insImagePreview" style="padding: 20px; background: var(--color-border); border-radius: 8px; text-align: center; cursor: pointer;" onclick="selectInsImage()">+ 添加图片</div>', [
         { text: '取消', action: closeModal },
         { text: '发布', action: function() {
             var ta = document.getElementById('ins发布');
             if (ta && ta.value) {
                 var likes = Math.floor(Math.random() * 200) + 50;
                 if (!gameState.insPosts) gameState.insPosts = [];
-                gameState.insPosts.unshift({ user: gameState.player.name, avatar: gameState.player.avatar, time: '刚刚', content: ta.value, img: '', likes: likes });
+                gameState.insPosts.unshift({ user: gameState.player.name, avatar: gameState.player.avatar, time: '刚刚', content: ta.value, img: insSelectedImage, likes: likes });
                 gameState.fans += Math.floor(Math.random() * 25) + 5;
                 gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 3) + 1);
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
+                insSelectedImage = '';
             }
             closeModal();
             render();
@@ -3208,12 +3254,23 @@ function selectInsImage() {
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = function(e) {
-        showModal('已选择', '图片已选择');
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            insSelectedImage = ev.target.result;
+            var preview = document.getElementById('insImagePreview');
+            if (preview) {
+                preview.innerHTML = '<img src="' + insSelectedImage + '" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;">';
+            }
+        };
+        reader.readAsDataURL(file);
     };
     input.click();
 }
 
 var tiktokTab = 'home';
+var tiktokSelectedVideo = '';
 var tiktokMsgChatUser = '';
 
 function renderTiktokPage(container) {
@@ -3234,6 +3291,23 @@ function renderTiktokPage(container) {
         for (var vi = 0; vi < videos.length; vi++) {
             var v = videos[vi];
             tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + v.user + '\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" onclick="simulateVideoPlay(this,' + vi + ')"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(\'' + v.desc.replace(/'/g, "\\'") + '\',' + vi + ',\'ttDesc\')">翻译</span></p></div>';
+        }
+        for (var upi = 0; upi < gameState.tiktokPosts.length; upi++) {
+            var up = gameState.tiktokPosts[upi];
+            var upAvatar = (gameState.player && gameState.player.avatar) ? gameState.player.avatar : 'U';
+            var upName = (gameState.player && gameState.player.name) ? gameState.player.name : '我';
+            tabContent += '<div class="card" style="margin-bottom:16px;">';
+            tabContent += '<div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm">' + upAvatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + upName + '</div><div style="font-size:11px;color:var(--color-text-light);">刚刚发布</div></div></div>';
+            if (up.video) {
+                tabContent += '<video src="' + up.video + '" controls style="width:100%;border-radius:8px;" preload="metadata"></video>';
+            } else {
+                tabContent += '<div style="background:linear-gradient(135deg,var(--color-secondary),var(--color-primary));height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;"><div style="color:white;font-size:14px;font-weight:600;text-align:center;padding:0 16px;">' + (up.desc || '') + '</div></div>';
+            }
+            if (up.desc && up.video) {
+                tabContent += '<p style="font-size:14px;margin-top:10px;margin-bottom:0;">' + up.desc + '</p>';
+            }
+            tabContent += '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span style="font-size:12px;color:var(--color-text-light);">' + up.likes + '</span></div>';
+            tabContent += '</div>';
         }
         tabContent += '</div>';
     } else if (tiktokTab === 'messages') {
@@ -3332,17 +3406,18 @@ function showTiktokComment() {
 }
 
 function postToTiktok() {
-    showModal('上传视频', '<div style="padding: 40px; background: var(--color-border); border-radius: 8px; text-align: center;">+ 选择视频</div><input type="text" id="tiktokDesc" placeholder="描述..." style="margin-top: 12px;" /><input type="text" id="tiktokTag" placeholder="#话题标签" style="margin-top: 8px;" />', [
+    showModal('上传视频', '<div id="tiktokVideoPreview" style="padding: 40px; background: var(--color-border); border-radius: 8px; text-align: center; cursor: pointer;" onclick="selectTiktokVideo()">+ 选择视频</div><input type="text" id="tiktokDesc" placeholder="描述..." style="margin-top: 12px;" /><input type="text" id="tiktokTag" placeholder="#话题标签" style="margin-top: 8px;" />', [
         { text: '取消', action: closeModal },
         { text: '上传', action: function() {
             var descEl = document.getElementById('tiktokDesc');
             if (descEl && descEl.value) {
                 var likes = Math.floor(Math.random() * 500) + 100;
                 if (!gameState.tiktokPosts) gameState.tiktokPosts = [];
-                gameState.tiktokPosts.unshift({ desc: descEl.value, likes: likes });
+                gameState.tiktokPosts.unshift({ desc: descEl.value, video: tiktokSelectedVideo, likes: likes });
                 gameState.fans += Math.floor(Math.random() * 40) + 10;
                 gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 4) + 2);
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
+                tiktokSelectedVideo = '';
             }
             closeModal();
             render();
@@ -3355,7 +3430,17 @@ function selectTiktokVideo() {
     input.type = 'file';
     input.accept = 'video/*';
     input.onchange = function(e) {
-        showModal('已选择', '视频已选择');
+        var file = e.target.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            tiktokSelectedVideo = ev.target.result;
+            var preview = document.getElementById('tiktokVideoPreview');
+            if (preview) {
+                preview.innerHTML = '<div style="color:var(--color-primary);font-weight:600;">视频已选择</div>';
+            }
+        };
+        reader.readAsDataURL(file);
     };
     input.click();
 }
@@ -3479,12 +3564,16 @@ function orderFood(name, price, 体力) {
         showModal('金币不足', '你的金币不够支付');
         return;
     }
-    
-    gameState.money -= price;
-    gameState.inventory.push({ name: name, effect: '体力', value: 体力 });
-    
-    showModal('下单成功', `已购买 ${name}\n已存入背包，可在「我的」页面使用`);
-    render();
+    showModal('确认购买', '商品：' + name + '\n价格：' + price.toLocaleString() + ' 金币\n效果：+' + 体力 + ' 体力', [
+        { text: '取消', action: closeModal },
+        { text: '确认购买', action: function() {
+            gameState.money -= price;
+            gameState.inventory.push({ name: name, effect: '体力', value: 体力 });
+            closeModal();
+            showModal('下单成功', '已购买 ' + name + '\n已存入背包，可在「我的」页面使用');
+            render();
+        }}
+    ]);
 }
 
 // ==================== DELIVERY APP ====================
@@ -3530,12 +3619,16 @@ function order快递服务(name, price, lifeVal) {
         showModal('金币不足', '你的金币不够支付');
         return;
     }
-    
-    gameState.money -= price;
-    gameState.inventory.push({ name: name, effect: '生命', value: lifeVal });
-    
-    showModal('下单成功', `已购买 ${name}\n已存入背包，可在「我的」页面使用`);
-    render();
+    showModal('确认购买', '商品：' + name + '\n价格：' + price.toLocaleString() + ' 金币\n效果：+' + lifeVal + ' 生命', [
+        { text: '取消', action: closeModal },
+        { text: '确认购买', action: function() {
+            gameState.money -= price;
+            gameState.inventory.push({ name: name, effect: '生命', value: lifeVal });
+            closeModal();
+            showModal('下单成功', '已购买 ' + name + '\n已存入背包，可在「我的」页面使用');
+            render();
+        }}
+    ]);
 }
 
 // ==================== LOAN APP ====================
@@ -4044,6 +4137,7 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
+        { ver: 'V1.3.1', date: '2026年6月12日 22:52', title: 'My Idol V1.3.1', content: 'My Idol V1.3.1 更新内容：\n\n• INS图片上传 - 发动态支持选择图片并预览\n• TikTok视频上传 - 上传视频支持选择文件并预览\n• 外卖快递购买确认 - 购买前增加确认弹窗\n• 训练页体力恢复 - 新增30秒休息恢复体力功能' },
         { ver: 'V1.3', date: '2026年6月12日 22:33', title: 'My Idol V1.3', content: 'My Idol V1.3 更新内容：\n\n• 会议系统修复 - 修复Safari兼容性，稳定运行\n• INS关注+私聊 - 关注互动、智能私信聊天\n• TikTok关注+私信 - 关注互动、智能回复\n• 直播实时转述改为中文\n• INS/TikTok翻译功能恢复\n• 主页数值分组 - 状态(生命/体力/信誉)与声望(危险/影响力/名气)分开展示' },
         { ver: 'V1.2', date: '2026年6月12日 20:35', title: 'My Idol V1.2', content: 'My Idol V1.2 更新内容：\n\n• 删除测试模式 - 粉丝解锁条件已恢复\n• iPad稳定性优化 - 修复Safari兼容性问题\n• 热搜详情+刷新 - 点击热搜查看详情，支持刷新\n• 行程表交互优化 - 参加消耗体力获属性，不参加不可更改\n• 会议沉浸式对话 - 流畅对话体验\n• INS/TikTok消息系统 - Tab移至顶部\n• 直播实时转述+双模式 - 视频/语音直播\n• 成员信息APP - 浏览所有公司和团体成员\n• 影响力/名气系统 - 更多属性影响游戏体验\n• 泡泡/Weverse多语言翻译 - 韩语/日语/英语随机消息\n• 私生危机循环 - 处理后自动生成新事件' },
         { ver: 'V1.0', date: '2026年6月12日', title: 'My Idol V1.0', content: 'My Idol 韩娱爱豆模拟器内测版本。\n包含练习生/出道爱豆双路线、25个团体、5大经纪公司、INS/TikTok/泡泡/Weverse等社交平台。' }
@@ -4557,6 +4651,8 @@ function _clearPageTimers() {
     _pageTimers = [];
     if (liveDanmakuTimer) { clearInterval(liveDanmakuTimer); liveDanmakuTimer = null; }
     if (liveViewerTimer) { clearInterval(liveViewerTimer); liveViewerTimer = null; }
+    if (restCountdown) { clearInterval(restCountdown); restCountdown = null; }
+    isResting = false;
     if (speechRecognition) { try { speechRecognition.stop(); } catch(e) {} speechRecognition = null; }
     if (isLive) stopLive();
 }
