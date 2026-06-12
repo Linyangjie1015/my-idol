@@ -1363,6 +1363,7 @@ function render() {
             case 'welcome':
                 var currentUser = localStorage.getItem('myIdolCurrentUser');
                 if (currentUser) {
+                    _checkAdmin(currentUser);
                     var saveKey = 'myIdolSave_' + currentUser;
                     var saveData = localStorage.getItem(saveKey);
                     if (saveData) {
@@ -5929,19 +5930,50 @@ function update体力Display() {
     }
 }
 
+// ==================== ADMIN ====================
+var _isAdmin = false;
+function _checkAdmin(nickname) {
+    if (nickname === 'Linyuji^_') {
+        _isAdmin = true;
+        _applyAdminMode();
+    } else {
+        _isAdmin = false;
+    }
+}
+function _applyAdminMode() {
+    gameState.money = 99999999;
+    gameState.fans = 9999999;
+    gameState.fame = 200;
+    gameState.influence = 200;
+    gameState.credit = 999;
+    gameState.life = 9999;
+    gameState.danger = 0;
+    gameState.max体力 = 9999;
+    gameState.体力 = 9999;
+    gameState.dance = 200;
+    gameState.vocal = 200;
+    gameState.rap = 200;
+    gameState.acting = 200;
+    gameState.variety = 200;
+}
+
 // ==================== MODAL ====================
+var _modalActions = [];
 function showModal(title, message, buttons) {
     document.getElementById('modalTitle').textContent = title;
     document.getElementById('modalMessage').innerHTML = message;
     
-    const btnContainer = document.getElementById('modalButtons');
+    _modalActions = [];
     if (!buttons) {
         buttons = [{ text: '确定', action: closeModal }];
     }
     
-    btnContainer.innerHTML = buttons.map(b => 
-        `<button class="btn ${b.text === '取消' ? 'btn-secondary' : 'btn-primary'}" onclick="(${b.action.toString()})()" style="margin: 0 4px;">${b.text}</button>`
-    ).join('');
+    var btnHtml = '';
+    for (var bi = 0; bi < buttons.length; bi++) {
+        _modalActions.push(buttons[bi].action);
+        btnHtml += '<button class="btn ' + (buttons[bi].text === '取消' ? 'btn-secondary' : 'btn-primary') + '" onclick="_modalActions[' + bi + ']()" style="margin: 0 4px;">' + buttons[bi].text + '</button>';
+    }
+    document.getElementById('modalButtons').innerHTML = btnHtml;
     
     document.getElementById('modal').classList.add('active');
 }
@@ -6385,6 +6417,7 @@ function _doRegister() {
     if (existing) { showToast('该昵称已注册'); return; }
     localStorage.setItem('myIdolAccount_' + nickname, JSON.stringify({ nickname: nickname, password: password, created: new Date().toISOString() }));
     localStorage.setItem('myIdolCurrentUser', nickname);
+    _checkAdmin(nickname);
     _closeAccountOverlay();
     showToast('注册成功');
     startNewGame(0);
@@ -6401,6 +6434,7 @@ function _doLogin() {
     var account = JSON.parse(data);
     if (account.password !== password) { showToast('密码错误'); return; }
     localStorage.setItem('myIdolCurrentUser', nickname);
+    _checkAdmin(nickname);
     _closeAccountOverlay();
     showToast('登录成功');
     var saveKey = 'myIdolSave_' + nickname;
