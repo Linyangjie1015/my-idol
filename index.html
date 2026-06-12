@@ -1992,17 +1992,11 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     }
     
     var gain = Math.floor(Math.random() * 16) + 5;
-    var luckyBonus = 0;
-    if (Math.random() * 100 < (gameState.lucky || 50)) {
-        luckyBonus = Math.floor(Math.random() * 5) + 2;
-        gain += luckyBonus;
-    }
     gameState.stats[stat] = Math.min(100, gameState.stats[stat] + gain);
     gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1);
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
-    var luckyMsg = luckyBonus > 0 ? '\n🌟 幸运加成 +' + luckyBonus + '!' : '';
-    showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat] + luckyMsg);
+    showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]);
     render();
 }
 
@@ -2064,9 +2058,9 @@ function render我的Page(container) {
                         <span class="stat-value">${gameState.体力}</span>
                     </div>
                     <div class="stat-bar">
-                        <span class="stat-label" style="color: #FFD700;">幸运</span>
-                        <div class="stat-track"><div class="stat-fill" style="width: ${(gameState.lucky || 50)}%;background:linear-gradient(90deg,#FFD700,#FFA500);"></div></div>
-                        <span class="stat-value" style="color: #DAA520;">${gameState.lucky || 50}</span>
+                        <span class="stat-label">信誉</span>
+                        <div class="stat-track"><div class="stat-fill credit" style="width: ${(gameState.credit / 150) * 100}%;"></div></div>
+                        <span class="stat-value">${gameState.credit}</span>
                     </div>
                 </div>
                 
@@ -2972,8 +2966,6 @@ function renderWeversePage(container) {
         var p = weverseMultilangPosts[i];
         var langTag = p.lang === 'ko' ? '韩' : p.lang === 'ja' ? '日' : 'EN';
         var langColor = p.lang === 'ko' ? '#FF8FA3' : p.lang === 'ja' ? '#7EC8E3' : '#FFD700';
-        var isFollowed = insFollowedUsers && insFollowedUsers[p.user];
-        var followText = isFollowed ? '已关注' : '关注';
         postsHtml += '<div class="card bubble-msg-anim" style="animation-delay:' + (i * 0.1) + 's;">'
             + '<div style="display:flex;align-items:center;margin-bottom:10px;">'
             + '<div class="avatar-sm">' + p.avatar + '</div>'
@@ -2981,13 +2973,8 @@ function renderWeversePage(container) {
             + '<div style="font-weight:600;">' + p.user + ' <span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span></div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div>'
             + '</div>'
-            + '<button class="btn btn-sm ' + (isFollowed ? 'btn-secondary' : 'btn-primary') + '" onclick="toggleWeverseFollow(\'' + p.user + '\')" style="font-size:10px;padding:3px 8px;">' + followText + '</button>'
             + '</div>'
             + '<p style="font-size:14px;" id="weverseMsg' + i + '">' + p.orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + i + ',\'' + p.zh.replace(/'/g, "\\'") + '\')">翻译</span></p>'
-            + '<div style="margin-top:10px;display:flex;gap:12px;align-items:center;">'
-            + '<span style="color:var(--color-text-light);font-size:13px;cursor:pointer;" onclick="likeWeversePost(' + i + ')">❤️ ' + p.likes + '</span>'
-            + '<span style="color:var(--color-text-light);font-size:13px;cursor:pointer;" onclick="commentWeversePost(' + i + ')">💬 ' + p.comments + '</span>'
-            + '</div>'
             + '</div>';
     }
     
@@ -3001,52 +2988,6 @@ function renderWeversePage(container) {
         + '<button class="btn btn-primary btn-lg" onclick="postToWeverse()" style="margin-bottom:16px;">+ 发布动态</button>'
         + postsHtml
         + '</div></div>';
-}
-
-function toggleWeverseFollow(user) {
-    if (!insFollowedUsers) insFollowedUsers = {};
-    if (insFollowedUsers[user]) {
-        insFollowedUsers[user] = false;
-        gameState.fans = Math.max(0, gameState.fans - 5);
-        showModal('取消关注', '已取消关注 ' + user);
-    } else {
-        insFollowedUsers[user] = true;
-        gameState.fans += 10;
-        if (!gameState.npc好感度) gameState.npc好感度 = {};
-        if (!gameState.npc好感度[user]) gameState.npc好感度[user] = 30;
-        gameState.npc好感度[user] = Math.min(100, (gameState.npc好感度[user] || 30) + 10);
-        showModal('关注成功', '已关注 ' + user + '\n+10 粉丝');
-    }
-    render();
-}
-
-function likeWeversePost(idx) {
-    weverseMultilangPosts[idx].likes += 1;
-    if (!gameState.npc好感度) gameState.npc好感度 = {};
-    var user = weverseMultilangPosts[idx].user;
-    if (!gameState.npc好感度[user]) gameState.npc好感度[user] = 30;
-    gameState.npc好感度[user] = Math.min(100, gameState.npc好感度[user] + 2);
-    render();
-}
-
-function commentWeversePost(idx) {
-    var user = weverseMultilangPosts[idx].user;
-    showModal('评论 ' + user + ' 的动态', '<input type="text" id="weverseComment" placeholder="写评论..." style="margin-bottom:0;">', [
-        { text: '取消', action: closeModal },
-        { text: '发送', action: function() {
-            var t = document.getElementById('weverseComment');
-            if (t && t.value) {
-                weverseMultilangPosts[idx].comments += 1;
-                gameState.fans += 3;
-                if (!gameState.npc好感度) gameState.npc好感度 = {};
-                if (!gameState.npc好感度[user]) gameState.npc好感度[user] = 30;
-                gameState.npc好感度[user] = Math.min(100, gameState.npc好感度[user] + 3);
-                closeModal();
-                showModal('已评论', '评论已发送！');
-                render();
-            }
-        }}
-    ]);
 }
 
 function translateWeverseMsg(idx, zhText) {
@@ -4103,7 +4044,7 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
-        { ver: 'V1.3', date: '2026年6月12日 22:33', title: 'My Idol V1.3', content: 'My Idol V1.3 更新内容：\n\n• 会议系统修复 - 修复Safari兼容性，稳定运行\n• INS/Weverse关注+私聊 - 关注互动、私信聊天恢复\n• 智能私聊 - 多元化回复，好感度影响态度\n• 直播实时转述改为中文\n• INS/TikTok翻译功能恢复\n• 幸运值系统 - 影响训练加成概率\n• 主页数值分组 - 状态/声望分开展示' },
+        { ver: 'V1.3', date: '2026年6月12日 22:33', title: 'My Idol V1.3', content: 'My Idol V1.3 更新内容：\n\n• 会议系统修复 - 修复Safari兼容性，稳定运行\n• INS关注+私聊 - 关注互动、智能私信聊天\n• TikTok关注+私信 - 关注互动、智能回复\n• 直播实时转述改为中文\n• INS/TikTok翻译功能恢复\n• 主页数值分组 - 状态(生命/体力/信誉)与声望(危险/影响力/名气)分开展示' },
         { ver: 'V1.2', date: '2026年6月12日 20:35', title: 'My Idol V1.2', content: 'My Idol V1.2 更新内容：\n\n• 删除测试模式 - 粉丝解锁条件已恢复\n• iPad稳定性优化 - 修复Safari兼容性问题\n• 热搜详情+刷新 - 点击热搜查看详情，支持刷新\n• 行程表交互优化 - 参加消耗体力获属性，不参加不可更改\n• 会议沉浸式对话 - 流畅对话体验\n• INS/TikTok消息系统 - Tab移至顶部\n• 直播实时转述+双模式 - 视频/语音直播\n• 成员信息APP - 浏览所有公司和团体成员\n• 影响力/名气系统 - 更多属性影响游戏体验\n• 泡泡/Weverse多语言翻译 - 韩语/日语/英语随机消息\n• 私生危机循环 - 处理后自动生成新事件' },
         { ver: 'V1.0', date: '2026年6月12日', title: 'My Idol V1.0', content: 'My Idol 韩娱爱豆模拟器内测版本。\n包含练习生/出道爱豆双路线、25个团体、5大经纪公司、INS/TikTok/泡泡/Weverse等社交平台。' }
     ];
