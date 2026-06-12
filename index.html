@@ -3472,12 +3472,19 @@ function goToPage(page) {
 }
 
 function renderBottomNav() {
-    const nav = document.getElementById('bottomNav');
+    var nav = document.getElementById('bottomNav');
+    var navPages = ['home','training','exam','me'];
+    var showNav = false;
+    for (var ni = 0; ni < navPages.length; ni++) {
+        if (currentPage === navPages[ni]) { showNav = true; break; }
+    }
+    nav.style.display = showNav ? 'flex' : 'none';
+    if (!showNav) return;
     
-    const homePages = ['home','hotsearch','hotsearchdetail','ranking','schedule','meeting','mail','work','dating','bubble','weverse','ins','tiktok','food','delivery','loan','crisis','live','settings','updates','insprofile','meetingdialog','members','kakaotalk'];
-    const trainPages = ['training'];
-    const examPages = ['exam', 'examGame'];
-    const mePages = ['me'];
+    var homePages = ['home'];
+    var trainPages = ['training'];
+    var examPages = ['exam', 'examGame'];
+    var mePages = ['me'];
     
     function isActive(group) { return group.includes(currentPage); }
     
