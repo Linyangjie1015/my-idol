@@ -512,6 +512,10 @@
         stroke-linecap: round;
         stroke-linejoin: round;
     }
+    .app-icon-wrap svg.kakao-icon {
+        stroke: none;
+        fill: unset;
+    }
     .app-icon-wrap.locked {
         background: linear-gradient(135deg, #F0F0F0, #E0E0E0);
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -693,6 +697,254 @@
         font-weight: 600;
         border-bottom-color: var(--color-primary);
     }
+    
+    /* ==================== EXAM SYSTEM ==================== */
+    .exam-cert-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+        padding: 10px 8px;
+        text-align: center;
+        border: 2px solid var(--color-border);
+        transition: all 0.3s;
+    }
+    .exam-cert-card.obtained {
+        border-color: var(--color-primary);
+        background: linear-gradient(135deg, rgba(255,143,163,0.08), rgba(255,179,193,0.15));
+    }
+    .exam-cert-card .cert-icon {
+        width: 32px; height: 32px; border-radius: 50%;
+        margin: 0 auto 6px; display: flex; align-items: center; justify-content: center;
+        font-size: 16px;
+    }
+    .exam-cert-card.obtained .cert-icon {
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        color: white;
+    }
+    .exam-cert-card:not(.obtained) .cert-icon {
+        background: var(--color-border);
+        color: var(--color-text-light);
+    }
+    .exam-cert-card .cert-name { font-size: 11px; font-weight: 600; color: var(--color-text); }
+    .exam-cert-card .cert-levels { font-size: 10px; color: var(--color-text-light); margin-top: 2px; }
+    .exam-subject-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .exam-subject-row .exam-cert-card { min-width: 65px; flex: 1; }
+    .exam-entry {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 16px; background: var(--bg-card); border-radius: var(--radius-md);
+        margin-bottom: 8px; border: 1px solid var(--color-border); cursor: pointer;
+        transition: all 0.2s;
+    }
+    .exam-entry:active { transform: scale(0.98); }
+    .exam-entry.locked { opacity: 0.5; cursor: not-allowed; }
+    .exam-entry .exam-entry-left { flex: 1; }
+    .exam-entry .exam-entry-title { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    .exam-entry .exam-entry-sub { font-size: 12px; color: var(--color-text-light); margin-top: 2px; }
+    .exam-entry .exam-entry-right { font-size: 12px; color: var(--color-primary); font-weight: 600; white-space: nowrap; }
+    .exam-comprehensive-entry {
+        padding: 16px; background: linear-gradient(135deg, #FFF5F7, #FFE4EC);
+        border-radius: var(--radius-lg); margin-top: 16px; text-align: center;
+        border: 2px dashed var(--color-primary);
+    }
+    .exam-comprehensive-entry.unlocked { border-style: solid; cursor: pointer; }
+    .exam-comprehensive-entry.locked { opacity: 0.5; }
+
+    /* Dance exam - rhythm dots */
+    .rhythm-container { display: flex; justify-content: center; gap: 8px; margin: 30px 0; flex-wrap: nowrap; }
+    .rhythm-dot {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: var(--color-border); transition: all 0.15s;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; color: transparent;
+    }
+    .rhythm-dot.lit {
+        background: var(--color-primary);
+        box-shadow: 0 0 12px rgba(255,143,163,0.5);
+        transform: scale(1.2);
+    }
+    .rhythm-dot.hit {
+        background: var(--color-success);
+        color: white;
+    }
+    .rhythm-dot.miss {
+        background: var(--color-danger);
+        color: white;
+    }
+
+    /* Vocal exam - Simon colors */
+    .simon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 220px; margin: 24px auto; }
+    .simon-pad {
+        width: 100px; height: 100px; border-radius: var(--radius-lg); cursor: pointer;
+        opacity: 0.5; transition: opacity 0.15s, transform 0.15s;
+        border: 3px solid transparent;
+    }
+    .simon-pad.lit { opacity: 1; transform: scale(1.08); border-color: white; }
+    .simon-pad:active { transform: scale(0.95); }
+
+    /* Quiz options */
+    .quiz-option {
+        padding: 14px 16px; background: var(--bg-card); border-radius: var(--radius-md);
+        margin-bottom: 8px; border: 1px solid var(--color-border); cursor: pointer;
+        font-size: 14px; transition: all 0.2s;
+    }
+    .quiz-option:active { transform: scale(0.98); }
+    .quiz-option.selected-correct { background: rgba(76,217,100,0.15); border-color: var(--color-success); color: var(--color-success); }
+    .quiz-option.selected-wrong { background: rgba(255,107,138,0.15); border-color: var(--color-danger); color: var(--color-danger); }
+
+    /* Exam result overlay */
+    .exam-result-overlay {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
+        z-index: 50;
+    }
+    .exam-result-box {
+        background: var(--bg-card); border-radius: var(--radius-lg);
+        padding: 32px 24px; width: 85%; max-width: 300px; text-align: center;
+    }
+    .exam-result-icon { font-size: 48px; margin-bottom: 12px; }
+    .exam-result-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .exam-result-sub { font-size: 13px; color: var(--color-text-light); margin-bottom: 20px; }
+    .pre-debut-badge {
+        display: inline-block; padding: 4px 12px; border-radius: var(--radius-pill);
+        background: linear-gradient(135deg, #FFD700, #FFA500); color: white;
+        font-size: 11px; font-weight: 700; margin-left: 6px;
+    }
+
+    /* ==================== TOAST ==================== */
+    .myidol-toast {
+        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+        background: var(--color-primary); color: white; padding: 8px 20px;
+        border-radius: var(--radius-pill); font-size: 13px; z-index: 9999;
+        box-shadow: 0 4px 12px rgba(255,143,163,0.3); white-space: nowrap;
+        animation: toastIn 0.3s ease;
+    }
+    @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
+
+    /* ==================== WELCOME ACCOUNT ==================== */
+    .welcome-account {
+        height: 100%; display: flex; flex-direction: column; justify-content: center;
+        align-items: center; padding: 40px 24px;
+        background: linear-gradient(180deg, #FFF5F7 0%, #FFCCD8 100%);
+    }
+    .welcome-account-title {
+        font-size: 48px; font-weight: 800;
+        background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+    }
+    .welcome-account-sub {
+        color: var(--color-text-light); font-size: 14px; margin-bottom: 48px;
+    }
+    .account-btn-group { width: 100%; max-width: 280px; }
+    .account-btn-group .btn { width: 100%; margin-bottom: 12px; }
+    .account-footer { margin-top: 32px; font-size: 11px; color: var(--color-text-light); }
+
+    /* ==================== ACCOUNT OVERLAY ==================== */
+    .account-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4); z-index: 100; display: flex;
+        justify-content: center; align-items: center;
+    }
+    .account-form-card {
+        background: var(--bg-card); border-radius: var(--radius-lg);
+        padding: 28px 24px; width: 85%; max-width: 300px;
+    }
+    .account-form-card h3 {
+        font-size: 18px; font-weight: 700; color: var(--color-text);
+        margin-bottom: 20px; text-align: center;
+    }
+    .account-input {
+        width: 100%; padding: 12px 16px; border: 1.5px solid var(--color-secondary);
+        border-radius: 12px; font-size: 14px; margin-bottom: 12px;
+        background: white; color: var(--color-text); outline: none;
+        -webkit-appearance: none;
+    }
+    .account-input:focus { border-color: var(--color-primary); }
+    .account-form-card .btn { width: 100%; margin-top: 8px; }
+
+    /* ==================== KAKAO TALK ==================== */
+    .kakao-tab-bar {
+        display: flex; padding: 8px 16px; gap: 8px;
+        background: var(--bg-card); border-bottom: 1px solid var(--color-border);
+    }
+    .kakao-tab-btn {
+        flex: 1; padding: 8px 0; border-radius: var(--radius-pill);
+        font-size: 13px; font-weight: 600; text-align: center; cursor: pointer;
+        border: 1.5px solid var(--color-primary); transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .kakao-tab-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .kakao-tab-btn:not(.active) { background: white; color: var(--color-primary); }
+    .kakao-friend-item {
+        display: flex; align-items: center; padding: 12px 16px;
+        border-bottom: 1px solid var(--color-border); cursor: pointer;
+    }
+    .kakao-friend-item:active { background: var(--bg-main); }
+    .kakao-avatar {
+        width: 44px; height: 44px; border-radius: 50%; display: flex;
+        align-items: center; justify-content: center; font-size: 16px;
+        font-weight: 700; color: white; flex-shrink: 0; position: relative;
+    }
+    .kakao-online-dot {
+        position: absolute; bottom: 1px; right: 1px; width: 10px; height: 10px;
+        border-radius: 50%; background: var(--color-success); border: 2px solid white;
+    }
+    .kakao-friend-info { margin-left: 12px; flex: 1; min-width: 0; }
+    .kakao-friend-name { font-size: 14px; font-weight: 600; color: var(--color-text); }
+    .kakao-friend-preview { font-size: 12px; color: var(--color-text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .kakao-friend-time { font-size: 11px; color: var(--color-text-light); flex-shrink: 0; margin-left: 8px; }
+    .kakao-personality-pill {
+        display: inline-block; padding: 2px 8px; border-radius: var(--radius-pill);
+        background: var(--bg-main); font-size: 10px; color: var(--color-text-light);
+        margin-left: 6px;
+    }
+    .kakao-manager-pill {
+        display: inline-block; padding: 2px 8px; border-radius: var(--radius-pill);
+        background: #E8F0FE; font-size: 10px; color: #4A90D9; margin-left: 6px;
+    }
+    .kakao-chat-area {
+        flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch;
+    }
+    .kakao-msg-row { display: flex; margin-bottom: 12px; }
+    .kakao-msg-row.me { justify-content: flex-end; }
+    .kakao-msg-row.npc { justify-content: flex-start; }
+    .kakao-msg-bubble {
+        max-width: 70%; padding: 10px 14px; font-size: 13px; line-height: 1.5;
+        word-break: break-word;
+    }
+    .kakao-msg-bubble.me {
+        background: #FFE0E6; color: var(--color-text); border-radius: 16px 16px 4px 16px;
+    }
+    .kakao-msg-bubble.npc {
+        background: white; color: #333; border-radius: 16px 16px 16px 4px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .kakao-msg-time { font-size: 10px; color: var(--color-text-light); margin-top: 4px; }
+    .kakao-msg-row.me .kakao-msg-time { text-align: right; }
+    .kakao-input-bar {
+        display: flex; align-items: center; padding: 8px 12px;
+        background: var(--bg-card); border-top: 1px solid var(--color-border);
+    }
+    .kakao-input {
+        flex: 1; padding: 10px 16px; border: 1.5px solid var(--color-secondary);
+        border-radius: 20px; font-size: 14px; outline: none; background: white;
+        -webkit-appearance: none;
+    }
+    .kakao-input:focus { border-color: var(--color-primary); }
+    .kakao-send-btn {
+        width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary);
+        color: white; border: none; cursor: pointer; margin-left: 8px;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .kakao-add-section { padding: 16px; }
+    .kakao-personality-choices { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .kakao-personality-choice {
+        padding: 6px 14px; border-radius: var(--radius-pill); font-size: 12px;
+        cursor: pointer; border: 1.5px solid var(--color-primary); transition: all 0.2s;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .kakao-personality-choice.selected { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .kakao-personality-choice:not(.selected) { background: white; color: var(--color-primary); }
+
     </style>
 </head>
 <body>
@@ -1109,7 +1361,32 @@ function render() {
     try {
         switch(currentPage) {
             case 'welcome':
-                renderWelcomePage(app);
+                var currentUser = localStorage.getItem('myIdolCurrentUser');
+                if (currentUser) {
+                    var saveKey = 'myIdolSave_' + currentUser;
+                    var saveData = localStorage.getItem(saveKey);
+                    if (saveData) {
+                        try {
+                            Object.assign(gameState, JSON.parse(saveData));
+                            _ensureKakaoState();
+                            currentPage = 'home';
+                            document.getElementById('statusBar').style.display = 'flex';
+                            document.getElementById('restButtons').style.display = 'flex';
+                            document.getElementById('bottomNav').style.display = 'flex';
+                            document.getElementById('homeIndicator').style.display = 'block';
+                            render();
+                            renderBottomNav();
+                            startAutoSave();
+                        } catch(e) {
+                            renderWelcomeAccountPage(app);
+                        }
+                    } else {
+                        startNewGame(0);
+                        startAutoSave();
+                    }
+                } else {
+                    renderWelcomeAccountPage(app);
+                }
                 break;
             case 'create':
                 renderCreationPage(app);
@@ -1122,6 +1399,9 @@ function render() {
                 break;
             case 'exam':
                 render考核Page(app);
+                break;
+            case 'examGame':
+                renderExamGamePage(app);
                 break;
             case 'me':
                 render我的Page(app);
@@ -1185,6 +1465,12 @@ function render() {
                 break;
             case 'updates':
                 render更新通知Page(app);
+                break;
+            case 'kakaotalk':
+                renderKakaoTalkPage(app);
+                break;
+            case 'kakaochat':
+                renderKakaoChatPage(app);
                 break;
             case 'insprofile':
                 renderInsProfilePage(app);
@@ -1292,7 +1578,22 @@ function startNewGame(slot = 0) {
         membersViewLevel: 0,
         membersViewCompany: '',
         membersViewGroup: '',
-        liveMode: 'video'
+        liveMode: 'video',
+        kakaoChats: {},
+        kakaoFriends: [],
+        kakaoCurrentChat: '',
+        kakaoTab: 'chats',
+        certificates: {
+            dance: [false, false, false],
+            vocal: [false, false, false],
+            rap: [false, false, false],
+            acting: [false, false, false],
+            variety: [false, false, false]
+        },
+        examResult: {
+            comprehensive: [false, false]
+        },
+        preDebut: false
     };
     current存档 = slot;
     creationStep = 1;
@@ -1741,6 +2042,9 @@ function completeCreation() {
             initAsIdol();
         }
         
+        // 初始化KakaoTalk好友
+        _ensureKakaoState();
+        
         // 切换到首页
         currentPage = 'home';
         render();
@@ -1754,6 +2058,7 @@ function completeCreation() {
         renderBottomNav();
         initScheduleItems();
         initMeetings();
+        startAutoSave();
     } catch(e) {
         alert('初始化出错: ' + e.message);
         console.error('completeCreation error:', e);
@@ -1875,6 +2180,7 @@ function renderHomePage(container) {
         { id: 'weverse', icon: 'weverse', name: 'Weverse', unlock: 1000 },
         { id: 'crisis', icon: 'crisis', name: '私生危机', unlock: 5000 },
         { id: 'members', icon: 'members', name: '成员信息', unlock: 0 },
+        { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 }
     ];
     
@@ -1887,7 +2193,7 @@ function renderHomePage(container) {
                 <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">${gameState.player.avatar}</div>
                 <div style="margin-left: 10px; flex: 1;">
                     <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">${gameState.player.name}</div>
-                    <div style="font-size: 11px; color: var(--color-text-light);">${(company && company.name) || ''} | ${roleText}</div>
+                    <div style="font-size: 11px; color: var(--color-text-light);">${(company && company.name) || ''} | ${roleText}${gameState.preDebut ? '<span class="pre-debut-badge">预备出道</span>' : ''}</div>
                 </div>
                 <div class="back-btn" onclick="goToPage('settings')" style="color: var(--color-text-light); font-size: 13px;">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -1966,6 +2272,9 @@ function render训练Page(container) {
                         </div>
                     </div>
                 `).join('')}
+                <div style="margin-top: 16px;">
+                    <button class="btn btn-outline btn-lg" onclick="goToPage('exam')" style="width:100%;">📋 去考核</button>
+                </div>
                 <div class="section-title" style="margin-top: 16px;">体力恢复</div>
                 <div class="card" id="restBtnCard" onclick="startRestRecovery()" style="text-align:center;cursor:pointer;">
                     <div style="font-weight:600;">Rest 30s</div>
@@ -2037,24 +2346,955 @@ function startRestRecovery() {
     }, 1000);
 }
 
-// ==================== EXAM PAGE ====================
+// ==================== EXAM SYSTEM ====================
+var isExamInProgress = false;
+var currentExamSubject = '';
+var currentExamLevel = 0;
+var currentExamAttempt = 0;
+
+var rapQuestions = [
+    { word: '梦想', options: ['飞翔', '食物', '鞋子'], answer: 0 },
+    { word: '舞台', options: ['灯光', '厨房', '书包'], answer: 0 },
+    { word: '节拍', options: ['节奏', '颜色', '天气'], answer: 0 },
+    { word: '热血', options: ['沸腾', '冰冷', '安静'], answer: 0 },
+    { word: '自由', options: ['翱翔', '束缚', '固定'], answer: 0 },
+    { word: '传奇', options: ['故事', '数学', '家具'], answer: 0 },
+    { word: '灵魂', options: ['歌唱', '吃饭', '睡觉'], answer: 0 },
+    { word: '实力', options: ['证明', '隐藏', '放弃'], answer: 0 },
+    { word: '信仰', options: ['坚持', '怀疑', '忘却'], answer: 0 },
+    { word: '巅峰', options: ['征服', '退下', '停留'], answer: 0 },
+    { word: '突破', options: ['极限', '墙壁', '水面'], answer: 0 },
+    { word: '天赋', options: ['闪耀', '暗淡', '消失'], answer: 0 }
+];
+
+var actingQuestions = [
+    { scene: '得知自己首次登顶音放一位', options: ['激动落泪', '面无表情', '愤怒拍桌'], answer: 0 },
+    { scene: '练习生时期被导师严厉批评', options: ['哈哈大笑', '认真反思', '当场走人'], answer: 1 },
+    { scene: '在综艺上被问到尴尬问题', options: ['沉默不语', '巧妙化解', '当场发火'], answer: 1 },
+    { scene: '看到粉丝为自己准备的惊喜', options: ['视而不见', '感动拥抱', '嫌弃推走'], answer: 1 },
+    { scene: '队友受伤无法参加演出', options: ['幸灾乐祸', '担心关心', '毫不在乎'], answer: 1 },
+    { scene: '获得年度最佳新人奖', options: ['谦虚致谢', '骄傲炫耀', '拒绝领奖'], answer: 0 },
+    { scene: '深夜练习到筋疲力尽', options: ['坚持到底', '直接放弃', '抱怨队友'], answer: 0 },
+    { scene: '被私生饭跟踪', options: ['主动搭话', '冷静报警', '热情拥抱'], answer: 1 },
+    { scene: '新歌MV预告公开后反响平平', options: ['加倍努力', '无所谓', '责怪公司'], answer: 0 },
+    { scene: '粉丝在签售会上送手写信', options: ['珍惜收好', '随手丢掉', '当场阅读'], answer: 2 },
+    { scene: '综艺上需要即兴模仿前辈', options: ['认真模仿致敬', '拒绝参与', '恶意丑化'], answer: 0 },
+    { scene: '团内出现矛盾', options: ['调解沟通', '煽风点火', '事不关己'], answer: 0 }
+];
+
+var varietyQuestions = [
+    { host: '主持人：最近有没有暗恋的人？', options: ['这个问题要保密哦~', '关你什么事', '有！就是现场这位'], answer: 2 },
+    { host: '主持人：你觉得团里谁最懒？', options: ['都挺勤快的', '那肯定是XX（开玩笑）', '我不想说'], answer: 1 },
+    { host: '主持人：给我们展示一下特殊才能吧！', options: ['我没有才能', '来一段即兴freestyle', '让其他成员来'], answer: 1 },
+    { host: '主持人：如果世界末日最后一天做什么？', options: ['和家人在一起', '开演唱会', '什么都不做'], answer: 1 },
+    { host: '主持人：手机里最近的自拍给我们看看？', options: ['大方展示', '藏起来不让看', '删掉最近的自拍'], answer: 0 },
+    { host: '主持人：最想和哪位前辈合作？', options: ['有很多想合作的', '说出具体前辈名字并表达尊敬', '不想和任何人合作'], answer: 1 },
+    { host: '主持人：团里谁是吃货担当？', options: ['大家都很能吃', '举荐一个成员并说趣事', '我们都不怎么吃'], answer: 1 },
+    { host: '主持人：最近有什么烦恼吗？', options: ['没有烦恼', '分享一个小烦恼然后用积极态度化解', '抱怨一堆'], answer: 1 },
+    { host: '主持人：用一句话形容你的队友？', options: ['很好的人', '温暖的家人', '不想评价'], answer: 1 },
+    { host: '主持人：下次回归想要什么概念？', options: ['听公司的', '分享自己的创意想法', '无所谓'], answer: 1 },
+    { host: '主持人：最难忘的舞台是哪个？', options: ['都很难忘', '说出具体舞台并分享感受', '不记得了'], answer: 1 },
+    { host: '主持人：给粉丝们说句心里话？', options: ['谢谢你们', '认真表达感谢和未来承诺', '没什么好说的'], answer: 1 }
+];
+
+var simonColors = ['#FF8FA3', '#FFD700', '#87CEEB', '#98FB98'];
+var simonColorNames = ['粉', '金', '蓝', '绿'];
+
+function _ensureExamState() {
+    if (!gameState.certificates) {
+        gameState.certificates = {
+            dance: [false, false, false],
+            vocal: [false, false, false],
+            rap: [false, false, false],
+            acting: [false, false, false],
+            variety: [false, false, false]
+        };
+    }
+    if (!gameState.examResult) {
+        gameState.examResult = { comprehensive: [false, false] };
+    }
+    if (gameState.preDebut === undefined) {
+        gameState.preDebut = false;
+    }
+}
+
 function render考核Page(container) {
-    container.innerHTML = `
-        <div class="page active">
-            <div class="page-header">
-                <div class="back-btn" onclick="goToPage('home')">‹ 首页</div>
-                <div class="page-title">考核</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="page-content" style="text-align: center; padding: 60px 20px;">
-                <div style="width: 80px; height: 80px; border-radius: 20px; background: linear-gradient(135deg, #FFF5F7, #FFCCD8); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-                </div>
-                <div style="font-size: 18px; font-weight: 600; color: var(--color-text); margin-bottom: 8px;">考核系统即将开放</div>
-                <div style="font-size: 13px; color: var(--color-text-light); line-height: 1.6;">每月定期考核将在这里进行\n敬请期待...</div>
-            </div>
-        </div>
-    `;
+    _ensureExamState();
+    var certs = gameState.certificates;
+    var subjects = [
+        { key: 'dance', name: '舞蹈', icon: '💃' },
+        { key: 'vocal', name: '声乐', icon: '🎤' },
+        { key: 'rap', name: '说唱', icon: '🎧' },
+        { key: 'acting', name: '表演', icon: '🎭' },
+        { key: 'variety', name: '综艺', icon: '📺' }
+    ];
+    var levelNames = ['一级', '二级', '三级'];
+    var allLevel3 = true;
+    for (var si = 0; si < subjects.length; si++) {
+        if (!certs[subjects[si].key][2]) { allLevel3 = false; break; }
+    }
+    var compDone = gameState.examResult.comprehensive[0] && gameState.examResult.comprehensive[1];
+
+    var certCardsHtml = '';
+    for (var si = 0; si < subjects.length; si++) {
+        var s = subjects[si];
+        var allObtained = certs[s.key][0] && certs[s.key][1] && certs[s.key][2];
+        var levelStr = '';
+        for (var li = 0; li < 3; li++) {
+            levelStr += certs[s.key][li] ? '★' : '☆';
+        }
+        certCardsHtml += '<div class="exam-cert-card ' + (allObtained ? 'obtained' : '') + '">'
+            + '<div class="cert-icon">' + s.icon + '</div>'
+            + '<div class="cert-name">' + s.name + '</div>'
+            + '<div class="cert-levels">' + levelStr + '</div>'
+            + '</div>';
+    }
+
+    var examEntriesHtml = '';
+    for (var si = 0; si < subjects.length; si++) {
+        var s = subjects[si];
+        var statVal = gameState.stats[s.key];
+        var nextLevel = -1;
+        for (var li = 0; li < 3; li++) {
+            if (!certs[s.key][li]) { nextLevel = li; break; }
+        }
+        if (nextLevel === -1) {
+            examEntriesHtml += '<div class="exam-entry locked">'
+                + '<div class="exam-entry-left">'
+                + '<div class="exam-entry-title">' + s.icon + ' ' + s.name + ' - 已全部通过</div>'
+                + '<div class="exam-entry-sub">恭喜！该科目三级合格证已全部获得</div>'
+                + '</div>'
+                + '<div class="exam-entry-right" style="color:var(--color-success);">✓ 完成</div>'
+                + '</div>';
+        } else {
+            var canTake = statVal >= 105 && gameState.money >= 300;
+            var lockReason = '';
+            if (statVal < 105) lockReason = '需' + s.name + '≥105（当前' + statVal + '）';
+            else if (gameState.money < 300) lockReason = '金币不足300';
+            examEntriesHtml += '<div class="exam-entry ' + (canTake ? '' : 'locked') + '" onclick="' + (canTake ? "startExam('" + s.key + "'," + nextLevel + ")" : '') + '">'
+                + '<div class="exam-entry-left">'
+                + '<div class="exam-entry-title">' + s.icon + ' ' + s.name + ' - ' + levelNames[nextLevel] + '合格证</div>'
+                + '<div class="exam-entry-sub">' + (lockReason ? '🔒 ' + lockReason : '能力值满足 · 300金币/次') + '</div>'
+                + '</div>'
+                + '<div class="exam-entry-right">' + (canTake ? '参加考试 ›' : '未满足') + '</div>'
+                + '</div>';
+        }
+    }
+
+    var compHtml = '';
+    if (gameState.preDebut) {
+        compHtml = '<div class="exam-comprehensive-entry unlocked" style="border-color:var(--color-success);background:linear-gradient(135deg,rgba(76,217,100,0.1),rgba(76,217,100,0.2));">'
+            + '<div style="font-size:28px;margin-bottom:8px;">🎉</div>'
+            + '<div style="font-size:16px;font-weight:700;color:var(--color-success);">预备出道！</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">综合考试已通过，预备出道状态</div>'
+            + '</div>';
+    } else if (compDone) {
+        compHtml = '<div class="exam-comprehensive-entry unlocked" style="border-color:var(--color-success);">'
+            + '<div style="font-size:16px;font-weight:700;color:var(--color-success);">✓ 综合考试已通过</div></div>';
+    } else if (allLevel3) {
+        var nextComp = gameState.examResult.comprehensive[0] ? 1 : 0;
+        var needScore = nextComp === 0 ? '3/5' : '4/5';
+        compHtml = '<div class="exam-comprehensive-entry unlocked" onclick="startComprehensiveExam(' + nextComp + ')">'
+            + '<div style="font-size:28px;margin-bottom:8px;">🏆</div>'
+            + '<div style="font-size:16px;font-weight:700;color:var(--color-primary);">综合考试 - 第' + (nextComp + 1) + '次</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">5科各出1题，需答对' + needScore + '以上 · 300金币</div>'
+            + '</div>';
+    } else {
+        compHtml = '<div class="exam-comprehensive-entry locked">'
+            + '<div style="font-size:28px;margin-bottom:8px;">🏆</div>'
+            + '<div style="font-size:16px;font-weight:700;color:var(--color-text-light);">综合考试</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">需5科三级合格证全部获得后解锁</div>'
+            + '</div>';
+    }
+
+    var preDebutTag = gameState.preDebut ? '<span class="pre-debut-badge">预备出道</span>' : '';
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
+        + '<div class="page-title">考核' + preDebutTag + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="section-title">合格证状态</div>'
+        + '<div class="exam-subject-row">' + certCardsHtml + '</div>'
+        + '<div class="section-title" style="margin-top:16px;">可参加考试</div>'
+        + examEntriesHtml
+        + compHtml
+        + '</div></div>';
+}
+
+function startExam(subject, level) {
+    _ensureExamState();
+    var statVal = gameState.stats[subject];
+    if (statVal < 105) {
+        showModal('无法参加', '该科目能力值需达到105才能参加考试（当前：' + statVal + '）');
+        return;
+    }
+    if (gameState.money < 300) {
+        showModal('金币不足', '参加考试需要300金币');
+        return;
+    }
+    gameState.money -= 300;
+    isExamInProgress = true;
+    currentExamSubject = subject;
+    currentExamLevel = level;
+    currentPage = 'examGame';
+    render();
+}
+
+function startComprehensiveExam(attempt) {
+    _ensureExamState();
+    if (gameState.money < 300) {
+        showModal('金币不足', '参加综合考试需要300金币');
+        return;
+    }
+    gameState.money -= 300;
+    isExamInProgress = true;
+    currentExamSubject = 'comprehensive';
+    currentExamLevel = attempt;
+    currentPage = 'examGame';
+    render();
+}
+
+function renderExamGamePage(container) {
+    _ensureExamState();
+    var subject = currentExamSubject;
+    var level = currentExamLevel;
+
+    if (subject === 'dance') {
+        renderDanceExam(container, level);
+    } else if (subject === 'vocal') {
+        renderVocalExam(container, level);
+    } else if (subject === 'rap') {
+        renderRapExam(container, level);
+    } else if (subject === 'acting') {
+        renderActingExam(container, level);
+    } else if (subject === 'variety') {
+        renderVarietyExam(container, level);
+    } else if (subject === 'comprehensive') {
+        renderComprehensiveExam(container, level);
+    }
+}
+
+function passExam(subject, level) {
+    _ensureExamState();
+    if (subject === 'comprehensive') {
+        gameState.examResult.comprehensive[level] = true;
+        if (gameState.examResult.comprehensive[0] && gameState.examResult.comprehensive[1]) {
+            gameState.preDebut = true;
+        }
+    } else {
+        gameState.certificates[subject][level] = true;
+    }
+    isExamInProgress = false;
+}
+
+function failExam() {
+    isExamInProgress = false;
+}
+
+function _examResultHtml(passed, title, sub) {
+    var icon = passed ? '🎉' : '😞';
+    var color = passed ? 'var(--color-success)' : 'var(--color-danger)';
+    var btnText = passed ? '太好了！' : '再接再厉';
+    return '<div class="exam-result-overlay">'
+        + '<div class="exam-result-box">'
+        + '<div class="exam-result-icon">' + icon + '</div>'
+        + '<div class="exam-result-title" style="color:' + color + ';">' + title + '</div>'
+        + '<div class="exam-result-sub">' + sub + '</div>'
+        + '<button class="btn btn-primary btn-lg" onclick="_finishExam(' + (passed ? 'true' : 'false') + ')">' + btnText + '</button>'
+        + '</div></div>';
+}
+
+function _finishExam(passed) {
+    if (passed) {
+        passExam(currentExamSubject, currentExamLevel);
+    } else {
+        failExam();
+    }
+    currentPage = 'exam';
+    render();
+}
+
+// ==================== DANCE EXAM - Rhythm Click ====================
+function renderDanceExam(container, level) {
+    var levelNames = ['一级', '二级', '三级'];
+    var speeds = [1200, 900, 600];
+    var speed = speeds[level];
+    var round = 0;
+    var totalRounds = 3;
+    var totalHits = 0;
+    var totalAttempts = 0;
+    var currentLitIndex = -1;
+    var roundHits = 0;
+    var roundActive = false;
+    var roundTimeout = null;
+    var dotTimeout = null;
+
+    var dotsHtml = '';
+    for (var i = 0; i < 8; i++) {
+        dotsHtml += '<div class="rhythm-dot" id="rdot' + i + '" onclick="_hitDanceDot(' + i + ')"></div>';
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="page-title">💃 舞蹈考试 - ' + levelNames[level] + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="text-align:center;">'
+        + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">节奏点击</div>'
+        + '<div style="font-size:16px;margin-top:4px;">第 <span id="dRound">1</span> / ' + totalRounds + ' 轮</div>'
+        + '</div>'
+        + '<div style="margin:16px 0;font-size:14px;color:var(--color-text-light);">点击亮起的圆点！每轮需点中6个以上</div>'
+        + '<div class="rhythm-container" id="rhythmContainer">' + dotsHtml + '</div>'
+        + '<div style="font-size:20px;font-weight:700;color:var(--color-text);margin-top:12px;">命中: <span id="dScore">0</span></div>'
+        + '<div id="dExamResult"></div>'
+        + '</div></div>';
+
+    function startRound() {
+        roundHits = 0;
+        currentLitIndex = -1;
+        roundActive = true;
+        var dotIndex = 0;
+        var roundAttempts = 0;
+
+        function lightNext() {
+            if (!roundActive || dotIndex >= 8) {
+                roundActive = false;
+                totalHits += roundHits;
+                round++;
+                var el = document.getElementById('dRound');
+                var scoreEl = document.getElementById('dScore');
+                if (scoreEl) scoreEl.textContent = totalHits;
+                if (round >= totalRounds) {
+                    finishDanceExam();
+                } else if (el) {
+                    el.textContent = (round + 1);
+                    setTimeout(startRound, 800);
+                }
+                return;
+            }
+            for (var ci = 0; ci < 8; ci++) {
+                var dot = document.getElementById('rdot' + ci);
+                if (dot) {
+                    dot.className = 'rhythm-dot';
+                    dot.textContent = '';
+                }
+            }
+            currentLitIndex = dotIndex;
+            var litDot = document.getElementById('rdot' + dotIndex);
+            if (litDot) litDot.className = 'rhythm-dot lit';
+            dotIndex++;
+            dotTimeout = setTimeout(lightNext, speed);
+        }
+        lightNext();
+    }
+
+    window._hitDanceDot = function(idx) {
+        if (!roundActive) return;
+        var dot = document.getElementById('rdot' + idx);
+        if (!dot) return;
+        if (idx === currentLitIndex) {
+            dot.className = 'rhythm-dot hit';
+            dot.textContent = '✓';
+            roundHits++;
+            var scoreEl = document.getElementById('dScore');
+            if (scoreEl) scoreEl.textContent = totalHits + roundHits;
+            currentLitIndex = -1;
+        } else if (dot.className.indexOf('lit') === -1 && dot.className.indexOf('hit') === -1) {
+            dot.className = 'rhythm-dot miss';
+            dot.textContent = '✗';
+        }
+    };
+
+    function finishDanceExam() {
+        var passed = totalHits >= 6;
+        var levelNames2 = ['一级', '二级', '三级'];
+        var resEl = document.getElementById('dExamResult');
+        if (resEl) {
+            resEl.innerHTML = _examResultHtml(
+                passed,
+                passed ? '合 格' : '不合格',
+                '命中 ' + totalHits + ' / 24' + (passed ? '\n' + levelNames2[level] + '合格证已获得！' : '\n需命中6个以上，继续加油！')
+            );
+        }
+    }
+
+    _addTimer(setTimeout(function() { startRound(); }, 500));
+}
+
+// ==================== VOCAL EXAM - Simon Memory ====================
+function renderVocalExam(container, level) {
+    var levelNames = ['一级', '二级', '三级'];
+    var seqLen = [3, 4, 5][level];
+    var sequence = [];
+    var playerSeq = [];
+    var isShowing = false;
+
+    for (var i = 0; i < seqLen; i++) {
+        sequence.push(Math.floor(Math.random() * 4));
+    }
+
+    var padsHtml = '';
+    for (var i = 0; i < 4; i++) {
+        padsHtml += '<div class="simon-pad" id="spad' + i + '" style="background:' + simonColors[i] + ';" onclick="_simonClick(' + i + ')"></div>';
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="page-title">🎤 声乐考试 - ' + levelNames[level] + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="text-align:center;">'
+        + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">音高记忆</div>'
+        + '<div style="font-size:16px;margin-top:4px;">记住顺序，按序点击（' + seqLen + '个音）</div>'
+        + '</div>'
+        + '<div style="margin:16px 0;font-size:14px;color:var(--color-text-light);" id="simonStatus">正在播放序列...</div>'
+        + '<div class="simon-grid" id="simonGrid">' + padsHtml + '</div>'
+        + '<div style="font-size:14px;color:var(--color-text-light);margin-top:12px;" id="simonProgress">0 / ' + seqLen + '</div>'
+        + '<div id="vExamResult"></div>'
+        + '</div></div>';
+
+    function showSequence() {
+        isShowing = true;
+        var idx = 0;
+        function lightOne() {
+            if (idx >= sequence.length) {
+                isShowing = false;
+                var st = document.getElementById('simonStatus');
+                if (st) st.textContent = '轮到你了！按顺序点击';
+                return;
+            }
+            for (var ci = 0; ci < 4; ci++) {
+                var pad = document.getElementById('spad' + ci);
+                if (pad) pad.className = 'simon-pad';
+            }
+            var pad = document.getElementById('spad' + sequence[idx]);
+            if (pad) pad.className = 'simon-pad lit';
+            idx++;
+            _addTimer(setTimeout(function() {
+                for (var ci = 0; ci < 4; ci++) {
+                    var p = document.getElementById('spad' + ci);
+                    if (p) p.className = 'simon-pad';
+                }
+                _addTimer(setTimeout(lightOne, 300));
+            }, 600));
+        }
+        _addTimer(setTimeout(lightOne, 800));
+    }
+
+    window._simonClick = function(idx) {
+        if (isShowing) return;
+        var pad = document.getElementById('spad' + idx);
+        if (pad) {
+            pad.className = 'simon-pad lit';
+            setTimeout(function() { if (pad) pad.className = 'simon-pad'; }, 200);
+        }
+        playerSeq.push(idx);
+        var pos = playerSeq.length - 1;
+        var progEl = document.getElementById('simonProgress');
+        if (progEl) progEl.textContent = playerSeq.length + ' / ' + seqLen;
+
+        if (playerSeq[pos] !== sequence[pos]) {
+            var resEl = document.getElementById('vExamResult');
+            if (resEl) {
+                resEl.innerHTML = _examResultHtml(false, '不合格', '序列记错了！再试一次吧');
+            }
+            return;
+        }
+        if (playerSeq.length === sequence.length) {
+            var resEl2 = document.getElementById('vExamResult');
+            if (resEl2) {
+                resEl2.innerHTML = _examResultHtml(true, '合 格', '音高记忆完美！' + levelNames[level] + '合格证已获得！');
+            }
+        }
+    };
+
+    _addTimer(setTimeout(showSequence, 500));
+}
+
+// ==================== RAP EXAM - Word Chain ====================
+function renderRapExam(container, level) {
+    var levelNames = ['一级', '二级', '三级'];
+    var qCounts = [3, 4, 5];
+    var passCounts = [2, 3, 4];
+    var totalQ = qCounts[level];
+    var needCorrect = passCounts[level];
+
+    var shuffled = rapQuestions.slice().sort(function() { return Math.random() - 0.5; });
+    var questions = shuffled.slice(0, totalQ);
+    var currentQ = 0;
+    var correctCount = 0;
+    var answered = false;
+
+    function showQuestion() {
+        if (currentQ >= totalQ) {
+            finishQuiz();
+            return;
+        }
+        answered = false;
+        var q = questions[currentQ];
+        var optionsHtml = '';
+        for (var oi = 0; oi < q.options.length; oi++) {
+            optionsHtml += '<div class="quiz-option" id="rapOpt' + oi + '" onclick="_rapAnswer(' + oi + ')">'
+                + q.options[oi] + '</div>';
+        }
+        var qArea = document.getElementById('rapQArea');
+        if (qArea) {
+            qArea.innerHTML = '<div class="card" style="text-align:center;">'
+                + '<div style="font-size:12px;color:var(--color-text-light);">第 ' + (currentQ + 1) + ' / ' + totalQ + ' 题</div>'
+                + '<div style="font-size:20px;font-weight:700;margin-top:8px;color:var(--color-text);">' + q.word + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">选择能接上的词</div>'
+                + '</div>'
+                + optionsHtml;
+        }
+    }
+
+    window._rapAnswer = function(idx) {
+        if (answered) return;
+        answered = true;
+        var q = questions[currentQ];
+        var correct = idx === q.answer;
+        if (correct) correctCount++;
+        var el = document.getElementById('rapOpt' + idx);
+        if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
+        if (!correct) {
+            var correctEl = document.getElementById('rapOpt' + q.answer);
+            if (correctEl) correctEl.className = 'quiz-option selected-correct';
+        }
+        currentQ++;
+        _addTimer(setTimeout(showQuestion, 1000));
+    };
+
+    function finishQuiz() {
+        var passed = correctCount >= needCorrect;
+        var resEl = document.getElementById('rapQArea');
+        if (resEl) {
+            resEl.innerHTML = _examResultHtml(
+                passed, passed ? '合 格' : '不合格',
+                '答对 ' + correctCount + ' / ' + totalQ + (passed ? '\n' + levelNames[level] + '合格证已获得！' : '\n需答对' + needCorrect + '题以上')
+            );
+        }
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="page-title">🎧 说唱考试 - ' + levelNames[level] + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">词语接龙</div>'
+        + '<div style="font-size:14px;margin-top:4px;">答对' + needCorrect + '题/' + totalQ + '题即合格</div>'
+        + '</div>'
+        + '<div id="rapQArea"></div>'
+        + '</div></div>';
+
+    _addTimer(setTimeout(showQuestion, 300));
+}
+
+// ==================== ACTING EXAM - Expression Choice ====================
+function renderActingExam(container, level) {
+    var levelNames = ['一级', '二级', '三级'];
+    var qCounts = [3, 4, 5];
+    var passCounts = [2, 3, 4];
+    var totalQ = qCounts[level];
+    var needCorrect = passCounts[level];
+
+    var shuffled = actingQuestions.slice().sort(function() { return Math.random() - 0.5; });
+    var questions = shuffled.slice(0, totalQ);
+    var currentQ = 0;
+    var correctCount = 0;
+    var answered = false;
+
+    function showQuestion() {
+        if (currentQ >= totalQ) {
+            finishQuiz();
+            return;
+        }
+        answered = false;
+        var q = questions[currentQ];
+        var optionsHtml = '';
+        for (var oi = 0; oi < q.options.length; oi++) {
+            optionsHtml += '<div class="quiz-option" id="actOpt' + oi + '" onclick="_actAnswer(' + oi + ')">'
+                + q.options[oi] + '</div>';
+        }
+        var qArea = document.getElementById('actQArea');
+        if (qArea) {
+            qArea.innerHTML = '<div class="card" style="text-align:center;">'
+                + '<div style="font-size:12px;color:var(--color-text-light);">第 ' + (currentQ + 1) + ' / ' + totalQ + ' 题</div>'
+                + '<div style="font-size:16px;font-weight:600;margin-top:8px;color:var(--color-text);">🎬 ' + q.scene + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">选择正确的表情/反应</div>'
+                + '</div>'
+                + optionsHtml;
+        }
+    }
+
+    window._actAnswer = function(idx) {
+        if (answered) return;
+        answered = true;
+        var q = questions[currentQ];
+        var correct = idx === q.answer;
+        if (correct) correctCount++;
+        var el = document.getElementById('actOpt' + idx);
+        if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
+        if (!correct) {
+            var correctEl = document.getElementById('actOpt' + q.answer);
+            if (correctEl) correctEl.className = 'quiz-option selected-correct';
+        }
+        currentQ++;
+        _addTimer(setTimeout(showQuestion, 1000));
+    };
+
+    function finishQuiz() {
+        var passed = correctCount >= needCorrect;
+        var resEl = document.getElementById('actQArea');
+        if (resEl) {
+            resEl.innerHTML = _examResultHtml(
+                passed, passed ? '合 格' : '不合格',
+                '答对 ' + correctCount + ' / ' + totalQ + (passed ? '\n' + levelNames[level] + '合格证已获得！' : '\n需答对' + needCorrect + '题以上')
+            );
+        }
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="page-title">🎭 表演考试 - ' + levelNames[level] + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">表情选择</div>'
+        + '<div style="font-size:14px;margin-top:4px;">答对' + needCorrect + '题/' + totalQ + '题即合格</div>'
+        + '</div>'
+        + '<div id="actQArea"></div>'
+        + '</div></div>';
+
+    _addTimer(setTimeout(showQuestion, 300));
+}
+
+// ==================== VARIETY EXAM - Improv Response ====================
+function renderVarietyExam(container, level) {
+    var levelNames = ['一级', '二级', '三级'];
+    var qCounts = [3, 4, 5];
+    var passCounts = [2, 3, 4];
+    var totalQ = qCounts[level];
+    var needCorrect = passCounts[level];
+
+    var shuffled = varietyQuestions.slice().sort(function() { return Math.random() - 0.5; });
+    var questions = shuffled.slice(0, totalQ);
+    var currentQ = 0;
+    var correctCount = 0;
+    var answered = false;
+
+    function showQuestion() {
+        if (currentQ >= totalQ) {
+            finishQuiz();
+            return;
+        }
+        answered = false;
+        var q = questions[currentQ];
+        var optionsHtml = '';
+        for (var oi = 0; oi < q.options.length; oi++) {
+            optionsHtml += '<div class="quiz-option" id="varOpt' + oi + '" onclick="_varAnswer(' + oi + ')">'
+                + q.options[oi] + '</div>';
+        }
+        var qArea = document.getElementById('varQArea');
+        if (qArea) {
+            qArea.innerHTML = '<div class="card" style="text-align:center;">'
+                + '<div style="font-size:12px;color:var(--color-text-light);">第 ' + (currentQ + 1) + ' / ' + totalQ + ' 题</div>'
+                + '<div style="font-size:14px;font-weight:600;margin-top:8px;color:var(--color-text);">📺 ' + q.host + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">选择最佳回应</div>'
+                + '</div>'
+                + optionsHtml;
+        }
+    }
+
+    window._varAnswer = function(idx) {
+        if (answered) return;
+        answered = true;
+        var q = questions[currentQ];
+        var correct = idx === q.answer;
+        if (correct) correctCount++;
+        var el = document.getElementById('varOpt' + idx);
+        if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
+        if (!correct) {
+            var correctEl = document.getElementById('varOpt' + q.answer);
+            if (correctEl) correctEl.className = 'quiz-option selected-correct';
+        }
+        currentQ++;
+        _addTimer(setTimeout(showQuestion, 1000));
+    };
+
+    function finishQuiz() {
+        var passed = correctCount >= needCorrect;
+        var resEl = document.getElementById('varQArea');
+        if (resEl) {
+            resEl.innerHTML = _examResultHtml(
+                passed, passed ? '合 格' : '不合格',
+                '答对 ' + correctCount + ' / ' + totalQ + (passed ? '\n' + levelNames[level] + '合格证已获得！' : '\n需答对' + needCorrect + '题以上')
+            );
+        }
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="page-title">📺 综艺考试 - ' + levelNames[level] + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">即兴回应</div>'
+        + '<div style="font-size:14px;margin-top:4px;">答对' + needCorrect + '题/' + totalQ + '题即合格</div>'
+        + '</div>'
+        + '<div id="varQArea"></div>'
+        + '</div></div>';
+
+    _addTimer(setTimeout(showQuestion, 300));
+}
+
+// ==================== COMPREHENSIVE EXAM - Mixed Challenge ====================
+function renderComprehensiveExam(container, attempt) {
+    var needCorrect = attempt === 0 ? 3 : 4;
+    var currentQ = 0;
+    var correctCount = 0;
+    var answered = false;
+
+    var subjects = ['dance', 'vocal', 'rap', 'acting', 'variety'];
+    var subjectNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
+    var subjectIcons = { dance: '💃', vocal: '🎤', rap: '🎧', acting: '🎭', variety: '📺' };
+    var mixedQuestions = [];
+
+    for (var si = 0; si < subjects.length; si++) {
+        var subj = subjects[si];
+        if (subj === 'dance') {
+            var seq = [];
+            for (var di = 0; di < 3; di++) {
+                seq.push(Math.floor(Math.random() * 8));
+            }
+            mixedQuestions.push({ type: 'dance', data: seq });
+        } else if (subj === 'vocal') {
+            var vseq = [];
+            for (var vi = 0; vi < 3; vi++) {
+                vseq.push(Math.floor(Math.random() * 4));
+            }
+            mixedQuestions.push({ type: 'vocal', data: vseq });
+        } else if (subj === 'rap') {
+            var rq = rapQuestions[Math.floor(Math.random() * rapQuestions.length)];
+            mixedQuestions.push({ type: 'rap', data: rq });
+        } else if (subj === 'acting') {
+            var aq = actingQuestions[Math.floor(Math.random() * actingQuestions.length)];
+            mixedQuestions.push({ type: 'acting', data: aq });
+        } else if (subj === 'variety') {
+            var vq = varietyQuestions[Math.floor(Math.random() * varietyQuestions.length)];
+            mixedQuestions.push({ type: 'variety', data: vq });
+        }
+    }
+
+    function showQuestion() {
+        if (currentQ >= mixedQuestions.length) {
+            finishCompExam();
+            return;
+        }
+        answered = false;
+        var mq = mixedQuestions[currentQ];
+        var qArea = document.getElementById('compQArea');
+        if (!qArea) return;
+
+        var header = '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:12px;">第 ' + (currentQ + 1) + ' / 5 题 · ' + subjectIcons[mq.type] + ' ' + subjectNames[mq.type] + '</div>';
+
+        if (mq.type === 'dance') {
+            var dotsHtml = '';
+            for (var i = 0; i < 8; i++) {
+                dotsHtml += '<div class="rhythm-dot" id="cdot' + i + '" onclick="_compDanceHit(' + i + ')"></div>';
+            }
+            qArea.innerHTML = header
+                + '<div style="font-size:14px;color:var(--color-text-light);margin-bottom:12px;">记住亮起的顺序，然后按序点击</div>'
+                + '<div class="rhythm-container" id="compRhythm">' + dotsHtml + '</div>'
+                + '<div id="compDanceStatus" style="font-size:13px;color:var(--color-primary);">观看序列...</div>';
+            _showCompDanceSeq(mq.data);
+        } else if (mq.type === 'vocal') {
+            var padsHtml = '';
+            for (var i = 0; i < 4; i++) {
+                padsHtml += '<div class="simon-pad" id="cspad' + i + '" style="background:' + simonColors[i] + ';" onclick="_compSimonClick(' + i + ')"></div>';
+            }
+            qArea.innerHTML = header
+                + '<div style="font-size:14px;color:var(--color-text-light);margin-bottom:8px;">记住音高顺序，按序点击</div>'
+                + '<div id="compSimonStatus" style="font-size:13px;color:var(--color-primary);margin-bottom:8px;">观看序列...</div>'
+                + '<div class="simon-grid">' + padsHtml + '</div>';
+            _showCompSimonSeq(mq.data);
+        } else if (mq.type === 'rap' || mq.type === 'acting' || mq.type === 'variety') {
+            var q = mq.data;
+            var prompt = '';
+            if (mq.type === 'rap') prompt = '接龙词: <b>' + q.word + '</b>';
+            else if (mq.type === 'acting') prompt = '🎬 ' + q.scene;
+            else prompt = '📺 ' + q.host;
+
+            var optionsHtml = '';
+            for (var oi = 0; oi < q.options.length; oi++) {
+                optionsHtml += '<div class="quiz-option" id="compOpt' + oi + '" onclick="_compQuizAnswer(' + oi + ')">'
+                    + q.options[oi] + '</div>';
+            }
+            qArea.innerHTML = header
+                + '<div class="card" style="text-align:center;">'
+                + '<div style="font-size:15px;font-weight:600;color:var(--color-text);">' + prompt + '</div>'
+                + '</div>'
+                + optionsHtml;
+        }
+    }
+
+    var compDancePlayerSeq = [];
+    var compDanceShowing = true;
+    window._showCompDanceSeq = function(seq) {
+        compDanceShowing = true;
+        compDancePlayerSeq = [];
+        var idx = 0;
+        function lightOne() {
+            for (var ci = 0; ci < 8; ci++) {
+                var d = document.getElementById('cdot' + ci);
+                if (d) { d.className = 'rhythm-dot'; d.textContent = ''; }
+            }
+            if (idx >= seq.length) {
+                compDanceShowing = false;
+                var st = document.getElementById('compDanceStatus');
+                if (st) st.textContent = '轮到你了！按顺序点击';
+                return;
+            }
+            var d = document.getElementById('cdot' + seq[idx]);
+            if (d) d.className = 'rhythm-dot lit';
+            idx++;
+            _addTimer(setTimeout(function() {
+                for (var ci = 0; ci < 8; ci++) {
+                    var dd = document.getElementById('cdot' + ci);
+                    if (dd) dd.className = 'rhythm-dot';
+                }
+                _addTimer(setTimeout(lightOne, 300));
+            }, 600));
+        }
+        _addTimer(setTimeout(lightOne, 500));
+    };
+
+    window._compDanceHit = function(idx) {
+        if (compDanceShowing) return;
+        compDancePlayerSeq.push(idx);
+        var pos = compDancePlayerSeq.length - 1;
+        var seq = mixedQuestions[currentQ].data;
+        var dot = document.getElementById('cdot' + idx);
+        if (compDancePlayerSeq[pos] === seq[pos]) {
+            if (dot) { dot.className = 'rhythm-dot hit'; dot.textContent = '✓'; }
+        } else {
+            if (dot) { dot.className = 'rhythm-dot miss'; dot.textContent = '✗'; }
+            answered = true;
+            _addTimer(setTimeout(function() { currentQ++; showQuestion(); }, 800));
+            return;
+        }
+        if (compDancePlayerSeq.length === seq.length) {
+            correctCount++;
+            answered = true;
+            _addTimer(setTimeout(function() { currentQ++; showQuestion(); }, 800));
+        }
+    };
+
+    var compSimonPlayerSeq = [];
+    var compSimonShowing = true;
+    window._showCompSimonSeq = function(seq) {
+        compSimonShowing = true;
+        compSimonPlayerSeq = [];
+        var idx = 0;
+        function lightOne() {
+            for (var ci = 0; ci < 4; ci++) {
+                var p = document.getElementById('cspad' + ci);
+                if (p) p.className = 'simon-pad';
+            }
+            if (idx >= seq.length) {
+                compSimonShowing = false;
+                var st = document.getElementById('compSimonStatus');
+                if (st) st.textContent = '轮到你了！按顺序点击';
+                return;
+            }
+            var p = document.getElementById('cspad' + seq[idx]);
+            if (p) p.className = 'simon-pad lit';
+            idx++;
+            _addTimer(setTimeout(function() {
+                for (var ci = 0; ci < 4; ci++) {
+                    var pp = document.getElementById('cspad' + ci);
+                    if (pp) pp.className = 'simon-pad';
+                }
+                _addTimer(setTimeout(lightOne, 300));
+            }, 600));
+        }
+        _addTimer(setTimeout(lightOne, 500));
+    };
+
+    window._compSimonClick = function(idx) {
+        if (compSimonShowing) return;
+        compSimonPlayerSeq.push(idx);
+        var pos = compSimonPlayerSeq.length - 1;
+        var seq = mixedQuestions[currentQ].data;
+        var pad = document.getElementById('cspad' + idx);
+        if (pad) { pad.className = 'simon-pad lit'; setTimeout(function() { if (pad) pad.className = 'simon-pad'; }, 200); }
+        if (compSimonPlayerSeq[pos] !== seq[pos]) {
+            answered = true;
+            _addTimer(setTimeout(function() { currentQ++; showQuestion(); }, 800));
+            return;
+        }
+        if (compSimonPlayerSeq.length === seq.length) {
+            correctCount++;
+            answered = true;
+            _addTimer(setTimeout(function() { currentQ++; showQuestion(); }, 800));
+        }
+    };
+
+    window._compQuizAnswer = function(idx) {
+        if (answered) return;
+        answered = true;
+        var mq = mixedQuestions[currentQ];
+        var q = mq.data;
+        var correct = idx === q.answer;
+        if (correct) correctCount++;
+        var el = document.getElementById('compOpt' + idx);
+        if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
+        if (!correct) {
+            var correctEl = document.getElementById('compOpt' + q.answer);
+            if (correctEl) correctEl.className = 'quiz-option selected-correct';
+        }
+        currentQ++;
+        _addTimer(setTimeout(showQuestion, 1000));
+    };
+
+    function finishCompExam() {
+        var passed = correctCount >= needCorrect;
+        var resEl = document.getElementById('compQArea');
+        if (resEl) {
+            var sub = '答对 ' + correctCount + ' / 5';
+            if (passed) {
+                sub += '\n综合考试第' + (attempt + 1) + '次通过！';
+                if (attempt === 0) sub += '\n还需通过第2次综合考试';
+                else sub += '\n🎉 恭喜！预备出道状态达成！';
+            } else {
+                sub += '\n需答对' + needCorrect + '题以上';
+            }
+            resEl.innerHTML = _examResultHtml(passed, passed ? '合 格' : '不合格', sub);
+        }
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="page-title">🏆 综合考试 - 第' + (attempt + 1) + '次</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">混合挑战</div>'
+        + '<div style="font-size:14px;margin-top:4px;">5科各1题，需答对' + needCorrect + '题以上</div>'
+        + '</div>'
+        + '<div id="compQArea"></div>'
+        + '</div></div>';
+
+    _addTimer(setTimeout(showQuestion, 300));
 }
 
 // ==================== MY PAGE ====================
@@ -2164,6 +3404,13 @@ function render我的Page(container) {
                         </div>
                     `).join('')}
                 </div>
+                
+                <!-- 账号操作 -->
+                <div class="section-title" style="margin-top:16px;">账号</div>
+                <div class="card" onclick="_doLogout()" style="cursor:pointer;">
+                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>
+                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>
+                </div>
             </div>
         </div>
     `;
@@ -2189,6 +3436,20 @@ function useItem(index) {
 
 // ==================== NAVIGATION ====================
 function goToPage(page) {
+    if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
+        try {
+            var saveData = {};
+            var keys = Object.keys(gameState);
+            for (var si = 0; si < keys.length; si++) {
+                if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
+            }
+            localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+        } catch(e) {}
+    }
+    if (isExamInProgress) {
+        showModal('考试进行中', '请先完成当前考试');
+        return;
+    }
     if (isResting) {
         showModal('请等待', '体力恢复中，请等待');
         return;
@@ -2212,9 +3473,9 @@ function goToPage(page) {
 function renderBottomNav() {
     const nav = document.getElementById('bottomNav');
     
-    const homePages = ['home','hotsearch','hotsearchdetail','ranking','schedule','meeting','mail','work','dating','bubble','weverse','ins','tiktok','food','delivery','loan','crisis','live','settings','updates','insprofile','meetingdialog','members'];
+    const homePages = ['home','hotsearch','hotsearchdetail','ranking','schedule','meeting','mail','work','dating','bubble','weverse','ins','tiktok','food','delivery','loan','crisis','live','settings','updates','insprofile','meetingdialog','members','kakaotalk','kakaochat'];
     const trainPages = ['training'];
-    const examPages = ['exam'];
+    const examPages = ['exam', 'examGame'];
     const mePages = ['me'];
     
     function isActive(group) { return group.includes(currentPage); }
@@ -2269,7 +3530,8 @@ function getIcon(name) {
         'more': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>',
         'lock': '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
         'members': '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
-        'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#FF8FA3" stroke="none"></circle></svg>'
+        'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#FF8FA3" stroke="none"></circle></svg>',
+        'kakaotalk': '<svg class="kakao-icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="3" ry="3" fill="#FAE100" stroke="none"></rect><path d="M7 10h4M13 10h4M9 13h6" stroke="#392020" stroke-width="1.5" stroke-linecap="round" fill="none"></path><polygon points="8,18 10,22 12,18" fill="#FAE100" stroke="none"></polygon></svg>'
     };
     return icons[name] || '';
 }
@@ -3515,48 +4777,65 @@ function render更多服务Page(container) {
 
 // ==================== FOOD APP ====================
 function renderFoodPage(container) {
-    const foods = [
+    var foods = [
+        // 快餐
         { name: '炸鸡', price: 8000, 体力: 30, category: '快餐' },
         { name: '披萨', price: 12000, 体力: 45, category: '快餐' },
         { name: '汉堡', price: 7000, 体力: 25, category: '快餐' },
+        { name: '紫菜包饭', price: 5000, 体力: 20, category: '快餐' },
+        { name: '拉面', price: 4000, 体力: 15, category: '快餐' },
+        { name: '炒年糕', price: 6000, 体力: 22, category: '快餐' },
+        // 甜点
         { name: '蛋糕', price: 5000, 体力: 15, category: '甜点' },
         { name: '咖啡', price: 4000, 体力: 10, category: '甜点' },
+        { name: '奶茶', price: 4500, 体力: 12, category: '甜点' },
+        { name: '马卡龙', price: 8000, 体力: 18, category: '甜点' },
+        { name: '冰淇淋', price: 3500, 体力: 8, category: '甜点' },
+        // 营养餐
         { name: '沙拉', price: 10000, 体力: 35, category: '营养餐' },
-        { name: '牛排', price: 25000, 体力: 80, category: '奢华料理' }
+        { name: '参鸡汤', price: 15000, 体力: 50, category: '营养餐' },
+        { name: '韩式定食', price: 12000, 体力: 40, category: '营养餐' },
+        { name: '排毒果汁', price: 8000, 体力: 20, category: '营养餐' },
+        // 奢华料理
+        { name: '牛排', price: 25000, 体力: 80, category: '奢华料理' },
+        { name: '韩牛烤肉', price: 35000, 体力: 100, category: '奢华料理' },
+        { name: '米其林套餐', price: 50000, 体力: 120, category: '奢华料理' }
     ];
     
-    container.innerHTML = `
-        <div class="page active">
-            <div class="page-header">
-                <div class="back-btn" onclick="goToPage('home')">‹ 首页</div>
-                <div class="page-title">外卖订餐</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="page-content">
-                <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;">
-                    <div style="font-size: 12px; opacity: 0.8;">余额</div>
-                    <div style="font-size: 22px; font-weight: 700;">${gameState.money.toLocaleString()}</div>
-                </div>
-                
-                ${['快餐', '甜点', '营养餐', '奢华料理'].map(cat => `
-                    <div class="section-title">${cat}</div>
-                    ${foods.filter(f => f.category === cat).map(f => `
-                        <div class="card" onclick="orderFood('${f.name}', ${f.price}, ${f.体力})">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <div style="font-weight: 600;">${f.name}</div>
-                                    <div style="font-size: 12px; color: var(--color-text-light);">+${f.体力} 体力（存入背包）</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-weight: 600; color: var(--color-primary);">${f.price.toLocaleString()}</div>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                `).join('')}
-            </div>
-        </div>
-    `;
+    var cats = ['快餐', '甜点', '营养餐', '奢华料理'];
+    var foodCardsHtml = '';
+    for (var ci = 0; ci < cats.length; ci++) {
+        var cat = cats[ci];
+        foodCardsHtml += '<div class="section-title">' + cat + '</div>';
+        for (var fi = 0; fi < foods.length; fi++) {
+            var f = foods[fi];
+            if (f.category !== cat) continue;
+            foodCardsHtml += '<div class="card" onclick="orderFood(\'' + f.name + '\', ' + f.price + ', ' + f.体力 + ')">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div>'
+                + '<div style="font-weight:600;">' + f.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">+' + f.体力 + ' 体力（存入背包）</div>'
+                + '</div>'
+                + '<div style="text-align:right;">'
+                + '<div style="font-weight:600;color:var(--color-primary);">' + f.price.toLocaleString() + '</div>'
+                + '</div>'
+                + '</div></div>';
+        }
+    }
+    
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
+        + '<div class="page-title">外卖订餐</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">余额</div>'
+        + '<div style="font-size:22px;font-weight:700;">' + gameState.money.toLocaleString() + '</div>'
+        + '</div>'
+        + foodCardsHtml
+        + '</div></div>';
 }
 
 function orderFood(name, price, 体力) {
@@ -3578,52 +4857,98 @@ function orderFood(name, price, 体力) {
 
 // ==================== DELIVERY APP ====================
 function render快递服务Page(container) {
-    const items = [
-        { name: '护肤套装', price: 15000, lifeVal: 10 },
-        { name: '化妆品套装', price: 20000, lifeVal: 15 },
-        { name: '服装', price: 25000, lifeVal: 20 },
-        { name: '太阳镜', price: 8000, lifeVal: 5 },
-        { name: '香水', price: 30000, lifeVal: 25 }
+    var deliveryItems = [
+        // 护肤类
+        { name: '基础护肤套装', price: 15000, lifeVal: 10, category: '护肤', effect: '生命' },
+        { name: '精华液', price: 25000, lifeVal: 18, category: '护肤', effect: '生命' },
+        { name: '面膜套装', price: 12000, lifeVal: 8, category: '护肤', effect: '生命' },
+        { name: '防晒霜', price: 8000, lifeVal: 5, category: '护肤', effect: '生命' },
+        // 化妆品
+        { name: '化妆品套装', price: 20000, lifeVal: 15, category: '化妆品', effect: '生命' },
+        { name: '口红礼盒', price: 18000, lifeVal: 12, category: '化妆品', effect: '生命' },
+        { name: '气垫粉底', price: 16000, lifeVal: 10, category: '化妆品', effect: '生命' },
+        // 衣服
+        { name: '练习服', price: 10000, lifeVal: 8, category: '衣服', effect: '生命' },
+        { name: '舞台服装', price: 35000, lifeVal: 25, category: '衣服', effect: '生命' },
+        { name: '日常穿搭', price: 15000, lifeVal: 10, category: '衣服', effect: '生命' },
+        { name: '品牌联名款', price: 50000, lifeVal: 30, category: '衣服', effect: '生命' },
+        // 粉丝礼物
+        { name: '粉丝信件合集', price: 5000, fameVal: 5, category: '粉丝礼物', effect: '名气' },
+        { name: '粉丝应援棒', price: 8000, fameVal: 8, category: '粉丝礼物', effect: '名气' },
+        { name: '粉丝手工礼物', price: 12000, fameVal: 12, category: '粉丝礼物', effect: '名气' },
+        // 私生防护
+        { name: '隐私保护套装', price: 20000, dangerVal: -15, category: '私生防护', effect: '危险' },
+        { name: '防跟踪器', price: 30000, dangerVal: -20, category: '私生防护', effect: '危险' },
+        { name: '安全警报器', price: 15000, dangerVal: -10, category: '私生防护', effect: '危险' },
+        // 医药品
+        { name: '感冒药', price: 5000, lifeVal: 15, category: '医药品', effect: '生命' },
+        { name: '营养补充剂', price: 10000, lifeVal: 25, category: '医药品', effect: '生命' },
+        { name: '止痛贴', price: 8000, lifeVal: 12, category: '医药品', effect: '生命' },
+        { name: '急救包', price: 15000, lifeVal: 35, category: '医药品', effect: '生命' },
+        { name: '维生素套装', price: 12000, lifeVal: 20, category: '医药品', effect: '生命' }
     ];
     
-    container.innerHTML = `
-        <div class="page active">
-            <div class="page-header">
-                <div class="back-btn" onclick="goToPage('home')">‹ 首页</div>
-                <div class="page-title">快递服务</div>
-                <div style="width: 32px;"></div>
-            </div>
-            <div class="page-content">
-                <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;">
-                    <div style="font-size: 12px; opacity: 0.8;">余额</div>
-                    <div style="font-size: 22px; font-weight: 700;">${gameState.money.toLocaleString()}</div>
-                </div>
-                ${items.map(item => `
-                    <div class="card" onclick="order快递服务('${item.name}', ${item.price}, ${item.lifeVal})">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: 600;">${item.name}</div>
-                                <div style="font-size: 12px; color: var(--color-success);">+${item.lifeVal} 生命（存入背包）</div>
-                            </div>
-                            <div style="font-weight: 600; color: var(--color-primary);">${item.price.toLocaleString()}</div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
+    var delCats = ['护肤', '化妆品', '衣服', '粉丝礼物', '私生防护', '医药品'];
+    var delCardsHtml = '';
+    for (var dci = 0; dci < delCats.length; dci++) {
+        var delCat = delCats[dci];
+        delCardsHtml += '<div class="section-title">' + delCat + '</div>';
+        for (var dii = 0; dii < deliveryItems.length; dii++) {
+            var item = deliveryItems[dii];
+            if (item.category !== delCat) continue;
+            var effectText = '';
+            if (item.effect === '生命') effectText = '+' + item.lifeVal + ' 生命';
+            else if (item.effect === '名气') effectText = '+' + item.fameVal + ' 名气';
+            else if (item.effect === '危险') effectText = '-' + Math.abs(item.dangerVal) + ' 危险值';
+            var itemVal = item.lifeVal || item.fameVal || Math.abs(item.dangerVal);
+            delCardsHtml += '<div class="card" onclick="order快递服务(\'' + item.name + '\', ' + item.price + ', ' + itemVal + ', \'' + item.effect + '\')">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div>'
+                + '<div style="font-weight:600;">' + item.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-success);">' + effectText + '</div>'
+                + '</div>'
+                + '<div style="font-weight:600;color:var(--color-primary);">' + item.price.toLocaleString() + '</div>'
+                + '</div></div>';
+        }
+    }
+    
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
+        + '<div class="page-title">快递服务</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">余额</div>'
+        + '<div style="font-size:22px;font-weight:700;">' + gameState.money.toLocaleString() + '</div>'
+        + '</div>'
+        + delCardsHtml
+        + '</div></div>';
 }
 
-function order快递服务(name, price, lifeVal) {
+function order快递服务(name, price, value, effect) {
     if (gameState.money < price) {
         showModal('金币不足', '你的金币不够支付');
         return;
     }
-    showModal('确认购买', '商品：' + name + '\n价格：' + price.toLocaleString() + ' 金币\n效果：+' + lifeVal + ' 生命', [
+    var effectDesc = '';
+    if (effect === '生命') effectDesc = '+' + value + ' 生命';
+    else if (effect === '名气') effectDesc = '+' + value + ' 名气';
+    else if (effect === '危险') effectDesc = '-' + value + ' 危险值';
+    showModal('确认购买', '商品：' + name + '\n价格：' + price.toLocaleString() + ' 金币\n效果：' + effectDesc, [
         { text: '取消', action: closeModal },
         { text: '确认购买', action: function() {
             gameState.money -= price;
-            gameState.inventory.push({ name: name, effect: '生命', value: lifeVal });
+            if (effect === '生命') {
+                gameState.inventory.push({ name: name, effect: '生命', value: value });
+            } else if (effect === '名气') {
+                gameState.fame = Math.min(200, (gameState.fame || 30) + value);
+                gameState.inventory.push({ name: name, effect: '名气', value: value });
+            } else if (effect === '危险') {
+                gameState.danger = Math.max(0, gameState.danger - value);
+                gameState.inventory.push({ name: name, effect: '安全', value: value });
+            }
             closeModal();
             showModal('下单成功', '已购买 ' + name + '\n已存入背包，可在「我的」页面使用');
             render();
@@ -4137,6 +5462,8 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
+        { ver: 'V1.4.1', date: '2026年6月13日', title: 'My Idol V1.4.1', content: 'My Idol V1.4.1 更新内容：\n\n• 新增KakaoTalk聊天APP，可以和练习生NPC聊天\n• 新增6位AI练习生和经纪人\n• 新增自动存档功能，再也不怕忘记保存\n• 新增账号注册系统，保护你的游戏进度\n• 考核系统上线！5科考试+综合考核\n• 外卖扩充到18种美食\n• 快递升级22种商品6大分类\n• 会议系统修复+新增剧情' },
+        { ver: 'V1.4', date: '2026年6月13日 00:05', title: 'My Idol V1.4', content: 'My Idol V1.4 更新内容：\n\n• 考核系统上线 - 5科3级考试+综合考试，通过后预备出道\n• 舞蹈考试 - 节奏点击小游戏\n• 声乐考试 - 音高记忆小游戏\n• 说唱考试 - 词语接龙\n• 表演考试 - 表情选择\n• 综艺考试 - 即兴回应\n• 综合考试 - 混合挑战，5科全三级后解锁\n• 会议系统修复+新增剧情\n• 外卖快递全面升级' },
         { ver: 'V1.3.1', date: '2026年6月12日 22:52', title: 'My Idol V1.3.1', content: 'My Idol V1.3.1 更新内容：\n\n• INS图片上传 - 发动态支持选择图片并预览\n• TikTok视频上传 - 上传视频支持选择文件并预览\n• 外卖快递购买确认 - 购买前增加确认弹窗\n• 训练页体力恢复 - 新增30秒休息恢复体力功能' },
         { ver: 'V1.3', date: '2026年6月12日 22:33', title: 'My Idol V1.3', content: 'My Idol V1.3 更新内容：\n\n• 会议系统修复 - 修复Safari兼容性，稳定运行\n• INS关注+私聊 - 关注互动、智能私信聊天\n• TikTok关注+私信 - 关注互动、智能回复\n• 直播实时转述改为中文\n• INS/TikTok翻译功能恢复\n• 主页数值分组 - 状态(生命/体力/信誉)与声望(危险/影响力/名气)分开展示' },
         { ver: 'V1.2', date: '2026年6月12日 20:35', title: 'My Idol V1.2', content: 'My Idol V1.2 更新内容：\n\n• 删除测试模式 - 粉丝解锁条件已恢复\n• iPad稳定性优化 - 修复Safari兼容性问题\n• 热搜详情+刷新 - 点击热搜查看详情，支持刷新\n• 行程表交互优化 - 参加消耗体力获属性，不参加不可更改\n• 会议沉浸式对话 - 流畅对话体验\n• INS/TikTok消息系统 - Tab移至顶部\n• 直播实时转述+双模式 - 视频/语音直播\n• 成员信息APP - 浏览所有公司和团体成员\n• 影响力/名气系统 - 更多属性影响游戏体验\n• 泡泡/Weverse多语言翻译 - 韩语/日语/英语随机消息\n• 私生危机循环 - 处理后自动生成新事件' },
@@ -4178,39 +5505,50 @@ function render更新通知Page(container) {
 
 // ==================== MEETING DIALOG PAGE ====================
 function render会议DialogPage(container) {
-    var ds = gameState.meetingDialogState;
-    if (!ds) { goToPage('meeting'); return; }
-    
-    var optionsHtml = '';
-    for (var i = 0; i < ds.options.length; i++) {
-        optionsHtml += '<div class="card" onclick="choose会议Option(' + i + ')" style="cursor:pointer;">'
-            + '<div style="font-size:14px;">' + ds.options[i].text + '</div>'
-            + '</div>';
+    try {
+        var ds = gameState.meetingDialogState;
+        if (!ds) { goToPage('meeting'); return; }
+        
+        var optionsHtml = '';
+        for (var i = 0; i < ds.options.length; i++) {
+            optionsHtml += '<div class="card" onclick="choose会议Option(' + i + ')" style="cursor:pointer;">'
+                + '<div style="font-size:14px;">' + ds.options[i].text + '</div>'
+                + '</div>';
+        }
+        
+        container.innerHTML = '<div class="page active">'
+            + '<div class="page-header">'
+            + '<div class="back-btn" onclick="goToPage(\'meeting\')">‹ 会议</div>'
+            + '<div class="page-title">' + ds.title + '</div>'
+            + '<div style="width:32px;"></div>'
+            + '</div>'
+            + '<div class="page-content">'
+            + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+            + '<div style="font-size:12px;opacity:0.8;">对话进度</div>'
+            + '<div style="font-size:14px;margin-top:4px;">第 ' + ds.round + ' / ' + ds.totalRounds + ' 轮</div>'
+            + '</div>'
+            + '<div class="card">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">' + ds.speaker + '</div>'
+            + '<div style="font-size:15px;line-height:1.6;">' + ds.dialog + '</div>'
+            + '</div>'
+            + '<div class="section-title">你的回应</div>'
+            + optionsHtml
+            + '</div></div>';
+    } catch(e) {
+        console.error('render会议DialogPage error:', e);
+        gameState.meetingDialogState = null;
+        container.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;">'
+            + '<div style="font-size:16px;color:var(--color-danger);">会议页面加载出错</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:8px;">' + (e.message || '未知错误') + '</div>'
+            + '<button class="btn btn-primary" onclick="goToPage(\'meeting\')" style="margin-top:16px;">返回会议</button>'
+            + '</div></div>';
     }
-    
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'meeting\')">‹ 会议</div>'
-        + '<div class="page-title">' + ds.title + '</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content">'
-        + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-        + '<div style="font-size:12px;opacity:0.8;">对话进度</div>'
-        + '<div style="font-size:14px;margin-top:4px;">第 ' + ds.round + ' / ' + ds.totalRounds + ' 轮</div>'
-        + '</div>'
-        + '<div class="card">'
-        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">' + ds.speaker + '</div>'
-        + '<div style="font-size:15px;line-height:1.6;">' + ds.dialog + '</div>'
-        + '</div>'
-        + '<div class="section-title">你的回应</div>'
-        + optionsHtml
-        + '</div></div>';
 }
 
 function start会议Dialog(meetingIndex) {
-    var m = gameState.meetings[meetingIndex];
-    if (!m) return;
+    try {
+        var m = gameState.meetings[meetingIndex];
+        if (!m) return;
     
     var npcs = getSameCompanyNPCs();
     var member1 = npcs.length > 0 ? npcs[0].name : '队友';
@@ -4253,6 +5591,60 @@ function start会议Dialog(meetingIndex) {
                 { text: '希望中间能有短暂休息', effect: { credit: 3, '体力': -5 } }
             ]}
         ];
+    } else if (m.title.indexOf('练习') > -1 || m.title.indexOf('训练') > -1 || m.title.indexOf('集合') > -1) {
+        dialogs = [
+            { round: 1, speaker: '经纪人 李秀珍', dialog: '今天的训练安排需要调整一下。' + gameState.player.name + '，你觉得自己哪方面最需要加强？', options: [
+                { text: '舞蹈还需要更多练习', effect: { credit: 3, '体力': -5 } },
+                { text: '声乐是我最想提升的', effect: { credit: 3, '体力': -5 } },
+                { text: '我想全面提升，不偏科', effect: { credit: 5, '体力': -8 } }
+            ]},
+            { round: 2, speaker: member1, dialog: '最近训练强度确实很大，你还好吗？', options: [
+                { text: '还好，我能撑住', effect: { credit: 4, influence: 2 } },
+                { text: '有点累，但会坚持', effect: { credit: 3, fame: 1 } },
+                { text: '确实需要调整一下节奏', effect: { credit: 2, '体力': 10 } }
+            ]},
+            { round: 3, speaker: '训练指导老师', dialog: '接下来一周要加练，你能配合吗？', options: [
+                { text: '没问题，全力配合', effect: { credit: 7, '体力': -15, influence: 3 } },
+                { text: '可以，但希望合理安排休息', effect: { credit: 5, fame: 2 } },
+                { text: '我会尽最大努力', effect: { credit: 6, influence: 2, '体力': -10 } }
+            ]}
+        ];
+    } else if (m.title.indexOf('健康') > -1 || m.title.indexOf('检查') > -1) {
+        dialogs = [
+            { round: 1, speaker: '经纪人 李秀珍', dialog: '健康管理是很重要的事情。' + gameState.player.name + '，你最近身体状态怎么样？', options: [
+                { text: '状态很好，精力充沛', effect: { credit: 3, fame: 1 } },
+                { text: '有点疲惫，需要休息', effect: { credit: 2, '体力': 15 } },
+                { text: '还行，但偶尔会感到压力', effect: { credit: 4, influence: 1 } }
+            ]},
+            { round: 2, speaker: '队医', dialog: '检查结果显示你需要多注意作息。有什么想问的吗？', options: [
+                { text: '有什么建议的恢复方法吗？', effect: { credit: 3, '体力': 20 } },
+                { text: '我会在意的，谢谢', effect: { credit: 2 } },
+                { text: '会不会影响接下来的行程？', effect: { credit: 4, fame: 1 } }
+            ]},
+            { round: 3, speaker: '经纪人 李秀珍', dialog: '身体是革命的本钱，一定要重视。', options: [
+                { text: '我会好好照顾自己的', effect: { credit: 5, '体力': 10, fame: 2 } },
+                { text: '知道了，我会调整作息', effect: { credit: 3, '体力': 15 } },
+                { text: '谢谢关心，我没事的', effect: { credit: 2, fame: 1 } }
+            ]}
+        ];
+    } else if (m.title.indexOf('考核') > -1 || m.title.indexOf('评估') > -1) {
+        dialogs = [
+            { round: 1, speaker: '经纪人 李秀珍', dialog: '考核结果出来了。' + gameState.player.name + '，你对这次考核有信心吗？', options: [
+                { text: '有信心，我准备得很充分', effect: { credit: 5, fame: 2 } },
+                { text: '有点紧张，但尽力了', effect: { credit: 3 } },
+                { text: '不管结果如何，我继续努力', effect: { credit: 4, influence: 2 } }
+            ]},
+            { round: 2, speaker: member2, dialog: '这次考核标准好像比以前严格了不少...', options: [
+                { text: '严格才能出精品，加油', effect: { credit: 5, influence: 2 } },
+                { text: '确实，压力好大', effect: { credit: 2, '体力': -5 } },
+                { text: '我们一起努力就好', effect: { credit: 4, fame: 1 } }
+            ]},
+            { round: 3, speaker: '训练指导老师', dialog: '考核只是过程，成长才是目的。继续加油！', options: [
+                { text: '我会更加努力的', effect: { credit: 6, influence: 3 } },
+                { text: '谢谢老师，我会保持谦虚', effect: { credit: 5, fame: 2 } },
+                { text: '下一次考核我一定表现更好', effect: { credit: 7, '体力': -10, fame: 3 } }
+            ]}
+        ];
     } else {
         dialogs = [
             { round: 1, speaker: '经纪人 李秀珍', dialog: '今天的会议主题是' + m.title + '。' + gameState.player.name + '，你先说说你的想法？', options: [
@@ -4286,44 +5678,57 @@ function start会议Dialog(meetingIndex) {
         allDialogs: dialogs
     };
     goToPage('meetingdialog');
+    } catch(e) {
+        console.error('start会议Dialog error:', e);
+        gameState.meetingDialogState = null;
+        showModal('会议出错', '进入会议时发生错误：' + (e.message || '未知错误') + '\n请重新尝试');
+        goToPage('meeting');
+    }
 }
 
 function choose会议Option(optionIndex) {
-    var ds = gameState.meetingDialogState;
-    if (!ds) return;
-    
-    var opt = ds.options[optionIndex];
-    if (opt.effect) {
-        if (opt.effect.credit) gameState.credit = Math.max(0, Math.min(200, gameState.credit + opt.effect.credit));
-        if (opt.effect.fans) gameState.fans += opt.effect.fans;
-        if (opt.effect['体力']) gameState.体力 = Math.max(0, gameState.体力 + opt.effect['体力']);
-        if (opt.effect.influence) gameState.influence = Math.min(200, (gameState.influence || 50) + opt.effect.influence);
-        if (opt.effect.fame) gameState.fame = Math.min(200, (gameState.fame || 30) + opt.effect.fame);
-        if (opt.effect.danger) gameState.danger = Math.max(0, gameState.danger + opt.effect.danger);
-    }
-    
-    if (ds.round >= ds.totalRounds) {
-        var summary = '会议圆满结束！\n';
+    try {
+        var ds = gameState.meetingDialogState;
+        if (!ds) return;
+        
+        var opt = ds.options[optionIndex];
         if (opt.effect) {
-            if (opt.effect.credit) summary += '信誉 +' + opt.effect.credit + '\n';
-            if (opt.effect.fans) summary += '粉丝 +' + opt.effect.fans + '\n';
-            if (opt.effect.influence) summary += '影响力 +' + opt.effect.influence + '\n';
-            if (opt.effect.fame) summary += '名气 +' + opt.effect.fame + '\n';
-            if (opt.effect['体力']) summary += '体力 ' + opt.effect['体力'] + '\n';
-            if (opt.effect.danger) summary += '危险值 ' + (opt.effect.danger > 0 ? '+' : '') + opt.effect.danger;
+            if (opt.effect.credit) gameState.credit = Math.max(0, Math.min(200, gameState.credit + opt.effect.credit));
+            if (opt.effect.fans) gameState.fans += opt.effect.fans;
+            if (opt.effect['体力']) gameState.体力 = Math.max(0, gameState.体力 + opt.effect['体力']);
+            if (opt.effect.influence) gameState.influence = Math.min(200, (gameState.influence || 50) + opt.effect.influence);
+            if (opt.effect.fame) gameState.fame = Math.min(200, (gameState.fame || 30) + opt.effect.fame);
+            if (opt.effect.danger) gameState.danger = Math.max(0, gameState.danger + opt.effect.danger);
         }
+        
+        if (ds.round >= ds.totalRounds) {
+            var summary = '会议圆满结束！\n';
+            if (opt.effect) {
+                if (opt.effect.credit) summary += '信誉 +' + opt.effect.credit + '\n';
+                if (opt.effect.fans) summary += '粉丝 +' + opt.effect.fans + '\n';
+                if (opt.effect.influence) summary += '影响力 +' + opt.effect.influence + '\n';
+                if (opt.effect.fame) summary += '名气 +' + opt.effect.fame + '\n';
+                if (opt.effect['体力']) summary += '体力 ' + opt.effect['体力'] + '\n';
+                if (opt.effect.danger) summary += '危险值 ' + (opt.effect.danger > 0 ? '+' : '') + opt.effect.danger;
+            }
+            gameState.meetingDialogState = null;
+            showModal('会议结束', summary.trim());
+            goToPage('meeting');
+            return;
+        }
+        
+        var nextDialog = ds.allDialogs[ds.round];
+        ds.round++;
+        ds.speaker = nextDialog.speaker;
+        ds.dialog = nextDialog.dialog;
+        ds.options = nextDialog.options;
+        render();
+    } catch(e) {
+        console.error('choose会议Option error:', e);
         gameState.meetingDialogState = null;
-        showModal('会议结束', summary.trim());
+        showModal('选择出错', '做出选择时发生错误：' + (e.message || '未知错误') + '\n已返回会议列表');
         goToPage('meeting');
-        return;
     }
-    
-    var nextDialog = ds.allDialogs[ds.round];
-    ds.round++;
-    ds.speaker = nextDialog.speaker;
-    ds.dialog = nextDialog.dialog;
-    ds.options = nextDialog.options;
-    render();
 }
 
 // ==================== INS PROFILE PAGE ====================
@@ -4432,9 +5837,18 @@ function render设置Page(container) {
 }
 
 function confirmExit() {
-    showModal('退出游戏', '确定要退出吗？请先保存游戏', [
+    showModal('退出游戏', '确定要退出吗？游戏会自动保存', [
         { text: '取消', action: closeModal },
         { text: '退出', action: function() {
+            try {
+                var saveData = {};
+                var keys = Object.keys(gameState);
+                for (var si = 0; si < keys.length; si++) {
+                    if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
+                }
+                localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+            } catch(e) {}
+            if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
             currentPage = 'welcome';
             document.getElementById('statusBar').style.display = 'none';
             document.getElementById('restButtons').style.display = 'none';
@@ -4568,12 +5982,20 @@ function saveGame(slot) {
         insPosts: gameState.insPosts,
         tiktokPosts: gameState.tiktokPosts,
         insMessages: gameState.insMessages,
-        tiktokMessages: gameState.tiktokMessages
+        tiktokMessages: gameState.tiktokMessages,
+        certificates: gameState.certificates || { dance: [false,false,false], vocal: [false,false,false], rap: [false,false,false], acting: [false,false,false], variety: [false,false,false] },
+        examResult: gameState.examResult || { comprehensive: [false, false] },
+        preDebut: gameState.preDebut || false,
+        kakaoChats: gameState.kakaoChats || {},
+        kakaoFriends: gameState.kakaoFriends || [],
+        kakaoCurrentChat: gameState.kakaoCurrentChat || '',
+        kakaoTab: gameState.kakaoTab || 'chats'
     };
     
     try {
         localStorage.setItem('myidol_save_' + slot, JSON.stringify(saveData));
-        showModal('保存成功', '游戏已保存到存档 ' + (slot + 1));
+        localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+        showToast('保存成功');
     } catch (e) {
         showModal('保存失败', '无法保存游戏。');
     }
@@ -4629,6 +6051,442 @@ function updateTime() {
 setInterval(updateTime, 1000);
 updateTime();
 
+// ==================== TOAST ====================
+function showToast(message, duration) {
+    if (!duration) duration = 1500;
+    var toast = document.createElement('div');
+    toast.className = 'myidol-toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(function() {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, duration);
+}
+
+// ==================== SIMPLE NPC REPLY ====================
+function getSimpleReply(personality, npcName) {
+    var templates = {
+        'protective': ['注意休息哦','今天辛苦了','我会一直支持你的','别太勉强自己','有什么需要帮忙的吗','你今天状态怎么样','我给你带了点心','累了就说一声'],
+        'helpful': ['加油！','我教你一个小技巧','一起练习吧','今天的日程安排好了','你可以的','我帮你看看','试试这个方法','我们互相学习'],
+        'hostile': ['哼','别来烦我','你又来了','走开','真烦','别挡路','少在我面前晃','无所谓'],
+        'backstabber': ['你真棒呢~','加油哦（笑）','放心吧我才不会...','哦是吗','那可真是太好了','你说的都对呢','好的好的~','呵'],
+        'prankster': ['哈哈哈','逗你的啦','来玩个游戏吧','猜猜我在干嘛','惊不惊喜','嘿嘿嘿','你上当了','开玩笑的啦']
+    };
+    var list = templates[personality] || templates['helpful'];
+    var idx = Math.floor(Math.random() * list.length);
+    return list[idx];
+}
+
+// ==================== KAKAO TALK ====================
+function _ensureKakaoState() {
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoFriends) {
+        gameState.kakaoFriends = [
+            { name: '朴智恩', nameEn: 'Park Ji-eun', personality: 'protective', specialty: '声乐', avatarColor: '#FF8FA3', online: true },
+            { name: '金敏浩', nameEn: 'Kim Min-ho', personality: 'helpful', specialty: '舞蹈', avatarColor: '#7EC8E3', online: true },
+            { name: '崔瑞妍', nameEn: 'Choi Seo-yeon', personality: 'hostile', specialty: '说唱', avatarColor: '#C8A2C8', online: true },
+            { name: '李俊赫', nameEn: 'Lee Jun-hyuk', personality: 'backstabber', specialty: '表演', avatarColor: '#98D8AA', online: true },
+            { name: '郑河娜', nameEn: 'Jung Ha-na', personality: 'prankster', specialty: '综艺', avatarColor: '#FFD700', online: true },
+            { name: '代表经纪人', nameEn: 'Manager Kim', personality: 'helpful', specialty: '经纪人', avatarColor: '#4A90D9', online: true, isManager: true }
+        ];
+    }
+    if (!gameState.kakaoCurrentChat) gameState.kakaoCurrentChat = '';
+    if (!gameState.kakaoTab) gameState.kakaoTab = 'chats';
+}
+
+var _kakaoAddPersonality = '';
+
+function renderKakaoTalkPage(container) {
+    _ensureKakaoState();
+    var tab = gameState.kakaoTab || 'chats';
+    var tabHtml = '<div class="kakao-tab-bar">'
+        + '<div class="kakao-tab-btn' + (tab === 'chats' ? ' active' : '') + '" onclick="gameState.kakaoTab=\'chats\';render();">聊天</div>'
+        + '<div class="kakao-tab-btn' + (tab === 'friends' ? ' active' : '') + '" onclick="gameState.kakaoTab=\'friends\';render();">好友</div>'
+        + '<div class="kakao-tab-btn' + (tab === 'settings' ? ' active' : '') + '" onclick="gameState.kakaoTab=\'settings\';render();">我的</div>'
+        + '</div>';
+
+    var contentHtml = '';
+    if (tab === 'chats') {
+        contentHtml = _renderKakaoChatList();
+    } else if (tab === 'friends') {
+        contentHtml = _renderKakaoFriendList();
+    } else {
+        contentHtml = _renderKakaoSettings();
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
+        + '<div class="page-title">KakaoTalk</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + tabHtml
+        + '<div class="page-content" style="padding:0;">'
+        + contentHtml
+        + '</div></div>';
+}
+
+function _renderKakaoChatList() {
+    var html = '';
+    var friends = gameState.kakaoFriends;
+    var hasChats = false;
+    for (var i = 0; i < friends.length; i++) {
+        var f = friends[i];
+        var chats = gameState.kakaoChats[f.name];
+        var lastMsg = '';
+        var lastTime = '';
+        if (chats && chats.length > 0) {
+            hasChats = true;
+            lastMsg = chats[chats.length - 1].text;
+            lastTime = chats[chats.length - 1].time;
+        }
+        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'' + f.name + '\';goToPage(\'kakaochat\');">'
+            + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
+            + (f.online ? '<div class="kakao-online-dot"></div>' : '')
+            + '</div>'
+            + '<div class="kakao-friend-info">'
+            + '<div class="kakao-friend-name">' + f.name + (f.isManager ? '<span class="kakao-manager-pill">经纪人</span>' : '') + '</div>'
+            + '<div class="kakao-friend-preview">' + (lastMsg || '开始聊天吧') + '</div>'
+            + '</div>'
+            + '<div class="kakao-friend-time">' + (lastTime || '') + '</div>'
+            + '</div>';
+    }
+    if (!hasChats && friends.length === 0) {
+        html = '<div style="text-align:center;padding:60px 20px;color:var(--color-text-light);font-size:14px;">暂无聊天记录</div>';
+    }
+    return html;
+}
+
+function _renderKakaoFriendList() {
+    var html = '';
+    var friends = gameState.kakaoFriends;
+    for (var i = 0; i < friends.length; i++) {
+        var f = friends[i];
+        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'' + f.name + '\';goToPage(\'kakaochat\');">'
+            + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
+            + (f.online ? '<div class="kakao-online-dot"></div>' : '')
+            + '</div>'
+            + '<div class="kakao-friend-info">'
+            + '<div class="kakao-friend-name">' + f.name + (f.isManager ? '<span class="kakao-manager-pill">经纪人</span>' : '<span class="kakao-personality-pill">' + f.specialty + '</span>') + '</div>'
+            + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">' + f.nameEn + '</div>'
+            + '</div>'
+            + '</div>';
+    }
+    return html;
+}
+
+function _renderKakaoSettings() {
+    var myName = gameState.player.name || '练习生';
+    var html = '<div style="padding:20px;">'
+        + '<div class="card" style="text-align:center;padding:24px;">'
+        + '<div class="kakao-avatar" style="width:56px;height:56px;font-size:22px;margin:0 auto 12px;background:var(--color-primary);">' + myName.charAt(0) + '</div>'
+        + '<div style="font-size:16px;font-weight:700;color:var(--color-text);">' + myName + '</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">KakaoTalk</div>'
+        + '</div>'
+        + '<div class="card" onclick="_showAddFriendOverlay()" style="cursor:pointer;margin-top:12px;">'
+        + '<div style="font-weight:600;">添加好友</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">添加新的AI好友</div>'
+        + '</div>'
+        + '</div>';
+    return html;
+}
+
+function _showAddFriendOverlay() {
+    _kakaoAddPersonality = '';
+    var overlay = document.createElement('div');
+    overlay.className = 'account-overlay';
+    overlay.id = 'kakaoAddOverlay';
+    overlay.innerHTML = '<div class="account-form-card">'
+        + '<h3>添加好友</h3>'
+        + '<input class="account-input" id="kakaoAddName" placeholder="输入好友名字" />'
+        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:8px;">选择性格</div>'
+        + '<div class="kakao-personality-choices" id="kakaoAddPersonalityChoices">'
+        + '<div class="kakao-personality-choice" onclick="_selectAddPersonality(this,\'protective\')">保护型</div>'
+        + '<div class="kakao-personality-choice" onclick="_selectAddPersonality(this,\'helpful\')">帮助型</div>'
+        + '<div class="kakao-personality-choice" onclick="_selectAddPersonality(this,\'hostile\')">讨厌型</div>'
+        + '<div class="kakao-personality-choice" onclick="_selectAddPersonality(this,\'backstabber\')">背刺型</div>'
+        + '<div class="kakao-personality-choice" onclick="_selectAddPersonality(this,\'prankster\')">整蛊型</div>'
+        + '</div>'
+        + '<button class="btn btn-primary" onclick="_doAddFriend()">添加</button>'
+        + '<button class="btn btn-secondary" onclick="_closeAddFriendOverlay()" style="margin-top:8px;">取消</button>'
+        + '</div>';
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (phoneFrame) phoneFrame.appendChild(overlay);
+}
+
+function _selectAddPersonality(el, p) {
+    _kakaoAddPersonality = p;
+    var choices = document.getElementById('kakaoAddPersonalityChoices');
+    if (choices) {
+        var items = choices.querySelectorAll('.kakao-personality-choice');
+        for (var i = 0; i < items.length; i++) { items[i].className = 'kakao-personality-choice'; }
+    }
+    el.className = 'kakao-personality-choice selected';
+}
+
+function _closeAddFriendOverlay() {
+    var overlay = document.getElementById('kakaoAddOverlay');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+}
+
+function _doAddFriend() {
+    var nameInput = document.getElementById('kakaoAddName');
+    var name = nameInput ? nameInput.value.trim() : '';
+    if (!name) { showToast('请输入好友名字'); return; }
+    if (!_kakaoAddPersonality) { showToast('请选择性格'); return; }
+    var colors = ['#FF8FA3','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#F7DC6F','#BB8FCE'];
+    var color = colors[Math.floor(Math.random() * colors.length)];
+    var personalityMap = { 'protective': '保护型', 'helpful': '帮助型', 'hostile': '讨厌型', 'backstabber': '背刺型', 'prankster': '整蛊型' };
+    gameState.kakaoFriends.push({
+        name: name,
+        nameEn: name,
+        personality: _kakaoAddPersonality,
+        specialty: personalityMap[_kakaoAddPersonality] || '综合',
+        avatarColor: color,
+        online: Math.random() > 0.3
+    });
+    _closeAddFriendOverlay();
+    showToast('已添加好友 ' + name);
+    render();
+}
+
+function renderKakaoChatPage(container) {
+    _ensureKakaoState();
+    var npcName = gameState.kakaoCurrentChat;
+    var npc = null;
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
+    }
+    if (!npc) { goToPage('kakaotalk'); return; }
+
+    var chats = gameState.kakaoChats[npcName] || [];
+    var chatHtml = '';
+    for (var j = 0; j < chats.length; j++) {
+        var msg = chats[j];
+        var isMe = msg.from === 'me';
+        chatHtml += '<div class="kakao-msg-row ' + (isMe ? 'me' : 'npc') + '">'
+            + '<div>'
+            + '<div class="kakao-msg-bubble ' + (isMe ? 'me' : 'npc') + '">' + msg.text + '</div>'
+            + '<div class="kakao-msg-time">' + msg.time + '</div>'
+            + '</div></div>';
+    }
+    if (chats.length === 0) {
+        chatHtml = '<div style="text-align:center;padding:40px 20px;color:var(--color-text-light);font-size:13px;">开始和 ' + npc.name + ' 聊天吧</div>';
+    }
+
+    container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'kakaotalk\')">‹</div>'
+        + '<div class="page-title" style="display:flex;align-items:center;">'
+        + npc.name + (npc.online ? ' <div class="kakao-online-dot" style="position:static;margin-left:8px;"></div>' : '')
+        + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="kakao-chat-area" id="kakaoChatArea">' + chatHtml + '</div>'
+        + '<div class="kakao-input-bar">'
+        + '<input class="kakao-input" id="kakaoMsgInput" placeholder="输入消息..." />'
+        + '<button class="kakao-send-btn" onclick="sendKakaoMessage()">'
+        + '<svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>'
+        + '</button>'
+        + '</div></div>';
+
+    setTimeout(function() {
+        var area = document.getElementById('kakaoChatArea');
+        if (area) area.scrollTop = area.scrollHeight;
+    }, 50);
+}
+
+function sendKakaoMessage() {
+    var input = document.getElementById('kakaoMsgInput');
+    if (!input) return;
+    var text = input.value.trim();
+    if (!text) return;
+
+    var npcName = gameState.kakaoCurrentChat;
+    if (!gameState.kakaoChats[npcName]) gameState.kakaoChats[npcName] = [];
+    var now = new Date();
+    var timeStr = (now.getHours() < 10 ? '0' : '') + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+    gameState.kakaoChats[npcName].push({ from: 'me', text: text, time: timeStr });
+
+    input.value = '';
+
+    var npc = null;
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
+    }
+
+    var self = this;
+    setTimeout(function() {
+        if (npc) {
+            var reply = getSimpleReply(npc.personality, npc.name);
+            gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
+        }
+        renderKakaoChatPage(document.getElementById('app'));
+    }, 800);
+
+    var area = document.getElementById('kakaoChatArea');
+    if (area) area.scrollTop = area.scrollHeight;
+}
+
+// ==================== ACCOUNT SYSTEM ====================
+function _getSaveKey() {
+    var user = localStorage.getItem('myIdolCurrentUser');
+    if (user) return 'myIdolSave_' + user;
+    return 'myIdolSave_guest';
+}
+
+function _showRegisterOverlay() {
+    var overlay = document.createElement('div');
+    overlay.className = 'account-overlay';
+    overlay.id = 'accountOverlay';
+    overlay.innerHTML = '<div class="account-form-card">'
+        + '<h3>注册账号</h3>'
+        + '<input class="account-input" id="regNickname" placeholder="昵称" maxlength="12" />'
+        + '<input class="account-input" id="regPassword" type="password" placeholder="密码(至少4位)" maxlength="20" />'
+        + '<input class="account-input" id="regPassword2" type="password" placeholder="确认密码" maxlength="20" />'
+        + '<button class="btn btn-primary" onclick="_doRegister()">注册</button>'
+        + '<button class="btn btn-secondary" onclick="_closeAccountOverlay()" style="margin-top:8px;">取消</button>'
+        + '</div>';
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (phoneFrame) phoneFrame.appendChild(overlay);
+}
+
+function _showLoginOverlay() {
+    var overlay = document.createElement('div');
+    overlay.className = 'account-overlay';
+    overlay.id = 'accountOverlay';
+    overlay.innerHTML = '<div class="account-form-card">'
+        + '<h3>登录账号</h3>'
+        + '<input class="account-input" id="loginNickname" placeholder="昵称" maxlength="12" />'
+        + '<input class="account-input" id="loginPassword" type="password" placeholder="密码" maxlength="20" />'
+        + '<button class="btn btn-primary" onclick="_doLogin()">登录</button>'
+        + '<button class="btn btn-secondary" onclick="_closeAccountOverlay()" style="margin-top:8px;">取消</button>'
+        + '</div>';
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (phoneFrame) phoneFrame.appendChild(overlay);
+}
+
+function _closeAccountOverlay() {
+    var overlay = document.getElementById('accountOverlay');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+}
+
+function _doRegister() {
+    var nick = document.getElementById('regNickname');
+    var pwd = document.getElementById('regPassword');
+    var pwd2 = document.getElementById('regPassword2');
+    var nickname = nick ? nick.value.trim() : '';
+    var password = pwd ? pwd.value : '';
+    var password2 = pwd2 ? pwd2.value : '';
+    if (!nickname) { showToast('请输入昵称'); return; }
+    if (password.length < 4) { showToast('密码至少4位'); return; }
+    if (password !== password2) { showToast('两次密码不一致'); return; }
+    var existing = localStorage.getItem('myIdolAccount_' + nickname);
+    if (existing) { showToast('该昵称已注册'); return; }
+    localStorage.setItem('myIdolAccount_' + nickname, JSON.stringify({ nickname: nickname, password: password, created: new Date().toISOString() }));
+    localStorage.setItem('myIdolCurrentUser', nickname);
+    _closeAccountOverlay();
+    showToast('注册成功');
+    startNewGame(0);
+}
+
+function _doLogin() {
+    var nick = document.getElementById('loginNickname');
+    var pwd = document.getElementById('loginPassword');
+    var nickname = nick ? nick.value.trim() : '';
+    var password = pwd ? pwd.value : '';
+    if (!nickname || !password) { showToast('请输入昵称和密码'); return; }
+    var data = localStorage.getItem('myIdolAccount_' + nickname);
+    if (!data) { showToast('账号不存在'); return; }
+    var account = JSON.parse(data);
+    if (account.password !== password) { showToast('密码错误'); return; }
+    localStorage.setItem('myIdolCurrentUser', nickname);
+    _closeAccountOverlay();
+    showToast('登录成功');
+    var saveKey = 'myIdolSave_' + nickname;
+    var saveData = localStorage.getItem(saveKey);
+    if (saveData) {
+        try {
+            Object.assign(gameState, JSON.parse(saveData));
+            _ensureKakaoState();
+            currentPage = 'home';
+            document.getElementById('statusBar').style.display = 'flex';
+            document.getElementById('restButtons').style.display = 'flex';
+            document.getElementById('bottomNav').style.display = 'flex';
+            document.getElementById('homeIndicator').style.display = 'block';
+            render();
+            renderBottomNav();
+        } catch(e) {
+            startNewGame(0);
+        }
+    } else {
+        startNewGame(0);
+    }
+}
+
+function _doLogout() {
+    showModal('退出登录', '确定要退出当前账号吗？', [
+        { text: '取消', action: closeModal },
+        { text: '退出', action: function() {
+            closeModal();
+            localStorage.removeItem('myIdolCurrentUser');
+            currentPage = 'welcome';
+            if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
+            document.getElementById('statusBar').style.display = 'none';
+            document.getElementById('restButtons').style.display = 'none';
+            document.getElementById('bottomNav').style.display = 'none';
+            document.getElementById('homeIndicator').style.display = 'none';
+            render();
+        }}
+    ]);
+}
+
+function renderWelcomeAccountPage(container) {
+    container.innerHTML = '<div class="welcome-account">'
+        + '<div class="welcome-account-title">My Idol</div>'
+        + '<div class="welcome-account-sub">韩娱爱豆模拟器</div>'
+        + '<div class="account-btn-group">'
+        + '<button class="btn btn-primary btn-lg" onclick="_showRegisterOverlay()">注册</button>'
+        + '<button class="btn btn-outline btn-lg" onclick="_showLoginOverlay()">登录</button>'
+        + '</div>'
+        + '<div class="account-footer">本地账号，数据存储在设备上</div>'
+        + '</div>';
+}
+
+// ==================== AUTO SAVE ====================
+var autoSaveTimer = null;
+
+function startAutoSave() {
+    if (autoSaveTimer) clearInterval(autoSaveTimer);
+    autoSaveTimer = setInterval(function() {
+        if (gameState.player.name && currentPage !== 'welcome') {
+            try {
+                var saveData = {};
+                var keys = Object.keys(gameState);
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
+                }
+                localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+                showToast('已自动存档');
+            } catch(e) {}
+        }
+    }, 300000);
+}
+
+window.addEventListener('beforeunload', function(e) {
+    if (gameState.player.name && currentPage !== 'welcome') {
+        try {
+            var saveData = {};
+            var keys = Object.keys(gameState);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
+            }
+            localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+        } catch(e2) {}
+        e.returnValue = '游戏进度已自动保存';
+    }
+});
+
 // ==================== INIT ====================
 // ==================== GLOBAL ERROR HANDLER ====================
 window.onerror = function(msg, url, line) {
@@ -4653,6 +6511,7 @@ function _clearPageTimers() {
     if (liveViewerTimer) { clearInterval(liveViewerTimer); liveViewerTimer = null; }
     if (restCountdown) { clearInterval(restCountdown); restCountdown = null; }
     isResting = false;
+    isExamInProgress = false;
     if (speechRecognition) { try { speechRecognition.stop(); } catch(e) {} speechRecognition = null; }
     if (isLive) stopLive();
 }
