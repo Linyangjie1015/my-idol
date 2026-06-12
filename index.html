@@ -3474,7 +3474,7 @@ function goToPage(page) {
 function renderBottomNav() {
     const nav = document.getElementById('bottomNav');
     
-    const homePages = ['home','hotsearch','hotsearchdetail','ranking','schedule','meeting','mail','work','dating','bubble','weverse','ins','tiktok','food','delivery','loan','crisis','live','settings','updates','insprofile','meetingdialog','members','kakaotalk','kakaochat'];
+    const homePages = ['home','hotsearch','hotsearchdetail','ranking','schedule','meeting','mail','work','dating','bubble','weverse','ins','tiktok','food','delivery','loan','crisis','live','settings','updates','insprofile','meetingdialog','members','kakaotalk'];
     const trainPages = ['training'];
     const examPages = ['exam', 'examGame'];
     const mePages = ['me'];
@@ -6284,6 +6284,8 @@ function _doAddFriend() {
 
 function renderKakaoChatPage(container) {
     _ensureKakaoState();
+    document.getElementById('bottomNav').style.display = 'none';
+    document.getElementById('restButtons').style.display = 'none';
     var npcName = gameState.kakaoCurrentChat;
     var npc = null;
     for (var i = 0; i < gameState.kakaoFriends.length; i++) {
