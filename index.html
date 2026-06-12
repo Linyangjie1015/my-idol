@@ -2307,7 +2307,7 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     }
     
     var gain = Math.floor(Math.random() * 16) + 5;
-    gameState.stats[stat] = Math.min(100, gameState.stats[stat] + gain);
+    gameState.stats[stat] = Math.min(150, gameState.stats[stat] + gain);
     gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1);
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
@@ -3777,7 +3777,7 @@ function joinSchedule(index) {
         var keys = Object.keys(gameState.stats);
         var rk = keys[Math.floor(Math.random() * keys.length)];
         var gain = Math.floor(Math.random() * 3) + 2;
-        gameState.stats[rk] = Math.min(100, gameState.stats[rk] + gain);
+        gameState.stats[rk] = Math.min(150, gameState.stats[rk] + gain);
         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
         gainMsg = '\n+' + gain + ' ' + names[rk];
     } else if (item.tagType === 'notice' || item.tagType === 'show') {
@@ -5880,7 +5880,7 @@ function do训练() {
     
     const keys = Object.keys(gameState.stats);
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
-    gameState.stats[randomKey] = Math.min(100, gameState.stats[randomKey] + 1);
+    gameState.stats[randomKey] = Math.min(150, gameState.stats[randomKey] + 1);
     
     const names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     showModal('训练完成', `-20 体力\n-1,000 金币\n+1 ${names[randomKey]}`);
