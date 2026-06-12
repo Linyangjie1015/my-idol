@@ -2254,7 +2254,7 @@ function render训练Page(container) {
                             <div class="my-stat-bar">
                                 <span class="my-stat-label">${names[key]}</span>
                                 <div class="my-stat-track">
-                                    <div class="my-stat-fill ${key}" style="width: ${val}%;"></div>
+                                    <div class="my-stat-fill ${key}" style="width: ${Math.min(100, (val / 150) * 100)}%;"></div>
                                 </div>
                                 <span class="my-stat-val">${val}</span>
                             </div>
@@ -3370,7 +3370,7 @@ function render我的Page(container) {
                             <div class="my-stat-bar">
                                 <span class="my-stat-label">${names[key]}</span>
                                 <div class="my-stat-track">
-                                    <div class="my-stat-fill ${key}" style="width: ${val}%;"></div>
+                                    <div class="my-stat-fill ${key}" style="width: ${Math.min(100, (val / 150) * 100)}%;"></div>
                                 </div>
                                 <span class="my-stat-val">${val}</span>
                             </div>
