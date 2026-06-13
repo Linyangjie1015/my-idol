@@ -79,7 +79,7 @@
     .page { display: none; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; min-height: 0; }
     .page.active { display: flex; flex-direction: column; }
 
-    .page-content { padding: 20px; flex: 1; min-height: 0; overflow-y: auto; }
+    .page-content { padding: 20px; padding-bottom: 80px; flex: 1; min-height: 0; overflow-y: auto; }
 
     .page-header {
         background: var(--bg-card);
@@ -7922,12 +7922,12 @@ function render赚钱中心Page(container) {
         { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45 }
     ];
     var soloJobs = [
-        { id: 'solo_cf', name: 'Solo代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90 },
-        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90 },
+        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90, fansRequired: 50000 },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90, fansRequired: 10000 },
         { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45 },
         { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120 },
         { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
-        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120 }
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120, fansRequired: 100000 }
     ];
     var groupJobs = [
         { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90 },
@@ -7939,27 +7939,31 @@ function render赚钱中心Page(container) {
 
     function buildJobsHtml(jobs) {
         var html = '';
+        var currentFans = gameState.fans || 0;
         for (var ji = 0; ji < jobs.length; ji++) {
             var j = jobs[ji];
             var cd = gameState.earnCooldowns[j.id] || 0;
             var now = Date.now();
             var isOnCd = cd > now;
             var noStamina = gameState.体力 < j.体力;
-            var isDisabled = isOnCd || noStamina;
+            var fansLocked = j.fansRequired && currentFans < j.fansRequired;
+            var isDisabled = isOnCd || noStamina || fansLocked;
             var rewardText = '+' + j.money.toLocaleString() + ' 金币';
             if (j.fame > 0) rewardText += '  +' + j.fame + ' 名气';
             if (j.influence > 0) rewardText += '  +' + j.influence + ' 影响力';
             if (j.fans > 0) rewardText += '  +' + j.fans + ' 粉丝';
-            var cdText = '';
-            if (isOnCd) {
+            var lockText = '';
+            if (fansLocked) {
+                lockText = '<div class="earn-job-cooldown" style="color:var(--color-danger);">' + (j.fansRequired >= 10000 ? (j.fansRequired / 10000) + '万' : j.fansRequired) + '粉丝解锁</div>';
+            } else if (isOnCd) {
                 var remain = Math.ceil((cd - now) / 1000);
-                cdText = '<div class="earn-job-cooldown">冷却中 ' + remain + 's</div>';
+                lockText = '<div class="earn-job-cooldown">冷却中 ' + remain + 's</div>';
             }
             html += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="doEarnJob(\'' + j.id + '\')"') + '>'
                 + '<div class="earn-job-name">' + j.name + '</div>'
                 + '<div class="earn-job-cost">体力 -' + j.体力 + '</div>'
                 + '<div class="earn-job-reward">' + rewardText + '</div>'
-                + cdText
+                + lockText
                 + '</div>';
         }
         return html;
@@ -8037,12 +8041,12 @@ function doEarnJob(jobId) {
         { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
         { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
         { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45000 },
-        { id: 'solo_cf', name: 'Solo代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90000 },
-        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90000 },
+        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90000, fansRequired: 50000 },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90000, fansRequired: 10000 },
         { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
         { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120000 },
         { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
-        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120000 },
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120000, fansRequired: 100000 },
         { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90000 },
         { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90000 },
         { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
@@ -8055,6 +8059,10 @@ function doEarnJob(jobId) {
         if (allJobs[ji].id === jobId) { job = allJobs[ji]; break; }
     }
     if (!job) return;
+    if (job.fansRequired && (gameState.fans || 0) < job.fansRequired) {
+        showModal('粉丝不足', '需要 ' + (job.fansRequired >= 10000 ? (job.fansRequired / 10000) + '万' : job.fansRequired) + ' 粉丝才能解锁');
+        return;
+    }
     if (gameState.体力 < job.体力) {
         showModal('体力不足', '需要 ' + job.体力 + ' 体力');
         return;
