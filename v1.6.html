@@ -2460,6 +2460,7 @@ function renderHomePage(container) {
         { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
         { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 },
+        { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
         { id: 'comeback', icon: 'comeback', name: '回归打歌', unlock: 0 },
         { id: 'music', icon: 'music', name: '音乐放送', unlock: 0 },
@@ -3802,11 +3803,103 @@ function getAIUsageToday(appId) {
 }
 
 function getAIMaxTotalToday() {
-    return 50;
+    // VIP tier-based limits
+    var vipTier = null;
+    try { vipTier = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier; } catch(e) {}
+    if (vipTier === 'premium') return 80;
+    if (vipTier === 'advanced') return 40;
+    if (vipTier === 'basic') return 15;
+    return 3; // Free users get 3 AI messages per day (trial)
 }
 
 function canUseAIToday() {
     return getAITotalUsageToday() < getAIMaxTotalToday();
+}
+
+// ===== VIP SYSTEM =====
+var VIP_TIERS = {
+    basic: { name: '基础版', price: 3, dailyLimit: 15, features: ['练习生路线', '基础社交互动', 'AI对话15条/天'] },
+    advanced: { name: '进阶版', price: 8, dailyLimit: 40, features: ['出道爱豆路线', 'AI对话40条/天', '全部社交APP'] },
+    premium: { name: '完整版', price: 15, dailyLimit: 80, features: ['全部APP解锁', 'AI对话80条/天', '直播功能', '优先体验'] }
+};
+var AFDIAN_URL = 'https://afdian.com/a/myidol';
+var WORKER_URL = ''; // TODO: deploy worker then fill in
+
+function getVipTier() {
+    try { return JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier || null; } catch(e) { return null; }
+}
+
+function isVipUser(minTier) {
+    var tier = getVipTier();
+    if (!tier) return false;
+    var order = { basic: 1, advanced: 2, premium: 3 };
+    return (order[tier] || 0) >= (order[minTier] || 0);
+}
+
+function showVipPage() {
+    var currentTier = getVipTier();
+    var tierCard = function(key, t, isCurrent) {
+        return '<div class="card" style="margin-bottom:12px;' + (isCurrent ? 'border:2px solid var(--color-primary);' : '') + '">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
+            + '<div style="font-weight:600;font-size:16px;">' + t.name + '</div>'
+            + '<span style="font-weight:700;font-size:18px;color:var(--color-primary);">' + t.price + '元/月</span></div>'
+            + '<div style="font-size:13px;color:var(--color-text-light);line-height:1.6;">'
+            + t.features.map(function(f) { return '- ' + f; }).join('<br>') + '</div>'
+            + (isCurrent ? '<div style="margin-top:10px;text-align:center;color:var(--color-primary);font-weight:600;">当前档位</div>' : '') + '</div>';
+    };
+    var html = '<div style="padding:8px 0;"><div style="text-align:center;margin-bottom:16px;">'
+        + '<div style="font-size:18px;font-weight:700;margin-bottom:4px;">开通会员</div>'
+        + '<div style="font-size:13px;color:var(--color-text-light);">解锁完整游戏体验</div></div>'
+        + tierCard('premium', VIP_TIERS.premium, currentTier === 'premium')
+        + tierCard('advanced', VIP_TIERS.advanced, currentTier === 'advanced')
+        + tierCard('basic', VIP_TIERS.basic, currentTier === 'basic')
+        + '<button onclick="window.open(\'https://afdian.com/a/myidol\',\'_blank\')" style="width:100%;padding:14px;background:var(--color-primary);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">前往爱发电开通</button>'
+        + '<button onclick="showVerifyOrder()" style="width:100%;padding:14px;background:transparent;color:var(--color-primary);border:1px solid var(--color-primary);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">已付费？输入订单号验证</button>'
+        + '<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--color-text-light);">付款后在爱发电订单页复制订单号</div></div>';
+    showModal('开通会员', html);
+}
+
+function showVerifyOrder() {
+    var html = '<div style="padding:4px 0;">'
+        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">在爱发电"我的订单"中复制订单号</div>'
+        + '<input type="text" id="vipOrderNo" placeholder="粘贴订单号" style="width:100%;padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;box-sizing:border-box;">'
+        + '<div id="vipVerifyMsg" style="margin-top:8px;font-size:13px;min-height:20px;"></div></div>';
+    showModal('验证订单', html, [
+        { text: '取消', action: function() { closeModal(); } },
+        { text: '验证', action: function() { verifyVipOrder(); } }
+    ]);
+}
+
+function verifyVipOrder() {
+    var orderNo = document.getElementById('vipOrderNo');
+    var msgEl = document.getElementById('vipVerifyMsg');
+    if (!orderNo || !orderNo.value.trim()) {
+        msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '请输入订单号'; return;
+    }
+    msgEl.style.color = 'var(--color-text-light)'; msgEl.textContent = '验证中...';
+    if (!WORKER_URL) {
+        msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '系统暂未开放，V1.6正式版上线后可用'; return;
+    }
+    var account = localStorage.getItem('myidol_current_account') || '';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', WORKER_URL + '/verify-order', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        try {
+            var data = JSON.parse(xhr.responseText);
+            if (data.success) {
+                var saves = JSON.parse(localStorage.getItem('myidol_saves_' + account) || '{}');
+                saves.vipTier = data.tier; saves.vipOrderNo = data.orderNo; saves.vipVerifiedAt = Date.now();
+                localStorage.setItem('myidol_saves_' + account, JSON.stringify(saves));
+                msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！已开通' + data.tierName;
+                setTimeout(function() { closeModal(); render(); }, 1500);
+            } else {
+                msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '验证失败';
+            }
+        } catch(e) { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '验证失败'; }
+    };
+    xhr.onerror = function() { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '网络错误'; };
+    xhr.send(JSON.stringify({ order_no: orderNo.value.trim(), account: account }));
 }
 
 function recordAIUsage(appId) {
@@ -4115,6 +4208,7 @@ function getIcon(name) {
         'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#FF8FA3" stroke="none"></circle></svg>',
         'kakaotalk': '<svg class="kakao-icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="3" ry="3" fill="#FAE100" stroke="none"></rect><path d="M7 10h4M13 10h4M9 13h6" stroke="#392020" stroke-width="1.5" stroke-linecap="round" fill="none"></path><polygon points="8,18 10,22 12,18" fill="#FAE100" stroke="none"></polygon></svg>',
         'debut': '<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></polygon><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle></svg>',
+        'vip': '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
         'earn': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M12 6v12M9 9c0-1.66 1.34-2 3-2s3 .34 3 2-1.34 2-3 2-3 .34-3 2 1.34 2 3 2 3-.34 3-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
         'achievement': '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
         'comeback': '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle></svg>',
