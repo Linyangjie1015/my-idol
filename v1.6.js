@@ -6796,8 +6796,9 @@ function _doSwitchSlot(slot) {
     }
 }
 
+
 function render设置Page(container) {
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">设置</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" onclick="saveGame(current存档)" style="cursor: pointer;">\n                    <div style="font-weight: 600;">保存游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">保存到存档 ' + (current存档 + 1) + '</div>\n                </div>\n                <div class="card" onclick="_switchSaveSlot()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">切换存档</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换到存档2或3，当前进度不会丢失</div>\n                </div>\n                \n\n                <div class="card" onclick="_resetSave()">\n                    <div style="font-weight: 600; color: var(--color-danger);">重新开始</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">删除当前存档，重新创建角色</div>\n                </div>\n                <div class="card" onclick="_doLogout()">\n                    <div style="font-weight: 600; color: var(--color-danger);">退出登录</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换账号或注册新账号</div>\n                </div>\n                <div class="card" onclick="confirmExit()">\n                    <div style="font-weight: 600;">退出游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">返回标题画面</div>\n                </div>\n            </div>\n        </div>\n    ';
+    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">设置</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" onclick="saveGame(current存档)" style="cursor: pointer;">\n                    <div style="font-weight: 600;">保存游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">保存到存档 ' + (current存档 + 1) + '</div>\n                </div>\n                <div class="card" onclick="_switchSaveSlot()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">切换存档</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换到存档2或3，当前进度不会丢失</div>\n                </div>\n                \n\n                <div class="card" onclick="_resetSave()">\n                    <div style="font-weight: 600; color: var(--color-danger);">重新开始</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">删除当前存档，重新创建角色</div>\n                </div>\n                <div class="card" onclick="_doLogout()">\n                    <div style="font-weight: 600; color: var(--color-danger);">退出登录</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换账号或注册新账号</div>\n                </div>\n                <div class="card" onclick="confirmExit()">\n                    <div style="font-weight: 600;">退出游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">返回标题画面</div>\n                \n            </div>\n        </div>\n    ';
 }
 
 var _exitCooldown = false;
@@ -6939,7 +6940,7 @@ function _applyAdminMode() {
     gameState.influence = 200;
     gameState.credit = 999;
     gameState.life = 9999;
-    gameState.danger = 0;
+    gameState.danger = 100;
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
     gameState.max体力 = 9999;
     gameState.体力 = 9999;
@@ -6948,6 +6949,15 @@ function _applyAdminMode() {
     gameState.stats.rap = 150;
     gameState.stats.acting = 150;
     gameState.stats.variety = 150;
+    gameState.certificates = {
+        dance: [true, true, true],
+        vocal: [true, true, true],
+        rap: [true, true, true],
+        acting: [true, true, true],
+        variety: [true, true, true]
+    };
+    gameState.examResult = { comprehensive: [true, true] };
+    gameState.preDebut = true;
 }
 
 // ==================== MODAL ====================
