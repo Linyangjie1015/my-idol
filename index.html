@@ -2294,6 +2294,7 @@ function completeCreation() {
         initScheduleItems();
         initMeetings();
         startAutoSave();
+        triggerSilentSave();
     } catch(e) {
         alert('初始化出错: ' + e.message);
         console.error('completeCreation error:', e);
@@ -2344,6 +2345,7 @@ function initAsTrainee() {
         time: new Date().toLocaleDateString('zh-CN'),
         read: false
     });
+    triggerSilentSave();
 }
 
 function initAsIdol() {
@@ -2854,6 +2856,7 @@ function passExam(subject, level) {
         gameState.examResult.comprehensive[level] = true;
         if (gameState.examResult.comprehensive[0] && gameState.examResult.comprehensive[1]) {
             gameState.preDebut = true;
+            triggerSilentSave();
         }
     } else {
         gameState.certificates[subject][level] = true;
@@ -4319,6 +4322,7 @@ function joinSchedule(index) {
         gainMsg = '\n+' + fameGain + ' 名气\n+' + influenceGain + ' 影响力';
     }
     item._completed = true;
+    triggerSilentSave();
     showModal('参加完成', item.name + '\n-' + 体力cost + ' 体力' + gainMsg);
     render();
 }
@@ -5739,8 +5743,8 @@ function renderLoanPage(container) {
 }
 
 function applyLoan(amount, interest) {
-    const maxLoan = Math.floor(gameState.credit * 1000);
-    const totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
+    var maxLoan = Math.floor(gameState.credit * 1000);
+    var totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
     if (totalOwed + amount > maxLoan) {
         showModal('额度不足', '已超出可贷额度，请先还款提升信誉');
         return;
@@ -5748,7 +5752,13 @@ function applyLoan(amount, interest) {
     gameState.loanAmount += amount;
     gameState.loanInterest = Math.max(gameState.loanInterest, interest);
     gameState.money += amount;
-    showModal('贷款通过', '已到账 ' + amount.toLocaleString() + ' 金币\n利率: ' + interest + '%\n请按时还款，逾期将降低信誉');
+    var warning = '';
+    if (interest >= 5) {
+        warning = '\n\n注意：商业贷款会影响出道时团体分配的概率';
+        gameState.hasBusinessLoan = true;
+    }
+    showModal('贷款通过', '已到账 ' + amount.toLocaleString() + ' 金币\n利率: ' + interest + '%' + warning + '\n请按时还款，逾期将降低信誉');
+    triggerSilentSave();
     render();
 }
 
@@ -7546,16 +7556,14 @@ function startAutoSave() {
 
 window.addEventListener('beforeunload', function(e) {
     if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
-        try {
-            var saveData = {};
-            var keys = Object.keys(gameState);
-            for (var i = 0; i < keys.length; i++) {
-                if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
-            }
-            localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
-        } catch(e2) {}
+        triggerSilentSave();
         e.preventDefault();
         e.returnValue = '游戏进度已自动保存，确定离开吗？';
+    }
+});
+document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden' && gameState.player.name && currentPage !== 'welcome') {
+        triggerSilentSave();
     }
 });
 
@@ -7604,8 +7612,9 @@ function render出道企划Page(container) {
         { label: '综合考核', value: (gameState.preDebut ? 1 : 0), need: 1 }
     ];
 
+    var loanWarning = (gameState.loanAmount > 0 && gameState.loanInterest >= 5) ? '<div style="background:#FFF3E0;border-radius:12px;padding:12px;margin-bottom:12px;font-size:12px;color:#E65100;line-height:1.5;"><strong>商业贷款提醒：</strong>当前存在商业贷款未还清，可能影响出道时的团体分配结果。</div>' : '';
     var allMet = true;
-    var reqHtml = '';
+    var reqHtml = loanWarning;
     for (var ri = 0; ri < requirements.length; ri++) {
         var r = requirements[ri];
         var met = r.value >= r.need;
@@ -8156,6 +8165,7 @@ function doEarnJob(jobId) {
     showToast('工作中...');
     setTimeout(function() {
         showToast('完成！+' + job.money.toLocaleString() + ' 金币');
+        triggerSilentSave();
         render();
     }, 1500);
 }
