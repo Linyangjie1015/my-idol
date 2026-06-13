@@ -4072,12 +4072,12 @@ function canUseAIToday() {
 
 // ===== VIP SYSTEM =====
 var VIP_TIERS = {
-    basic: { name: '基础版', price: 3, dailyLimit: 15, features: ['练习生路线', '基础社交互动', 'AI对话15条/天'] },
+    basic: { name: '基础版', price: 5, dailyLimit: 15, features: ['练习生路线', '基础社交互动', 'AI对话15条/天'] },
     advanced: { name: '进阶版', price: 8, dailyLimit: 40, features: ['出道爱豆路线', 'AI对话40条/天', '全部社交APP'] },
     premium: { name: '完整版', price: 15, dailyLimit: 80, features: ['全部APP解锁', 'AI对话80条/天', '直播功能', '优先体验'] }
 };
 var AFDIAN_URL = 'https://afdian.com/a/myidol';
-var WORKER_URL = ''; // TODO: deploy worker then fill in
+var WORKER_URL = 'https://my-idol-api.vercel.app';
 
 function getVipTier() {
     try { return JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier || null; } catch(e) { return null; }
