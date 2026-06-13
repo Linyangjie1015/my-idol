@@ -2460,6 +2460,7 @@ function renderHomePage(container) {
         { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
         { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 },
+        { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
         { id: 'comeback', icon: 'comeback', name: '回归打歌', unlock: 0 },
@@ -4208,6 +4209,7 @@ function getIcon(name) {
         'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#FF8FA3" stroke="none"></circle></svg>',
         'kakaotalk': '<svg class="kakao-icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="3" ry="3" fill="#FAE100" stroke="none"></rect><path d="M7 10h4M13 10h4M9 13h6" stroke="#392020" stroke-width="1.5" stroke-linecap="round" fill="none"></path><polygon points="8,18 10,22 12,18" fill="#FAE100" stroke="none"></polygon></svg>',
         'debut': '<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></polygon><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle></svg>',
+        'gacha': '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle><path d="M12 9v6M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
         'vip': '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
         'earn': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M12 6v12M9 9c0-1.66 1.34-2 3-2s3 .34 3 2-1.34 2-3 2-3 .34-3 2 1.34 2 3 2 3-.34 3-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
         'achievement': '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
@@ -7925,6 +7927,212 @@ function renderCompanyDetailPage(container) {
     
     html += '</div></div>';
     container.innerHTML = html;
+}
+
+// ==================== GACHA SYSTEM (抽卡系统) ====================
+var GACHA_POOL = {
+    kpop: {
+        name: '韩国爱豆小卡',
+        desc: '常驻卡池 - 收集真实韩团爱豆小卡',
+        pity: 50,
+        rates: { S: 2, A: 8, B: 30, C: 60 }
+    },
+    topIdol: {
+        name: 'TOP IDOL限定池',
+        desc: '限时卡池 - 5公司最火虚拟团成员限定小卡',
+        singleCost: 2000,
+        tenCost: 18000,
+        pity: 50,
+        rates: { S: 5, A: 15, B: 35, C: 45 }
+    }
+};
+
+function initGachaPool() {
+    if (!gameState.gacha) {
+        gameState.gacha = {
+            kpop: { pulls: 0, pity: 0, dailyFree: 1, collection: {} },
+            topIdol: { pulls: 0, pity: 0, dailyFree: 0, collection: {} }
+        };
+    }
+}
+
+function getGachaCard(pool) {
+    var rates = GACHA_POOL[pool].rates;
+    var rand = Math.random() * 100;
+    var tier;
+    if (rand < rates.S) tier = 'S';
+    else if (rand < rates.S + rates.A) tier = 'A';
+    else if (rand < rates.S + rates.A + rates.B) tier = 'B';
+    else tier = 'C';
+
+    var allCards = [];
+    for (var ci = 0; ci < COMPANIES.length && ci < 5; ci++) {
+        var company = COMPANIES[ci];
+        var ckeys = Object.keys(company.groups);
+        for (var gi = 0; gi < ckeys.length; gi++) {
+            var group = company.groups[ckeys[gi]];
+            for (var mi = 0; mi < group.members.length; mi++) {
+                var m = group.members[mi];
+                var cardTier = gi === 0 && mi === 0 ? 'S' : gi === 0 && mi < 2 ? 'A' : mi === 0 ? 'B' : 'C';
+                if (pool === 'topIdol' && gi > 0) continue;
+                allCards.push({
+                    name: m.name, group: group.name, company: company.name,
+                    position: m.position, tier: cardTier
+                });
+            }
+        }
+    }
+    var filtered = [];
+    for (var i = 0; i < allCards.length; i++) {
+        if (allCards[i].tier === tier) filtered.push(allCards[i]);
+    }
+    if (filtered.length === 0) filtered = allCards;
+    var card = filtered[Math.floor(Math.random() * filtered.length)];
+    card.cardTier = tier;
+    card.id = card.name + '_' + card.group;
+    card.stars = 1;
+    card.fragments = 0;
+    return card;
+}
+
+function pullGacha(pool, count) {
+    initGachaPool();
+    var poolData = gameState.gacha[pool];
+    var config = GACHA_POOL[pool];
+
+    if (count === 1) {
+        if (pool === 'kpop' && poolData.dailyFree > 0) {
+            poolData.dailyFree--;
+        } else if (config.singleCost) {
+            if (gameState.money < config.singleCost) { showToast('金币不足(需要' + config.singleCost.toLocaleString() + ')'); return null; }
+            gameState.money -= config.singleCost;
+        } else {
+            if (poolData.dailyFree <= 0) { showToast('今日免费次数已用完'); return null; }
+        }
+    } else {
+        var cost = config.tenCost;
+        if (gameState.money < cost) { showToast('金币不足(需要' + cost.toLocaleString() + ')'); return null; }
+        gameState.money -= cost;
+    }
+
+    var results = [];
+    for (var i = 0; i < count; i++) {
+        poolData.pity++;
+        var card;
+        if (poolData.pity >= config.pity) {
+            card = getGachaCard(pool);
+            card.cardTier = 'S';
+            poolData.pity = 0;
+        } else {
+            card = getGachaCard(pool);
+        }
+        if (poolData.collection[card.id]) {
+            poolData.collection[card.id].fragments += 1;
+            card.isDuplicate = true;
+        } else {
+            poolData.collection[card.id] = { name: card.name, group: card.group, company: card.company, position: card.position, cardTier: card.cardTier, stars: 1, fragments: 0 };
+            card.isDuplicate = false;
+        }
+        poolData.pulls++;
+        results.push(card);
+    }
+    triggerSilentSave();
+    return results;
+}
+
+function renderGachaPage(container) {
+    initGachaPool();
+    var kpop = gameState.gacha.kpop;
+    var topIdol = gameState.gacha.topIdol;
+    var totalCards = Object.keys(kpop.collection).length + Object.keys(topIdol.collection).length;
+
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">抽卡</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:white;padding:20px;">'
+        + '<div style="font-size:20px;font-weight:700;">小卡收藏</div>'
+        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">已收集 ' + totalCards + ' 张</div></div>';
+
+    // Kpop Pool
+    html += '<div class="card" style="margin-top:12px;border-left:4px solid #5BB8E8;">'
+        + '<div style="font-weight:700;font-size:15px;">韩国爱豆小卡池</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin:4px 0 12px;">常驻 | 今日免费' + kpop.dailyFree + '次 | 保底' + (50 - kpop.pity) + '次</div>'
+        + '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="doGachaPull(\'kpop\',1)">单抽' + (kpop.dailyFree > 0 ? ' (免费)' : '') + '</button></div>';
+
+    // TOP IDOL Pool
+    html += '<div class="card" style="margin-top:8px;border-left:4px solid #FFD700;">'
+        + '<div style="font-weight:700;font-size:15px;">TOP IDOL限定池</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin:4px 0 12px;">限时 | 单抽2千/10连1.8万 | 保底' + (50 - topIdol.pity) + '次</div>'
+        + '<div style="display:flex;gap:8px;">'
+        + '<button class="btn btn-primary btn-lg" style="flex:1;" onclick="doGachaPull(\'topIdol\',1)">单抽</button>'
+        + '<button class="btn btn-primary btn-lg" style="flex:1;background:linear-gradient(135deg,#FFD700,#FFA500);" onclick="doGachaPull(\'topIdol\',10)">10连</button></div></div>';
+
+    // Collection
+    var allCards = [];
+    var kc = kpop.collection; var tc = topIdol.collection;
+    for (var k in kc) allCards.push(kc[k]);
+    for (var k in tc) allCards.push(tc[k]);
+
+    if (allCards.length > 0) {
+        var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
+        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:600;margin-bottom:10px;">我的收藏 (' + allCards.length + ')</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
+        for (var i = 0; i < Math.min(allCards.length, 30); i++) {
+            var c = allCards[i];
+            var t = c.cardTier || 'C';
+            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;">'
+                + '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'
+                + '<div style="font-size:8px;opacity:0.8;">' + t + '</div>'
+                + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
+                + '</div>';
+        }
+        if (allCards.length > 30) html += '<div style="display:flex;align-items:center;font-size:12px;color:var(--color-text-light);padding:8px;">+' + (allCards.length - 30) + '</div>';
+        html += '</div></div>';
+    }
+
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function doGachaPull(pool, count) {
+    var results = pullGacha(pool, count);
+    if (!results) return;
+    showGachaResult(results, pool);
+}
+
+function showGachaResult(results, pool) {
+    var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
+    var tierGlow = { S: '0 0 20px #FFD700,0 0 40px rgba(255,215,0,0.3)', A: '0 0 15px #4CD964', B: '0 0 10px #5BB8E8', C: 'none' };
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'gacha\')">‹ 返回</div><div class="page-title">抽卡结果</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:20px;">';
+
+    if (results.length === 1) {
+        var c = results[0];
+        var t = c.cardTier || c.tier;
+        html += '<div style="margin:0 auto;width:160px;height:210px;border-radius:16px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '66);box-shadow:' + tierGlow[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;">'
+            + '<div style="font-size:40px;font-weight:700;">' + c.name.charAt(0) + '</div>'
+            + '<div style="font-size:14px;font-weight:600;margin-top:4px;">' + t + '级</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">' + c.group + '</div>'
+            + (c.isDuplicate ? '<div style="font-size:11px;margin-top:6px;opacity:0.9;">碎片+1</div>' : '<div style="font-size:11px;margin-top:6px;opacity:0.9;">NEW!</div>')
+            + '</div>'
+            + '<div style="font-weight:700;font-size:16px;margin-top:16px;">' + c.name + '</div>'
+            + '<div style="font-size:13px;color:var(--color-text-light);">' + c.company + ' / ' + c.group + '</div>';
+    } else {
+        html += '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:16px 0;">';
+        for (var i = 0; i < results.length; i++) {
+            var c = results[i];
+            var t = c.cardTier || c.tier;
+            var isS = (t === 'S');
+            html += '<div style="width:58px;height:76px;border-radius:10px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);' + (isS ? 'box-shadow:' + tierGlow.S + ';' : '') + 'display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;">'
+                + '<div style="font-size:16px;font-weight:700;">' + c.name.charAt(0) + '</div>'
+                + '<div style="font-size:9px;">' + t + '</div>'
+                + (c.isDuplicate ? '<div style="position:absolute;top:2px;right:4px;font-size:7px;opacity:0.8;">+1</div>' : '')
+                + '</div>';
+        }
+        html += '</div>';
+    }
+
+    html += '<button class="btn btn-primary btn-lg" style="margin-top:24px;width:80%;" onclick="goToPage(\'gacha\')">继续抽卡</button>'
+        + '</div></div>';
+
+    var app = document.getElementById('app');
+    if (app) app.innerHTML = html;
 }
 
 // ==================== SIMPLE NPC REPLY ====================
