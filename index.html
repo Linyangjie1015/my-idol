@@ -884,6 +884,28 @@
     .earn-job-card .earn-job-cooldown {
         font-size: 11px; color: var(--color-primary); font-weight: 600; margin-top: 4px;
     }
+    .earn-tab-bar {
+        display: flex; gap: 0; margin: 12px 0 14px 0; border-radius: 20px;
+        background: var(--color-border); padding: 3px; overflow: hidden;
+    }
+    .earn-tab {
+        flex: 1; text-align: center; padding: 7px 0; font-size: 12px; font-weight: 500;
+        color: var(--color-text-light); border-radius: 18px; cursor: pointer;
+        transition: all 0.2s; position: relative;
+    }
+    .earn-tab.active {
+        background: white; color: var(--color-primary); font-weight: 600;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .earn-tab.locked {
+        opacity: 0.45; cursor: not-allowed;
+    }
+    .earn-tab.locked::after {
+        content: ''; position: absolute; right: 8px; top: 50%;
+        transform: translateY(-50%); width: 10px; height: 12px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 20' fill='%23999'%3E%3Cpath d='M8 0C5.8 0 4 1.8 4 4v2H2c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-2V4c0-2.2-1.8-4-4-4zm0 2c1.1 0 2 .9 2 2v2H6V4c0-1.1.9-2 2-2z'/%3E%3C/svg%3E") no-repeat center;
+        background-size: contain;
+    }
 
     .notice-card {
         background: var(--bg-card); border-radius: var(--radius-lg);
@@ -7805,61 +7827,101 @@ function render赚钱中心Page(container) {
     if (!gameState.earnCooldowns) gameState.earnCooldowns = {};
     var isIdol = gameState.player.role === 'Idol';
     var isGroup = isIdol && gameState.player.group && gameState.player.group !== '';
-    var jobs = [];
-    if (!isIdol) {
-        jobs = [
-            { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 0, cooldown: 30 },
-            { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 0, cooldown: 45 },
-            { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 0, cooldown: 60 },
-            { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30 },
-            { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30 },
-            { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45 }
-        ];
-    } else if (isGroup) {
-        jobs = [
-            { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90 },
-            { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90 },
-            { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
-            { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 0, cooldown: 120 },
-            { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 0, cooldown: 45 }
-        ];
-    } else {
-        jobs = [
-            { id: 'solo_cf', name: 'Solo代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90 },
-            { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90 },
-            { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45 },
-            { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120 },
-            { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
-            { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120 }
-        ];
-    }
 
-    var jobsHtml = '';
-    for (var ji = 0; ji < jobs.length; ji++) {
-        var j = jobs[ji];
-        var cd = gameState.earnCooldowns[j.id] || 0;
-        var now = Date.now();
-        var isOnCd = cd > now;
-        var noStamina = gameState.体力 < j.体力;
-        var isDisabled = isOnCd || noStamina;
-        var rewardText = '+' + j.money.toLocaleString() + ' 金币';
-        if (j.fame > 0) rewardText += ' · +' + j.fame + ' 名气';
-        if (j.influence > 0) rewardText += ' · +' + j.influence + ' 影响力';
-        if (j.fans > 0) rewardText += ' · +' + j.fans + ' 粉丝';
-        var cdText = '';
-        if (isOnCd) {
-            var remain = Math.ceil((cd - now) / 1000);
-            cdText = '<div class="earn-job-cooldown">冷却中 ' + remain + 's</div>';
+    var traineeJobs = [
+        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 0, cooldown: 30 },
+        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 0, cooldown: 45 },
+        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 0, cooldown: 60 },
+        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30 },
+        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30 },
+        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45 }
+    ];
+    var soloJobs = [
+        { id: 'solo_cf', name: 'Solo代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90 },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90 },
+        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45 },
+        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120 },
+        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120 }
+    ];
+    var groupJobs = [
+        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90 },
+        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90 },
+        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
+        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 0, cooldown: 120 },
+        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 0, cooldown: 45 }
+    ];
+
+    function buildJobsHtml(jobs) {
+        var html = '';
+        for (var ji = 0; ji < jobs.length; ji++) {
+            var j = jobs[ji];
+            var cd = gameState.earnCooldowns[j.id] || 0;
+            var now = Date.now();
+            var isOnCd = cd > now;
+            var noStamina = gameState.体力 < j.体力;
+            var isDisabled = isOnCd || noStamina;
+            var rewardText = '+' + j.money.toLocaleString() + ' 金币';
+            if (j.fame > 0) rewardText += '  +' + j.fame + ' 名气';
+            if (j.influence > 0) rewardText += '  +' + j.influence + ' 影响力';
+            if (j.fans > 0) rewardText += '  +' + j.fans + ' 粉丝';
+            var cdText = '';
+            if (isOnCd) {
+                var remain = Math.ceil((cd - now) / 1000);
+                cdText = '<div class="earn-job-cooldown">冷却中 ' + remain + 's</div>';
+            }
+            html += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="doEarnJob(\'' + j.id + '\')"') + '>'
+                + '<div class="earn-job-name">' + j.name + '</div>'
+                + '<div class="earn-job-cost">体力 -' + j.体力 + '</div>'
+                + '<div class="earn-job-reward">' + rewardText + '</div>'
+                + cdText
+                + '</div>';
         }
-        jobsHtml += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="doEarnJob(\'' + j.id + '\')"') + '>'
-            + '<div class="earn-job-name">' + j.name + '</div>'
-            + '<div class="earn-job-cost">体力 -' + j.体力 + '</div>'
-            + '<div class="earn-job-reward">' + rewardText + '</div>'
-            + cdText
-            + '</div>';
+        return html;
     }
 
-    var modeLabel = !isIdol ? 'Trainee' : (isGroup ? 'Group' : 'Solo');
+    var currentTab = gameState.earnTab || 'common';
+    var canSolo = isIdol;
+    var canGroup = isIdol && isGroup;
+
+    var tabs = [
+        { id: 'common', name: '通用', locked: false },
+        { id: 'solo', name: '个人', locked: !canSolo },
+        { id: 'group', name: '团队', locked: !canGroup }
+    ];
+
+    if (currentTab === 'solo' && !canSolo) currentTab = 'common';
+    if (currentTab === 'group' && !canGroup) currentTab = 'common';
+    gameState.earnTab = currentTab;
+
+    var tabsHtml = '<div class="earn-tab-bar">';
+    for (var ti = 0; ti < tabs.length; ti++) {
+        var t = tabs[ti];
+        var cls = 'earn-tab';
+        if (t.id === currentTab) cls += ' active';
+        if (t.locked) cls += ' locked';
+        var onclick = t.locked ? '' : ' onclick="gameState.earnTab=\'' + t.id + '\';render赚钱中心Page(document.getElementById(\'app\'))"';
+        tabsHtml += '<div class="' + cls + '"' + onclick + '>' + t.name + '</div>';
+    }
+    tabsHtml += '</div>';
+
+    var contentHtml = '';
+    var lockTip = '';
+    if (currentTab === 'common') {
+        contentHtml = buildJobsHtml(traineeJobs);
+    } else if (currentTab === 'solo') {
+        if (canSolo) {
+            contentHtml = buildJobsHtml(soloJobs);
+        } else {
+            lockTip = '<div style="text-align:center;padding:40px 0;color:var(--color-text-light);font-size:13px;">出道后解锁个人工作</div>';
+        }
+    } else if (currentTab === 'group') {
+        if (canGroup) {
+            contentHtml = buildJobsHtml(groupJobs);
+        } else {
+            lockTip = '<div style="text-align:center;padding:40px 0;color:var(--color-text-light);font-size:13px;">加入团体后解锁团队工作</div>';
+        }
+    }
 
     container.innerHTML = '<div class="page active">'
         + '<div class="page-header">'
@@ -7871,10 +7933,10 @@ function render赚钱中心Page(container) {
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
         + '<div style="font-size:12px;opacity:0.8;">当前体力</div>'
         + '<div style="font-size:24px;font-weight:700;">' + gameState.体力 + ' / ' + gameState.max体力 + '</div>'
-        + '<div style="font-size:11px;opacity:0.7;margin-top:4px;">' + modeLabel + ' Mode</div>'
         + '</div>'
-        + '<div class="section-title" style="margin-top:16px;">可用工作</div>'
-        + jobsHtml
+        + tabsHtml
+        + contentHtml
+        + lockTip
         + '</div></div>';
 }
 
@@ -7883,37 +7945,25 @@ function doEarnJob(jobId) {
     var cd = gameState.earnCooldowns[jobId] || 0;
     if (cd > Date.now()) return;
 
-    var isIdol = gameState.player.role === 'Idol';
-    var isGroup = isIdol && gameState.player.group && gameState.player.group !== '';
-    var allJobs = [];
-
-    if (!isIdol) {
-        allJobs = [
-            { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 0, cooldown: 30000 },
-            { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
-            { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 0, cooldown: 60000 },
-            { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
-            { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
-            { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45000 }
-        ];
-    } else if (isGroup) {
-        allJobs = [
-            { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90000 },
-            { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90000 },
-            { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
-            { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 0, cooldown: 120000 },
-            { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 0, cooldown: 45000 }
-        ];
-    } else {
-        allJobs = [
-            { id: 'solo_cf', name: 'Solo代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90000 },
-            { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90000 },
-            { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
-            { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120000 },
-            { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
-            { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120000 }
-        ];
-    }
+    var allJobs = [
+        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 0, cooldown: 30000 },
+        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
+        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 0, cooldown: 60000 },
+        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
+        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
+        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45000 },
+        { id: 'solo_cf', name: 'Solo代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90000 },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90000 },
+        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
+        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120000 },
+        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120000 },
+        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90000 },
+        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90000 },
+        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
+        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 0, cooldown: 120000 },
+        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 0, cooldown: 45000 }
+    ];
 
     var job = null;
     for (var ji = 0; ji < allJobs.length; ji++) {
