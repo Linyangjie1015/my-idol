@@ -444,7 +444,7 @@
         background: linear-gradient(135deg, rgba(255,143,163,0.05), rgba(255,179,193,0.1));
     }
 
-    .company-name { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 6px; }
+    .company-name { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .company-desc { font-size: 13px; color: var(--color-text-light); line-height: 1.5; margin-bottom: 10px; }
     .company-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 
@@ -460,7 +460,7 @@
     }
 
     .group-card.selected { border-color: var(--color-primary); }
-    .group-name { font-size: 15px; font-weight: 600; color: var(--color-text); }
+    .group-name { font-size: 15px; font-weight: 600; color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
     .group-desc { font-size: 12px; color: var(--color-text-light); margin-top: 4px; }
 
     /* ==================== HOME INDICATOR ==================== */
@@ -1528,7 +1528,7 @@ function renderInviteCodePage(app) {
         + '<div style="width:100%;max-width:300px;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
         + '<div style="font-size:16px;font-weight:600;color:#333;text-align:center;margin-bottom:6px;">内测邀请码</div>'
         + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
-        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\')">'
+        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')checkInviteCode()">'
         + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
         + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
         + '</div>'
@@ -1540,13 +1540,22 @@ function renderInviteCodePage(app) {
 function checkInviteCode() {
     var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase();
     var errEl = document.getElementById('inviteCodeError');
+    var btnEl = document.getElementById('inviteCodeBtn');
+    if (!code) {
+        errEl.style.display = 'block';
+        errEl.textContent = '请输入邀请码';
+        return;
+    }
     if (INVITE_CODES.indexOf(code) !== -1) {
-        document.getElementById('inviteCodeBtn').textContent='验证中...'; localStorage.setItem('myIdolInviteVerified', 'true');
+        if(btnEl) btnEl.textContent='验证中...';
+        localStorage.setItem('myIdolInviteVerified', 'true');
         currentPage = 'welcome';
         render();
     } else {
         errEl.style.display = 'block';
         errEl.textContent = '邀请码无效，请检查后重试';
+        var inpEl = document.getElementById('inviteCodeInput');
+        if(inpEl) { inpEl.style.borderColor = '#FF3B30'; setTimeout(function(){ inpEl.style.borderColor = '#FFD5DE'; }, 1500); }
     }
 }
 
@@ -1863,15 +1872,15 @@ function renderCreationStep1() {
                 
                 <div class="section-title">生日</div>
                 <div style="display: flex; gap: 8px;">
-                    <select id="inputBirth年" onchange="calculateAge()" style="flex: 1;">
+                    <select id="inputBirth年" onchange="calculateAge()" style="flex:1;padding:12px 4px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:44px;">
                         <option value="">年</option>
                         ${genBirthOptions(2012, 23, 0)}
                     </select>
-                    <select id="inputBirth月" onchange="calculateAge()" style="flex: 1;">
+                    <select id="inputBirth月" onchange="calculateAge()" style="flex:1;padding:12px 4px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:44px;">
                         <option value="">月</option>
                         ${genBirthOptions(1, 12, 1)}
                     </select>
-                    <select id="inputBirth日" onchange="calculateAge()" style="flex: 1;">
+                    <select id="inputBirth日" onchange="calculateAge()" style="flex:1;padding:12px 4px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:44px;">
                         <option value="">日</option>
                         ${genBirthOptions(1, 31, 2)}
                     </select>
@@ -2131,15 +2140,17 @@ function select性别(g) {
 }
 
 function togglePersonality(p) {
+    if (gameState.player.personality.length >= 3 && gameState.player.personality.indexOf(p) === -1) {
+        showToast('最多选择3个性格标签');
+        return;
+    }
     var idx = gameState.player.personality.indexOf(p);
     if (idx > -1) {
         gameState.player.personality.splice(idx, 1);
-    } else if (gameState.player.personality.length >= 3) {
-        showToast('最多选择3个性格标签');
-        return;
     } else {
         gameState.player.personality.push(p);
     }
+    if (gameState.player.personality.length > 3) gameState.player.personality = gameState.player.personality.slice(0, 3);
     render();
 }
 
@@ -2175,19 +2186,20 @@ function toggleGroup(key) {
 }
 
 function togglePosition(p) {
+    if (gameState.player.positions.length >= 3 && gameState.player.positions.indexOf(p) === -1) {
+        showToast('最多选择3个定位');
+        return;
+    }
     var idx = gameState.player.positions.indexOf(p);
     if (idx > -1) {
         gameState.player.positions.splice(idx, 1);
-    } else if (gameState.player.positions.length >= 3) {
-        showToast('最多选择3个定位');
-        return;
     } else {
         gameState.player.positions.push(p);
     }
-    const countEl = document.getElementById('positionCount');
+    if (gameState.player.positions.length > 3) gameState.player.positions = gameState.player.positions.slice(0, 3);
+    var countEl = document.getElementById('positionCount');
     if (countEl) countEl.textContent = gameState.player.positions.length;
     render();
-    // 选满3个定位后自动跳到下一步
     if (gameState.player.positions.length === 3) {
         setTimeout(function() { nextCreationStep(6); }, 400);
     }
@@ -2234,18 +2246,28 @@ function nextCreationStep(step) {
 }
 
 function prevCreationStep() {
-    creationStep--;
-    render();
+    if (creationStep > 1) { creationStep--; render(); }
 }
 
 function goToWelcome() {
-    currentPage = 'welcome';
-    render();
+    if (gameState.player.name || gameState.player.company || gameState.player.personality.length > 0) {
+        showModal('确认返回', '返回将清空已填写的信息，确定放弃当前编辑吗？', [
+            { text: '取消', action: closeModal },
+            { text: '确定返回', action: function() { closeModal(); _resetCreation(); currentPage = 'welcome'; render(); } }
+        ]);
+    } else {
+        currentPage = 'welcome';
+        render();
+    }
+}
+
+function _resetCreation() {
+    gameState.player = { name: '', gender: '', birthDate: '', age: 0, personality: [], company: '', groups: [], positions: [], role: '', avatar: '' };
+    creationStep = 1;
 }
 
 function completeCreation() {
     try {
-        // 初始化游戏
         if (gameState.player.role === 'Trainee') {
             initAsTrainee();
         } else {
@@ -2514,10 +2536,13 @@ function render训练Page(container) {
 }
 
 var _isTraining = false;
+var _lastTrainTime = 0;
 function do训练项目(stat, 体力cost, moneyCost, name) {
-    if (_isTraining) return;
+    var now = Date.now();
+    if (_isTraining || now - _lastTrainTime < 1200) return;
     _isTraining = true;
-    setTimeout(function() { _isTraining = false; }, 1000);
+    _lastTrainTime = now;
+    setTimeout(function() { _isTraining = false; }, 1200);
     if (gameState.体力 < 体力cost) {
         showModal('体力不足', '请先休息恢复体力');
         return;
@@ -3902,7 +3927,7 @@ function getAppRedDot(appId) {
             if (gameState.weverseUnread) count += gameState.weverseUnread;
             break;
         case 'updates':
-            if (!gameState.lastReadVersion || gameState.lastReadVersion !== 'V1.5') count = 1;
+            if (!gameState.lastReadVersion || gameState.lastReadVersion !== 'V1.5.2') count = 1;
             break;
         case 'schedule':
             if (gameState.schedule) { for (var i = 0; i < gameState.schedule.length; i++) { if (!gameState.schedule[i].done) count++; } }
@@ -3923,7 +3948,8 @@ function getAppRedDot(appId) {
     return count > 0 ? count : null;
 }
 function goToPage(page) {
-    if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
+        if (typeof gameState !== 'undefined' && gameState.体力 !== undefined) { if (gameState.体力 < 0) gameState.体力 = 0; if (gameState.体力 > gameState.max体力) gameState.体力 = gameState.max体力; }
+if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
         try {
             var saveData = {};
             var keys = Object.keys(gameState);
@@ -3946,7 +3972,7 @@ function goToPage(page) {
         if (page === 'mail' && gameState.emails) { for (var _mi = 0; _mi < gameState.emails.length; _mi++) gameState.emails[_mi].read = true; }
         if (page === 'meeting' && gameState.meetings) { for (var _mi2 = 0; _mi2 < gameState.meetings.length; _mi2++) gameState.meetings[_mi2].read = true; }
         if (page === 'kakaotalk' && gameState.kakaoChats) { var _kck = Object.keys(gameState.kakaoChats); for (var _kci = 0; _kci < _kck.length; _kci++) { var _kcm = gameState.kakaoChats[_kck[_kci]]; for (var _kcj = 0; _kcj < _kcm.length; _kcj++) _kcm[_kcj].read = true; } }
-        if (page === 'updates') { gameState.lastReadVersion = 'V1.5'; }
+        if (page === 'updates') { gameState.lastReadVersion = 'V1.5.2'; }
         if (page === 'work') { gameState.newNotice = false; }
         if (page === 'live') { gameState.livePendingReward = false; }
         if (page === 'ins') { gameState.insUnread = 0; }
@@ -6160,7 +6186,7 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
-        { ver: 'V1.5', date: '2026年6月13日 18:00', title: 'My Idol V1.5', content: 'My Idol V1.5 更新内容：\n\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等APP的NPC可以真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\nBug修复：\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题' },
+        { ver: 'V1.5.2', date: '2026年6月13日 18:00', title: 'My Idol V1.5.2', content: 'My Idol V1.5.2 更新内容：\n\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等APP的NPC可以真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\nBug修复：\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题' },
         { ver: 'V1.4.3.1', date: '2026年6月13日 14:30', title: 'My Idol V1.4.3.1', content: 'My Idol V1.4.3.1 更新内容：\n\n• 团体人气系统 - 出道爱豆新增团体人气数值，不同公司基数不同\n• INS私信优化 - 私信列表显示所有有对话的联系人\n• TikTok私信优化 - 私信列表显示所有有对话的联系人\n• APP首页分类排版 - 按工作/赚钱/社交/娱乐/其他分类展示\n• 成员信息团队介绍 - 查看团体时显示韩文名和概念描述\n\nBug修复：\n• 修复INS/TikTok对方主动发来的消息不出现在聊天列表的问题' },
         { ver: 'V1.4.3', date: '2026年6月13日 12:00', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆\n\nBug修复：\n• 修复性格/定位多选可超限的问题\n• 修复体力归零后回血偶尔失效\n• 修复体力切APP后出现负数\n• 修复训练付费重复扣款\n• 修复外卖快递道具效果不即时生效\n• 修复存档覆盖数据丢失\n• 修复退出保存提醒弹窗重复弹出' },
         { ver: 'V1.4.2', date: '2026年6月13日 11:00', title: 'My Idol V1.4.2', content: 'My Idol V1.4.2 热修复：\n\n• 修复会议系统崩溃问题\n• 修复退出登录无效的问题\n• 修复外卖/快递购买报错的问题\n• 修复KakaoTalk聊天框被底部导航遮挡\n• 所有APP子页面全屏显示，底部导航仅主页面显示\n• 优化系统稳定性' },
@@ -6893,7 +6919,7 @@ updateTime();
 
 // ==================== TOAST ====================
 function showToast(message, duration) {
-    if (!duration) duration = 1500;
+    if (!duration) duration = 2500;
     var toast = document.createElement('div');
     toast.className = 'myidol-toast';
     toast.textContent = message;
@@ -7496,24 +7522,7 @@ function _quickLogin() {
 // ==================== AUTO SAVE ====================
 var autoSaveTimer = null;
 
-function startAutoSave() {
-    if (autoSaveTimer) clearInterval(autoSaveTimer);
-    autoSaveTimer = setInterval(function() {
-        if (gameState.player.name && currentPage !== 'welcome') {
-            try {
-                var saveData = {};
-                var keys = Object.keys(gameState);
-                for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
-                }
-                localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
-                showToast('已自动存档');
-            } catch(e) {}
-        }
-    }, 120000);
-}
-
-window.addEventListener('beforeunload', function(e) {
+function _doAutoSave(silent) {
     if (gameState.player.name && currentPage !== 'welcome') {
         try {
             var saveData = {};
@@ -7522,8 +7531,31 @@ window.addEventListener('beforeunload', function(e) {
                 if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
             }
             localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
+            if (!silent) showToast('已自动存档');
+        } catch(e) {}
+    }
+}
+
+function triggerAutoSave() { _doAutoSave(false); }
+function triggerSilentSave() { _doAutoSave(true); }
+
+function startAutoSave() {
+    if (autoSaveTimer) clearInterval(autoSaveTimer);
+    autoSaveTimer = setInterval(function() { _doAutoSave(false); }, 120000);
+}
+
+window.addEventListener('beforeunload', function(e) {
+    if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
+        try {
+            var saveData = {};
+            var keys = Object.keys(gameState);
+            for (var i = 0; i < keys.length; i++) {
+                if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
+            }
+            localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
         } catch(e2) {}
-        e.returnValue = '游戏进度已自动保存';
+        e.preventDefault();
+        e.returnValue = '游戏进度已自动保存，确定离开吗？';
     }
 });
 
@@ -7745,6 +7777,7 @@ function _completeDebut() {
     if (gameState.player.role === 'Idol') return;
     gameState.player.role = 'Idol';
     var company = COMPANIES[gameState.player.company];
+    var hasBusinessLoan = (gameState.loanAmount > 0 && gameState.loanInterest >= 5);
     if (company && company.groups) {
         var groupKeys = Object.keys(company.groups);
         if (gameState.player.groups && gameState.player.groups.length > 0) {
@@ -7753,7 +7786,12 @@ function _completeDebut() {
                 if (company.groups[gameState.player.groups[gi]]) validGroups.push(gameState.player.groups[gi]);
             }
             if (validGroups.length > 0) {
-                gameState.player.group = validGroups[Math.floor(Math.random() * validGroups.length)];
+                if (hasBusinessLoan && Math.random() < 0.4) {
+                    var nonPreferred = groupKeys.filter(function(gk) { return validGroups.indexOf(gk) === -1; });
+                    gameState.player.group = nonPreferred.length > 0 ? nonPreferred[Math.floor(Math.random() * nonPreferred.length)] : groupKeys[Math.floor(Math.random() * groupKeys.length)];
+                } else {
+                    gameState.player.group = validGroups[Math.floor(Math.random() * validGroups.length)];
+                }
             } else {
                 gameState.player.group = groupKeys[Math.floor(Math.random() * groupKeys.length)];
             }
