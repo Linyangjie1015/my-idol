@@ -1530,7 +1530,7 @@ function renderInviteCodePage(app) {
         + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
         + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\')">'
         + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
-        + '<button onclick="checkInviteCode()" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
+        + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
         + '</div>'
         + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;text-align:center;">没有邀请码？敬请期待正式上线</div>'
         + '</div></div>';
@@ -1541,7 +1541,7 @@ function checkInviteCode() {
     var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase();
     var errEl = document.getElementById('inviteCodeError');
     if (INVITE_CODES.indexOf(code) !== -1) {
-        localStorage.setItem('myIdolInviteVerified', 'true');
+        document.getElementById('inviteCodeBtn').textContent='验证中...'; localStorage.setItem('myIdolInviteVerified', 'true');
         currentPage = 'welcome';
         render();
     } else {
@@ -1552,6 +1552,8 @@ function checkInviteCode() {
 
 function render() {
     if (typeof _checkAutoRest === 'function') _checkAutoRest();
+    if (typeof gameState !== 'undefined' && gameState.体力 !== undefined) { if (gameState.体力 < 0) gameState.体力 = 0; if (gameState.体力 > gameState.max体力) gameState.体力 = gameState.max体力; }
+    if (typeof gameState !== 'undefined' && gameState.stats) { var _sk = Object.keys(gameState.stats); for(var _si=0;_si<_sk.length;_si++){ if(gameState.stats[_sk[_si]]>150) gameState.stats[_sk[_si]]=150; } }
     var app = document.getElementById('app');
     if (!app) return;
     try {
@@ -7508,7 +7510,7 @@ function startAutoSave() {
                 showToast('已自动存档');
             } catch(e) {}
         }
-    }, 300000);
+    }, 120000);
 }
 
 window.addEventListener('beforeunload', function(e) {
