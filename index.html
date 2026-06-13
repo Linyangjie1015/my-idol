@@ -1519,12 +1519,46 @@ var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 // ==================== NAVIGATION ====================
 let currentPage = 'welcome';
 let creationStep = 1;
+var INVITE_CODES = ['MYIDOL2026', 'KPOP001', 'IDOLVIP', 'FIRST50', 'BETA2026', 'STAR123', 'DEBUT01', 'TRAIN01', 'FANCLUB', 'LOVEKPOP'];
+
+function renderInviteCodePage(app) {
+    app.innerHTML = '<div class="page active"><div class="page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 30px;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);">'
+        + '<div style="font-size:32px;font-weight:800;color:#FF6B8A;margin-bottom:8px;">My Idol</div>'
+        + '<div style="font-size:13px;color:#8E8E93;margin-bottom:40px;">韩娱爱豆模拟器</div>'
+        + '<div style="width:100%;max-width:300px;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
+        + '<div style="font-size:16px;font-weight:600;color:#333;text-align:center;margin-bottom:6px;">内测邀请码</div>'
+        + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
+        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\')">'
+        + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
+        + '<button onclick="checkInviteCode()" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
+        + '</div>'
+        + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;text-align:center;">没有邀请码？敬请期待正式上线</div>'
+        + '</div></div>';
+    setTimeout(function(){ var inp = document.getElementById('inviteCodeInput'); if(inp) inp.focus(); }, 300);
+}
+
+function checkInviteCode() {
+    var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase();
+    var errEl = document.getElementById('inviteCodeError');
+    if (INVITE_CODES.indexOf(code) !== -1) {
+        localStorage.setItem('myIdolInviteVerified', 'true');
+        currentPage = 'welcome';
+        render();
+    } else {
+        errEl.style.display = 'block';
+        errEl.textContent = '邀请码无效，请检查后重试';
+    }
+}
 
 function render() {
     if (typeof _checkAutoRest === 'function') _checkAutoRest();
     var app = document.getElementById('app');
     if (!app) return;
     try {
+        if (!localStorage.getItem('myIdolInviteVerified')) {
+            renderInviteCodePage(app);
+            return;
+        }
         switch(currentPage) {
             case 'welcome':
                 var currentUser = localStorage.getItem('myIdolCurrentUser');
