@@ -1373,6 +1373,44 @@ const COMPANIES = {
 };
 
 // ==================== GAME STATE ====================
+var GROUP_INTROS = {
+    "SM Entertainment": {
+        "Aurora Dawn": "해오름 · 曙光纯白治愈团",
+        "Nuriwave": "누리웨이브 · 未来赛博舞台团",
+        "Verse": "새은리릭 · 清吟抒情主唱团",
+        "Gaeul": "가을바이브 · 秋日复古清新团",
+        "Star Apex": "스타에이펙스 · 星巅全能王牌团"
+    },
+    "YG Entertainment": {
+        "Taegi Flow": "태기플로우 · 不羁黑泡王牌团",
+        "Black Luna": "블랙루나 · 暗夜高级氛围团",
+        "Artist Moon": "아티스트문 · 月光全员创作团",
+        "Cloud Echo": "클라우드에코 · 云雾治愈抒情团",
+        "Odd Muse": "오드뮤즈 · 小众艺术概念团"
+    },
+    "JYP Entertainment": {
+        "Wave": "웨이브브라이트 · 晴空元气王牌团",
+        "Melody": "멜로디피치 · 和声主唱团",
+        "Beat": "비트모션 · 刀群舞蹈团",
+        "Warm": "웜호라이즌 · 温柔治愈团",
+        "Funky": "펑키글로우 · 综艺人气团"
+    },
+    "HYBE": {
+        "Myth": "미스에코 · 全球顶级概念王牌团",
+        "Nova": "틴노바 · 少年养成成长团",
+        "Crush": "크러쉬오라 · 炽飒Girl Crush团",
+        "Moon": "문리릭 · 月光叙事抒情团",
+        "Secret": "시크릿버스 · 悬疑小众概念团"
+    },
+    "SEONGWOO ENT": {
+        "Skyh": "스카이허쉬 · 空寂星语王牌团",
+        "Lumi": "리틀글로우 · 微光元气小众团",
+        "Wind": "윈드발라드 · 风吟治愈民谣团",
+        "Wild": "와일드엣지 · 野锐摇滚个性团",
+        "Dream": "드림루프 · 梦环空灵仙气团"
+    }
+};
+
 let gameState = {
     player: {
         name: '',
@@ -1423,6 +1461,7 @@ let gameState = {
     membersViewGroup: '',
     liveMode: 'video',
     earnCooldowns: {},
+    groupPopularity: 0,
     debutStep: 0,
     debutResult: null,
     noticeList: null,
@@ -1672,6 +1711,7 @@ function startNewGame(slot = 0) {
         membersViewCompany: '',
         membersViewGroup: '',
         liveMode: 'video',
+        groupPopularity: 0,
         kakaoChats: {},
         kakaoFriends: [],
         kakaoCurrentChat: '',
@@ -2221,6 +2261,8 @@ function initAsTrainee() {
 
 function initAsIdol() {
     const company = gameState.player.company;
+    var gpBase3 = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
+    gameState.groupPopularity = gpBase3[company] || 50;
     if (company === 'SM Entertainment' || company === 'YG Entertainment' || company === 'HYBE') {
         gameState.money = 150000 + Math.floor(Math.random() * 50001);
     } else if (company === 'JYP Entertainment') {
@@ -2310,20 +2352,31 @@ function renderHomePage(container) {
                 </div>
             </div>
             <div class="page-content" style="padding: 16px 20px;">
-                <div class="app-grid">
-                    ${apps.map(app => {
-                        var locked = app.unlock > 0 && gameState.fans < app.unlock;
-                        return `
-                            <div class="app-item ${locked ? 'locked' : ''}" onclick="${locked ? '' : "goToPage('" + app.id + "')"}">
-                                <div class="app-icon-wrap ${locked ? 'locked' : ''}">
-                                    ${getIcon(app.icon)}
-                                    ${locked ? '<div class="app-lock">' + getIcon('lock') + '</div>' : ''}
-                                </div>
-                                <div class="app-name">${app.name}</div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
+                ${function() {
+                    var appMap = {};
+                    for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
+                    var categories = [
+                        { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail'] },
+                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan'] },
+                        { title: '社交', ids: ['ins', 'tiktok', 'kakaotalk', 'bubble', 'weverse', 'dating'] },
+                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking'] },
+                        { title: '其他', ids: ['members', 'crisis', 'updates'] }
+                    ];
+                    var catHtml = '';
+                    for (var ci = 0; ci < categories.length; ci++) {
+                        var cat = categories[ci];
+                        catHtml += '<div style="font-size:11px;color:var(--color-text-light);margin:' + (ci > 0 ? '16' : '0') + 'px 0 6px 4px;font-weight:500;">' + cat.title + '</div>';
+                        catHtml += '<div class="app-grid">';
+                        for (var ji = 0; ji < cat.ids.length; ji++) {
+                            var app = appMap[cat.ids[ji]];
+                            if (!app) continue;
+                            var locked = app.unlock > 0 && gameState.fans < app.unlock;
+                            catHtml += '<div class="app-item ' + (locked ? 'locked' : '') + '" onclick="' + (locked ? '' : "goToPage('" + app.id + "')") + '"><div class="app-icon-wrap ' + (locked ? 'locked' : '') + '">' + getIcon(app.icon) + (locked ? '<div class="app-lock">' + getIcon('lock') + '</div>' : '') + '</div><div class="app-name">' + app.name + '</div></div>';
+                        }
+                        catHtml += '</div>';
+                    }
+                    return catHtml;
+                }()}
             </div>
         </div>
     `;
@@ -3502,6 +3555,7 @@ function render我的Page(container) {
                         <div class="stat-track"><div class="stat-fill credit" style="width: ${Math.min(100, (gameState.fame || 30) / 2)}%;"></div></div>
                         <span class="stat-value">${gameState.fame || 30}</span>
                     </div>
+                    ${gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : ''}
                 </div>
                 
                 <!-- 能力卡 -->
@@ -4180,6 +4234,10 @@ function acceptNotice() {
     gameState.fans += fansGain;
     var dangerGain = Math.floor(Math.random() * 3);
     gameState.danger = Math.max(0, gameState.danger + dangerGain);
+    if (gameState.player.role === 'Idol' && gameState.groupPopularity !== undefined) {
+        var gpGain = Math.floor(Math.random() * 3) + 1;
+        gameState.groupPopularity += gpGain;
+    }
 
     var storyHtml = '';
     var rankResult = '';
@@ -4733,6 +4791,13 @@ function renderInsPage(container) {
                 { type: 'like', user: 'yeonjun_official', text: '赞了你的动态', time: '3小时前' }
             ];
             var chatList = ['park_jiwoo', 'kim_nari_', 'choi_naeun'];
+            var insChatUsers = {};
+            for (var ic = 0; ic < gameState.insMessages.length; ic++) {
+                insChatUsers[gameState.insMessages[ic].with] = true;
+            }
+            for (var icu in insChatUsers) {
+                if (chatList.indexOf(icu) === -1) chatList.push(icu);
+            }
             tabContent = '<div style="flex:1;overflow-y:auto;"><div class="section-title" style="padding:12px 16px 4px;">通知</div>';
             for (var i = 0; i < notifications.length; i++) {
                 var n = notifications[i];
@@ -4890,6 +4955,13 @@ function renderTiktokPage(container) {
                 { user: 'mv_stan', text: '评论：编舞太强了！', time: '2小时前' }
             ];
             var chatList = ['kim_nari_', 'lee_hyunjin'];
+            var tiktokChatUsers = {};
+            for (var tc = 0; tc < gameState.tiktokMessages.length; tc++) {
+                tiktokChatUsers[gameState.tiktokMessages[tc].with] = true;
+            }
+            for (var tcu in tiktokChatUsers) {
+                if (chatList.indexOf(tcu) === -1) chatList.push(tcu);
+            }
             tabContent = '<div style="flex:1;overflow-y:auto;"><div class="section-title" style="padding:12px 16px 4px;">通知</div>';
             for (var i = 0; i < notifications.length; i++) {
                 var n = notifications[i];
@@ -5747,7 +5819,11 @@ function render成员信息Page(container) {
         if (!company) { gameState.membersViewLevel = 0; render(); return; }
         var group = company.groups[grp];
         if (!group) { gameState.membersViewLevel = 1; render(); return; }
-        var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="gameState.membersViewLevel=1;render();">‹ ' + company.name + '</div><div class="page-title">' + group.name + '</div><div style="width:32px;"></div></div><div class="page-content"><div class="section-title">成员</div>';
+        var groupIntro = '';
+        if (GROUP_INTROS[comp] && GROUP_INTROS[comp][grp]) {
+            groupIntro = '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;text-align:center;padding:16px;"><div style="font-size:18px;font-weight:700;">' + group.name + '</div><div style="font-size:13px;opacity:0.9;margin-top:6px;">' + GROUP_INTROS[comp][grp] + '</div></div>';
+        }
+        var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="gameState.membersViewLevel=1;render();">‹ ' + company.name + '</div><div class="page-title">' + group.name + '</div><div style="width:32px;"></div></div><div class="page-content">' + groupIntro + '<div class="section-title">成员</div>';
         for (var i = 0; i < group.members.length; i++) {
             var m = group.members[i];
             var posZh = posMap[m.position] || m.position;
@@ -5761,6 +5837,7 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
+        { ver: 'V1.4.3.1', date: '2026年6月14日', title: 'My Idol V1.4.3.1', content: 'My Idol V1.4.3.1 更新内容：\n\n• 团体人气系统 - 出道爱豆新增团体人气数值，不同公司基数不同\n• INS私信优化 - 私信列表显示所有有对话的联系人\n• TikTok私信优化 - 私信列表显示所有有对话的联系人\n• APP首页分类排版 - 按工作/赚钱/社交/娱乐/其他分类展示\n• 成员信息团队介绍 - 查看团体时显示韩文名和概念描述\n\nBug修复：\n• 修复INS/TikTok对方主动发来的消息不出现在聊天列表的问题' },
         { ver: 'V1.4.3', date: '2026年6月13日', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆\n\nBug修复：\n• 修复性格/定位多选可超限的问题\n• 修复体力归零后回血偶尔失效\n• 修复体力切APP后出现负数\n• 修复训练付费重复扣款\n• 修复外卖快递道具效果不即时生效\n• 修复存档覆盖数据丢失\n• 修复退出保存提醒弹窗重复弹出' },
         { ver: 'V1.4.2', date: '2026年6月13日', title: 'My Idol V1.4.2', content: 'My Idol V1.4.2 热修复：\n\n• 修复会议系统崩溃问题\n• 修复退出登录无效的问题\n• 修复外卖/快递购买报错的问题\n• 修复KakaoTalk聊天框被底部导航遮挡\n• 所有APP子页面全屏显示，底部导航仅主页面显示\n• 优化系统稳定性' },
         { ver: 'V1.4.1', date: '2026年6月13日', title: 'My Idol V1.4.1', content: 'My Idol V1.4.1 更新内容：\n\n• 新增KakaoTalk聊天APP，可以和练习生NPC聊天\n• 新增6位AI练习生和经纪人\n• 新增自动存档功能，再也不怕忘记保存\n• 新增账号注册系统，保护你的游戏进度\n• 考核系统上线！5科考试+综合考核\n• 外卖扩充到18种美食\n• 快递升级22种商品6大分类\n• 会议系统修复+新增剧情' },
@@ -7056,6 +7133,9 @@ function _completeDebut() {
     }
     if (!gameState.player.group) gameState.player.group = 'New Group';
 
+    var gpBase = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
+    gameState.groupPopularity = gpBase[gameState.player.company] || 50;
+
     gameState.emails.unshift({
         title: '正式出道通知书',
         from: (company && company.name || gameState.player.company) + ' 经纪部',
@@ -7212,6 +7292,8 @@ function confirmKick() {
     newMembers.push(gameState.player.name);
     gameState.teamMembers = newMembers;
     gameState.debutStep = 4;
+    var gpBase2 = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
+    gameState.groupPopularity = gpBase2[gameState.player.company] || 50;
 
     gameState.emails.unshift({
         title: '出道通知书 - Direct Selection',
@@ -7357,6 +7439,10 @@ function doEarnJob(jobId) {
     if (job.fame > 0) gameState.fame = Math.min(200, (gameState.fame || 30) + job.fame);
     if (job.influence > 0) gameState.influence = Math.min(200, (gameState.influence || 50) + job.influence);
     if (job.fans > 0) gameState.fans += job.fans;
+    if (isIdol && gameState.groupPopularity !== undefined) {
+        var gpGain2 = Math.floor(Math.random() * 2) + 1;
+        gameState.groupPopularity += gpGain2;
+    }
     gameState.earnCooldowns[jobId] = Date.now() + job.cooldown;
 
     showToast('工作中...');
