@@ -6158,7 +6158,7 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
-        { ver: 'V1.5', date: '2026年6月13日', title: 'My Idol V1.5', content: 'My Idol V1.5 更新内容：\n\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等APP的NPC可以真实对话\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 赚钱中心个人工作 - 新增个人工作Tab，增加个人影响力和名气\n• 直播优化 - 点赞和收益只增不减\n• 粉丝奖励调整 - 工作粉丝奖励100-1000，发帖/视频/消息50-400\n• 安卓端优化 - 降低定时器频率提升流畅度\n• 首页底部遮挡修复 - APP标题不再被导航栏遮挡' },
+        { ver: 'V1.5', date: '2026年6月13日', title: 'My Idol V1.5', content: 'My Idol V1.5 更新内容：\n\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等APP的NPC可以真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\nBug修复：\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题' },
         { ver: 'V1.4.3.1', date: '2026年6月14日', title: 'My Idol V1.4.3.1', content: 'My Idol V1.4.3.1 更新内容：\n\n• 团体人气系统 - 出道爱豆新增团体人气数值，不同公司基数不同\n• INS私信优化 - 私信列表显示所有有对话的联系人\n• TikTok私信优化 - 私信列表显示所有有对话的联系人\n• APP首页分类排版 - 按工作/赚钱/社交/娱乐/其他分类展示\n• 成员信息团队介绍 - 查看团体时显示韩文名和概念描述\n\nBug修复：\n• 修复INS/TikTok对方主动发来的消息不出现在聊天列表的问题' },
         { ver: 'V1.4.3', date: '2026年6月13日', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆\n\nBug修复：\n• 修复性格/定位多选可超限的问题\n• 修复体力归零后回血偶尔失效\n• 修复体力切APP后出现负数\n• 修复训练付费重复扣款\n• 修复外卖快递道具效果不即时生效\n• 修复存档覆盖数据丢失\n• 修复退出保存提醒弹窗重复弹出' },
         { ver: 'V1.4.2', date: '2026年6月13日', title: 'My Idol V1.4.2', content: 'My Idol V1.4.2 热修复：\n\n• 修复会议系统崩溃问题\n• 修复退出登录无效的问题\n• 修复外卖/快递购买报错的问题\n• 修复KakaoTalk聊天框被底部导航遮挡\n• 所有APP子页面全屏显示，底部导航仅主页面显示\n• 优化系统稳定性' },
@@ -8107,7 +8107,7 @@ function doEarnJob(jobId) {
     if (job.fame > 0) gameState.fame = Math.min(200, (gameState.fame || 30) + job.fame);
     if (job.influence > 0) gameState.influence = Math.min(200, (gameState.influence || 50) + job.influence);
     if (job.fans > 0) gameState.fans += job.fans;
-    if (isIdol && gameState.groupPopularity !== undefined) {
+    if (gameState.player && gameState.player.role === 'Idol' && gameState.groupPopularity !== undefined) {
         var gpGain2 = Math.floor(Math.random() * 2) + 1;
         gameState.groupPopularity += gpGain2;
     }
