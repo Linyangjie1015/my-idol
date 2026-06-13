@@ -1217,6 +1217,10 @@
 </div>
 
 <script>
+// Navigation helper - avoids quote nesting issues in inline handlers
+function navTo(page) { goToPage(page); }
+function setAndNav(stateExpr, page) { eval(stateExpr); goToPage(page); }
+
 // ==================== GAME DATA ====================
 const COMPANIES = {
     "SM Entertainment": {
@@ -3374,7 +3378,7 @@ function renderInviteCodePage(app) {
         + '<div style="width:100%;max-width:300px;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
         + '<div style="font-size:16px;font-weight:600;color:#333;text-align:center;margin-bottom:6px;">内测邀请码</div>'
         + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
-        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\')" onkeydown="if(event.key===\'Enter\')checkInviteCode()">'
+        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\"\")" onkeydown="if(event.key===\"Enter\")checkInviteCode()">'
         + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
         + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
         + '</div>'
@@ -3715,8 +3719,8 @@ function renderCreationStep1() {
                 
                 <div class="section-title">性别</div>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn ${gameState.player.gender === 'F' ? 'btn-primary' : 'btn-secondary'}" onclick="select性别('F')" style="flex: 1;">女</button>
-                    <button class="btn ${gameState.player.gender === 'M' ? 'btn-primary' : 'btn-secondary'}" onclick="select性别('M')" style="flex: 1;">男</button>
+                    <button class="btn ${gameState.player.gender === 'F' ? 'btn-primary' : 'btn-secondary'}" onclick="select性别(\'F\')" style="flex: 1;">女</button>
+                    <button class="btn ${gameState.player.gender === 'M' ? 'btn-primary' : 'btn-secondary'}" onclick="select性别(\'M\')" style="flex: 1;">男</button>
                 </div>
                 
                 <div class="section-title">生日</div>
@@ -3802,12 +3806,12 @@ function renderCreationStep3() {
                 <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择身份</h2>
                 <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择您的起始路线</p>
                 
-                <div class="card ${gameState.player.role === 'Trainee' ? 'selected' : ''}" onclick="selectRole('Trainee')" style="margin-bottom: 12px; cursor: pointer;">
+                <div class="card ${gameState.player.role === 'Trainee' ? 'selected' : ''}" onclick="selectRole(\'Trainee\')" style="margin-bottom: 12px; cursor: pointer;">
                     <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">练习生 Trainee</div>
                     <div style="font-size: 13px; color: var(--color-text-light);">从零开始，努力训练，等待出道机会</div>
                 </div>
                 
-                <div class="card ${gameState.player.role === 'Idol' ? 'selected' : ''}" onclick="selectRole('Idol')" style="cursor: pointer;">
+                <div class="card ${gameState.player.role === 'Idol' ? 'selected' : ''}" onclick="selectRole(\'Idol\')" style="cursor: pointer;">
                     <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">出道爱豆 Debut Idol</div>
                     <div style="font-size: 13px; color: var(--color-text-light);">以出道爱豆身份开始，拥有自己的团体</div>
                 </div>
@@ -3839,7 +3843,7 @@ function renderCreationStep4() {
                 ${groups.map(([key, group]) => {
                     var gIdx = gameState.player.groups.indexOf(key);
                     var label = gIdx === 0 ? '第一志愿' : gIdx === 1 ? '第二志愿' : gIdx === 2 ? '第三志愿' : '';
-                    return '<div class="group-card ' + (gIdx > -1 ? 'selected' : '') + '" onclick="toggleGroup(\'' + key + '\')"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + group.name + '</div>' + (label ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</div><div class="group-desc">' + group.desc + '</div></div>';
+                    return '<div class="group-card ' + (gIdx > -1 ? 'selected' : '') + '" data-key="' + key + '" onclick="toggleGroup(this.dataset.key)"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + group.name + '</div>' + (label ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</div><div class="group-desc">' + group.desc + '</div></div>';
                 }).join('')}
                 
                 <div style="text-align: center; margin-top: 16px; color: var(--color-text-light); font-size: 13px;">
@@ -3873,7 +3877,7 @@ function renderCreationStep5() {
                     ${positions.map(p => {
                         var pIdx = gameState.player.positions.indexOf(p);
                         var label = pIdx === 0 ? '第一定位' : pIdx === 1 ? '第二定位' : pIdx === 2 ? '第三定位' : '';
-                        return '<span class="tag ' + (pIdx > -1 ? 'selected' : '') + '" onclick="togglePosition(\'' + p + '\')" style="font-size:14px;padding:12px 20px;margin:6px;position:relative;">' + p + (label ? '<span style="position:absolute;top:-6px;right:-6px;font-size:9px;padding:1px 5px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</span>';
+                        return '<span class="tag ' + (pIdx > -1 ? 'selected' : '') + '" data-p="' + p + '" onclick="togglePosition(this.dataset.p)" style="font-size:14px;padding:12px 20px;margin:6px;position:relative;">' + p + (label ? '<span style="position:absolute;top:-6px;right:-6px;font-size:9px;padding:1px 5px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</span>';
                     }).join('')}
                 </div>
                 
@@ -4323,7 +4327,7 @@ function renderHomePage(container) {
                             if (!app) continue;
                             var locked = app.unlock > 0 && gameState.fans < app.unlock;
                             var _redDot = (!locked) ? getAppRedDot(app.id) : null;
-                            catHtml += '<div class="app-item ' + (locked ? 'locked' : '') + '" onclick="' + (locked ? '' : "goToPage('" + app.id + "')") + '"><div class="app-icon-wrap ' + (locked ? 'locked' : '') + '">' + getIcon(app.icon) + (locked ? '<div class="app-lock">' + getIcon('lock') + '</div>' : '') + (_redDot ? '<div class="app-red-dot' + (_redDot > 1 ? ' has-count' : '') + '">' + (_redDot > 1 ? _redDot : '') + '</div>' : '') + '</div><div class="app-name">' + app.name + '</div></div>';
+                            catHtml += '<div class="app-item ' + (locked ? 'locked' : '') + '" data-id="' + app.id + '" onclick="if(!this.classList.contains(\'locked\'))goToPage(this.dataset.id)"' + '><div class="app-icon-wrap ' + (locked ? 'locked' : '') + '">' + getIcon(app.icon) + (locked ? '<div class="app-lock">' + getIcon('lock') + '</div>' : '') + (_redDot ? '<div class="app-red-dot' + (_redDot > 1 ? ' has-count' : '') + '">' + (_redDot > 1 ? _redDot : '') + '</div>' : '') + '</div><div class="app-name">' + app.name + '</div></div>';
                         }
                         catHtml += '</div>';
                     }
@@ -4630,7 +4634,7 @@ function render考核Page(container) {
     } else if (allLevel3) {
         var nextComp = gameState.examResult.comprehensive[0] ? 1 : 0;
         var needScore = nextComp === 0 ? '3/5' : '4/5';
-        compHtml = '<div class="exam-comprehensive-entry unlocked" onclick="startComprehensiveExam(' + nextComp + ')">'
+        compHtml = '<div class="exam-comprehensive-entry unlocked" data-nextComp="' + nextComp + '" onclick="startComprehensiveExam(this.dataset.nextComp)">'
             + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
             + '<div style="font-size:16px;font-weight:700;color:var(--color-primary);">综合考试 - 第' + (nextComp + 1) + '次</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">5科各出1题，需答对' + needScore + '以上 · 300金币</div>'
@@ -4772,7 +4776,7 @@ function renderDanceExam(container, level) {
 
     var dotsHtml = '';
     for (var i = 0; i < totalDots; i++) {
-        dotsHtml += '<div class="rhythm-dot" id="rdot' + i + '" onclick="_hitDanceDot(' + i + ')"></div>';
+        dotsHtml += '<div class="rhythm-dot" id="rdot' + i + '" data-i="' + i + '" onclick="_hitDanceDot(this.dataset.i)"></div>';
     }
 
     container.innerHTML = '<div class="page active">'
@@ -4876,7 +4880,7 @@ function renderVocalExam(container, level) {
 
     var padsHtml = '';
     for (var i = 0; i < 4; i++) {
-        padsHtml += '<div class="simon-pad" id="spad' + i + '" style="background:' + simonColors[i] + ';" onclick="_simonClick(' + i + ')"></div>';
+        padsHtml += '<div class="simon-pad" id="spad' + i + '" style="background:' + simonColors[i] + ';" data-i="' + i + '" onclick="_simonClick(this.dataset.i)"></div>';
     }
 
     container.innerHTML = '<div class="page active">'
@@ -4976,7 +4980,7 @@ function renderRapExam(container, level) {
         var q = questions[currentQ];
         var optionsHtml = '';
         for (var oi = 0; oi < q.options.length; oi++) {
-            optionsHtml += '<div class="quiz-option" id="rapOpt' + oi + '" onclick="_rapAnswer(' + oi + ')">'
+            optionsHtml += '<div class="quiz-option" id="rapOpt' + oi + '" data-oi="' + oi + '" onclick="_rapAnswer(this.dataset.oi)">'
                 + q.options[oi] + '</div>';
         }
         var qArea = document.getElementById('rapQArea');
@@ -5056,7 +5060,7 @@ function renderActingExam(container, level) {
         var q = questions[currentQ];
         var optionsHtml = '';
         for (var oi = 0; oi < q.options.length; oi++) {
-            optionsHtml += '<div class="quiz-option" id="actOpt' + oi + '" onclick="_actAnswer(' + oi + ')">'
+            optionsHtml += '<div class="quiz-option" id="actOpt' + oi + '" data-oi="' + oi + '" onclick="_actAnswer(this.dataset.oi)">'
                 + q.options[oi] + '</div>';
         }
         var qArea = document.getElementById('actQArea');
@@ -5136,7 +5140,7 @@ function renderVarietyExam(container, level) {
         var q = questions[currentQ];
         var optionsHtml = '';
         for (var oi = 0; oi < q.options.length; oi++) {
-            optionsHtml += '<div class="quiz-option" id="varOpt' + oi + '" onclick="_varAnswer(' + oi + ')">'
+            optionsHtml += '<div class="quiz-option" id="varOpt' + oi + '" data-oi="' + oi + '" onclick="_varAnswer(this.dataset.oi)">'
                 + q.options[oi] + '</div>';
         }
         var qArea = document.getElementById('varQArea');
@@ -5262,7 +5266,7 @@ function renderComprehensiveExam(container, attempt) {
         if (mq.type === 'dance') {
             var dotsHtml = '';
             for (var i = 0; i < 12; i++) {
-                dotsHtml += '<div class="rhythm-dot" id="cdot' + i + '" onclick="_compDanceHit(' + i + ')"></div>';
+                dotsHtml += '<div class="rhythm-dot" id="cdot' + i + '" data-i="' + i + '" onclick="_compDanceHit(this.dataset.i)"></div>';
             }
             qArea.innerHTML = header
                 + '<div style="font-size:14px;color:var(--color-text-light);margin-bottom:12px;">记住亮起的顺序，然后按序点击</div>'
@@ -5272,7 +5276,7 @@ function renderComprehensiveExam(container, attempt) {
         } else if (mq.type === 'vocal') {
             var padsHtml = '';
             for (var i = 0; i < 4; i++) {
-                padsHtml += '<div class="simon-pad" id="cspad' + i + '" style="background:' + simonColors[i] + ';" onclick="_compSimonClick(' + i + ')"></div>';
+                padsHtml += '<div class="simon-pad" id="cspad' + i + '" style="background:' + simonColors[i] + ';" data-i="' + i + '" onclick="_compSimonClick(this.dataset.i)"></div>';
             }
             qArea.innerHTML = header
                 + '<div style="font-size:14px;color:var(--color-text-light);margin-bottom:8px;">记住音高顺序，按序点击</div>'
@@ -5288,7 +5292,7 @@ function renderComprehensiveExam(container, attempt) {
 
             var optionsHtml = '';
             for (var oi = 0; oi < q.options.length; oi++) {
-                optionsHtml += '<div class="quiz-option" id="compOpt' + oi + '" onclick="_compQuizAnswer(' + oi + ')">'
+                optionsHtml += '<div class="quiz-option" id="compOpt' + oi + '" data-oi="' + oi + '" onclick="_compQuizAnswer(this.dataset.oi)">'
                     + q.options[oi] + '</div>';
             }
             qArea.innerHTML = header
@@ -6171,7 +6175,7 @@ function renderRankingPage(container) {
             </div>
             <div class="page-content">
                 <div style="display:flex;gap:6px;margin-bottom:16px;">
-                    ${tabs.map(t => '<button class="btn btn-sm '+(tab===t.id?'btn-primary':'btn-secondary')+'" onclick="window._rankingTab=\''+t.id+'\';render();" style="flex:1;">'+t.label+'</button>').join('')}
+                    ${tabs.map(t => '<button class="btn btn-sm '+(tab===t.id?'btn-primary':'btn-secondary')+'" data-tab="' + t.id + '" onclick="window._rankingTab=this.dataset.tab;render();" style="flex:1;">'+t.label+'</button>').join('')}
                 </div>
                 ${rankings.map((r, i) => `
                     <div class="card" style="display: flex; align-items: center;">
@@ -6209,8 +6213,8 @@ function render行程表Page(container) {
         var actionsHtml = '';
         if (item.status === 'todo') {
             actionsHtml = '<div style="display:flex;gap:6px;align-items:center;">'
-                + '<button class="btn btn-sm btn-primary" onclick="joinSchedule(' + i + ')" style="font-size:11px;padding:4px 10px;">参加</button>'
-                + '<button class="btn btn-sm btn-secondary" onclick="skipSchedule(' + i + ')" style="font-size:11px;padding:4px 10px;color:var(--color-danger);border-color:var(--color-danger);">不参加</button>'
+                + '<button class="btn btn-sm btn-primary" data-i="' + i + '" onclick="joinSchedule(this.dataset.i)" style="font-size:11px;padding:4px 10px;">参加</button>'
+                + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="skipSchedule(this.dataset.i)" style="font-size:11px;padding:4px 10px;color:var(--color-danger);border-color:var(--color-danger);">不参加</button>'
                 + '</div>';
         } else {
             actionsHtml = statusHtml;
@@ -6315,7 +6319,7 @@ function render会议Page(container) {
         var meetingsHtml = '';
         for (var mi = 0; mi < gameState.meetings.length; mi++) {
             var mt = gameState.meetings[mi];
-            meetingsHtml += '<div class="card" onclick="readMeeting(' + mi + ')">'
+            meetingsHtml += '<div class="card" data-mi="' + mi + '" onclick="readMeeting(this.dataset.mi)">'
                 + '<div style="display:flex;align-items:flex-start;">'
                 + '<div class="meeting-dot ' + (mt.read ? 'read' : '') + '" style="margin-top:5px;"></div>'
                 + '<div style="flex:1;">'
@@ -6429,7 +6433,7 @@ function render工作Page(container) {
         else if (n.type === 'fanmeet') typeBg = 'background:#F0E4FF;color:#A070E0;';
         else if (n.type === 'concert') typeBg = 'background:#FFE4EC;color:#FF6B8A;';
         else typeBg = 'background:#E4F5FF;color:#5BB8E8;';
-        itemsHtml += '<div class="notice-card" onclick="viewNoticeDetail(' + i + ')">'
+        itemsHtml += '<div class="notice-card" data-i="' + i + '" onclick="viewNoticeDetail(this.dataset.i)">'
             + '<div class="notice-type" style="' + typeBg + '">' + n.typeName + '</div>'
             + '<div class="notice-title">' + n.name + '</div>'
             + '<div class="notice-sub">体力 -' + n.体力 + '</div>'
@@ -6707,7 +6711,7 @@ function render恋爱Page(container) {
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 4px;">
                                         <button class="btn btn-sm btn-primary" onclick="npcChat('${npc.name}')" style="font-size:10px;padding:4px 8px;">聊天</button>
-                                        ${canDate ? '<button class="btn btn-sm btn-primary" onclick="npcDate(\''+npc.name+'\')" style="font-size:10px;padding:4px 8px;">在一起</button>' : '<div style="font-size:10px;color:var(--color-text-light);text-align:center;">好感60解锁</div>'}
+                                        ${canDate ? '<button class="btn btn-sm btn-primary" data-npc_name="' + npc.name + '" onclick="npcDate(this.dataset.npc_name)" style="font-size:10px;padding:4px 8px;">在一起</button>' : '<div style="font-size:10px;color:var(--color-text-light);text-align:center;">好感60解锁</div>'}
                                     </div>
                                 </div>
                             </div>
@@ -6743,7 +6747,8 @@ function npcChat(name) {
         { npc: '你觉得今天的表演怎么样？', options: ['非常棒！', '还有进步空间', '你表现得最好'] }
     ];
     const conv = conversations[Math.floor(Math.random() * conversations.length)];
-    showModal(name + ' 发来消息', conv.npc + '<div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">' + conv.options.map(o => '<button class="btn btn-sm btn-secondary" onclick="npcChatReply(\''+name+'\',\''+o+'\')" style="font-size:12px;">' + o + '</button>').join('') + '</div>');
+    var _chatOpts = conv.options.map(function(o, oi) { return '<button class="btn btn-sm btn-secondary" data-name="'+name+'" data-idx="'+oi+'" onclick="npcChatReply(this.dataset.name,conv.options[parseInt(this.dataset.idx)])" style="font-size:12px;">' + o + '</button>'; }).join('');
+    showModal(name + ' 发来消息', conv.npc + '<div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">' + _chatOpts + '</div>');
 }
 
 function npcChatReply(name, reply) {
@@ -6871,7 +6876,7 @@ function render泡泡Page(container) {
             + '<span style="font-weight:600;color:var(--color-primary);">' + m.from + ' <span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span></span>'
             + '<span style="font-size:11px;color:var(--color-text-light);">' + m.time + '</span>'
             + '</div>'
-            + '<p style="font-size:14px;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + i + ',\'' + m.zh.replace(/'/g, "\\'") + '\')">翻译</span></p>'
+            + '<p style="font-size:14px;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + i + ')">翻译</span></p>'
             + '<button class="btn btn-sm btn-secondary" onclick="replyTo泡泡(\'' + m.from + '\')" style="margin-top:10px;">回复</button>'
             + '</div>';
     }
@@ -6893,14 +6898,15 @@ function render泡泡Page(container) {
         + '</div></div>';
 }
 
-function translateBubbleMsg(idx, zhText) {
+function translateBubbleMsg(idx) {
+    var zhText = bubbleMultilangMessages[idx].zh;
     var el = document.getElementById('bubbleMsg' + idx);
     if (!el) return;
     if (el.getAttribute('data-translated') === '1') {
-        el.innerHTML = bubbleMultilangMessages[idx].orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + idx + ',\'' + zhText.replace(/'/g, "\\'") + '\')">翻译</span>';
+        el.innerHTML = bubbleMultilangMessages[idx].orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + idx + ')">翻译</span>';
         el.setAttribute('data-translated', '0');
     } else {
-        el.innerHTML = zhText + ' <span class="translate-btn" onclick="translateBubbleMsg(' + idx + ',\'' + zhText.replace(/'/g, "\\'") + '\')">原文</span>';
+        el.innerHTML = zhText + ' <span class="translate-btn" onclick="translateBubbleMsg(' + idx + ')">原文</span>';
         el.setAttribute('data-translated', '1');
     }
 }
@@ -6958,7 +6964,7 @@ function renderWeversePage(container) {
             + '<div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div>'
             + '</div>'
             + '</div>'
-            + '<p style="font-size:14px;" id="weverseMsg' + i + '">' + p.orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + i + ',\'' + p.zh.replace(/'/g, "\\'") + '\')">翻译</span></p>'
+            + '<p style="font-size:14px;" id="weverseMsg' + i + '">' + p.orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + i + ')">翻译</span></p>'
             + '</div>';
     }
     
@@ -6974,14 +6980,15 @@ function renderWeversePage(container) {
         + '</div></div>';
 }
 
-function translateWeverseMsg(idx, zhText) {
+function translateWeverseMsg(idx) {
+    var zhText = weverseMultilangPosts[idx].zh;
     var el = document.getElementById('weverseMsg' + idx);
     if (!el) return;
     if (el.getAttribute('data-translated') === '1') {
-        el.innerHTML = weverseMultilangPosts[idx].orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + idx + ',\'' + zhText.replace(/'/g, "\\'") + '\')">翻译</span>';
+        el.innerHTML = weverseMultilangPosts[idx].orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + idx + ')">翻译</span>';
         el.setAttribute('data-translated', '0');
     } else {
-        el.innerHTML = zhText + ' <span class="translate-btn" onclick="translateWeverseMsg(' + idx + ',\'' + zhText.replace(/'/g, "\\'") + '\')">原文</span>';
+        el.innerHTML = zhText + ' <span class="translate-btn" onclick="translateWeverseMsg(' + idx + ')">原文</span>';
         el.setAttribute('data-translated', '1');
     }
 }
@@ -7047,9 +7054,10 @@ function getSmartReply(userName, userMsg, platform) {
     return reply;
 }
 
-function translateContent(text, idx, prefix) {
+function translateContent(idx, prefix) {
     var el = document.getElementById(prefix + idx);
     if (!el) return;
+    var text = el.getAttribute('data-orig-text') || '';
     var simpleDict = {
         'Practice makes perfect!': '熟能生巧！',
         'Behind the scenes of our new MV shoot!': '新MV拍摄幕后！',
@@ -7066,11 +7074,11 @@ function translateContent(text, idx, prefix) {
         'Practice': '练习'
     };
     if (el.getAttribute('data-translated') === '1') {
-        el.innerHTML = text + ' <span class="translate-btn" onclick="translateContent(\'' + text.replace(/'/g, "\\'") + '\',' + idx + ',\'' + prefix + '\')">翻译</span>';
+        el.innerHTML = text + ' <span class="translate-btn" onclick="translateContent(' + idx + ',\'' + prefix + '\')">翻译</span>';
         el.setAttribute('data-translated', '0');
     } else {
         var translated = simpleDict[text] || '[翻译] ' + text;
-        el.innerHTML = translated + ' <span class="translate-btn" onclick="translateContent(\'' + text.replace(/'/g, "\\'") + '\',' + idx + ',\'' + prefix + '\')">原文</span>';
+        el.innerHTML = translated + ' <span class="translate-btn" onclick="translateContent(' + idx + ',\'' + prefix + '\')">原文</span>';
         el.setAttribute('data-translated', '1');
     }
 }
@@ -7092,7 +7100,7 @@ function renderInsPage(container) {
         for (var i = 0; i < allPosts.length; i++) {
             var p = allPosts[i];
             var contentId = 'insPost' + i;
-            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + p.user + '\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '">' + p.content + ' <span class="translate-btn" onclick="translateContent(\'' + p.content.replace(/'/g, "\\'") + '\',' + i + ',\'insPost\')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
+            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + p.user + '\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '" data-orig-text="' + p.content.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">' + p.content + ' <span class="translate-btn" onclick="translateContent(' + i + ',\'insPost\')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
         }
         tabContent += '</div>';
     } else if (insTab === 'messages') {
@@ -7145,7 +7153,7 @@ function renderInsPage(container) {
             for (var i = 0; i < gameState.insPosts.length; i++) {
                 var ip = gameState.insPosts[i];
                 var shortContent = ip.content.length > 20 ? ip.content.substring(0,20) + '...' : ip.content;
-                tabContent += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-light);padding:4px;cursor:pointer;" onclick="showModal(\'动态\',\'' + shortContent + ' - ' + ip.likes + ' 点赞\')">' + shortContent + '</div>';
+                tabContent += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-light);padding:4px;cursor:pointer;" data-shortContent="' + shortContent + '" onclick="showModal(this.dataset.shortContent)">' + shortContent + '</div>';
             }
             tabContent += '</div>';
         }
@@ -7241,7 +7249,7 @@ function renderTiktokPage(container) {
         tabContent = '<div style="flex:1;overflow-y:auto;"><div style="display:flex;justify-content:flex-end;padding:8px 16px;"><button class="btn btn-sm btn-primary" onclick="postToTiktok()">+ 上传视频</button></div>';
         for (var vi = 0; vi < videos.length; vi++) {
             var v = videos[vi];
-            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + v.user + '\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" onclick="simulateVideoPlay(this,' + vi + ')"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(\'' + v.desc.replace(/'/g, "\\'") + '\',' + vi + ',\'ttDesc\')">翻译</span></p></div>';
+            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + v.user + '\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this.dataset.vi)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '" data-orig-text="' + v.desc.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(' + vi + ',\'ttDesc\')">翻译</span></p></div>';
         }
         for (var upi = 0; upi < gameState.tiktokPosts.length; upi++) {
             var up = gameState.tiktokPosts[upi];
@@ -7310,7 +7318,7 @@ function renderTiktokPage(container) {
             for (var i = 0; i < gameState.tiktokPosts.length; i++) {
                 var tp = gameState.tiktokPosts[i];
                 var shortDesc = tp.desc.length > 20 ? tp.desc.substring(0,20) + '...' : tp.desc;
-                tabContent += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-light);padding:4px;cursor:pointer;" onclick="showModal(\'视频\',\'' + shortDesc + ' - ' + tp.likes + ' 点赞\')">' + shortDesc + '</div>';
+                tabContent += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-light);padding:4px;cursor:pointer;" data-shortDesc="' + shortDesc + '" onclick="showModal(this.dataset.shortDesc)">' + shortDesc + '</div>';
             }
             tabContent += '</div>';
         }
@@ -7507,7 +7515,7 @@ function renderFoodPage(container) {
         for (var fi = 0; fi < foods.length; fi++) {
             var f = foods[fi];
             if (f.category !== cat) continue;
-            foodCardsHtml += '<div class="card" onclick="orderFood(\'' + f.name + '\', ' + f.price + ', ' + f.体力 + ')">'
+            foodCardsHtml += '<div class="card" onclick="orderFood(\'' + f.name + '\', ' + f.price + ', ' + f.体力 + '\')">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
                 + '<div style="font-weight:600;">' + f.name + '</div>'
@@ -7598,7 +7606,7 @@ function render快递服务Page(container) {
             else if (item.effect === '名气') effectText = '+' + item.fameVal + ' 名气';
             else if (item.effect === '危险') effectText = '-' + Math.abs(item.dangerVal) + ' 危险值';
             var itemVal = item.lifeVal || item.fameVal || Math.abs(item.dangerVal);
-            delCardsHtml += '<div class="card" onclick="order快递服务(\'' + item.name + '\', ' + item.price + ', ' + itemVal + ', \'' + item.effect + '\')">'
+            delCardsHtml += '<div class="card" data-itemVal="' + itemVal + '" onclick="order快递服务(this.dataset.itemVal)">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
                 + '<div style="font-weight:600;">' + item.name + '</div>'
@@ -7797,9 +7805,9 @@ function renderCrisisPage(container) {
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:4px;">' + e.desc + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:8px;line-height:1.4;">' + e.detail + '</div>'
             + '<div style="display:flex;gap:6px;">'
-            + '<button class="btn btn-sm btn-primary" onclick="handleCrisis(' + i + ',0)">妥善处理</button>'
-            + '<button class="btn btn-sm btn-secondary" onclick="handleCrisis(' + i + ',1)">无视</button>'
-            + '<button class="btn btn-sm btn-secondary" onclick="handleCrisis(' + i + ',2)" style="color:var(--color-danger);border-color:var(--color-danger);">处理不当</button>'
+            + '<button class="btn btn-sm btn-primary" data-i="' + i + '" onclick="handleCrisis(this.dataset.i)">妥善处理</button>'
+            + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="handleCrisis(this.dataset.i)">无视</button>'
+            + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="handleCrisis(this.dataset.i)" style="color:var(--color-danger);border-color:var(--color-danger);">处理不当</button>'
             + '</div></div>';
     }
     if (!eventsHtml) eventsHtml = '<div style="text-align:center;color:var(--color-text-light);padding:40px;">暂无活跃危机事件</div>';
@@ -8224,7 +8232,7 @@ function render会议DialogPage(container) {
         
         var optionsHtml = '';
         for (var i = 0; i < ds.options.length; i++) {
-            optionsHtml += '<div class="card" onclick="choose会议Option(' + i + ')" style="cursor:pointer;">'
+            optionsHtml += '<div class="card" data-i="' + i + '" onclick="choose会议Option(this.dataset.i)" style="cursor:pointer;">'
                 + '<div style="font-size:14px;">' + ds.options[i].text + '</div>'
                 + '</div>';
         }
@@ -8483,7 +8491,7 @@ function renderInsProfilePage(container) {
         + '</div>'
         + '<div style="display:flex;gap:8px;margin-top:16px;justify-content:center;">'
         + '<button class="' + followBtnClass + '" onclick="toggleInsFollow()">' + followBtnText + '</button>'
-        + '<button class="btn btn-sm btn-secondary" onclick="startInsDMChat(\'' + profileUser.replace(/'/g, "\\'") + '\')">私信</button>'
+        + '<button class="btn btn-sm btn-secondary" onclick="startInsDMChat(\'' + profileUser + '\')">私信</button>'
         + '</div>'
         + '</div>'
         + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">'
@@ -8568,12 +8576,12 @@ function _switchSaveSlot() {
                 + '</div>';
         } else if (save && save.player && save.player.name) {
             var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
-            html += '<div class="save-slot occupied" onclick="_doSwitchSlot(' + i + ')">'
+            html += '<div class="save-slot occupied" data-i="' + i + '" onclick="_doSwitchSlot(this.dataset.i)">'
                 + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (i+1) + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
                 + '</div>';
         } else {
-            html += '<div class="save-slot empty" onclick="_doSwitchSlot(' + i + ')">'
+            html += '<div class="save-slot empty" data-i="' + i + '" onclick="_doSwitchSlot(this.dataset.i)">'
                 + '<div>空存档 ' + (i+1) + '</div>'
                 + '</div>';
         }
@@ -9025,7 +9033,7 @@ function renderAchievementsPage(container) {
     if (!gameState.achievements) gameState.achievements = [];
     var html = '<div class="page active">'
         + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage('home')">‹ 首页</div>'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
         + '<div class="page-title">成就</div>'
         + '<div style="width:32px;"></div>'
         + '</div>'
@@ -9197,7 +9205,7 @@ function renderComebackPage(container) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
         for (var i = 0; i < COMEBACK_CONCEPTS.length; i++) {
             var c = COMEBACK_CONCEPTS[i];
-            html += '<div class="card" onclick="selectComebackConcept(' + i + ')" style="cursor:pointer;">'
+            html += '<div class="card" data-i="' + i + '" onclick="selectComebackConcept(this.dataset.i)" style="cursor:pointer;">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div><div style="font-weight:600;">' + c.name + ' (' + c.style + ')</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + c.desc + '</div></div>'
@@ -9209,7 +9217,7 @@ function renderComebackPage(container) {
         for (var i = 0; i < TITLE_TRACK_TYPES.length; i++) {
             var t = TITLE_TRACK_TYPES[i];
             var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
-            html += '<div class="card" onclick="selectTitleTrack(' + i + ')" style="cursor:pointer;">'
+            html += '<div class="card" data-i="' + i + '" onclick="selectTitleTrack(this.dataset.i)" style="cursor:pointer;">'
                 + '<div style="font-weight:600;">' + t.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + t.genre + ' / 加成: ' + statNames[t.bestStat] + '</div></div>';
         }
@@ -9351,9 +9359,9 @@ function renderRelationPage(container) {
             + '<div style="width:' + t.relationship + '%;height:100%;background:' + relColor + ';border-radius:2px;"></div></div></div>'
             + '<div style="font-size:12px;color:' + relColor + ';font-weight:600;">' + relLabel + '</div></div>'
             + '<div style="display:flex;gap:6px;margin-top:10px;">'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'chat\')">聊天</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'gift\')">送礼</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'practice\')">合练</button></div></div>';
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" data-i="' + i + '" onclick="interactTeammate(this.dataset.i)">聊天</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" data-i="' + i + '" onclick="interactTeammate(this.dataset.i)">送礼</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" data-i="' + i + '" onclick="interactTeammate(this.dataset.i)">合练</button></div></div>';
     }
     html += '</div></div>';
     container.innerHTML = html;
@@ -9434,7 +9442,7 @@ function renderManagementPage(container) {
             + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.skill + '%;height:100%;background:#5BB8E8;border-radius:2px;"></div></div></div>'
             + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">忠诚</div>'
             + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.loyalty + '%;height:100%;background:' + loyaltyColor + ';border-radius:2px;"></div></div></div></div>'
-            + '<button class="btn btn-sm" style="margin-top:8px;font-size:11px;" onclick="upgradeStaff(\'' + role + '\')">培训提升 (5千金币)</button></div>';
+            + '<button class="btn btn-sm" style="margin-top:8px;font-size:11px;" data-role="' + role + '" onclick="upgradeStaff(this.dataset.role)">培训提升 (5千金币)</button></div>';
     }
     html += '</div></div>';
     container.innerHTML = html;
@@ -9475,9 +9483,9 @@ function renderAntiBlackPage(container) {
             + '<div style="font-weight:600;">' + e.title + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + e.desc + '</div>'
             + '<div style="display:flex;gap:8px;margin-top:10px;">'
-            + '<button class="btn btn-sm btn-primary" style="flex:1;font-size:11px;" onclick="handleAnti(' + i + ',\'statement\')">发声明</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" onclick="handleAnti(' + i + ',\'legal\')">法律手段</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" onclick="handleAnti(' + i + ',\'ignore\')">忽略</button></div></div>';
+            + '<button class="btn btn-sm btn-primary" style="flex:1;font-size:11px;" data-i="' + i + '" onclick="handleAnti(this.dataset.i)">发声明</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + i + '" onclick="handleAnti(this.dataset.i)">法律手段</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + i + '" onclick="handleAnti(this.dataset.i)">忽略</button></div></div>';
     }
     html += '</div></div>';
     container.innerHTML = html;
@@ -9552,7 +9560,7 @@ function renderFanClubPage(container) {
         html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-border);">'
             + '<div><div style="font-weight:600;font-size:14px;">' + p.name + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">' + p.desc + '</div></div>'
-            + '<button class="btn btn-sm" style="font-size:11px;" onclick="launchFanProject(' + i + ')">启动 (' + (p.cost / 10000) + '万)</button></div>';
+            + '<button class="btn btn-sm" style="font-size:11px;" data-i="' + i + '" onclick="launchFanProject(this.dataset.i)">启动 (' + (p.cost / 10000) + '万)</button></div>';
     }
     html += '</div></div></div>';
     container.innerHTML = html;
@@ -10324,13 +10332,13 @@ function renderSaveSlotPage(container) {
         var save = saves[i];
         if (save && save.player && save.player.name) {
             var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
-            html += '<div class="save-slot occupied" onclick="_loadSlot(' + i + ')">'
+            html += '<div class="save-slot occupied" data-i="' + i + '" onclick="_loadSlot(this.dataset.i)">'
                 + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (i+1) + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);">粉丝: ' + (save.fans || 0).toLocaleString() + '</div>'
                 + '</div>';
         } else {
-            html += '<div class="save-slot empty" onclick="_startNewSlot(' + i + ')">'
+            html += '<div class="save-slot empty" data-i="' + i + '" onclick="_startNewSlot(this.dataset.i)">'
                 + '<div>空存档 ' + (i+1) + '</div>'
                 + '</div>';
         }
@@ -10463,13 +10471,13 @@ function renderLoggedInPage(container) {
             var save = saves[i];
             if (save && save.player && save.player.name) {
                 var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
-                html += '<div class="save-slot occupied" onclick="_loadSlot(' + i + ')">'
+                html += '<div class="save-slot occupied" data-i="' + i + '" onclick="_loadSlot(this.dataset.i)">'
                     + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (i+1) + '</div>'
                     + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
                     + '<div style="font-size:11px;color:var(--color-text-light);">粉丝: ' + (save.fans || 0).toLocaleString() + '</div>'
                     + '</div>';
             } else {
-                html += '<div class="save-slot empty" onclick="_startNewSlot(' + i + ')">'
+                html += '<div class="save-slot empty" data-i="' + i + '" onclick="_startNewSlot(this.dataset.i)">'
                     + '<div>空存档 ' + (i+1) + '</div>'
                     + '</div>';
             }
@@ -10896,7 +10904,7 @@ function _renderKickFlow(container, step, company) {
         for (var gki = 0; gki < validGroups.length; gki++) {
             var gk = validGroups[gki];
             var g = company.groups[gk];
-            groupsHtml += '<div class="card" onclick="selectKickGroup(\'' + gk + '\')" style="cursor:pointer;">'
+            groupsHtml += '<div class="card" data-gk="' + gk + '" onclick="selectKickGroup(this.dataset.gk)" style="cursor:pointer;">'
                 + '<div style="font-weight:600;font-size:15px;color:var(--color-text);">' + g.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + g.desc + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">' + g.members.length + '名成员</div>'
@@ -10924,7 +10932,7 @@ function _renderKickFlow(container, step, company) {
         for (var mi = 0; mi < group.members.length; mi++) {
             var m = group.members[mi];
             _modalActions = [];
-            membersHtml += '<div class="card" onclick="_selectKickMember(' + mi + ')" style="cursor:pointer;">'
+            membersHtml += '<div class="card" data-mi="' + mi + '" onclick="_selectKickMember(this.dataset.mi)" style="cursor:pointer;">'
                 + '<div style="display:flex;align-items:center;">'
                 + '<div class="avatar" style="width:36px;height:36px;font-size:14px;margin-right:10px;">' + m.name.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
