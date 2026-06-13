@@ -1672,7 +1672,7 @@ const COMPANIES = {
             },
             "BOYNEXTDOOR": {
                 name: "BOYNEXTDOOR",
-                desc: "5代男团，代表作But Sometimes, Earth, Wind & Fire",
+                desc: "5代男团，代表作But Sometimes, Earth, WindandFire",
                 tier: "A",
                 members: [
                     { name: "Sungho", personality: ["热情", "自信", "上进"], position: "Leader" },
@@ -1708,8 +1708,8 @@ const COMPANIES = {
                     { name: "Iroha", personality: ["自信", "热情", "开朗"], position: "Maknae" }
                 ]
             },
-            "&TEAM": {
-                name: "&TEAM",
+            "AND-TEAM": {
+                name: "AND-TEAM",
                 desc: "5代男团，代表作Under the skin, WOLF HOWL HARMONY",
                 tier: "B",
                 members: [
@@ -1866,7 +1866,7 @@ const COMPANIES = {
             },
             "EXID": {
                 name: "EXID",
-                desc: "3代女团，代表作Up & Down, DDD",
+                desc: "3代女团，代表作UpandDown, DDD",
                 tier: "B",
                 members: [
                     { name: "Solji", personality: ["热情", "自信", "上进"], position: "Leader" },
@@ -2318,8 +2318,8 @@ const COMPANIES = {
                     { name: "Alex", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
                 ]
             },
-            "(G)I-DLE": {
-                name: "(G)I-DLE",
+            "GI-DLE": {
+                name: "GI-DLE",
                 desc: "4代女团，代表作TOMBOY, Queencard",
                 tier: "S",
                 members: [
@@ -2527,7 +2527,7 @@ const COMPANIES = {
             },
             "Cherry Bullet": {
                 name: "Cherry Bullet",
-                desc: "4代女团，代表作Q&A, Hands Up",
+                desc: "4代女团，代表作QandA, Hands Up",
                 tier: "B",
                 members: [
                     { name: "Haeyoon", personality: ["热情", "自信", "上进"], position: "Leader" },
@@ -2687,9 +2687,9 @@ const COMPANIES = {
                     { name: "Hamin", personality: ["自信", "热情", "开朗"], position: "Maknae" }
                 ]
             },
-            "AMPERS&ONE": {
-                name: "AMPERS&ONE",
-                desc: "5代男团，代表作On and On, Sweet & Sour",
+            "AMPERSAND-ONE": {
+                name: "AMPERSAND-ONE",
+                desc: "5代男团，代表作On and On, SweetandSour",
                 tier: "C",
                 members: [
                     { name: "Kamden", personality: ["热情", "自信", "上进"], position: "Leader" },
@@ -2738,8 +2738,8 @@ const COMPANIES = {
                     { name: "Shin Yechan", personality: ["自信", "热情", "开朗"], position: "Maknae" }
                 ]
             },
-            "ALL(H)OURS": {
-                name: "ALL(H)OURS",
+            "ALLHOURS": {
+                name: "ALLHOURS",
                 desc: "5代男团，代表作GOTCHA, SHOCK",
                 tier: "B",
                 members: [
@@ -3200,7 +3200,7 @@ const COMPANIES = {
             },
             "Baby DONT Cry": {
                 name: "Baby DONT Cry",
-                desc: "6代女团，代表作You & Me, Cry Baby",
+                desc: "6代女团，代表作YouandMe, Cry Baby",
                 tier: "C",
                 members: [
                     { name: "Ihyun", personality: ["热情", "自信", "上进"], position: "Leader" },
@@ -3296,43 +3296,9 @@ const COMPANIES = {
 };
 
 // ==================== GAME STATE ====================
-var GROUP_INTROS = {
-    "SM Entertainment": {
-        "Aurora Dawn": "해오름 · 曙光纯白治愈团",
-        "Nuriwave": "누리웨이브 · 未来赛博舞台团",
-        "Verse": "새은리릭 · 清吟抒情主唱团",
-        "Gaeul": "가을바이브 · 秋日复古清新团",
-        "Star Apex": "스타에이펙스 · 星巅全能王牌团"
-    },
-    "YG Entertainment": {
-        "Taegi Flow": "태기플로우 · 不羁黑泡王牌团",
-        "Black Luna": "블랙루나 · 暗夜高级氛围团",
-        "Artist Moon": "아티스트문 · 月光全员创作团",
-        "Cloud Echo": "클라우드에코 · 云雾治愈抒情团",
-        "Odd Muse": "오드뮤즈 · 小众艺术概念团"
-    },
-    "JYP Entertainment": {
-        "Wave": "웨이브브라이트 · 晴空元气王牌团",
-        "Melody": "멜로디피치 · 和声主唱团",
-        "Beat": "비트모션 · 刀群舞蹈团",
-        "Warm": "웜호라이즌 · 温柔治愈团",
-        "Funky": "펑키글로우 · 综艺人气团"
-    },
-    "HYBE": {
-        "Myth": "미스에코 · 全球顶级概念王牌团",
-        "Nova": "틴노바 · 少年养成成长团",
-        "Crush": "크러쉬오라 · 炽飒Girl Crush团",
-        "Moon": "문리릭 · 月光叙事抒情团",
-        "Secret": "시크릿버스 · 悬疑小众概念团"
-    },
-    "SEONGWOO ENT": {
-        "Skyh": "스카이허쉬 · 空寂星语王牌团",
-        "Lumi": "리틀글로우 · 微光元气小众团",
-        "Wind": "윈드발라드 · 风吟治愈民谣团",
-        "Wild": "와일드엣지 · 野锐摇滚个性团",
-        "Dream": "드림루프 · 梦环空灵仙气团"
-    }
-};
+var GROUP_INTROS = {};
+// Group intros generated dynamically from COMPANIES
+
 
 let gameState = {
     player: {
@@ -6152,37 +6118,37 @@ function renderRankingPage(container) {
     const tab = window._rankingTab;
     
     const idolRanking = [
-        { name: 'Aurora Dawn', val: 100000, unit: '粉丝' },
+        { name: 'EXO', val: 100000, unit: '粉丝' },
         { name: 'Black Luna', val: 85000, unit: '粉丝' },
         { name: 'Myth', val: 70000, unit: '粉丝' },
-        { name: 'Nuriwave', val: 55000, unit: '粉丝' },
+        { name: 'Red Velvet', val: 55000, unit: '粉丝' },
         { name: 'Wave', val: 40000, unit: '粉丝' },
         { name: 'Taegi Flow', val: 25000, unit: '粉丝' },
         { name: 'Nova', val: 10000, unit: '粉丝' }
     ];
     const powerRanking = [
-        { name: 'Aurora Dawn', val: 92, unit: '综合能力' },
+        { name: 'EXO', val: 92, unit: '综合能力' },
         { name: 'Black Luna', val: 88, unit: '综合能力' },
         { name: 'Myth', val: 85, unit: '综合能力' },
-        { name: 'Nuriwave', val: 79, unit: '综合能力' },
+        { name: 'Red Velvet', val: 79, unit: '综合能力' },
         { name: 'Wave', val: 75, unit: '综合能力' },
         { name: 'Taegi Flow', val: 70, unit: '综合能力' },
         { name: 'Nova', val: 65, unit: '综合能力' }
     ];
     const fanRanking = [
-        { name: 'Aurora Dawn', val: 100000, unit: '粉丝' },
+        { name: 'EXO', val: 100000, unit: '粉丝' },
         { name: 'Black Luna', val: 85000, unit: '粉丝' },
         { name: 'Myth', val: 70000, unit: '粉丝' },
-        { name: 'Nuriwave', val: 55000, unit: '粉丝' },
+        { name: 'Red Velvet', val: 55000, unit: '粉丝' },
         { name: 'Wave', val: 40000, unit: '粉丝' },
         { name: 'Taegi Flow', val: 25000, unit: '粉丝' },
         { name: 'Nova', val: 10000, unit: '粉丝' }
     ];
     const wealthRanking = [
-        { name: 'Aurora Dawn', val: 2500000, unit: '金币' },
+        { name: 'EXO', val: 2500000, unit: '金币' },
         { name: 'Black Luna', val: 1800000, unit: '金币' },
         { name: 'Myth', val: 1500000, unit: '金币' },
-        { name: 'Nuriwave', val: 900000, unit: '金币' },
+        { name: 'Red Velvet', val: 900000, unit: '金币' },
         { name: 'Wave', val: 700000, unit: '金币' },
         { name: 'Taegi Flow', val: 500000, unit: '金币' },
         { name: 'Nova', val: 300000, unit: '金币' }
@@ -6973,7 +6939,7 @@ function replyTo泡泡(from) {
 
 var weverseMultilangPosts = [
     { user: 'Aurora_Dawn', avatar: 'A', time: '2小时前', orig: '오늘 연습 정말 열심히 했어요! 모든 응원 감사합니다!', zh: '今天练习很认真！感谢大家的支持！', lang: 'ko', likes: 234, comments: 45 },
-    { user: 'Nuriwave', avatar: 'N', time: '昨天', orig: '新しいコンセプトフォトをチェックしてね！', zh: '看看我们的新概念照！', lang: 'ja', likes: 567, comments: 89 },
+    { user: 'NewJeans', avatar: 'N', time: '昨天', orig: '新しいコンセプトフォトをチェックしてね！', zh: '看看我们的新概念照！', lang: 'ja', likes: 567, comments: 89 },
     { user: 'Myth_Official', avatar: 'M', time: '2天前', orig: 'We are preparing something special for our fans! Stay tuned!', zh: '我们正在为粉丝准备特别的内容！敬请期待！', lang: 'en', likes: 892, comments: 156 }
 ];
 
