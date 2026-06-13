@@ -1467,6 +1467,7 @@ let gameState = {
     noticeList: null,
     noticeDetail: null
 };
+var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 
 
 // ==================== NAVIGATION ====================
@@ -1482,28 +1483,7 @@ function render() {
             case 'welcome':
                 var currentUser = localStorage.getItem('myIdolCurrentUser');
                 if (currentUser) {
-                    var saveKey = 'myIdolSave_' + currentUser;
-                    var saveData = localStorage.getItem(saveKey);
-                    if (saveData) {
-                        try {
-                            Object.assign(gameState, JSON.parse(saveData));
-                            _ensureKakaoState();
-                            _checkAdmin(currentUser);
-                            currentPage = 'home';
-                            document.getElementById('statusBar').style.display = 'flex';
-                            document.getElementById('restButtons').style.display = 'flex';
-                            document.getElementById('bottomNav').style.display = 'flex';
-                            document.getElementById('homeIndicator').style.display = 'block';
-                            render();
-                            renderBottomNav();
-                            startAutoSave();
-                        } catch(e) {
-                            renderWelcomeAccountPage(app);
-                        }
-                    } else {
-                        startNewGame(0);
-                        startAutoSave();
-                    }
+                    renderLoggedInPage(app);
                 } else {
                     renderWelcomeAccountPage(app);
                 }
@@ -6190,6 +6170,92 @@ function showInsDM(user) {
 }
 
 // ==================== SETTINGS PAGE ====================
+
+var _resetCooldown = false;
+function _resetSave() {
+    if (_resetCooldown) return;
+    _resetCooldown = true;
+    setTimeout(function() { _resetCooldown = false; }, 3000);
+    showModal('重新开始', '确定要删除当前存档重新开始吗？此操作不可恢复！', [
+        { text: '取消', action: closeModal },
+        { text: '重新开始', action: function() {
+            closeModal();
+            var key = _getSaveKey(current存档);
+            localStorage.removeItem(key);
+            if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
+            Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
+            gameState.player = {};
+            currentPage = 'create';
+            creationStep = 1;
+            document.getElementById('statusBar').style.display = 'none';
+            document.getElementById('restButtons').style.display = 'none';
+            document.getElementById('bottomNav').style.display = 'none';
+            document.getElementById('homeIndicator').style.display = 'none';
+            render();
+        }}
+    ]);
+}
+
+function _switchSaveSlot() {
+    var saves = _loadAllSavesForUser();
+    var html = '<div style="padding:8px 0;">';
+    for (var i = 0; i < 3; i++) {
+        var save = saves[i];
+        var isCurrent = (i === current存档);
+        if (isCurrent) {
+            html += '<div class="save-slot occupied" style="opacity:0.5;cursor:default;border-color:var(--color-primary);">'
+                + '<div style="font-weight:600;color:var(--color-primary);">存档 ' + (i+1) + ' (当前)</div>'
+                + '</div>';
+        } else if (save && save.player && save.player.name) {
+            var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+            html += '<div class="save-slot occupied" onclick="_doSwitchSlot(' + i + ')">'
+                + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (i+1) + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
+                + '</div>';
+        } else {
+            html += '<div class="save-slot empty" onclick="_doSwitchSlot(' + i + ')">'
+                + '<div>空存档 ' + (i+1) + '</div>'
+                + '</div>';
+        }
+    }
+    html += '</div>';
+    showModal('切换存档', html, [
+        { text: '取消', action: closeModal }
+    ]);
+}
+
+function _doSwitchSlot(slot) {
+    closeModal();
+    saveGame(current存档);
+    current存档 = slot;
+    var key = _getSaveKey(slot);
+    var data = localStorage.getItem(key);
+    if (data) {
+        try {
+            Object.assign(gameState, JSON.parse(data));
+            _ensureKakaoState();
+            _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
+            currentPage = 'home';
+            render();
+            renderBottomNav();
+            showToast('已切换到存档 ' + (slot + 1));
+        } catch(e) {
+            showToast('存档读取失败');
+        }
+    } else {
+        Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
+        gameState.player = {};
+        creationStep = 1;
+        currentPage = 'create';
+        document.getElementById('statusBar').style.display = 'none';
+        document.getElementById('restButtons').style.display = 'none';
+        document.getElementById('bottomNav').style.display = 'none';
+        document.getElementById('homeIndicator').style.display = 'none';
+        render();
+        showToast('开始新存档 ' + (slot + 1));
+    }
+}
+
 function render设置Page(container) {
     container.innerHTML = `
         <div class="page active">
@@ -6203,10 +6269,22 @@ function render设置Page(container) {
                     <div style="font-weight: 600;">保存游戏</div>
                     <div style="font-size: 12px; color: var(--color-text-light);">保存到存档 ${current存档 + 1}</div>
                 </div>
+                <div class="card" onclick="_switchSaveSlot()" style="cursor: pointer;">
+                    <div style="font-weight: 600;">切换存档</div>
+                    <div style="font-size: 12px; color: var(--color-text-light);">切换到存档2或3，当前进度不会丢失</div>
+                </div>
                 
 
+                <div class="card" onclick="_resetSave()">
+                    <div style="font-weight: 600; color: var(--color-danger);">重新开始</div>
+                    <div style="font-size: 12px; color: var(--color-text-light);">删除当前存档，重新创建角色</div>
+                </div>
+                <div class="card" onclick="_doLogout()">
+                    <div style="font-weight: 600; color: var(--color-danger);">退出登录</div>
+                    <div style="font-size: 12px; color: var(--color-text-light);">切换账号或注册新账号</div>
+                </div>
                 <div class="card" onclick="confirmExit()">
-                    <div style="font-weight: 600; color: var(--color-danger);">退出游戏</div>
+                    <div style="font-weight: 600;">退出游戏</div>
                     <div style="font-size: 12px; color: var(--color-text-light);">返回标题画面</div>
                 </div>
             </div>
@@ -6228,7 +6306,7 @@ function confirmExit() {
                 for (var si = 0; si < keys.length; si++) {
                     if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
                 }
-                localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+                localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
             } catch(e) {}
             if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
             currentPage = 'welcome';
@@ -6394,9 +6472,9 @@ function saveGame(slot) {
             showModal('保存失败', '存档数据异常，无法保存');
             return;
         }
-        localStorage.setItem('myidol_save_' + slot, jsonStr);
-        localStorage.setItem(_getSaveKey(), jsonStr);
-        showToast('保存成功');
+        var key = _getSaveKey(slot);
+        localStorage.setItem(key, jsonStr);
+        showToast('已保存 - 存档 ' + (slot + 1));
     } catch (e) {
         showModal('保存失败', '无法保存游戏。');
     }
@@ -6404,21 +6482,21 @@ function saveGame(slot) {
 
 function loadGame(slot) {
     try {
-        const data = localStorage.getItem('myidol_save_' + slot);
+        var key = _getSaveKey(slot);
+        var data = localStorage.getItem(key);
         if (data) {
-            const saveData = JSON.parse(data);
+            var saveData = JSON.parse(data);
             Object.assign(gameState, saveData);
             current存档 = slot;
-            
+            _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
-            render();
-            
             document.getElementById('statusBar').style.display = 'flex';
             document.getElementById('restButtons').style.display = 'flex';
             document.getElementById('bottomNav').style.display = 'flex';
             document.getElementById('homeIndicator').style.display = 'block';
-            
+            render();
             renderBottomNav();
+            startAutoSave();
         }
     } catch (e) {
         showModal('加载失败', '无法加载游戏。');
@@ -6732,10 +6810,24 @@ function sendKakaoMessage() {
 }
 
 // ==================== ACCOUNT SYSTEM ====================
-function _getSaveKey() {
+function _getSaveKey(slot) {
     var user = localStorage.getItem('myIdolCurrentUser');
-    if (user) return 'myIdolSave_' + user;
-    return 'myIdolSave_guest';
+    var s = (typeof slot === 'number') ? slot : current存档;
+    if (user) return 'myIdolSave_' + user + '_' + s;
+    return 'myIdolSave_guest_' + s;
+}
+
+function _loadAllSavesForUser() {
+    var user = localStorage.getItem('myIdolCurrentUser');
+    var saves = [null, null, null];
+    for (var i = 0; i < 3; i++) {
+        var key = user ? ('myIdolSave_' + user + '_' + i) : ('myIdolSave_guest_' + i);
+        try {
+            var data = localStorage.getItem(key);
+            if (data) saves[i] = JSON.parse(data);
+        } catch(e) {}
+    }
+    return saves;
 }
 
 function _showRegisterOverlay() {
@@ -6788,9 +6880,11 @@ function _doRegister() {
     if (existing) { showToast('该昵称已注册'); return; }
     localStorage.setItem('myIdolAccount_' + nickname, JSON.stringify({ nickname: nickname, password: password, created: new Date().toISOString() }));
     localStorage.setItem('myIdolCurrentUser', nickname);
+    localStorage.setItem('myIdolLastUser', nickname);
     _closeAccountOverlay();
     showToast('注册成功');
-    startNewGame(0);
+    currentPage = 'welcome';
+    render();
     _checkAdmin(nickname);
 }
 
@@ -6805,37 +6899,22 @@ function _doLogin() {
     var account = JSON.parse(data);
     if (account.password !== password) { showToast('密码错误'); return; }
     localStorage.setItem('myIdolCurrentUser', nickname);
+    localStorage.setItem('myIdolLastUser', nickname);
     _closeAccountOverlay();
     showToast('登录成功');
-    var saveKey = 'myIdolSave_' + nickname;
-    var saveData = localStorage.getItem(saveKey);
-    if (saveData) {
-        try {
-            Object.assign(gameState, JSON.parse(saveData));
-            _ensureKakaoState();
-            _checkAdmin(nickname);
-            currentPage = 'home';
-            document.getElementById('statusBar').style.display = 'flex';
-            document.getElementById('restButtons').style.display = 'flex';
-            document.getElementById('bottomNav').style.display = 'flex';
-            document.getElementById('homeIndicator').style.display = 'block';
-            render();
-            renderBottomNav();
-        } catch(e) {
-            startNewGame(0);
-        }
-    } else {
-        startNewGame(0);
-    }
+    currentPage = 'welcome';
+    render();
 }
 
 function _doLogout() {
-    showModal('退出登录', '确定要退出当前账号吗？', [
+    showModal('退出登录', '确定要退出当前账号吗？存档会自动保存。', [
         { text: '取消', action: closeModal },
         { text: '退出', action: function() {
             closeModal();
+            saveGame(current存档);
             if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
             localStorage.removeItem('myIdolCurrentUser');
+            Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             gameState.player = {};
             currentPage = 'welcome';
             document.getElementById('statusBar').style.display = 'none';
@@ -6847,16 +6926,129 @@ function _doLogout() {
     ]);
 }
 
-function renderWelcomeAccountPage(container) {
-    container.innerHTML = '<div class="welcome-account">'
-        + '<div class="welcome-account-title">My Idol</div>'
-        + '<div class="welcome-account-sub">韩娱爱豆模拟器</div>'
-        + '<div class="account-btn-group">'
-        + '<button class="btn btn-primary btn-lg" onclick="_showRegisterOverlay()">注册</button>'
-        + '<button class="btn btn-outline btn-lg" onclick="_showLoginOverlay()">登录</button>'
-        + '</div>'
-        + '<div class="account-footer">本地账号，数据存储在设备上</div>'
+
+function renderLoggedInPage(container) {
+    var currentUser = localStorage.getItem('myIdolCurrentUser');
+    var saves = _loadAllSavesForUser();
+    var hasAnySave = false;
+    for (var i = 0; i < 3; i++) {
+        if (saves[i] && saves[i].player && saves[i].player.name) { hasAnySave = true; break; }
+    }
+    var html = '<div class="welcome-container">'
+        + '<div class="welcome-logo">My Idol</div>'
+        + '<div class="welcome-subtitle">' + currentUser + '</div>'
+        + '<div style="width:100%;max-width:280px;margin-top:32px;">';
+    if (hasAnySave) {
+        html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:12px;" onclick="renderSaveSlotPage(document.getElementById(\'app\'))">继续游戏</button>';
+    }
+    html += '<button class="btn btn-outline btn-lg" style="width:100%;margin-bottom:24px;" onclick="_createNewCharacter()">创建角色</button>';
+    if (hasAnySave) {
+        html += '<div class="section-title" style="text-align:center;margin-bottom:12px;">存档</div>';
+        for (var i = 0; i < 3; i++) {
+            var save = saves[i];
+            if (save && save.player && save.player.name) {
+                var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+                html += '<div class="save-slot occupied" onclick="_loadSlot(' + i + ')">'
+                    + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (i+1) + '</div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);">粉丝: ' + (save.fans || 0).toLocaleString() + '</div>'
+                    + '</div>';
+            } else {
+                html += '<div class="save-slot empty" onclick="_startNewSlot(' + i + ')">'
+                    + '<div>空存档 ' + (i+1) + '</div>'
+                    + '</div>';
+            }
+        }
+    }
+    html += '</div>'
+        + '<button class="btn btn-outline" style="margin-top:24px;font-size:13px;" onclick="_doLogout()">退出登录</button>'
         + '</div>';
+    container.innerHTML = html;
+}
+
+function _createNewCharacter() {
+    var saves = _loadAllSavesForUser();
+    var emptySlot = -1;
+    for (var i = 0; i < 3; i++) {
+        if (!saves[i] || !saves[i].player || !saves[i].player.name) { emptySlot = i; break; }
+    }
+    if (emptySlot === -1) {
+        showModal('存档已满', '3个存档槽位都已使用，请先删除一个存档', [
+            { text: '知道了', action: closeModal }
+        ]);
+        return;
+    }
+    _startNewSlot(emptySlot);
+}
+
+function _loadSlot(slot) {
+    var key = _getSaveKey(slot);
+    var data = localStorage.getItem(key);
+    if (data) {
+        try {
+            Object.assign(gameState, JSON.parse(data));
+            _ensureKakaoState();
+            _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
+            current存档 = slot;
+            currentPage = 'home';
+            document.getElementById('statusBar').style.display = 'flex';
+            document.getElementById('restButtons').style.display = 'flex';
+            document.getElementById('bottomNav').style.display = 'flex';
+            document.getElementById('homeIndicator').style.display = 'block';
+            render();
+            renderBottomNav();
+            startAutoSave();
+        } catch(e) {
+            showToast('存档读取失败');
+        }
+    }
+}
+
+function _startNewSlot(slot) {
+    current存档 = slot;
+    creationStep = 1;
+    Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
+    gameState.player = {};
+    currentPage = 'create';
+    document.getElementById('statusBar').style.display = 'none';
+    document.getElementById('restButtons').style.display = 'none';
+    document.getElementById('bottomNav').style.display = 'none';
+    document.getElementById('homeIndicator').style.display = 'none';
+    render();
+}
+
+function renderWelcomeAccountPage(container) {
+    var lastUser = localStorage.getItem('myIdolLastUser');
+    var hasLastSave = false;
+    if (lastUser) {
+        var saveKey = 'myIdolSave_' + lastUser;
+        if (localStorage.getItem(saveKey)) hasLastSave = true;
+    }
+    var html = '<div class="welcome-account">'
+        + '<div class="welcome-account-title">My Idol</div>'
+        + '<div class="welcome-account-sub">韩娱爱豆模拟器</div>';
+    if (hasLastSave) {
+        html += '<div class="card" style="margin:16px 0;padding:16px;text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;cursor:pointer;" onclick="_quickLogin()">'
+            + '<div style="font-size:12px;opacity:0.8;">上次登录</div>'
+            + '<div style="font-size:18px;font-weight:700;margin:4px 0;">' + lastUser + '</div>'
+            + '<div style="font-size:12px;opacity:0.7;">点击继续游戏</div>'
+            + '</div>';
+    }
+    html += '<div class="account-btn-group">'
+        + '<button class="btn btn-primary btn-lg" onclick="_showRegisterOverlay()">注册新账号</button>'
+        + '<button class="btn btn-outline btn-lg" onclick="_showLoginOverlay()">登录已有账号</button>'
+        + '</div>'
+        + '<div class="account-footer">每个账号3个存档，注册新号即可开新局</div>'
+        + '</div>';
+    container.innerHTML = html;
+}
+
+function _quickLogin() {
+    var lastUser = localStorage.getItem('myIdolLastUser');
+    if (!lastUser) return;
+    localStorage.setItem('myIdolCurrentUser', lastUser);
+    currentPage = 'welcome';
+    render();
 }
 
 // ==================== AUTO SAVE ====================
@@ -6872,7 +7064,7 @@ function startAutoSave() {
                 for (var i = 0; i < keys.length; i++) {
                     if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
                 }
-                localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+                localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
                 showToast('已自动存档');
             } catch(e) {}
         }
@@ -6887,7 +7079,7 @@ window.addEventListener('beforeunload', function(e) {
             for (var i = 0; i < keys.length; i++) {
                 if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
             }
-            localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+            localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
         } catch(e2) {}
         e.returnValue = '游戏进度已自动保存';
     }
