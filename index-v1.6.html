@@ -1220,11 +1220,14 @@
 </div>
 
 <script>
+var _origOnerror = window.onerror;
 window.onerror = function(msg, url, line, col, err) {
-  alert("JS ERROR!\nMessage: " + msg + "\nFile: " + url + "\nLine: " + line + "\nCol: " + col);
-  return true;
+    var info = 'MSG: ' + msg + '\nURL: ' + url + '\nLINE: ' + line + '\nCOL: ' + col;
+    document.title = 'ERR:' + line;
+    document.body.innerHTML = '<div style="padding:20px;font-family:monospace;white-space:pre-wrap;word-break:break-all;">' + info + '</div>';
+    return true;
 };
 </script>
-<script src="v1.6.js"></script>
+<script src="v1.6.js" onerror="document.title=\'LOAD-FAIL\'"></script>
 </body>
 </html>
