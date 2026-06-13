@@ -2459,7 +2459,17 @@ function renderHomePage(container) {
         { id: 'members', icon: 'members', name: '成员信息', unlock: 0 },
         { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
-        { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 }
+        { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 },
+        { id: 'comeback', icon: 'comeback', name: '回归打歌', unlock: 0 },
+        { id: 'music', icon: 'music', name: '音乐放送', unlock: 0 },
+        { id: 'mvstudio', icon: 'mvstudio', name: 'MV工作室', unlock: 0 },
+        { id: 'contract', icon: 'contract', name: '合约', unlock: 0 },
+        { id: 'relation', icon: 'relation', name: '队友关系', unlock: 0 },
+        { id: 'management', icon: 'management', name: '经纪团队', unlock: 0 },
+        { id: 'antiblack', icon: 'antiblack', name: '反黑中心', unlock: 0 },
+        { id: 'fanclub', icon: 'fanclub', name: '后援会', unlock: 0 },
+        { id: 'pr', icon: 'pr', name: '公关室', unlock: 0 },
+        { id: 'kpopwiki', icon: 'kpopwiki', name: 'Kpop百科', unlock: 0 }
     ];
     
     const roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
@@ -4601,6 +4611,7 @@ function acceptNotice() {
     var fansGain = n.fans + Math.floor(Math.random() * 100);
     gameState.fans += fansGain;
     var dangerGain = Math.floor(Math.random() * 3);
+    if (gameState.danger >= 30 && Math.random() < 0.3) { if(typeof triggerAntiEvent==='function') triggerAntiEvent(); }
     gameState.danger = Math.max(0, gameState.danger + dangerGain);
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
     if (gameState.player.role === 'Idol' && gameState.groupPopularity !== undefined) {
@@ -6237,7 +6248,8 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
-        { ver: 'V1.5.2', date: '2026年6月13日 18:00', title: 'My Idol V1.5.2', content: 'V1.5 系列更新内容：\n\n【新增功能】\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等7个APP的NPC可真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\n【V1.5.1 修复】\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题\n\n【V1.5.2 修复】\n• 邀请码错误提示 - 空输入/错误码红字提示+回车提交支持\n• 性格/定位3项硬限制 - 超出自动截断，不可无限勾选\n• 创建返回确认 - 返回时弹窗确认，防止误清空\n• 体力负数修复 - 切换APP时强制修正体力下限\n• 训练防连点 - 时间戳防重复扣费+能力值150封顶\n• 自动存档9处关键节点 - 创建角色/入团/出道/行程完成/工作完成/考核通过/贷款申请等全覆盖\n• 退出保存提醒 - 关闭/刷新页面弹窗提醒+手机Safari后台静默保存\n• 商业贷款降出道概率 - 贷款后40%概率分配不到志愿团+申请弹窗警告+出道企划页警告条\n• 生日下拉适配 - 加大触控区域，解决小屏遮挡\n• 长名溢出修复 - 团名文字截断省略号\n• 提示弹窗时间加长 - 从1.5秒延长至2.5秒' },
+        { ver: 'V1.6', date: '2026年6月14日 20:00', title: 'My Idol V1.6', content: 'V1.6 大版本更新内容:\n\n【核心系统】\n• 回归打歌系统 - 选择概念/主打歌/MV拍摄/宣传期/3轮打歌/回归评级\n• 合约系统 - 查看经纪合约/续约/离开公司\n• 队友关系网 - 好感度系统/聊天送礼合练\n• 经纪团队 - 经纪人/造型师/司机/培训提升\n• 黑粉反黑 - 5种黑粉事件/声明/法律手段/忽略\n• 粉丝团后援会 - 等级系统/应援项目\n• 成就系统 - 14个成就解锁/进度追踪\n\n【新增APP】\n• 回归打歌 - 完整回归流程\n• 音乐放送 - 6大音乐节目信息\n• MV工作室 - MV收藏与回看\n• 合约 - 经纪合约管理\n• 队友关系 - 队友好感互动\n• 经纪团队 - 团队管理\n• 反黑中心 - 黑粉事件处理\n• 后援会 - 粉丝应援\n• 公关室 - 形象管理\n• Kpop百科 - 韩团知识\n• 成就 - 成就追踪\n\n【系统优化】\n• 手机通知弹窗 - 8种通知类型/顶部滑入动画\n• NPC改名 - 中文名(英文名)格式\n• 存档名闪烁修复\n• 危险值即时更新' },
+    { ver: 'V1.5.2', date: '2026年6月13日 18:00', title: 'My Idol V1.5.2', content: 'V1.5 系列更新内容：\n\n【新增功能】\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等7个APP的NPC可真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\n【V1.5.1 修复】\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题\n\n【V1.5.2 修复】\n• 邀请码错误提示 - 空输入/错误码红字提示+回车提交支持\n• 性格/定位3项硬限制 - 超出自动截断，不可无限勾选\n• 创建返回确认 - 返回时弹窗确认，防止误清空\n• 体力负数修复 - 切换APP时强制修正体力下限\n• 训练防连点 - 时间戳防重复扣费+能力值150封顶\n• 自动存档9处关键节点 - 创建角色/入团/出道/行程完成/工作完成/考核通过/贷款申请等全覆盖\n• 退出保存提醒 - 关闭/刷新页面弹窗提醒+手机Safari后台静默保存\n• 商业贷款降出道概率 - 贷款后40%概率分配不到志愿团+申请弹窗警告+出道企划页警告条\n• 生日下拉适配 - 加大触控区域，解决小屏遮挡\n• 长名溢出修复 - 团名文字截断省略号\n• 提示弹窗时间加长 - 从1.5秒延长至2.5秒' },
         { ver: 'V1.4.3.1', date: '2026年6月13日 14:30', title: 'My Idol V1.4.3.1', content: 'My Idol V1.4.3.1 更新内容：\n\n• 团体人气系统 - 出道爱豆新增团体人气数值，不同公司基数不同\n• INS私信优化 - 私信列表显示所有有对话的联系人\n• TikTok私信优化 - 私信列表显示所有有对话的联系人\n• APP首页分类排版 - 按工作/赚钱/社交/娱乐/其他分类展示\n• 成员信息团队介绍 - 查看团体时显示韩文名和概念描述\n\nBug修复：\n• 修复INS/TikTok对方主动发来的消息不出现在聊天列表的问题' },
         { ver: 'V1.4.3', date: '2026年6月13日 12:00', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆\n\nBug修复：\n• 修复性格/定位多选可超限的问题\n• 修复体力归零后回血偶尔失效\n• 修复体力切APP后出现负数\n• 修复训练付费重复扣款\n• 修复外卖快递道具效果不即时生效\n• 修复存档覆盖数据丢失\n• 修复退出保存提醒弹窗重复弹出' },
         { ver: 'V1.4.2', date: '2026年6月13日 11:00', title: 'My Idol V1.4.2', content: 'My Idol V1.4.2 热修复：\n\n• 修复会议系统崩溃问题\n• 修复退出登录无效的问题\n• 修复外卖/快递购买报错的问题\n• 修复KakaoTalk聊天框被底部导航遮挡\n• 所有APP子页面全屏显示，底部导航仅主页面显示\n• 优化系统稳定性' },
@@ -7117,6 +7129,643 @@ function renderAchievementsPage(container) {
             + '</div>';
     }
     
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// ==================== COMEBACK SYSTEM (回归打歌) ====================
+var COMEBACK_CONCEPTS = [
+    { name: 'Girl Crush', style: '酷飒', stat: 'dance', mvQuality: 1.2, desc: '强势霸气的概念，展现女性力量' },
+    { name: 'Innocent', style: '清纯', stat: 'vocal', mvQuality: 1.0, desc: '清新甜美的概念，充满青春气息' },
+    { name: 'Sexy', style: '性感', stat: 'dance', mvQuality: 1.1, desc: '成熟魅惑的概念，展现魅力' },
+    { name: 'Hip-hop', style: '嘻哈', stat: 'rap', mvQuality: 1.15, desc: '街头嘻哈概念，展现个性态度' },
+    { name: 'Retro', style: '复古', stat: 'vocal', mvQuality: 1.05, desc: '复古怀旧概念，致敬经典' },
+    { name: 'Fantasy', style: '奇幻', stat: 'acting', mvQuality: 1.3, desc: '奇幻冒险概念，充满想象力' },
+    { name: 'Elegant', style: '优雅', stat: 'vocal', mvQuality: 1.1, desc: '优雅高贵概念，展现气质' },
+    { name: 'Fierce', style: '凶猛', stat: 'dance', mvQuality: 1.2, desc: '激烈强势概念，舞台炸裂' }
+];
+
+var TITLE_TRACK_TYPES = [
+    { name: 'Dance Pop', genre: '舞曲', bestStat: 'dance' },
+    { name: 'Ballad', genre: '抒情', bestStat: 'vocal' },
+    { name: 'R&B', genre: '节奏布鲁斯', bestStat: 'vocal' },
+    { name: 'Hip-hop', genre: '嘻哈', bestStat: 'rap' },
+    { name: 'EDM', genre: '电子', bestStat: 'dance' },
+    { name: 'Rock', genre: '摇滚', bestStat: 'dance' }
+];
+
+function startComeback() {
+    if (gameState.player.role !== 'Idol') { showToast('只有出道爱豆才能回归'); return; }
+    if (gameState.comeback && gameState.comeback.phase !== 'done') { showToast('回归进行中'); return; }
+    if (gameState.体力 < 50) { showModal('体力不足', '回归准备需要至少50体力'); return; }
+    if (gameState.money < 50000) { showModal('资金不足', '回归准备需要50,000金币'); return; }
+    gameState.comeback = { phase: 'concept', concept: null, titleTrack: null, promotion: 0, musicShowResults: [], daysLeft: 14 };
+    gameState.体力 -= 10;
+    gameState.money -= 50000;
+    currentPage = 'comeback';
+    render();
+}
+
+function selectComebackConcept(idx) {
+    gameState.comeback.concept = COMEBACK_CONCEPTS[idx];
+    gameState.comeback.phase = 'titletrack';
+    render();
+}
+
+function selectTitleTrack(idx) {
+    gameState.comeback.titleTrack = TITLE_TRACK_TYPES[idx];
+    gameState.comeback.phase = 'mv';
+    render();
+}
+
+function shootMV() {
+    if (gameState.体力 < 30) { showModal('体力不足', 'MV拍摄需要30体力'); return; }
+    if (gameState.money < 30000) { showModal('资金不足', 'MV拍摄需要30,000金币'); return; }
+    gameState.体力 -= 30;
+    gameState.money -= 30000;
+    var concept = gameState.comeback.concept;
+    var title = gameState.comeback.titleTrack;
+    var statVal = gameState.stats[title.bestStat] || 50;
+    var quality = Math.floor((statVal / 150) * 70 + Math.random() * 30 * concept.mvQuality);
+    quality = Math.min(100, Math.max(20, quality));
+    gameState.comeback.mvQuality = quality;
+    gameState.comeback.mvViews = Math.floor(quality * 10000 + gameState.fans * 5);
+    gameState.comeback.phase = 'promote';
+    if (!gameState.mvCollection) gameState.mvCollection = [];
+    gameState.mvCollection.push({ title: gameState.comeback.titleTrack.name, concept: gameState.comeback.concept.name, quality: quality, views: gameState.comeback.mvViews });
+    gameState.comeback.promotion = 0;
+    notifySystem('MV拍摄完成', 'MV品质: ' + quality + '分');
+    render();
+}
+
+function promoteComeback(type) {
+    if (!gameState.comeback || gameState.comeback.phase !== 'promote') return;
+    var cost = { ins: 10, tiktok: 10, weverse: 15, fansign: 25 }[type];
+    var moneyCost = { ins: 5000, tiktok: 5000, weverse: 8000, fansign: 20000 }[type];
+    var gain = { ins: 8, tiktok: 10, weverse: 12, fansign: 20 }[type];
+    if (gameState.体力 < cost) { showToast('体力不足'); return; }
+    if (gameState.money < moneyCost) { showToast('金币不足'); return; }
+    gameState.体力 -= cost;
+    gameState.money -= moneyCost;
+    gameState.comeback.promotion += gain + Math.floor(Math.random() * 5);
+    gameState.fans += Math.floor(Math.random() * 200 + 50);
+    if (type === 'fansign') { gameState.fans += 500; }
+    gameState.comeback.daysLeft--;
+    if (gameState.comeback.daysLeft <= 0) { gameState.comeback.phase = 'musicshow'; }
+    triggerSilentSave();
+    render();
+}
+
+function performMusicShow() {
+    if (!gameState.comeback || gameState.comeback.phase !== 'musicshow') return;
+    if (gameState.体力 < 25) { showToast('体力不足，打歌需要25体力'); return; }
+    gameState.体力 -= 25;
+    var concept = gameState.comeback.concept;
+    var mvQ = gameState.comeback.mvQuality || 50;
+    var promo = gameState.comeback.promotion || 0;
+    var statVal = gameState.stats[concept.stat] || 50;
+    var score = Math.floor(statVal * 0.3 + mvQ * 0.3 + promo * 0.2 + Math.random() * 20);
+    var result = {};
+    if (score >= 80) {
+        result.rank = 1; result.label = '一位';
+        gameState.firstPlaceCount = (gameState.firstPlaceCount || 0) + 1;
+        gameState.money += 30000; gameState.fans += 2000;
+        notifyNews('一位!', '恭喜在音乐节目获得一位!');
+        _triggerHotsearch(gameState.player.name + '回归一位', (Math.floor(Math.random() * 15) + 15) + '万', gameState.player.name + '回归舞台斩获一位！' + concept.name + '概念大获成功！', false);
+        _triggerKakaoCongrats();
+    } else if (score >= 60) {
+        result.rank = 2; result.label = '二位'; gameState.money += 15000; gameState.fans += 800;
+    } else if (score >= 40) {
+        result.rank = 3; result.label = '三位'; gameState.money += 8000; gameState.fans += 300;
+    } else {
+        result.rank = 0; result.label = '未入榜'; gameState.fans += 50;
+    }
+    result.score = score;
+    gameState.comeback.musicShowResults.push(result);
+    if (gameState.comeback.musicShowResults.length >= 3) {
+        gameState.comeback.phase = 'done';
+        var totalFirsts = 0;
+        for (var i = 0; i < gameState.comeback.musicShowResults.length; i++) {
+            if (gameState.comeback.musicShowResults[i].rank === 1) totalFirsts++;
+        }
+        gameState.comeback.totalFirsts = totalFirsts;
+        if (totalFirsts >= 2) {
+            notifyNews('回归大成功', '获得' + totalFirsts + '个一位!');
+        }
+    }
+    if (typeof checkAchievements === 'function') checkAchievements();
+    triggerSilentSave();
+    render();
+}
+
+function renderComebackPage(container) {
+    var cb = gameState.comeback;
+    if (!cb) {
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归打歌</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;">'
+            + '<div style="font-size:48px;margin-bottom:16px;">M</div>'
+            + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">准备新回归</div>'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">需要: 50体力 + 50,000金币</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="startComeback()">开始回归</button>'
+            + '</div></div>';
+        return;
+    }
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归打歌</div><div style="width:32px;"></div></div><div class="page-content">';
+    
+    if (cb.phase === 'concept') {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
+        for (var i = 0; i < COMEBACK_CONCEPTS.length; i++) {
+            var c = COMEBACK_CONCEPTS[i];
+            html += '<div class="card" onclick="selectComebackConcept(' + i + ')" style="cursor:pointer;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div><div style="font-weight:600;">' + c.name + ' (' + c.style + ')</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + c.desc + '</div></div>'
+                + '<div style="font-size:11px;color:var(--color-primary);">MV x' + c.mvQuality + '</div>'
+                + '</div></div>';
+        }
+    } else if (cb.phase === 'titletrack') {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择主打歌</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念: ' + cb.concept.name + '</div></div>';
+        for (var i = 0; i < TITLE_TRACK_TYPES.length; i++) {
+            var t = TITLE_TRACK_TYPES[i];
+            var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
+            html += '<div class="card" onclick="selectTitleTrack(' + i + ')" style="cursor:pointer;">'
+                + '<div style="font-weight:600;">' + t.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + t.genre + ' / 加成: ' + statNames[t.bestStat] + '</div></div>';
+        }
+    } else if (cb.phase === 'mv') {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>'
+            + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
+            + '<div style="font-size:13px;">概念: ' + cb.concept.name + '</div>'
+            + '<div style="font-size:13px;">主打歌: ' + cb.titleTrack.name + '</div></div>'
+            + '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要30体力 + 30,000金币</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="shootMV()">拍摄MV</button></div>';
+    } else if (cb.phase === 'promote') {
+        var daysLeft = cb.daysLeft || 14;
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#4CD964,#34C759);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">宣传期</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">剩余' + daysLeft + '天 | MV品质' + (cb.mvQuality || 0) + '分 | 宣传度' + (cb.promotion || 0) + '</div></div>'
+            + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">宣传方式</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+            + '<div class="card" onclick="promoteComeback(\'ins\')" style="cursor:pointer;text-align:center;padding:16px;"><div style="font-weight:600;">INS宣传</div><div style="font-size:11px;color:var(--color-text-light);">10体力/5千金币</div></div>'
+            + '<div class="card" onclick="promoteComeback(\'tiktok\')" style="cursor:pointer;text-align:center;padding:16px;"><div style="font-weight:600;">TikTok挑战</div><div style="font-size:11px;color:var(--color-text-light);">10体力/5千金币</div></div>'
+            + '<div class="card" onclick="promoteComeback(\'weverse\')" style="cursor:pointer;text-align:center;padding:16px;"><div style="font-weight:600;">Weverse互动</div><div style="font-size:11px;color:var(--color-text-light);">15体力/8千金币</div></div>'
+            + '<div class="card" onclick="promoteComeback(\'fansign\')" style="cursor:pointer;text-align:center;padding:16px;"><div style="font-weight:600;">粉丝签售会</div><div style="font-size:11px;color:var(--color-text-light);">25体力/2万金币</div></div>'
+            + '</div></div>';
+        if (daysLeft <= 0) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback.phase=\'musicshow\';render();">进入打歌期</button>';
+        }
+    } else if (cb.phase === 'musicshow') {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">打歌期</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">进行3轮打歌 | MV品质' + (cb.mvQuality || 0) + '分</div></div>';
+        var done = (cb.musicShowResults || []).length;
+        for (var i = 0; i < cb.musicShowResults.length; i++) {
+            var r = cb.musicShowResults[i];
+            html += '<div class="card"><div style="display:flex;justify-content:space-between;">'
+                + '<span style="font-weight:600;">第' + (i+1) + '轮</span>'
+                + '<span style="color:' + (r.rank === 1 ? '#FFD700' : r.rank === 2 ? '#C0C0C0' : r.rank === 3 ? '#CD7F32' : 'var(--color-text-light)') + ';font-weight:700;">' + r.label + '</span></div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">得分: ' + r.score + '</div></div>';
+        }
+        if (done < 3) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="performMusicShow()">第' + (done+1) + '轮打歌 (25体力)</button>';
+        }
+    } else if (cb.phase === 'done') {
+        var totalFirsts = cb.totalFirsts || 0;
+        var grade = totalFirsts >= 3 ? 'S' : totalFirsts >= 2 ? 'A' : totalFirsts >= 1 ? 'B' : 'C';
+        var gradeColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + gradeColors[grade] + ',var(--color-primary));color:white;padding:32px;">'
+            + '<div style="font-size:48px;font-weight:700;">' + grade + '</div>'
+            + '<div style="font-size:14px;opacity:0.9;margin-top:4px;">回归评级</div></div>'
+            + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">回归总结</div>'
+            + '<div style="font-size:13px;">概念: ' + cb.concept.name + '</div>'
+            + '<div style="font-size:13px;">主打歌: ' + cb.titleTrack.name + '</div>'
+            + '<div style="font-size:13px;">MV品质: ' + cb.mvQuality + '分</div>'
+            + '<div style="font-size:13px;">一位数: ' + totalFirsts + '/3</div></div>'
+            + '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback=null;render();">完成回归</button>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// ==================== CONTRACT SYSTEM (合约系统) ====================
+function renderContractPage(container) {
+    if (!gameState.contract) {
+        gameState.contract = {
+            company: gameState.player.company || 'SEONGWOO ENT',
+            years: 7,
+            signed: gameState.player.debutYear || 2026,
+            revenue: { company: 70, artist: 30 },
+            clauses: ['独家经纪合约', '公司负责所有行程安排', '合约期内不可转签', '违约金: 剩余年限 x 1亿韩元']
+        };
+    }
+    var c = gameState.contract;
+    var yearsLeft = Math.max(0, c.years - (new Date().getFullYear() - c.signed));
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">合约</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#2C2C2C,#444);color:white;">'
+        + '<div style="font-size:14px;opacity:0.7;">独家经纪合约</div>'
+        + '<div style="font-size:22px;font-weight:700;margin-top:8px;">' + c.company + '</div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">合约条款</div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>合约年限</span><span style="font-weight:600;">' + c.years + '年</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>剩余年限</span><span style="font-weight:600;color:' + (yearsLeft <= 2 ? 'var(--color-danger)' : 'var(--color-success)') + ';">' + yearsLeft + '年</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>收益分配(公司)</span><span style="font-weight:600;">' + c.revenue.company + '%</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;"><span>收益分配(艺人)</span><span style="font-weight:600;color:var(--color-success);">' + c.revenue.artist + '%</span></div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">合约条款</div>';
+    for (var i = 0; i < c.clauses.length; i++) {
+        html += '<div style="padding:6px 0;font-size:13px;color:var(--color-text-light);border-bottom:1px solid var(--color-border);">- ' + c.clauses[i] + '</div>';
+    }
+    html += '</div>';
+    if (yearsLeft <= 1) {
+        html += '<div class="card" style="border-left:4px solid var(--color-danger);"><div style="font-weight:600;color:var(--color-danger);">合约即将到期</div><div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">可以选择续约或离开公司</div></div>'
+            + '<div style="display:flex;gap:8px;margin-top:8px;">'
+            + '<button class="btn btn-primary btn-lg" style="flex:1;" onclick="renewContract()">续约</button>'
+            + '<button class="btn btn-secondary btn-lg" style="flex:1;" onclick="leaveCompany()">离开</button></div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function renewContract() {
+    gameState.contract.signed = new Date().getFullYear();
+    gameState.contract.revenue.artist = Math.min(50, gameState.contract.revenue.artist + 5);
+    gameState.contract.revenue.company = 100 - gameState.contract.revenue.artist;
+    gameState.contract.clauses.push('续约附加: 艺人分成提升至' + gameState.contract.revenue.artist + '%');
+    showToast('续约成功! 分成提升至' + gameState.contract.revenue.artist + '%');
+    render();
+}
+
+function leaveCompany() {
+    showModal('确认离开', '离开公司将失去所有公司资源，确定吗？', function() {
+        gameState.danger = Math.min(100, gameState.danger + 20);
+        showToast('已离开公司，成为自由艺人');
+        gameState.contract = null;
+        render();
+    });
+}
+
+// ==================== TEAMMATE RELATIONSHIP NETWORK (队友关系网) ====================
+function renderRelationPage(container) {
+    if (!gameState.teammates || gameState.teammates.length === 0) {
+        if (!gameState.player.group || gameState.player.group === '') {
+            container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">队友关系</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="font-size:14px;color:var(--color-text-light);">还没有队友，出道后解锁</div></div></div>';
+            return;
+        }
+        initTeammates();
+    }
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">队友关系</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:14px;opacity:0.8;">' + gameState.player.group + '</div>'
+        + '<div style="font-size:18px;font-weight:700;margin-top:4px;">队友关系网</div></div>';
+    for (var i = 0; i < gameState.teammates.length; i++) {
+        var t = gameState.teammates[i];
+        var relColor = t.relationship >= 80 ? '#4CD964' : t.relationship >= 50 ? '#FFD700' : t.relationship >= 30 ? '#FF9500' : '#FF3B30';
+        var relLabel = t.relationship >= 80 ? '亲密' : t.relationship >= 50 ? '友好' : t.relationship >= 30 ? '普通' : '冷淡';
+        html += '<div class="card">'
+            + '<div style="display:flex;align-items:center;gap:12px;">'
+            + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,' + relColor + ',' + t.color + ');display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">' + t.name.charAt(0) + '</div>'
+            + '<div style="flex:1;">'
+            + '<div style="font-weight:600;">' + t.name + '</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);">' + t.position + '</div>'
+            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:6px;overflow:hidden;">'
+            + '<div style="width:' + t.relationship + '%;height:100%;background:' + relColor + ';border-radius:2px;"></div></div></div>'
+            + '<div style="font-size:12px;color:' + relColor + ';font-weight:600;">' + relLabel + '</div></div>'
+            + '<div style="display:flex;gap:6px;margin-top:10px;">'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'chat\')">聊天</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'gift\')">送礼</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'practice\')">合练</button></div></div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function initTeammates() {
+    if (!gameState.player.group) return;
+    var group = null;
+    for (var ci = 0; ci < COMPANIES.length; ci++) {
+        for (var gi = 0; gi < COMPANIES[ci].groups.length; gi++) {
+            if (COMPANIES[ci].groups[gi].name === gameState.player.group) {
+                group = COMPANIES[ci].groups[gi]; break;
+            }
+        }
+        if (group) break;
+    }
+    if (!group) return;
+    var positions = ['主唱', '主舞', 'Rapper', '门面', '领唱', '领舞'];
+    var colors = ['#FF8FA3', '#7C4DFF', '#4CD964', '#FF9500', '#5BB8E8', '#FF6B8A'];
+    gameState.teammates = [];
+    var members = group.members || [];
+    for (var i = 0; i < members.length; i++) {
+        if (members[i] === gameState.player.name) continue;
+        gameState.teammates.push({
+            name: members[i],
+            position: positions[i % positions.length],
+            relationship: 40 + Math.floor(Math.random() * 30),
+            color: colors[i % colors.length]
+        });
+    }
+}
+
+function interactTeammate(idx, type) {
+    var t = gameState.teammates[idx];
+    if (!t) return;
+    var cost = { chat: 5, gift: 10000, practice: 15 }[type];
+    var gain = { chat: 5, gift: 15, practice: 8 }[type];
+    if (type === 'gift' && gameState.money < cost) { showToast('金币不足'); return; }
+    if (type !== 'gift' && gameState.体力 < cost) { showToast('体力不足'); return; }
+    if (type === 'gift') { gameState.money -= cost; } else { gameState.体力 -= cost; }
+    t.relationship = Math.min(100, t.relationship + gain + Math.floor(Math.random() * 5));
+    if (type === 'practice') {
+        var keys = ['dance', 'vocal', 'rap'];
+        var k = keys[Math.floor(Math.random() * keys.length)];
+        gameState.stats[k] = Math.min(150, gameState.stats[k] + 2);
+    }
+    var labels = { chat: '聊天', gift: '送礼', practice: '合练' };
+    showToast(labels[type] + '成功! 好感度+' + gain);
+    triggerSilentSave();
+    render();
+}
+
+// ==================== MANAGEMENT TEAM (经纪团队) ====================
+function renderManagementPage(container) {
+    if (!gameState.management) {
+        gameState.management = {
+            manager: { name: '朴正勋(Park Junghoon)', loyalty: 70, skill: 60 },
+            stylist: { name: '金美妍(Kim Miyeon)', loyalty: 50, skill: 40 },
+            driver: { name: '李大浩(Lee Daeho)', loyalty: 80, skill: 30 }
+        };
+    }
+    var m = gameState.management;
+    var roles = { manager: '经纪人', stylist: '造型师', driver: '司机' };
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">经纪团队</div><div style="width:32px;"></div></div><div class="page-content">';
+    var keys = Object.keys(m);
+    for (var i = 0; i < keys.length; i++) {
+        var role = keys[i];
+        var person = m[role];
+        var loyaltyColor = person.loyalty >= 70 ? '#4CD964' : person.loyalty >= 40 ? '#FFD700' : '#FF3B30';
+        html += '<div class="card">'
+            + '<div style="font-size:12px;color:var(--color-primary);font-weight:600;">' + roles[role] + '</div>'
+            + '<div style="font-weight:600;margin-top:4px;">' + person.name + '</div>'
+            + '<div style="display:flex;gap:16px;margin-top:8px;">'
+            + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">技能</div>'
+            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.skill + '%;height:100%;background:#5BB8E8;border-radius:2px;"></div></div></div>'
+            + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">忠诚</div>'
+            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.loyalty + '%;height:100%;background:' + loyaltyColor + ';border-radius:2px;"></div></div></div></div>'
+            + '<button class="btn btn-sm" style="margin-top:8px;font-size:11px;" onclick="upgradeStaff(\'' + role + '\')">培训提升 (5千金币)</button></div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function upgradeStaff(role) {
+    if (gameState.money < 5000) { showToast('金币不足'); return; }
+    gameState.money -= 5000;
+    var person = gameState.management[role];
+    person.skill = Math.min(100, person.skill + 5 + Math.floor(Math.random() * 5));
+    person.loyalty = Math.min(100, person.loyalty + 3);
+    showToast(person.name + '能力提升!');
+    triggerSilentSave();
+    render();
+}
+
+// ==================== ANTI-BLACK SYSTEM (黑粉反黑) ====================
+var ANTI_EVENTS = [
+    { title: '恶意谣言', desc: '有人在论坛散布关于你的不实谣言', dangerAdd: 10, fanLoss: 200 },
+    { title: '私生跟踪', desc: '疑似私生饭在宿舍附近徘徊', dangerAdd: 15, fanLoss: 100 },
+    { title: '恶意对比', desc: '网络出现与同行恶意的对比帖', dangerAdd: 5, fanLoss: 150 },
+    { title: '旧照泄露', desc: '有人翻出你多年前的照片断章取义', dangerAdd: 8, fanLoss: 300 },
+    { title: '恶意剪辑', desc: '你的综艺片段被恶意剪辑传播', dangerAdd: 12, fanLoss: 250 }
+];
+
+function renderAntiBlackPage(container) {
+    if (!gameState.antiEvents) gameState.antiEvents = [];
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">反黑中心</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#333,#555);color:white;">'
+        + '<div style="font-size:14px;opacity:0.8;">当前危险值</div>'
+        + '<div style="font-size:32px;font-weight:700;">' + gameState.danger + '/100</div></div>';
+    if (gameState.antiEvents.length === 0) {
+        html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">暂无黑粉事件</div></div>';
+    }
+    for (var i = 0; i < gameState.antiEvents.length; i++) {
+        var e = gameState.antiEvents[i];
+        html += '<div class="card" style="border-left:4px solid var(--color-danger);">'
+            + '<div style="font-weight:600;">' + e.title + '</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + e.desc + '</div>'
+            + '<div style="display:flex;gap:8px;margin-top:10px;">'
+            + '<button class="btn btn-sm btn-primary" style="flex:1;font-size:11px;" onclick="handleAnti(' + i + ',\'statement\')">发声明</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" onclick="handleAnti(' + i + ',\'legal\')">法律手段</button>'
+            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" onclick="handleAnti(' + i + ',\'ignore\')">忽略</button></div></div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function triggerAntiEvent() {
+    if (gameState.danger < 30) return;
+    var event = ANTI_EVENTS[Math.floor(Math.random() * ANTI_EVENTS.length)];
+    if (!gameState.antiEvents) gameState.antiEvents = [];
+    gameState.antiEvents.push(event);
+    gameState.danger = Math.min(100, gameState.danger + event.dangerAdd);
+    gameState.fans = Math.max(0, gameState.fans - event.fanLoss);
+    notifySystem('反黑警告', event.title);
+    triggerSilentSave();
+}
+
+function handleAnti(idx, action) {
+    var e = gameState.antiEvents[idx];
+    if (!e) return;
+    if (action === 'statement') {
+        if (gameState.money < 10000) { showToast('发声明需要1万金币'); return; }
+        gameState.money -= 10000;
+        gameState.danger = Math.max(0, gameState.danger - 15);
+        gameState.fans += 100;
+        showToast('声明已发布，舆论好转');
+    } else if (action === 'legal') {
+        if (gameState.money < 50000) { showToast('法律手段需要5万金币'); return; }
+        gameState.money -= 50000;
+        gameState.danger = Math.max(0, gameState.danger - 25);
+        showToast('已启动法律程序');
+    } else {
+        gameState.danger = Math.min(100, gameState.danger + 5);
+        showToast('选择了忽略');
+    }
+    gameState.antiEvents.splice(idx, 1);
+    triggerSilentSave();
+    render();
+}
+
+// ==================== FAN CLUB SYSTEM (粉丝团后援会) ====================
+function renderFanClubPage(container) {
+    if (!gameState.fanClub) {
+        gameState.fanClub = {
+            name: gameState.player.group ? gameState.player.group + '后援会' : '个人后援会',
+            level: 1,
+            members: Math.floor(gameState.fans * 0.1),
+            funds: 0,
+            projects: [],
+            color: '#FF8FA3'
+        };
+    }
+    var fc = gameState.fanClub;
+    fc.members = Math.floor(gameState.fans * 0.1);
+    var levelNames = ['', '初创', '成长', '活跃', '壮大', '明星', '传奇'];
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">后援会</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + fc.color + ',#FF6B8A);color:white;padding:24px;">'
+        + '<div style="font-size:18px;font-weight:700;">' + fc.name + '</div>'
+        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">Lv.' + fc.level + ' ' + (levelNames[fc.level] || '') + '</div>'
+        + '<div style="font-size:12px;opacity:0.7;margin-top:2px;">' + fc.members.toLocaleString() + ' 名会员</div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">后援会等级</div>'
+        + '<div style="width:100%;height:8px;background:var(--color-border);border-radius:4px;overflow:hidden;">'
+        + '<div style="width:' + (fc.level * 20) + '%;height:100%;background:linear-gradient(90deg,' + fc.color + ',#FF6B8A);border-radius:4px;"></div></div>'
+        + '<div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">下一级需要' + (fc.level * 10000) + '粉丝</div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">应援项目</div>';
+    var projects = [
+        { name: '生日应援', cost: 20000, fansGain: 500, desc: '为成员生日策划应援' },
+        { name: '回归应援', cost: 50000, fansGain: 1000, desc: '为回归打歌加油助威' },
+        { name: '公益项目', cost: 30000, fansGain: 800, desc: '以偶像名义做公益' }
+    ];
+    for (var i = 0; i < projects.length; i++) {
+        var p = projects[i];
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-border);">'
+            + '<div><div style="font-weight:600;font-size:14px;">' + p.name + '</div>'
+            + '<div style="font-size:11px;color:var(--color-text-light);">' + p.desc + '</div></div>'
+            + '<button class="btn btn-sm" style="font-size:11px;" onclick="launchFanProject(' + i + ')">启动 (' + (p.cost / 10000) + '万)</button></div>';
+    }
+    html += '</div></div></div>';
+    container.innerHTML = html;
+}
+
+function launchFanProject(idx) {
+    var projects = [
+        { name: '生日应援', cost: 20000, fansGain: 500 },
+        { name: '回归应援', cost: 50000, fansGain: 1000 },
+        { name: '公益项目', cost: 30000, fansGain: 800 }
+    ];
+    var p = projects[idx];
+    if (gameState.money < p.cost) { showToast('金币不足'); return; }
+    gameState.money -= p.cost;
+    gameState.fans += p.fansGain;
+    gameState.fame = Math.min(200, (gameState.fame || 30) + 5);
+    gameState.fanClub.funds += Math.floor(p.cost * 0.3);
+    if (gameState.fans >= gameState.fanClub.level * 10000) {
+        gameState.fanClub.level = Math.min(6, gameState.fanClub.level + 1);
+        showToast('后援会升级! Lv.' + gameState.fanClub.level);
+    } else {
+        showToast(p.name + '启动成功! +' + p.fansGain + '粉丝');
+    }
+    notifySystem('后援会', p.name + '已启动!');
+    triggerSilentSave();
+    render();
+}
+
+// ==================== MUSIC BROADCAST APP (音乐放送) ====================
+function renderMusicPage(container) {
+    var shows = [
+        { name: 'M Countdown', channel: 'Mnet', day: '周四', time: '18:00' },
+        { name: 'Music Bank', channel: 'KBS', day: '周五', time: '17:00' },
+        { name: '音乐中心', channel: 'MBC', day: '周六', time: '15:30' },
+        { name: '人气歌谣', channel: 'SBS', day: '周日', time: '15:40' },
+        { name: 'THE SHOW', channel: 'SBS MTV', day: '周二', time: '18:00' },
+        { name: 'Show Champion', channel: 'MBC Music', day: '周三', time: '18:00' }
+    ];
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">音乐放送</div><div style="width:32px;"></div></div><div class="page-content">';
+    if (gameState.player.role !== 'Idol') {
+        html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">出道后解锁音乐放送</div></div>';
+    } else {
+        for (var i = 0; i < shows.length; i++) {
+            var s = shows[i];
+            html += '<div class="card">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div><div style="font-weight:600;">' + s.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + s.channel + ' | ' + s.day + ' ' + s.time + '</div></div>'
+                + '<div style="font-size:11px;color:var(--color-primary);">可出演</div></div></div>';
+        }
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// ==================== MV STUDIO APP (MV工作室) ====================
+function renderMVStudioPage(container) {
+    if (!gameState.mvCollection) gameState.mvCollection = [];
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content">';
+    if (gameState.player.role !== 'Idol') {
+        html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">出道后解锁MV工作室</div></div>';
+    } else {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">MV工作室</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">创作和拍摄你的MV</div></div>';
+        if (gameState.mvCollection.length === 0) {
+            html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有拍摄过MV</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">在回归打歌中拍摄你的第一支MV</div></div>';
+        }
+        for (var i = 0; i < gameState.mvCollection.length; i++) {
+            var mv = gameState.mvCollection[i];
+            html += '<div class="card">'
+                + '<div style="font-weight:600;">' + mv.title + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + mv.concept + ' | 品质: ' + mv.quality + '分</div>'
+                + '<div style="font-size:12px;color:var(--color-primary);margin-top:2px;">' + mv.views.toLocaleString() + ' 次播放</div></div>';
+        }
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// ==================== PR OFFICE APP (公关室) ====================
+function renderPROfficePage(container) {
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">公关室</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#2C2C2C,#444);color:white;">'
+        + '<div style="font-size:16px;font-weight:700;">公关管理</div>'
+        + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">形象管理与危机公关</div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">当前形象</div>'
+        + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>危险值</span><span style="color:' + (gameState.danger > 60 ? 'var(--color-danger)' : 'var(--color-success)') + ';font-weight:600;">' + gameState.danger + '/100</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>名声</span><span style="color:var(--color-success);font-weight:600;">' + (gameState.fame || 30) + '</span></div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">公关手段</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+        + '<div class="card" onclick="prAction(\'charity\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">慈善活动</div><div style="font-size:11px;color:var(--color-text-light);">-10危险/3万金币</div></div>'
+        + '<div class="card" onclick="prAction(\'interview\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">专访</div><div style="font-size:11px;color:var(--color-text-light);">+5名声/1万金币</div></div>'
+        + '<div class="card" onclick="prAction(\'apology\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">道歉声明</div><div style="font-size:11px;color:var(--color-text-light);">-20危险/免费</div></div>'
+        + '<div class="card" onclick="prAction(\'solo\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">Solo企划</div><div style="font-size:11px;color:var(--color-text-light);">+10名声/5万金币</div></div>'
+        + '</div></div></div></div>';
+    container.innerHTML = html;
+}
+
+function prAction(type) {
+    if (type === 'charity') {
+        if (gameState.money < 30000) { showToast('金币不足'); return; }
+        gameState.money -= 30000; gameState.danger = Math.max(0, gameState.danger - 10);
+        showToast('慈善活动完成，危险值-10');
+    } else if (type === 'interview') {
+        if (gameState.money < 10000) { showToast('金币不足'); return; }
+        gameState.money -= 10000; gameState.fame = Math.min(200, (gameState.fame || 30) + 5);
+        showToast('专访完成，名声+5');
+    } else if (type === 'apology') {
+        gameState.danger = Math.max(0, gameState.danger - 20); gameState.fans = Math.max(0, gameState.fans - 100);
+        showToast('已发布道歉声明');
+    } else if (type === 'solo') {
+        if (gameState.money < 50000) { showToast('金币不足'); return; }
+        gameState.money -= 50000; gameState.fame = Math.min(200, (gameState.fame || 30) + 10); gameState.fans += 500;
+        showToast('Solo企划启动，名声+10');
+    }
+    triggerSilentSave();
+    render();
+}
+
+// ==================== KPOP WIKI APP (Kpop百科) ====================
+function renderKpopWikiPage(container) {
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">Kpop百科</div><div style="width:32px;"></div></div><div class="page-content">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5BB8E8,#4A90D9);color:white;">'
+        + '<div style="font-size:16px;font-weight:700;">Kpop百科</div>'
+        + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">韩国偶像知识大全</div></div>';
+    for (var ci = 0; ci < COMPANIES.length && ci < 5; ci++) {
+        var company = COMPANIES[ci];
+        html += '<div class="card"><div style="font-weight:700;font-size:15px;color:var(--color-primary);margin-bottom:8px;">' + company.name + '</div>';
+        for (var gi = 0; gi < company.groups.length; gi++) {
+            var g = company.groups[gi];
+            html += '<div style="padding:8px 0;border-bottom:1px solid var(--color-border);">'
+                + '<div style="font-weight:600;font-size:13px;">' + g.name + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);">成员: ' + (g.members || []).length + '人</div></div>';
+        }
+        html += '</div>';
+    }
     html += '</div></div>';
     container.innerHTML = html;
 }
