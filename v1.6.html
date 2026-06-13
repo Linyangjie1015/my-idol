@@ -1177,9 +1177,12 @@
     background: rgba(0,0,0,0.3);
 }
 
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div></div>
 
 <div class="phone-frame">
     <!-- Status Bar -->
@@ -3378,13 +3381,23 @@ function renderInviteCodePage(app) {
         + '<div style="width:100%;max-width:300px;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
         + '<div style="font-size:16px;font-weight:600;color:#333;text-align:center;margin-bottom:6px;">内测邀请码</div>'
         + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
-        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,\"\")" onkeydown="if(event.key===\"Enter\")checkInviteCode()">'
+        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="handleInviteCodeInput(this)")" onkeydown="if(event.key===\"Enter\")checkInviteCode()">'
         + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
         + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
         + '</div>'
         + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;text-align:center;">没有邀请码？敬请期待正式上线</div>'
         + '</div></div>';
     setTimeout(function(){ var inp = document.getElementById('inviteCodeInput'); if(inp) inp.focus(); }, 300);
+}
+
+
+function handleInviteCodeInput(el) {
+    var oldVal = el.value;
+    el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (el.value.length < oldVal.length) {
+        var errEl = document.getElementById('inviteCodeError');
+        if (errEl) { errEl.style.display = 'block'; errEl.textContent = '仅支持英文和数字'; }
+    }
 }
 
 function checkInviteCode() {
@@ -3394,6 +3407,8 @@ function checkInviteCode() {
     if (!code) {
         errEl.style.display = 'block';
         errEl.textContent = '请输入邀请码';
+        var inpEl = document.getElementById('inviteCodeInput');
+        if(inpEl) { inpEl.style.animation = 'shake 0.3s'; setTimeout(function(){ inpEl.style.animation = ''; }, 300); }
         return;
     }
     if (INVITE_CODES.indexOf(code) !== -1) {
@@ -3405,11 +3420,13 @@ function checkInviteCode() {
         errEl.style.display = 'block';
         errEl.textContent = '邀请码无效，请检查后重试';
         var inpEl = document.getElementById('inviteCodeInput');
-        if(inpEl) { inpEl.style.borderColor = '#FF3B30'; setTimeout(function(){ inpEl.style.borderColor = '#FFD5DE'; }, 1500); }
+        if(inpEl) { inpEl.style.borderColor = '#FF3B30'; inpEl.style.animation = 'shake 0.3s'; setTimeout(function(){ inpEl.style.borderColor = '#FFD5DE'; inpEl.style.animation = ''; }, 1500); }
     }
 }
 
 function render() {
+    var ls = document.getElementById('loadingScreen');
+    if (ls) ls.style.display = 'none';
     if (typeof _checkAutoRest === 'function') _checkAutoRest();
     if (typeof gameState !== 'undefined' && gameState.体力 !== undefined) { if (gameState.体力 < 0) gameState.体力 = 0; if (gameState.体力 > gameState.max体力) gameState.体力 = gameState.max体力; }
     if (typeof gameState !== 'undefined' && gameState.stats) { var _sk = Object.keys(gameState.stats); for(var _si=0;_si<_sk.length;_si++){ if(gameState.stats[_sk[_si]]>150) gameState.stats[_sk[_si]]=150; } }
@@ -3725,15 +3742,15 @@ function renderCreationStep1() {
                 
                 <div class="section-title">生日</div>
                 <div style="display: flex; gap: 8px;">
-                    <select id="inputBirth年" onchange="calculateAge()" style="flex:1;padding:12px 4px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:44px;">
+                    <select id="inputBirth年" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">
                         <option value="">年</option>
                         ${genBirthOptions(2012, 23, 0)}
                     </select>
-                    <select id="inputBirth月" onchange="calculateAge()" style="flex:1;padding:12px 4px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:44px;">
+                    <select id="inputBirth月" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">
                         <option value="">月</option>
                         ${genBirthOptions(1, 12, 1)}
                     </select>
-                    <select id="inputBirth日" onchange="calculateAge()" style="flex:1;padding:12px 4px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:44px;">
+                    <select id="inputBirth日" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">
                         <option value="">日</option>
                         ${genBirthOptions(1, 31, 2)}
                     </select>
@@ -5709,8 +5726,8 @@ function verifyVipOrder() {
                 var saves = JSON.parse(localStorage.getItem('myidol_saves_' + account) || '{}');
                 saves.vipTier = data.tier; saves.vipOrderNo = data.orderNo; saves.vipVerifiedAt = Date.now();
                 localStorage.setItem('myidol_saves_' + account, JSON.stringify(saves));
-                msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！已开通' + data.tierName;
-                setTimeout(function() { closeModal(); render(); }, 1500);
+                msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！激活中...';
+                setTimeout(function() { closeModal(); render(); showToast('会员权益已激活！'); }, 800);
             } else {
                 msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '验证失败';
             }
@@ -6877,7 +6894,7 @@ function render泡泡Page(container) {
             + '<span style="font-size:11px;color:var(--color-text-light);">' + m.time + '</span>'
             + '</div>'
             + '<p style="font-size:14px;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + i + ')">翻译</span></p>'
-            + '<button class="btn btn-sm btn-secondary" onclick="replyTo泡泡(\'' + m.from + '\')" style="margin-top:10px;">回复</button>'
+            + '<button class="btn btn-sm btn-secondary" onclick="window._replyTarget=m.from;replyTo泡泡()" style="margin-top:10px;">回复</button>'
             + '</div>';
     }
     
@@ -6899,9 +6916,9 @@ function render泡泡Page(container) {
 }
 
 function translateBubbleMsg(idx) {
-    var zhText = bubbleMultilangMessages[idx].zh;
     var el = document.getElementById('bubbleMsg' + idx);
     if (!el) return;
+    var zhText = bubbleMultilangMessages[idx] ? bubbleMultilangMessages[idx].zh : '';
     if (el.getAttribute('data-translated') === '1') {
         el.innerHTML = bubbleMultilangMessages[idx].orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + idx + ')">翻译</span>';
         el.setAttribute('data-translated', '0');
@@ -6910,7 +6927,6 @@ function translateBubbleMsg(idx) {
         el.setAttribute('data-translated', '1');
     }
 }
-
 function switch泡泡Tab(tab) {
     var inboxBtn = document.getElementById('bubble收件箱');
     var sentBtn = document.getElementById('bubble已发送');
@@ -6928,18 +6944,10 @@ function switch泡泡Tab(tab) {
 }
 
 function replyTo泡泡(from) {
-    showModal('回复 ' + from, '<input type="text" id="replyText" placeholder="输入回复内容..." style="margin-bottom: 0;">', [
-        { text: '取消', action: closeModal },
-        { text: '发送', action: function() {
-            var text = document.getElementById('replyText').value;
-            if (text) {
-                gameState.fans += Math.floor(Math.random() * 20) + 5;
-                getAIReply('bubble', from + '泡泡对话', text, function(reply) {
-                    gameState.bubbleUnread = (gameState.bubbleUnread || 0) + 1;
-                    showModal(from + ' 回复了你', reply);
-                });
-            }
-        }}
+    if (!from) from = window._replyTarget || '';
+    showModal('\u56de\u590d ' + from, '<input type="text" id="replyText" placeholder="\u8f93\u5165\u56de\u590d..." style="width:100%;padding:10px;border:1px solid var(--color-border);border-radius:8px;box-sizing:border-box;"><div id="replyResult" style="margin-top:8px;font-size:13px;min-height:20px;"></div>', [
+        { text: '\u53d6\u6d88', action: function() { closeModal(); } },
+        { text: '\u53d1\u9001', action: function() { sendBubbleReply(from); } }
     ]);
 }
 
@@ -6981,9 +6989,9 @@ function renderWeversePage(container) {
 }
 
 function translateWeverseMsg(idx) {
-    var zhText = weverseMultilangPosts[idx].zh;
     var el = document.getElementById('weverseMsg' + idx);
     if (!el) return;
+    var zhText = weverseMultilangPosts[idx] ? weverseMultilangPosts[idx].zh : '';
     if (el.getAttribute('data-translated') === '1') {
         el.innerHTML = weverseMultilangPosts[idx].orig + ' <span class="translate-btn" onclick="translateWeverseMsg(' + idx + ')">翻译</span>';
         el.setAttribute('data-translated', '0');
@@ -7054,31 +7062,19 @@ function getSmartReply(userName, userMsg, platform) {
     return reply;
 }
 
-function translateContent(idx, prefix) {
+var _translateContentCache = null;
+function translateContent(text, idx, prefix) {
     var el = document.getElementById(prefix + idx);
     if (!el) return;
-    var text = el.getAttribute('data-orig-text') || '';
-    var simpleDict = {
-        'Practice makes perfect!': '熟能生巧！',
-        'Behind the scenes of our new MV shoot!': '新MV拍摄幕后！',
-        'Late night practice session. No pain no gain!': '深夜练习。一分耕耘一分收获！',
-        'Beautiful sunset after rehearsal today.': '今天排练后的美丽日落。',
-        'New choreography practice! #kpop #fyp': '新编舞练习！#kpop #fyp',
-        'Vocal cover of our new song! #vocal #cover': '新歌声乐翻唱！#声乐 #翻唱',
-        'Dance challenge with members! #challenge': '和成员们的舞蹈挑战！#挑战',
-        'Backstage moments before the show #bts': '演出前幕后花絮 #幕后',
-        'Official MV teaser! #comingsoon': '官方MV预告！#即将发布',
-        'Rap verse practice #hiphop #yg': 'Rap练习 #嘻哈 #yg',
-        'Great day!': '美好的一天！',
-        'Backstage': '幕后',
-        'Practice': '练习'
-    };
+    if (!_translateContentCache) _translateContentCache = {};
+    var cacheKey = prefix + '_' + idx;
+    if (!_translateContentCache[cacheKey]) _translateContentCache[cacheKey] = text;
     if (el.getAttribute('data-translated') === '1') {
-        el.innerHTML = text + ' <span class="translate-btn" onclick="translateContent(' + idx + ',\'' + prefix + '\')">翻译</span>';
+        el.innerHTML = text + ' <span class="translate-btn" onclick="translateContent(_translateContentCache[\'' + cacheKey + '\'],' + idx + ',\'' + prefix + '\')">原文</span>';
         el.setAttribute('data-translated', '0');
     } else {
-        var translated = simpleDict[text] || '[翻译] ' + text;
-        el.innerHTML = translated + ' <span class="translate-btn" onclick="translateContent(' + idx + ',\'' + prefix + '\')">原文</span>';
+        var translated = _simpleTranslate(text);
+        el.innerHTML = translated + ' <span class="translate-btn" onclick="translateContent(_translateContentCache[\'' + cacheKey + '\'],' + idx + ',\'' + prefix + '\')">翻译</span>';
         el.setAttribute('data-translated', '1');
     }
 }
@@ -7100,7 +7096,7 @@ function renderInsPage(container) {
         for (var i = 0; i < allPosts.length; i++) {
             var p = allPosts[i];
             var contentId = 'insPost' + i;
-            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + p.user + '\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '" data-orig-text="' + p.content.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">' + p.content + ' <span class="translate-btn" onclick="translateContent(' + i + ',\'insPost\')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
+            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + p.user + \'\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '">' + p.content + ' <span class="translate-btn" onclick="translateContent(p.content, i, \'insPost\')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
         }
         tabContent += '</div>';
     } else if (insTab === 'messages') {
@@ -7139,7 +7135,7 @@ function renderInsPage(container) {
                 var lastMsg = '';
                 var uMsgs = gameState.insMessages.filter(function(m2) { return m2.with === u; });
                 if (uMsgs.length > 0) lastMsg = uMsgs[uMsgs.length-1].text;
-                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" onclick="insMsgChatUser=\'' + u + '\';render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (lastMsg || '暂无消息') + '</div></div></div>';
+                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" onclick="insMsgChatUser=\'\' + u + \'\';render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (lastMsg || '暂无消息') + '</div></div></div>';
             }
             tabContent += '</div>';
         }
@@ -7249,7 +7245,7 @@ function renderTiktokPage(container) {
         tabContent = '<div style="flex:1;overflow-y:auto;"><div style="display:flex;justify-content:flex-end;padding:8px 16px;"><button class="btn btn-sm btn-primary" onclick="postToTiktok()">+ 上传视频</button></div>';
         for (var vi = 0; vi < videos.length; vi++) {
             var v = videos[vi];
-            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'' + v.user + '\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this.dataset.vi)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '" data-orig-text="' + v.desc.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(' + vi + ',\'ttDesc\')">翻译</span></p></div>';
+            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + v.user + \'\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this.dataset.vi)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(v.desc, vi, \'ttDesc\')">翻译</span></p></div>';
         }
         for (var upi = 0; upi < gameState.tiktokPosts.length; upi++) {
             var up = gameState.tiktokPosts[upi];
@@ -7304,7 +7300,7 @@ function renderTiktokPage(container) {
                 var lastMsg = '';
                 var uMsgs = gameState.tiktokMessages.filter(function(m2) { return m2.with === u; });
                 if (uMsgs.length > 0) lastMsg = uMsgs[uMsgs.length-1].text;
-                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" onclick="tiktokMsgChatUser=\'' + u + '\';render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);">' + (lastMsg || '暂无消息') + '</div></div></div>';
+                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" onclick="tiktokMsgChatUser=\'\' + u + \'\';render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);">' + (lastMsg || '暂无消息') + '</div></div></div>';
             }
             tabContent += '</div>';
         }
@@ -7515,7 +7511,7 @@ function renderFoodPage(container) {
         for (var fi = 0; fi < foods.length; fi++) {
             var f = foods[fi];
             if (f.category !== cat) continue;
-            foodCardsHtml += '<div class="card" onclick="orderFood(\'' + f.name + '\', ' + f.price + ', ' + f.体力 + '\')">'
+            foodCardsHtml += '<div class="card" onclick="orderFood(\'\' + f.name + \'\', \'\' + f.price + \'\', \'\' + f.体力 + \'\')">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
                 + '<div style="font-weight:600;">' + f.name + '</div>'
@@ -8139,7 +8135,7 @@ function render成员信息Page(container) {
             var key = companyEntries[i][0];
             var c = companyEntries[i][1];
             var groupCount = Object.keys(c.groups).length;
-            html += '<div class="card" onclick="gameState.membersViewLevel=1;gameState.membersViewCompany=\'' + key + '\';render();" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;">' + c.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + (c.tags ? c.tags.join(' / ') : '') + '</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + groupCount + '</div><div style="font-size:10px;color:var(--color-text-light);">团体</div></div></div></div>';
+            html += '<div class="card" onclick="gameState.membersViewLevel=1;gameState.membersViewCompany=\'\' + key + \'\';render();" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;">' + c.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + (c.tags ? c.tags.join(' / ') : '') + '</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + groupCount + '</div><div style="font-size:10px;color:var(--color-text-light);">团体</div></div></div></div>';
         }
         html += '</div></div>';
         container.innerHTML = html;
@@ -8151,7 +8147,7 @@ function render成员信息Page(container) {
         for (var i = 0; i < groups.length; i++) {
             var gkey = groups[i][0];
             var g = groups[i][1];
-            html += '<div class="card" onclick="gameState.membersViewLevel=2;gameState.membersViewGroup=\'' + gkey + '\';render();" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;">' + g.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + g.desc + '</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + g.members.length + '</div><div style="font-size:10px;color:var(--color-text-light);">成员</div></div></div></div>';
+            html += '<div class="card" onclick="gameState.membersViewLevel=2;gameState.membersViewGroup=\'\' + gkey + \'\';render();" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;">' + g.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + g.desc + '</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + g.members.length + '</div><div style="font-size:10px;color:var(--color-text-light);">成员</div></div></div></div>';
         }
         html += '</div></div>';
         container.innerHTML = html;
@@ -8471,7 +8467,7 @@ function renderInsProfilePage(container) {
     var postsGridHtml = '';
     for (var pi = 0; pi < posts.length; pi++) {
         var pp = posts[pi];
-        postsGridHtml += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;cursor:pointer;" onclick="showModal(\'动态\',\'' + pp.caption + ' - ' + pp.likes + ' 点赞\')"><img src="' + pp.img + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"></div>';
+        postsGridHtml += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;cursor:pointer;" onclick="showModal(\'动态\',\'\' + pp.caption + \' - \' + pp.likes + \' 点赞\')"><img src="' + pp.img + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'"></div>';
     }
     
     container.innerHTML = '<div class="page active">'
@@ -8491,7 +8487,7 @@ function renderInsProfilePage(container) {
         + '</div>'
         + '<div style="display:flex;gap:8px;margin-top:16px;justify-content:center;">'
         + '<button class="' + followBtnClass + '" onclick="toggleInsFollow()">' + followBtnText + '</button>'
-        + '<button class="btn btn-sm btn-secondary" onclick="startInsDMChat(\'' + profileUser + '\')">私信</button>'
+        + '<button class="btn btn-sm btn-secondary" onclick="startInsDMChat(profileUser)">私信</button>'
         + '</div>'
         + '</div>'
         + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;">'
@@ -8887,6 +8883,7 @@ function loadGame(slot) {
             if (!gameState.newNotice) gameState.newNotice = false;
             if (!gameState.lastReadVersion) gameState.lastReadVersion = '';
             if (!gameState.aiUsage) gameState.aiUsage = {};
+            if (typeof initGachaPool === 'function') initGachaPool();
             current存档 = slot;
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
@@ -9703,7 +9700,7 @@ function renderKpopWikiPage(container) {
         for (var gi = 0; gi < gKeys.length; gi++) {
             var g = company.groups[gKeys[gi]];
             html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);">'
-                + '<div style="font-weight:600;font-size:13px;">' + g.name + '</div>'
+                + '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + g.name + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);">' + g.desc + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">成员: ' + g.members.length + '人</div></div>';
         }
@@ -9760,7 +9757,7 @@ function renderCompanyDetailPage(container) {
         var isMyGroup = (gameState.player.group === g.name);
         html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);' + (isMyGroup ? 'background:rgba(255,143,163,0.08);margin:0 -16px;padding:10px 16px;' : '') + '">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-            + '<div><div style="font-weight:600;font-size:14px;">' + g.name + (isMyGroup ? ' <span style="font-size:11px;color:var(--color-primary);">我的团</span>' : '') + '</div>'
+            + '<div><div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">' + g.name + (isMyGroup ? ' <span style="font-size:11px;color:var(--color-primary);">我的团</span>' : '') + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + g.desc + '</div></div>'
             + '<div style="font-size:12px;color:var(--color-text-light);">' + g.members.length + '人</div></div></div>';
     }
@@ -9808,6 +9805,49 @@ function initGachaPool() {
     }
 }
 
+
+function checkGroupHiddenCard(pool, groupName) {
+    var poolData = gameState.gacha[pool];
+    if (!poolData) return;
+    var collection = poolData.collection;
+    var groupCards = [];
+    var cardKeys = Object.keys(collection);
+    for (var ci = 0; ci < cardKeys.length; ci++) {
+        if (collection[cardKeys[ci]].group === groupName) {
+            groupCards.push(collection[cardKeys[ci]]);
+        }
+    }
+    var uniqueNames = [];
+    for (var gi = 0; gi < groupCards.length; gi++) {
+        if (uniqueNames.indexOf(groupCards[gi].name) === -1) {
+            uniqueNames.push(groupCards[gi].name);
+        }
+    }
+    if (uniqueNames.length >= 5) {
+        var compKeys = Object.keys(COMPANIES);
+        for (var cki = 0; cki < compKeys.length; cki++) {
+            var company = COMPANIES[compKeys[cki]];
+            var gkeys = Object.keys(company.groups);
+            for (var gki = 0; gki < gkeys.length; gki++) {
+                var grp = company.groups[gkeys[gki]];
+                if (grp.name === groupName && grp.members && grp.members.length > 0) {
+                    var leader = grp.members[0];
+                    var hiddenId = leader.name + '_' + groupName + '_hidden';
+                    if (!collection[hiddenId]) {
+                        collection[hiddenId] = {
+                            name: leader.name, group: groupName, company: company.name,
+                            position: leader.position || 'Leader', cardTier: 'S', stars: 3,
+                            fragments: 0, isHidden: true
+                        };
+                        showToast('隐藏卡面解锁！' + leader.name + ' - ' + groupName);
+                    }
+                    return;
+                }
+            }
+        }
+    }
+}
+
 function getGachaCard(pool) {
     var rates = GACHA_POOL[pool].rates;
     var rand = Math.random() * 100;
@@ -9828,7 +9868,6 @@ function getGachaCard(pool) {
                 var m = group.members[mi];
                 var gTier = group.tier || 'C';
                 var cardTier = gTier === 'S' ? (mi === 0 ? 'S' : mi < 2 ? 'A' : 'B') : gTier === 'A' ? (mi === 0 ? 'A' : mi < 3 ? 'B' : 'C') : gTier === 'B' ? (mi === 0 ? 'B' : 'C') : 'C';
-                var gTier = group.tier || 'C';
                 if (pool === 'topIdol' && gTier !== 'S' && gTier !== 'A') continue;
                 allCards.push({
                     name: m.name, group: group.name, company: company.name,
@@ -9887,10 +9926,12 @@ function pullGacha(pool, count) {
         } else {
             poolData.collection[card.id] = { name: card.name, group: card.group, company: card.company, position: card.position, cardTier: card.cardTier, stars: 1, fragments: 0 };
             card.isDuplicate = false;
+            checkGroupHiddenCard(pool, card.group);
         }
         poolData.pulls++;
         results.push(card);
     }
+    gameState.gacha[pool] = poolData;
     triggerSilentSave();
     return results;
 }
@@ -9900,11 +9941,16 @@ function renderGachaPage(container) {
     var kpop = gameState.gacha.kpop;
     var topIdol = gameState.gacha.topIdol;
     var totalCards = Object.keys(kpop.collection).length + Object.keys(topIdol.collection).length;
+    var hiddenCount = 0;
+    var kCollKeys = Object.keys(kpop.collection);
+    for (var hki = 0; hki < kCollKeys.length; hki++) { if (kpop.collection[kCollKeys[hki]].isHidden) hiddenCount++; }
+    var tCollKeys = Object.keys(topIdol.collection);
+    for (var hti = 0; hti < tCollKeys.length; hti++) { if (topIdol.collection[tCollKeys[hti]].isHidden) hiddenCount++; }
 
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">抽卡</div><div style="width:32px;"></div></div><div class="page-content">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:white;padding:20px;">'
         + '<div style="font-size:20px;font-weight:700;">小卡收藏</div>'
-        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">已收集 ' + totalCards + ' 张</div></div>';
+        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">已收集 ' + totalCards + ' 张' + (hiddenCount > 0 ? ' | 隐藏卡 ' + hiddenCount + ' 张' : '') + '</div></div>';
 
     // Kpop Pool
     html += '<div class="card" style="margin-top:12px;border-left:4px solid #5BB8E8;">'
@@ -9932,9 +9978,12 @@ function renderGachaPage(container) {
         for (var i = 0; i < Math.min(allCards.length, 30); i++) {
             var c = allCards[i];
             var t = c.cardTier || 'C';
-            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;">'
+            var isHid = c.isHidden ? true : false;
+            var hidBorder = isHid ? 'border:2px solid #FFD700;box-shadow:0 0 8px rgba(255,215,0,0.5);' : '';
+            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;' + hidBorder + '">'
                 + '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'
                 + '<div style="font-size:8px;opacity:0.8;">' + t + '</div>'
+                + (isHid ? '<div style="position:absolute;top:1px;right:2px;font-size:7px;color:#FFD700;">*</div>' : '')
                 + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
                 + '</div>';
         }
@@ -9966,11 +10015,11 @@ function showGachaResult(results, pool) {
             + shimmerOverlay
             + '<div style="font-size:40px;font-weight:700;">' + c.name.charAt(0) + '</div>'
             + '<div style="font-size:14px;font-weight:600;margin-top:4px;">' + t + '级</div>'
-            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">' + c.group + '</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">' + c.group + '</div>'
             + (c.isDuplicate ? '<div style="font-size:11px;margin-top:6px;opacity:0.9;">碎片+1</div>' : '<div style="font-size:11px;margin-top:6px;opacity:0.9;">NEW!</div>')
             + '</div>'
             + '<div style="font-weight:700;font-size:16px;margin-top:16px;">' + c.name + '</div>'
-            + '<div style="font-size:13px;color:var(--color-text-light);">' + c.company + ' / ' + c.group + '</div>';
+            + '<div style="font-size:13px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + c.company + ' / ' + c.group + '</div>';
     } else {
         html += '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:16px 0;">';
         for (var i = 0; i < results.length; i++) {
@@ -10072,7 +10121,7 @@ function _renderKakaoChatList() {
             lastMsg = chats[chats.length - 1].text;
             lastTime = chats[chats.length - 1].time;
         }
-        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'' + f.name + '\';goToPage(\'kakaochat\');">'
+        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'\' + f.name + \'\';goToPage(\'kakaochat\');">'
             + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
@@ -10094,7 +10143,7 @@ function _renderKakaoFriendList() {
     var friends = gameState.kakaoFriends;
     for (var i = 0; i < friends.length; i++) {
         var f = friends[i];
-        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'' + f.name + '\';goToPage(\'kakaochat\');">'
+        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'\' + f.name + \'\';goToPage(\'kakaochat\');">'
             + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
@@ -10905,7 +10954,7 @@ function _renderKickFlow(container, step, company) {
             var gk = validGroups[gki];
             var g = company.groups[gk];
             groupsHtml += '<div class="card" data-gk="' + gk + '" onclick="selectKickGroup(this.dataset.gk)" style="cursor:pointer;">'
-                + '<div style="font-weight:600;font-size:15px;color:var(--color-text);">' + g.name + '</div>'
+                + '<div style="font-weight:600;font-size:15px;color:var(--color-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + g.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + g.desc + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">' + g.members.length + '名成员</div>'
                 + '</div>';
@@ -10951,7 +11000,7 @@ function _renderKickFlow(container, step, company) {
             + '<div class="page-content">'
             + '<div class="card" style="text-align:center;padding:16px;background:linear-gradient(135deg,#2D2D2D,#555);color:white;">'
             + '<div style="font-size:12px;opacity:0.6;">POWER MODE</div>'
-            + '<div style="font-size:16px;font-weight:700;margin-top:4px;">' + group.name + '</div>'
+            + '<div style="font-size:16px;font-weight:700;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + group.name + '</div>'
             + '<div style="font-size:12px;opacity:0.7;margin-top:4px;">选择要替换的成员</div>'
             + '</div>'
             + membersHtml
@@ -11100,7 +11149,7 @@ function render赚钱中心Page(container) {
                 var remain = Math.ceil((cd - now) / 1000);
                 lockText = '<div class="earn-job-cooldown">冷却中 ' + remain + 's</div>';
             }
-            html += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="doEarnJob(\'' + j.id + '\')"') + '>'
+            html += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="doEarnJob(\'\' + j.id + \'\')"') + '>'
                 + '<div class="earn-job-name">' + j.name + '</div>'
                 + '<div class="earn-job-cost">体力 -' + j.体力 + '</div>'
                 + '<div class="earn-job-reward">' + rewardText + '</div>'
@@ -11130,7 +11179,7 @@ function render赚钱中心Page(container) {
         var cls = 'earn-tab';
         if (t.id === currentTab) cls += ' active';
         if (t.locked) cls += ' locked';
-        var onclick = t.locked ? '' : ' onclick="gameState.earnTab=\'' + t.id + '\';render赚钱中心Page(document.getElementById(\'app\'))"';
+        var onclick = t.locked ? '' : ' onclick="gameState.earnTab=\'\' + t.id + \'\';render赚钱中心Page(document.getElementById(\'app\'))"';
         tabsHtml += '<div class="' + cls + '"' + onclick + '>' + t.name + '</div>';
     }
     tabsHtml += '</div>';
