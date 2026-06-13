@@ -3665,6 +3665,8 @@ function useItem(index) {
 
 
 var AI_PROXY_URL = '';
+var COZE_API_TOKEN = 'pat_AmSccb3iybFfdyR8nfuvAYyUPWxwaQSP6RW0QTNtJrvLJsuVbQKapw5Jv7ijNJrV';
+var COZE_BOT_ID = '7650781503017959439';
 
 function getAITotalUsageToday() {
     var d = new Date();
@@ -3709,20 +3711,37 @@ function getAIReply(appId, context, playerMessage, callback) {
         return;
     }
     recordAIUsage(appId);
-    if (!AI_PROXY_URL) {
-        callback(getFallbackReply(appId));
-        return;
-    }
+
+    var prompts = {
+        kakaotalk: '你是韩娱爱豆模拟器中的NPC，正在通过KakaoTalk和玩家聊天。' + context + '。用简短随意的韩式聊天语气回复，1-2句话，偶尔用~和！，不要用emoji。用中文回复。',
+        bubble: '你是韩娱爱豆模拟器中的爱豆，正在通过泡泡和粉丝聊天。' + context + '。用甜蜜亲切的语气回复粉丝，1-2句话，偶尔用~，不要用emoji。用中文回复。',
+        dating: '你是韩娱爱豆模拟器中和玩家恋爱的NPC。' + context + '。用温柔暧昧的恋爱语气回复，1-2句话，不要用emoji。用中文回复。',
+        ins: '你是韩娱爱豆模拟器中INS上的粉丝。用热情简短的评论语气回复，1句话，不要用emoji。用中文回复。',
+        tiktok: '你是韩娱爱豆模拟器中TikTok上的粉丝。用活泼简短的评论语气回复，1句话，不要用emoji。用中文回复。',
+        weverse: '你是韩娱爱豆模拟器中Weverse上的爱豆，在跟粉丝互动。用温暖真诚的语气回复，1-2句话，不要用emoji。用中文回复。',
+        live: '你是韩娱爱豆模拟器中直播间的观众。用热情简短的弹幕语气回复，1句话，不要用emoji。用中文回复。'
+    };
+    var systemPrompt = prompts[appId] || prompts.kakaotalk;
+    var userId = (gameState.player.name || 'player') + '_' + Math.floor(Math.random() * 10000);
+
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', AI_PROXY_URL, true);
+    xhr.open('POST', 'https://api.coze.cn/v3/chat', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.timeout = 15000;
+    xhr.setRequestHeader('Authorization', 'Bearer ' + COZE_API_TOKEN);
+    xhr.timeout = 30000;
+
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
                 try {
                     var resp = JSON.parse(xhr.responseText);
-                    callback(resp.reply || getFallbackReply(appId));
+                    if (resp.code === 0 && resp.data) {
+                        var chatId = resp.data.id;
+                        var convId = resp.data.conversation_id;
+                        _pollCozeChat(chatId, convId, appId, 0, callback);
+                    } else {
+                        callback(getFallbackReply(appId));
+                    }
                 } catch(e) {
                     callback(getFallbackReply(appId));
                 }
@@ -3732,13 +3751,79 @@ function getAIReply(appId, context, playerMessage, callback) {
         }
     };
     xhr.ontimeout = function() { callback(getFallbackReply(appId)); };
+
     var payload = {
-        app: appId,
-        context: context,
-        message: playerMessage,
-        player: { name: gameState.player.name, role: gameState.player.role, company: gameState.player.company, group: gameState.player.group }
+        bot_id: COZE_BOT_ID,
+        user_id: userId,
+        stream: false,
+        auto_save_history: false,
+        additional_messages: [
+            { role: 'system', content: systemPrompt, content_type: 'text' },
+            { role: 'user', content: playerMessage, content_type: 'text' }
+        ]
     };
     try { xhr.send(JSON.stringify(payload)); } catch(e) { callback(getFallbackReply(appId)); }
+}
+
+function _pollCozeChat(chatId, convId, appId, count, callback) {
+    if (count > 10) { callback(getFallbackReply(appId)); return; }
+    setTimeout(function() {
+        var xhr2 = new XMLHttpRequest();
+        xhr2.open('GET', 'https://api.coze.cn/v3/chat/retrieve?chat_id=' + chatId + '&conversation_id=' + convId, true);
+        xhr2.setRequestHeader('Authorization', 'Bearer ' + COZE_API_TOKEN);
+        xhr2.setRequestHeader('Content-Type', 'application/json');
+        xhr2.timeout = 10000;
+        xhr2.onreadystatechange = function() {
+            if (xhr2.readyState === 4 && xhr2.status === 200) {
+                try {
+                    var r = JSON.parse(xhr2.responseText);
+                    if (r.code === 0 && r.data) {
+                        if (r.data.status === 'completed') {
+                            _fetchCozeMessages(chatId, convId, appId, callback);
+                        } else if (r.data.status === 'failed' || r.data.status === 'requires_action') {
+                            callback(getFallbackReply(appId));
+                        } else {
+                            _pollCozeChat(chatId, convId, appId, count + 1, callback);
+                        }
+                    } else {
+                        callback(getFallbackReply(appId));
+                    }
+                } catch(e) { callback(getFallbackReply(appId)); }
+            } else if (xhr2.readyState === 4) {
+                callback(getFallbackReply(appId));
+            }
+        };
+        xhr2.ontimeout = function() { callback(getFallbackReply(appId)); };
+        try { xhr2.send(); } catch(e) { callback(getFallbackReply(appId)); }
+    }, 2000);
+}
+
+function _fetchCozeMessages(chatId, convId, appId, callback) {
+    var xhr3 = new XMLHttpRequest();
+    xhr3.open('GET', 'https://api.coze.cn/v3/chat/message/list?chat_id=' + chatId + '&conversation_id=' + convId, true);
+    xhr3.setRequestHeader('Authorization', 'Bearer ' + COZE_API_TOKEN);
+    xhr3.setRequestHeader('Content-Type', 'application/json');
+    xhr3.timeout = 10000;
+    xhr3.onreadystatechange = function() {
+        if (xhr3.readyState === 4 && xhr3.status === 200) {
+            try {
+                var m = JSON.parse(xhr3.responseText);
+                if (m.code === 0 && m.data) {
+                    for (var i = 0; i < m.data.length; i++) {
+                        if (m.data[i].role === 'assistant' && m.data[i].type === 'answer') {
+                            callback(m.data[i].content);
+                            return;
+                        }
+                    }
+                }
+                callback(getFallbackReply(appId));
+            } catch(e) { callback(getFallbackReply(appId)); }
+        } else if (xhr3.readyState === 4) {
+            callback(getFallbackReply(appId));
+        }
+    };
+    xhr3.ontimeout = function() { callback(getFallbackReply(appId)); };
+    try { xhr3.send(); } catch(e) { callback(getFallbackReply(appId)); }
 }
 
 function getFallbackReply(appId) {
