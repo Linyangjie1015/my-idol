@@ -2173,6 +2173,9 @@ function completeCreation() {
         // 初始化KakaoTalk好友
         _ensureKakaoState();
         
+        // 检查管理员模式
+        _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
+        
         // 切换到首页
         currentPage = 'home';
         render();
