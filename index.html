@@ -2363,11 +2363,10 @@ function renderHomePage(container) {
                     var appMap = {};
                     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
                     var categories = [
-                        { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail'] },
+                        { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates'] },
                         { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan'] },
                         { title: '社交', ids: ['ins', 'tiktok', 'kakaotalk', 'bubble', 'weverse', 'dating'] },
-                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking'] },
-                        { title: '其他', ids: ['members', 'crisis', 'updates'] }
+                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking'] }
                     ];
                     var catHtml = '';
                     for (var ci = 0; ci < categories.length; ci++) {
@@ -3687,6 +3686,7 @@ function getAIReply(appId, context, playerMessage, callback) {
         callback(getFallbackReply(appId));
         return;
     }
+    recordAIUsage(appId);
     if (!AI_PROXY_URL) {
         callback(getFallbackReply(appId));
         return;
@@ -3700,7 +3700,6 @@ function getAIReply(appId, context, playerMessage, callback) {
             if (xhr.status === 200) {
                 try {
                     var resp = JSON.parse(xhr.responseText);
-                    recordAIUsage(appId);
                     callback(resp.reply || getFallbackReply(appId));
                 } catch(e) {
                     callback(getFallbackReply(appId));
@@ -4634,7 +4633,6 @@ function loveChat() {
             if (text) {
                 gameState.npc好感度[datingName] = Math.min(100, (gameState.npc好感度[datingName] || 0) + Math.floor(Math.random() * 5) + 2);
                 getAIReply('dating', datingName + '恋爱对话', text, function(reply) {
-                    if (AI_PROXY_URL && canUseAIToday()) recordAIUsage('dating');
                     closeModal();
                     showModal(datingName, reply);
                     render();
@@ -4786,7 +4784,6 @@ function replyTo泡泡(from) {
             if (text) {
                 gameState.fans += Math.floor(Math.random() * 20) + 5;
                 getAIReply('bubble', from + '泡泡对话', text, function(reply) {
-                    if (AI_PROXY_URL && canUseAIToday()) recordAIUsage('bubble');
                     gameState.bubbleUnread = (gameState.bubbleUnread || 0) + 1;
                     showModal(from + ' 回复了你', reply);
                 });
