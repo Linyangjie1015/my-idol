@@ -7997,27 +7997,27 @@ function render赚钱中心Page(container) {
     var isGroup = isIdol && gameState.player.group && gameState.player.group !== '';
 
     var traineeJobs = [
-        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 0, cooldown: 30 },
-        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 0, cooldown: 45 },
-        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 0, cooldown: 60 },
-        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30 },
-        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30 },
-        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45 }
+        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 5, cooldown: 30 },
+        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 15, cooldown: 45 },
+        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 8, cooldown: 60 },
+        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30 },
+        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30 },
+        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45 }
     ];
     var soloJobs = [
-        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90, fansRequired: 50000 },
-        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90, fansRequired: 10000 },
-        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45 },
-        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120 },
-        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
-        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120, fansRequired: 100000 }
+        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 50, cooldown: 90, fansRequired: 50000 },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 30, cooldown: 90, fansRequired: 10000 },
+        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 20, cooldown: 45 },
+        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 80, cooldown: 120 },
+        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 15, cooldown: 60 },
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 100, cooldown: 120, fansRequired: 100000 }
     ];
     var groupJobs = [
-        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90 },
-        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90 },
-        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60 },
-        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 0, cooldown: 120 },
-        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 0, cooldown: 45 }
+        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 40, cooldown: 90 },
+        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 25, cooldown: 90 },
+        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 12, cooldown: 60 },
+        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 60, cooldown: 120 },
+        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 18, cooldown: 45 }
     ];
 
     function buildJobsHtml(jobs) {
@@ -8118,23 +8118,23 @@ function doEarnJob(jobId) {
     if (cd > Date.now()) return;
 
     var allJobs = [
-        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 0, cooldown: 30000 },
-        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
-        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 0, cooldown: 60000 },
-        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
-        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 0, cooldown: 30000 },
-        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 3, cooldown: 45000 },
-        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 0, cooldown: 90000, fansRequired: 50000 },
-        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 0, cooldown: 90000, fansRequired: 10000 },
-        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 45000 },
-        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 0, cooldown: 120000 },
-        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
-        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 0, cooldown: 120000, fansRequired: 100000 },
-        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 0, cooldown: 90000 },
-        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 0, cooldown: 90000 },
-        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 0, cooldown: 60000 },
-        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 0, cooldown: 120000 },
-        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 0, cooldown: 45000 }
+        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 5, cooldown: 30000 },
+        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 15, cooldown: 45000 },
+        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 8, cooldown: 60000 },
+        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
+        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
+        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45000 },
+        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 50, cooldown: 90000, fansRequired: 50000 },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 30, cooldown: 90000, fansRequired: 10000 },
+        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 20, cooldown: 45000 },
+        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 80, cooldown: 120000 },
+        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 15, cooldown: 60000 },
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 100, cooldown: 120000, fansRequired: 100000 },
+        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 40, cooldown: 90000 },
+        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 25, cooldown: 90000 },
+        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 12, cooldown: 60000 },
+        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 60, cooldown: 120000 },
+        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 18, cooldown: 45000 }
     ];
 
     var job = null;
