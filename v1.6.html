@@ -929,7 +929,37 @@
     }
 
     /* ==================== TOAST ==================== */
-    .myidol-toast {
+    /* Phone notification popup */
+.phone-notification {
+    position: fixed;
+    top: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 360px;
+    background: rgba(255,255,255,0.97);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    padding: 14px 16px;
+    z-index: 99999;
+    transition: top 0.4s cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    backdrop-filter: blur(10px);
+}
+.phone-notification.show { top: 20px; }
+.phone-notification .notif-icon {
+    width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0; color: white; font-weight: 700;
+}
+.phone-notification .notif-body { flex: 1; min-width: 0; }
+.phone-notification .notif-app { font-size: 11px; color: #999; font-weight: 600; letter-spacing: 0.5px; }
+.phone-notification .notif-title { font-size: 13px; font-weight: 700; color: #333; margin-top: 2px; }
+.phone-notification .notif-text { font-size: 12px; color: #666; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phone-notification .notif-time { font-size: 10px; color: #bbb; flex-shrink: 0; margin-top: 2px; }
+
+.myidol-toast {
         position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
         background: var(--color-primary); color: white; padding: 8px 20px;
         border-radius: var(--radius-pill); font-size: 13px; z-index: 9999;
@@ -1476,6 +1506,9 @@ let gameState = {
     life: 150,
     credit: 150,
     danger: 0,
+        trainCount: 0,
+        scheduleCount: 0,
+        firstPlaceCount: 0,
     money: 50000,
     fans: 0,
     teamMembers: [],
@@ -1752,6 +1785,9 @@ function startNewGame(slot = 0) {
         life: 150,
         credit: 150,
         danger: 0,
+        trainCount: 0,
+        scheduleCount: 0,
+        firstPlaceCount: 0,
         money: 50000,
         fans: 0,
         teamMembers: [],
@@ -2422,7 +2458,8 @@ function renderHomePage(container) {
         { id: 'crisis', icon: 'crisis', name: '私生危机', unlock: 5000 },
         { id: 'members', icon: 'members', name: '成员信息', unlock: 0 },
         { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
-        { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 }
+        { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
+        { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 }
     ];
     
     const roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
@@ -4583,6 +4620,7 @@ function acceptNotice() {
             gameState.money += 10000;
             eventText = '你站在舞台中央，听到主持人宣布你的名字时，整个场馆沸腾了！';
             storyHtml = '<div class="card" style="border-left:4px solid #FFD700;"><div style="font-weight:700;color:#FFD700;font-size:16px;">一位!</div><div style="font-size:13px;color:var(--color-text-light);margin-top:6px;line-height:1.6;">' + eventText + '</div></div>';
+            notifyNews('热搜', '你登上了热搜！');
             _triggerHotsearch(gameState.player.name + '打歌一位', (Math.floor(Math.random() * 15) + 15) + '万', gameState.player.name + '在打歌舞台斩获一位！直拍播放量瞬间破百万，粉丝们在各大平台疯狂庆祝。这是实力的证明，也是新征程的起点。', false);
             _triggerHotsearch(gameState.player.group + '直拍破百万', (Math.floor(Math.random() * 10) + 8) + '万', gameState.player.group + '的舞台直拍在公开后一小时内突破百万播放，弹幕和评论瞬间刷屏。业内人士评价"这是今年最精彩的打歌舞台之一"。', false);
             _triggerKakaoCongrats();
@@ -6962,6 +7000,127 @@ function showToast(message, duration) {
     }, duration);
 }
 
+// ==================== PHONE NOTIFICATION SYSTEM ====================
+var _phoneNotifQueue = [];
+var _phoneNotifShowing = false;
+
+function showPhoneNotification(appName, title, text, iconBg, duration) {
+    if (!duration) duration = 3500;
+    _phoneNotifQueue.push({ appName: appName, title: title, text: text, iconBg: iconBg || '#FF8FA3', duration: duration });
+    if (!_phoneNotifShowing) _processPhoneNotif();
+}
+
+function _processPhoneNotif() {
+    if (_phoneNotifQueue.length === 0) { _phoneNotifShowing = false; return; }
+    _phoneNotifShowing = true;
+    var notif = _phoneNotifQueue.shift();
+    
+    var el = document.createElement('div');
+    el.className = 'phone-notification';
+    var iconLetter = notif.appName ? notif.appName.charAt(0) : 'M';
+    el.innerHTML = '<div class="notif-icon" style="background:' + notif.iconBg + ';">' + iconLetter + '</div>'
+        + '<div class="notif-body">'
+        + '<div class="notif-app">' + notif.appName + '</div>'
+        + '<div class="notif-title">' + notif.title + '</div>'
+        + '<div class="notif-text">' + notif.text + '</div>'
+        + '</div>'
+        + '<div class="notif-time">now</div>';
+    document.body.appendChild(el);
+    
+    // Tap to dismiss
+    el.onclick = function() {
+        el.classList.remove('show');
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); _processPhoneNotif(); }, 300);
+    };
+    
+    setTimeout(function() { el.classList.add('show'); }, 50);
+    setTimeout(function() {
+        el.classList.remove('show');
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); _processPhoneNotif(); }, 400);
+    }, notif.duration);
+}
+
+// Notification trigger functions - call these from game events
+function notifyIns(title, text) { showPhoneNotification('INS', title, text, '#E1306C'); }
+function notifyTiktok(title, text) { showPhoneNotification('TikTok', title, text, '#000000'); }
+function notifyKakao(title, text) { showPhoneNotification('KakaoTalk', title, text, '#FEE500'); }
+function notifyBubble(title, text) { showPhoneNotification('Bubble', title, text, '#7C4DFF'); }
+function notifyWeverse(title, text) { showPhoneNotification('Weverse', title, text, '#00C853'); }
+function notifySystem(title, text) { showPhoneNotification('System', title, text, '#FF8FA3'); }
+function notifySchedule(title, text) { showPhoneNotification('Schedule', title, text, '#4A90D9'); }
+function notifyNews(title, text) { showPhoneNotification('News', title, text, '#FF6B6B'); }
+
+// ==================== ACHIEVEMENT SYSTEM ====================
+var ACHIEVEMENTS = [
+    // Training achievements
+    { id: 'first_train', name: '初入练习室', desc: '完成第一次训练', icon: 'T', check: function() { return gameState.舞蹈 + gameState.声乐 + gameState.说唱 + gameState.表演 > 10; } },
+    { id: 'train_100', name: '百练成钢', desc: '累计训练100次', icon: 'T', check: function() { return (gameState.trainCount || 0) >= 100; } },
+    { id: 'stat_max', name: '全能艺人', desc: '所有能力值达到150', icon: 'S', check: function() { return gameState.舞蹈 >= 150 && gameState.声乐 >= 150 && gameState.说唱 >= 150 && gameState.表演 >= 150; } },
+    // Debut achievements
+    { id: 'debut', name: '闪耀出道', desc: '成功出道', icon: 'D', check: function() { return gameState.player.role === 'Idol'; } },
+    { id: 'debut_first', name: '一位获得者', desc: '打歌获得一位', icon: '1', check: function() { return gameState.firstPlaceCount > 0; } },
+    // Social achievements
+    { id: 'fan_1w', name: '万人迷', desc: '粉丝数达到10,000', icon: 'F', check: function() { return gameState.fans >= 10000; } },
+    { id: 'fan_10w', name: '超级偶像', desc: '粉丝数达到100,000', icon: 'F', check: function() { return gameState.fans >= 100000; } },
+    { id: 'fan_100w', name: '国民爱豆', desc: '粉丝数达到1,000,000', icon: 'F', check: function() { return gameState.fans >= 1000000; } },
+    // Wealth achievements
+    { id: 'rich_10w', name: '小有积蓄', desc: '金币达到100,000', icon: 'G', check: function() { return gameState.money >= 100000; } },
+    { id: 'rich_100w', name: '财源广进', desc: '金币达到1,000,000', icon: 'G', check: function() { return gameState.money >= 1000000; } },
+    // Love achievements
+    { id: 'first_love', name: '心动时刻', desc: '第一次恋爱', icon: 'L', check: function() { return gameState.dating !== ''; } },
+    // Danger achievements
+    { id: 'danger_high', name: '风口浪尖', desc: '危险值达到80以上', icon: '!', check: function() { return gameState.danger >= 80; } },
+    // Schedule achievements
+    { id: 'schedule_10', name: '行程达人', desc: '完成10个行程', icon: 'C', check: function() { return (gameState.scheduleCount || 0) >= 10; } },
+    { id: 'schedule_50', name: '劳模爱豆', desc: '完成50个行程', icon: 'C', check: function() { return (gameState.scheduleCount || 0) >= 50; } },
+];
+
+function checkAchievements() {
+    if (!gameState.achievements) gameState.achievements = [];
+    for (var i = 0; i < ACHIEVEMENTS.length; i++) {
+        var a = ACHIEVEMENTS[i];
+        if (gameState.achievements.indexOf(a.id) === -1 && a.check()) {
+            gameState.achievements.push(a.id);
+            notifySystem('成就解锁', a.name + ' - ' + a.desc);
+            showToast('成就解锁: ' + a.name);
+        }
+    }
+}
+
+function renderAchievementsPage(container) {
+    if (!gameState.achievements) gameState.achievements = [];
+    var html = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage('home')">‹ 首页</div>'
+        + '<div class="page-title">成就</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">';
+    
+    var unlocked = gameState.achievements.length;
+    var total = ACHIEVEMENTS.length;
+    html += '<div style="text-align:center;margin-bottom:20px;">'
+        + '<div style="font-size:36px;font-weight:700;color:var(--color-primary);">' + unlocked + '/' + total + '</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">已解锁成就</div>'
+        + '<div style="width:80%;height:6px;background:var(--color-border);border-radius:3px;margin:12px auto 0;overflow:hidden;">'
+        + '<div style="width:' + (total > 0 ? Math.round(unlocked/total*100) : 0) + '%;height:100%;background:linear-gradient(90deg,#FF8FA3,#FF6B8A);border-radius:3px;"></div>'
+        + '</div></div>';
+    
+    for (var i = 0; i < ACHIEVEMENTS.length; i++) {
+        var a = ACHIEVEMENTS[i];
+        var done = gameState.achievements.indexOf(a.id) !== -1;
+        html += '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;' + (done ? '' : 'opacity:0.5;') + '">'
+            + '<div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;background:' + (done ? 'linear-gradient(135deg,#FF8FA3,#FF6B8A)' : '#ddd') + ';">' + a.icon + '</div>'
+            + '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + a.name + '</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);">' + a.desc + '</div></div>'
+            + (done ? '<div style="color:var(--color-success);font-weight:700;">✓</div>' : '')
+            + '</div>';
+    }
+    
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
 // ==================== SIMPLE NPC REPLY ====================
 function getSimpleReply(personality, npcName) {
     var templates = {
@@ -7237,6 +7396,7 @@ function sendKakaoMessage() {
             var npcContext = npc.name + '(' + npc.personality + ')';
             getAIReply('kakaotalk', npcContext, text, function(reply) {
                 gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
+                        notifyKakao(npcName, reply.substring(0,30));
                 renderKakaoChatPage(document.getElementById('app'));
             });
         }
@@ -7808,6 +7968,7 @@ function advanceDebutStep(nextStep) {
 function _completeDebut() {
     if (gameState.player.role === 'Idol') return;
     gameState.player.role = 'Idol';
+        if(typeof checkAchievements==='function') checkAchievements();
     var company = COMPANIES[gameState.player.company];
     var hasBusinessLoan = (gameState.loanAmount > 0 && gameState.loanInterest >= 5);
     if (company && company.groups) {
@@ -8186,8 +8347,10 @@ function doEarnJob(jobId) {
     gameState.earnCooldowns[jobId] = Date.now() + job.cooldown;
 
     showToast('工作中...');
+    notifySchedule('行程', '工作开始了');
     setTimeout(function() {
         showToast('完成！+' + job.money.toLocaleString() + ' 金币');
+    if(typeof checkAchievements==='function') checkAchievements();
         triggerSilentSave();
         render();
     }, 1500);
