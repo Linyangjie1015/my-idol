@@ -7017,17 +7017,32 @@ function sendKakaoMessage() {
         if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
     }
 
-    var self = this;
-    setTimeout(function() {
-        if (npc) {
-            var reply = getSimpleReply(npc.personality, npc.name);
-            gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
-            if (currentPage !== 'kakaotalk') gameState.insUnread = (gameState.insUnread || 0) + 0; // kakao unread tracked via kakaoChats read flag
-        }
-        renderKakaoChatPage(document.getElementById('app'));
-    }, 800);
-
+    // Show typing indicator
     var area = document.getElementById('kakaoChatArea');
+    if (area) {
+        var typingEl = document.createElement('div');
+        typingEl.className = 'kakao-msg-row npc';
+        typingEl.id = 'kakaoTypingIndicator';
+        typingEl.innerHTML = '<div><div class="kakao-msg-bubble npc" style="color:var(--color-text-light);font-style:italic;">对方正在输入...</div></div>';
+        area.appendChild(typingEl);
+        area.scrollTop = area.scrollHeight;
+    }
+
+    var replyDelay = 1000 + Math.floor(Math.random() * 1500);
+    setTimeout(function() {
+        // Remove typing indicator
+        var typing = document.getElementById('kakaoTypingIndicator');
+        if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
+        
+        if (npc) {
+            var npcContext = npc.name + '(' + npc.personality + ')';
+            getAIReply('kakaotalk', npcContext, text, function(reply) {
+                gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
+                renderKakaoChatPage(document.getElementById('app'));
+            });
+        }
+    }, replyDelay);
+
     if (area) area.scrollTop = area.scrollHeight;
 }
 
