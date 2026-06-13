@@ -6833,7 +6833,15 @@ function _loadAllSavesForUser() {
         var oldData = localStorage.getItem(oldKey);
         if (oldData) {
             var newKey = oldKey + '_0';
-            if (!localStorage.getItem(newKey)) {
+            var existingNew = localStorage.getItem(newKey);
+            var shouldMigrate = true;
+            if (existingNew) {
+                try {
+                    var parsed = JSON.parse(existingNew);
+                    if (parsed && parsed.player && parsed.player.name) shouldMigrate = false;
+                } catch(e) {}
+            }
+            if (shouldMigrate) {
                 localStorage.setItem(newKey, oldData);
             }
             localStorage.removeItem(oldKey);
