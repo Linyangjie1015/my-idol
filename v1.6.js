@@ -16,114 +16,64 @@ var COMPANIES = {
         desc: "韩国最大型经纪公司，以精致标准化著称。旗下艺人以出众的颜值、完美的舞台展现和强大的综合实力闻名。",
         tags: ["精致标准化", "颜值担当", "综合实力"],
         groups: {
-            "EXO": {
-                name: "EXO",
-                desc: "3代男团，代表作Growl, Call Me Baby",
+            "Haeoreum": {
+                name: "Haeoreum（해오름）曙光纯白治愈团",
+                desc: "曙光纯白治愈团，以温暖治愈风格著称",
                 tier: "S",
                 members: [
-                    { name: "Suho(수호)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Xiumin(시우민)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Lay(레이)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Baekhyun(백현)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Chen(첸)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chanyeol(찬열)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "D.O.(디오)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kai(카이)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Sehun(세훈)", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
+                    { name: "Kim Siwon(김시원)", personality: ["认真", "自信", "上进"], position: "Leader" },
+                    { name: "Choi Naeun(최나은)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal" },
+                    { name: "Park Jiwoo(박지우)", personality: ["开朗", "幽默", "热情"], position: "Main Dancer" },
+                    { name: "Lee Hyunjin(이현진)", personality: ["冷静", "认真", "上进"], position: "Lead Vocal" },
+                    { name: "Jung Seoha(정서하)", personality: ["温柔", "冷静", "认真"], position: "Maknae" }
                 ]
             },
-            "Red Velvet": {
-                name: "Red Velvet",
-                desc: "3代女团，代表作Red Flavor, Bad Boy",
+            "Nuriwave": {
+                name: "Nuriwave（누리웨이브）未来赛博舞台团",
+                desc: "未来赛博舞台团，先锋大胆的舞台创意",
                 tier: "S",
                 members: [
-                    { name: "Irene(아이린)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Wendy(웬디)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Seulgi(슬기)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Joy(조이)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Yeri(예리)", personality: ["自信", "热情", "开朗"], position: "Maknae" }
+                    { name: "Kang Junghoon(강정훈)", personality: ["自信", "上进", "热情"], position: "Leader" },
+                    { name: "Han Yujin(한유진)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
+                    { name: "Moon Chaewon(문채원)", personality: ["自信", "幽默", "热情"], position: "Main Dancer" },
+                    { name: "Bae Seongah(배성아)", personality: ["开朗", "幽默", "自信"], position: "Main Vocal" },
+                    { name: "Ahn Minwoo(안민우)", personality: ["温柔", "认真", "上进"], position: "Maknae" }
                 ]
             },
-            "NCT 127": {
-                name: "NCT 127",
-                desc: "3代男团，代表作Cherry Bomb, Kick It",
+            "Saeunlyric": {
+                name: "Saeunlyric（새은리릭）清吟抒情主唱团",
+                desc: "清吟抒情主唱团，以感性深情歌声著称",
                 tier: "A",
                 members: [
-                    { name: "Taeyong", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Taeil", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Johnny", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yuta", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Doyoung(도영)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jaehyun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Mark", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Haechan", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Jungwoo", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
+                    { name: "Im Woojin(임우진)", personality: ["温柔", "自信", "上进"], position: "Leader" },
+                    { name: "Yoo Minjae(유민재)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
+                    { name: "Cha Heewon(차희원)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer" },
+                    { name: "Shin Yuna(신유나)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "Oh Seungtae(오승태)", personality: ["温柔", "冷静", "认真"], position: "Maknae" }
                 ]
             },
-            "NCT DREAM": {
-                name: "NCT DREAM",
-                desc: "3代男团，代表作Chewing Gum, Hot Sauce",
+            "Gaeulvibe": {
+                name: "Gaeulvibe（가을바이브）秋日复古清新团",
+                desc: "秋日复古清新团，阳光友善路人好感极高",
                 tier: "A",
                 members: [
-                    { name: "Mark", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Renjun", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jeno", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Haechan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jaemin", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chenle", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Jisung", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
+                    { name: "Jeong Dabin(정다빈)", personality: ["开朗", "热情", "温柔"], position: "Leader" },
+                    { name: "Song Hanbyul(송한별)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
+                    { name: "Nam Jiho(남지호)", personality: ["自信", "开朗", "上进"], position: "Main Rapper" },
+                    { name: "Go Eunji(고은지)", personality: ["温柔", "认真", "冷静"], position: "Main Dancer" },
+                    { name: "Hwang Chawon(황차원)", personality: ["冷静", "自信", "认真"], position: "Maknae" }
                 ]
             },
-            "aespa": {
-                name: "aespa",
-                desc: "4代女团，代表作Supernova, Next Level",
+            "Star Apex": {
+                name: "Star Apex（스타에이펙스）星巅全能王牌团",
+                desc: "星巅全能王牌团，强力队长与顶尖实力",
                 tier: "S",
                 members: [
-                    { name: "Karina(카리나)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Winter(윈터)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Giselle(지젤)", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Ningning(닝닝)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "RIIZE": {
-                name: "RIIZE",
-                desc: "5代男团，代表作Get A Guitar, Love 119",
-                tier: "S",
-                members: [
-                    { name: "Shotaro(쇼타로)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Eunseok(은석)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sungchan(성찬)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Wonbin(원빈)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Sohee(소희)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Anton(안톤)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "NCT WISH": {
-                name: "NCT WISH",
-                desc: "5代男团，代表作WISH, Hands Up",
-                tier: "B",
-                members: [
-                    { name: "Sion", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Riku", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yushi", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jaehee", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Ryo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Sakuya", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "Hearts2Hearts": {
-                name: "Hearts2Hearts",
-                desc: "6代女团，代表作The Chase, Butterflies",
-                tier: "B",
-                members: [
-                    { name: "Carmen", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jiwoo(지우)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yuha", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Stella", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Juun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "A-na", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Ian", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Ye-on", personality: ["幽默", "创意", "自信"], position: "Maknae" }
+                    { name: "Lee Seungwoo(이승우)", personality: ["上进", "自信", "认真"], position: "Leader" },
+                    { name: "Kim Soojin(김수진)", personality: ["自信", "冷静", "开朗"], position: "Main Vocal" },
+                    { name: "Park Hyunho(박현호)", personality: ["上进", "自信", "热情"], position: "Main Rapper" },
+                    { name: "Choi Yoonsung(최윤성)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "Kang Saeha(강세하)", personality: ["开朗", "温柔", "冷静"], position: "Maknae" }
                 ]
             }
         }
@@ -133,70 +83,64 @@ var COMPANIES = {
         desc: "以嘻哈和Swag风格闻名，打造了多个现象级团体。注重艺人的个性与舞台感染力。",
         tags: ["嘻哈Swag", "个性鲜明", "舞台感染力"],
         groups: {
-            "WINNER": {
-                name: "WINNER",
-                desc: "3代男团，代表作Really Really, Empty",
-                tier: "B",
-                members: [
-                    { name: "Seungyoon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seunghoon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Mino", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Jinwoo", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "iKON": {
-                name: "iKON",
-                desc: "3代男团，代表作Love Scenario, Killing Me",
-                tier: "B",
-                members: [
-                    { name: "Bobby", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jay(제이)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Song", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "DK(도겸)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Ju-ne", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chan", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "BLACKPINK": {
-                name: "BLACKPINK",
-                desc: "3代女团，代表作DDU-DU DDU-DU, Kill This Love",
+            "Taegiflow": {
+                name: "Taegiflow（태기플로우）不羁黑泡王牌团",
+                desc: "不羁黑泡王牌团，霸气领袖与创作极强",
                 tier: "S",
                 members: [
-                    { name: "Jisoo(지수)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jennie(제니)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Rosé(로제)", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Lisa(리사)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
+                    { name: "Jang Taewoo(장태우)", personality: ["自信", "上进", "热情"], position: "Leader" },
+                    { name: "Ryu Hajun(류하준)", personality: ["冷静", "自信", "上进"], position: "Main Rapper" },
+                    { name: "Seo Junho(서준호)", personality: ["热情", "自信", "认真"], position: "Main Dancer" },
+                    { name: "Won Wooyoung(원우영)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "Jeon Daehyun(전대현)", personality: ["开朗", "幽默", "热情"], position: "Maknae" }
                 ]
             },
-            "TREASURE": {
-                name: "TREASURE",
-                desc: "4代男团，代表作BOY, JIKJIN",
-                tier: "A",
+            "Black Luna": {
+                name: "Black Luna（블랙루나）暗夜高级氛围团",
+                desc: "暗夜高级氛围团，冷艳疏离高级氛围",
+                tier: "S",
                 members: [
-                    { name: "Choi Hyunsuk(최현석)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jihoon(지훈)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yoshi(요시)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Junkyu(준규)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yoon Jaehyuk(윤재혁)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Asahi(아사히)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Doyoung(도영)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Haruto(하루토)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Jeongwoo(정우)", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "So Jungwoo", personality: ["上进", "热情", "幽默"], position: "Maknae" }
+                    { name: "Kim Nari(김나리)", personality: ["自信", "冷静", "上进"], position: "Leader" },
+                    { name: "Yoon Sejin(윤세진)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
+                    { name: "Hong Jiyeon(홍지연)", personality: ["热情", "自信", "开朗"], position: "Main Rapper" },
+                    { name: "Lim Soeun(임소은)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer" },
+                    { name: "Chae Yujin(채유진)", personality: ["自信", "上进", "认真"], position: "Maknae" }
                 ]
             },
-            "BABYMONSTER": {
-                name: "BABYMONSTER",
-                desc: "5代女团，代表作SHEESH, Batter Up",
+            "Artist Moon": {
+                name: "Artist Moon（아티스트문）月光全员创作团",
+                desc: "月光全员创作团，文艺浪漫灵感充沛",
                 tier: "A",
                 members: [
-                    { name: "Ruka(루카)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Pharita(파리타)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Asa(아사)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Ahyeon(아현)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Rami(라미)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chiquita(치키타)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Haram(하람)", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
+                    { name: "Moon Junhee(문준희)", personality: ["开朗", "自信", "上进"], position: "Leader" },
+                    { name: "Kwon Minjae(권민재)", personality: ["认真", "上进", "冷静"], position: "Main Vocal" },
+                    { name: "Oh Taekyung(오태경)", personality: ["开朗", "幽默", "自信"], position: "Main Rapper" },
+                    { name: "Lee Siyeon(이시연)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer" },
+                    { name: "Park Hyewon(박혜원)", personality: ["温柔", "开朗", "冷静"], position: "Maknae" }
+                ]
+            },
+            "Cloud Echo": {
+                name: "Cloud Echo（클라우드에코）云雾治愈抒情团",
+                desc: "云雾治愈抒情团，温柔绵软治愈音色",
+                tier: "A",
+                members: [
+                    { name: "Jung Eunha(정은하)", personality: ["温柔", "开朗", "热情"], position: "Leader" },
+                    { name: "Son Jaeah(손재아)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "Bum Seokmin(범석민)", personality: ["开朗", "温柔", "热情"], position: "Main Dancer" },
+                    { name: "Yoo Chaeun(유채은)", personality: ["认真", "温柔", "冷静"], position: "Lead Vocal" },
+                    { name: "Ahn Seungyeop(안승엽)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
+                ]
+            },
+            "Odd Muse": {
+                name: "Odd Muse（오드뮤즈）小众艺术概念团",
+                desc: "小众艺术概念团，特立独行审美超前",
+                tier: "A",
+                members: [
+                    { name: "Lee Taemin(이태민)", personality: ["自信", "上进", "开朗"], position: "Leader" },
+                    { name: "Choi Kyujin(최규진)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "Jung Daeun(정다은)", personality: ["开朗", "温柔", "热情"], position: "Main Vocal" },
+                    { name: "Nam Kihyun(남기현)", personality: ["认真", "上进", "自信"], position: "Main Rapper" },
+                    { name: "Kim Jaewoon(김재운)", personality: ["冷静", "认真", "温柔"], position: "Maknae" }
                 ]
             }
         }
@@ -206,140 +150,64 @@ var COMPANIES = {
         desc: "以亲和力和国民度见长，旗下团体以整齐划一的刀群舞和洗脑旋律著称。",
         tags: ["国民亲和", "刀群舞", "洗脑旋律"],
         groups: {
-            "GOT7": {
-                name: "GOT7",
-                desc: "3代男团，代表作Just Right, Hard Carry",
-                tier: "A",
-                members: [
-                    { name: "JB", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Mark", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jackson", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jinyoung", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Youngjae", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "BamBam", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yugyeom", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "TWICE": {
-                name: "TWICE",
-                desc: "3代女团，代表作TT, Cheer Up",
+            "Wave Bright": {
+                name: "Wave Bright（웨이브브라이트）晴空元气王牌团",
+                desc: "晴空元气王牌团，阳光亲和感染力满格",
                 tier: "S",
                 members: [
-                    { name: "Nayeon(나연)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jeongyeon(정연)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Momo(모모)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sana(사나)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jihyo(지효)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Mina(미나)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Dahyun(다현)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Chaeyoung(채영)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Tzuyu(쯔위)", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
+                    { name: "Kim Heesun(김희선)", personality: ["开朗", "热情", "自信"], position: "Leader" },
+                    { name: "Park Dohyun(박도현)", personality: ["认真", "温柔", "上进"], position: "Main Vocal" },
+                    { name: "Yoo Kwangmin(유광민)", personality: ["开朗", "幽默", "热情"], position: "Main Rapper" },
+                    { name: "Shin Yeonwoo(신연우)", personality: ["温柔", "冷静", "认真"], position: "Main Dancer" },
+                    { name: "Han Seungah(한승아)", personality: ["温柔", "开朗", "冷静"], position: "Maknae" }
                 ]
             },
-            "DAY6": {
-                name: "DAY6",
-                desc: "3代男团，代表作You Were Beautiful, Zombie",
+            "Melody Pitch": {
+                name: "Melody Pitch（멜로디피치）和声主唱团",
+                desc: "和声主唱团，稳重大气零失误唱功",
                 tier: "A",
                 members: [
-                    { name: "Sungjin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Young K", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Wonpil", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Dowoon", personality: ["冷静", "认真", "上进"], position: "Maknae" }
+                    { name: "Im Jaehyun(임재현)", personality: ["认真", "自信", "上进"], position: "Leader" },
+                    { name: "Jung Soomin(정수민)", personality: ["自信", "开朗", "热情"], position: "Main Vocal" },
+                    { name: "Choi Woojin(최우진)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "Moon Seoeun(문서은)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "Bae Jinwoo(배진우)", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
                 ]
             },
-            "Stray Kids": {
-                name: "Stray Kids",
-                desc: "4代男团，代表作God's Menu, MANIAC",
-                tier: "S",
-                members: [
-                    { name: "Bang Chan(방찬)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Lee Know(리노)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Changbin(창빈)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyunjin(현진)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Han(한)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Felix(필릭스)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Seungmin(승민)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "I.N(아이엔)", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "ITZY": {
-                name: "ITZY",
-                desc: "4代女团，代表作DALLA DALLA, WANNABE",
-                tier: "S",
-                members: [
-                    { name: "Yeji(예지)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Lia(리아)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Ryujin(류진)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Chaeryeong(채령)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Yuna(유나)", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "NiziU": {
-                name: "NiziU",
-                desc: "4代女团，代表作Step and a Step, Take a picture",
-                tier: "B",
-                members: [
-                    { name: "Mako", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Rio", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Maya", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Riku", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Ayaka", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Mayuka", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Rima", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Miihi", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Nina", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "Xdinary Heroes": {
-                name: "Xdinary Heroes",
-                desc: "5代男团，代表作Happy Death Day, Test Me",
-                tier: "B",
-                members: [
-                    { name: "Gunil", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jungsu", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Gaon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "O.de", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jun Han", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jooyeon", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "NMIXX": {
-                name: "NMIXX",
-                desc: "5代女团，代表作DICE, O.O",
+            "Beat Motion": {
+                name: "Beat Motion（비트모션）刀群舞蹈团",
+                desc: "刀群舞蹈团，自律带队舞蹈天花板",
                 tier: "A",
                 members: [
-                    { name: "Lily(릴리)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Haewon(해원)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sullyoon(설윤)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Bae(배이)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jiwoo(지우)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kyujin(규진)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
+                    { name: "Kang Hyuntae(강현태)", personality: ["上进", "认真", "自信"], position: "Leader" },
+                    { name: "Oh Junghyun(오정현)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "Nam Youngho(남영호)", personality: ["开朗", "热情", "上进"], position: "Main Rapper" },
+                    { name: "Son Jihoon(손지훈)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal" },
+                    { name: "Lee Chanwoo(이찬우)", personality: ["温柔", "开朗", "认真"], position: "Maknae" }
                 ]
             },
-            "NEXZ": {
-                name: "NEXZ",
-                desc: "5代男团，代表作Ride the Vibe, Keep on Moving",
-                tier: "B",
+            "Warm Horizon": {
+                name: "Warm Horizon（웜호라이즌）温柔治愈团",
+                desc: "温柔治愈团，恬静温柔治愈气质",
+                tier: "A",
                 members: [
-                    { name: "Tomoya", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yu", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Haru", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seita", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Hyui", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Sogeon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yuki", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
+                    { name: "Chae Sooyun(채수윤)", personality: ["温柔", "冷静", "认真"], position: "Leader" },
+                    { name: "Yoon Jihae(윤지혜)", personality: ["温柔", "开朗", "认真"], position: "Main Vocal" },
+                    { name: "Park Sunwoo(박선우)", personality: ["开朗", "热情", "上进"], position: "Main Dancer" },
+                    { name: "Kim Hyerin(김혜린)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "Jung Haein(정해인)", personality: ["冷静", "认真", "温柔"], position: "Maknae" }
                 ]
             },
-            "KickFlip": {
-                name: "KickFlip",
-                desc: "6代男团，代表作Skate On, Flip It",
-                tier: "B",
+            "Funky Glow": {
+                name: "Funky Glow（펑키글로우）综艺人气团",
+                desc: "综艺人气团，反应超快临场梗王",
+                tier: "S",
                 members: [
-                    { name: "Jaeho", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minseok", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hyunwoo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Taeyun", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Seungjun", personality: ["自信", "热情", "开朗"], position: "Maknae" }
+                    { name: "Lee Kwangi(이광이)", personality: ["开朗", "幽默", "自信"], position: "Leader" },
+                    { name: "Choi Sungyul(최성열)", personality: ["开朗", "热情", "幽默"], position: "Main Rapper" },
+                    { name: "Yoo Taejin(유태진)", personality: ["冷静", "幽默", "认真"], position: "Main Vocal" },
+                    { name: "Won Jieun(원지은)", personality: ["热情", "温柔", "开朗"], position: "Main Dancer" },
+                    { name: "Bae Minjae(배민재)", personality: ["自信", "冷静", "认真"], position: "Maknae" }
                 ]
             }
         }
@@ -349,183 +217,64 @@ var COMPANIES = {
         desc: "多厂牌运营的新生代巨头，从BTS到NewJeans持续引领全球K-pop浪潮。",
         tags: ["全球影响力", "多厂牌", "现象级"],
         groups: {
-            "BTS": {
-                name: "BTS",
-                desc: "3代男团，代表作Dynamite, Butter",
+            "Myth Echo": {
+                name: "Myth Echo（미스에코）全球顶级概念王牌团",
+                desc: "全球顶级概念王牌团，格局大抗压极强",
                 tier: "S",
                 members: [
-                    { name: "RM(알엠)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jin(진)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Suga", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "J-Hope(제이홉)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jimin(지민)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "V(뷔)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Jungkook(정국)", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
+                    { name: "Jeon Seokjin(전석진)", personality: ["上进", "自信", "认真"], position: "Leader" },
+                    { name: "Kim Jihoon(김지훈)", personality: ["上进", "自信", "热情"], position: "Main Rapper" },
+                    { name: "Park Heeyoung(박희영)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "Jung Taekyun(정택균)", personality: ["开朗", "自信", "幽默"], position: "Main Dancer" },
+                    { name: "Kang Yuna(강유나)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
                 ]
             },
-            "SEVENTEEN": {
-                name: "SEVENTEEN",
-                desc: "3代男团，代表作Don't Wanna Cry, Super",
-                tier: "S",
-                members: [
-                    { name: "S.Coups(에스쿱스)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jeonghan(정한)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Joshua(조슈아)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Woozi(우지)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Hoshi(호시)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Wonwoo(원우)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "DK(도겸)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Mingyu(민규)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "The8(디에잇)", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Seungkwan(승관이)", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Vernon(버논)", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "Dino(디노)", personality: ["创意", "认真", "上进"], position: "Sub Rapper" },
-                    { name: "Jun(준)", personality: ["热情", "自信", "上进"], position: "Maknae" }
-                ]
-            },
-            "GFRIEND": {
-                name: "GFRIEND",
-                desc: "3代女团，代表作Rough, Me Gustas Tu",
+            "Teen Nova": {
+                name: "Teen Nova（틴노바）少年养成成长团",
+                desc: "少年养成成长团，青涩上进拼命努力",
                 tier: "A",
                 members: [
-                    { name: "Sowon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yerin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Eunha", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yuju", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "SinB", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Umji", personality: ["认真", "上进", "冷静"], position: "Maknae" }
+                    { name: "Choi Sunwoo(최선우)", personality: ["上进", "认真", "热情"], position: "Leader" },
+                    { name: "Lee Junghan(이정한)", personality: ["开朗", "热情", "温柔"], position: "Main Vocal" },
+                    { name: "Yoo Jihoon(유지훈)", personality: ["认真", "上进", "冷静"], position: "Main Dancer" },
+                    { name: "Song Daehyun(송대현)", personality: ["冷静", "温柔", "认真"], position: "Main Rapper" },
+                    { name: "Oh Seungjin(오승진)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
                 ]
             },
-            "TXT": {
-                name: "TXT",
-                desc: "4代男团，代表作Crown, Sugar Rush Ride",
+            "Crush Aura": {
+                name: "Crush Aura（크러쉬오라）炽飒Girl Crush团",
+                desc: "炽飒Girl Crush团，气场王者舞台统治力MAX",
                 tier: "S",
                 members: [
-                    { name: "Yeonjun(연준)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Soobin(수빈)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Beomgyu(범규)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Taehyun(태현)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Hueningkai", personality: ["自信", "热情", "开朗"], position: "Maknae" }
+                    { name: "Kim Chawon(김차원)", personality: ["自信", "上进", "热情"], position: "Leader" },
+                    { name: "Jung Seoyeon(정서연)", personality: ["自信", "热情", "上进"], position: "Main Dancer" },
+                    { name: "Hong Eunji(홍은지)", personality: ["热情", "温柔", "认真"], position: "Main Rapper" },
+                    { name: "Lim Nayeon(임나연)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
+                    { name: "Bae Soojin(배수진)", personality: ["开朗", "自信", "幽默"], position: "Maknae" }
                 ]
             },
-            "ENHYPEN": {
-                name: "ENHYPEN",
-                desc: "4代男团，代表作Drunk-Dazed, Bite Me",
-                tier: "S",
-                members: [
-                    { name: "Heeseung(희승)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jay(제이)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jake(제이크)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sunghoon(성훈)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Sunoo(선우)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jungwon(정원)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Ni-ki(니키)", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "fromis_9": {
-                name: "fromis_9",
-                desc: "4代女团，代表作LOVE BOMB, DM",
-                tier: "B",
-                members: [
-                    { name: "Saerom", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hayoung", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jiwon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jisun", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Seoyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chaeyoung(채영)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Nagyung", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Jiheon", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Gyuri", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "LE SSERAFIM": {
-                name: "LE SSERAFIM",
-                desc: "5代女团，代表作ANTIFRAGILE, EASY",
-                tier: "S",
-                members: [
-                    { name: "Sakura(사쿠라)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Chaewon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yunjin(윤진)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Kazuha(카즈하)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Eunchae(은채)", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "NewJeans": {
-                name: "NewJeans",
-                desc: "5代女团，代表作Hype Boy, Super Shy",
-                tier: "S",
-                members: [
-                    { name: "Minji(민지)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hanni(하니)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Danielle(다니엘)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Haerin(해린)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Hyein(혜인)", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "BOYNEXTDOOR": {
-                name: "BOYNEXTDOOR",
-                desc: "5代男团，代表作But Sometimes, Earth, WindandFire",
+            "Moon Lyric": {
+                name: "Moon Lyric（문리릭）月光叙事抒情团",
+                desc: "月光叙事抒情团，忧郁浪漫电影感歌声",
                 tier: "A",
                 members: [
-                    { name: "Sungho", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Riwoo", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jaehyun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Taesan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Leehan", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Woonhak", personality: ["认真", "上进", "冷静"], position: "Maknae" }
+                    { name: "Park Woojin(박우진)", personality: ["温柔", "认真", "冷静"], position: "Leader" },
+                    { name: "Kim Seoha(김서하)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal" },
+                    { name: "Choi Jiwoo(최지우)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer" },
+                    { name: "Yoon Chaeun(윤채은)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "Jung Hyunkyu(정현규)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
                 ]
             },
-            "TWS": {
-                name: "TWS",
-                desc: "5代男团，代表作Plot Twist, If I'm S, Can You Be My N?",
+            "Secret Verse": {
+                name: "Secret Verse（시크릿버스）悬疑小众概念团",
+                desc: "悬疑小众概念团，神秘内敛思维深邃",
                 tier: "A",
                 members: [
-                    { name: "Shinyu", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Dohoon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Youngjae", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hanjin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jihoon(지훈)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kyungmin", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "ILLIT": {
-                name: "ILLIT",
-                desc: "5代女团，代表作Magnetic, Cherish (My Love)",
-                tier: "A",
-                members: [
-                    { name: "Yunah", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minju", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Moka", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Wonhee", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Iroha", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "AND-TEAM": {
-                name: "AND-TEAM",
-                desc: "5代男团，代表作Under the skin, WOLF HOWL HARMONY",
-                tier: "B",
-                members: [
-                    { name: "K", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Fuma", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Nicholas", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "EJ", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yuma", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jo", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Harua", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Taki", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Maki", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "CORTIS": {
-                name: "CORTIS",
-                desc: "6代男团，代表作What You Want, REDRED",
-                tier: "B",
-                members: [
-                    { name: "MARTIN", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "JAMES", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "JUHOON", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "SEONGHYEON", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "KEONHO", personality: ["自信", "热情", "开朗"], position: "Maknae" }
+                    { name: "Ahn Kyujin(안규진)", personality: ["冷静", "认真", "上进"], position: "Leader" },
+                    { name: "Son Taeyong(손태용)", personality: ["自信", "开朗", "上进"], position: "Main Dancer" },
+                    { name: "Lee Eunsoo(이은수)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal" },
+                    { name: "Nam Jaehyun(남재현)", personality: ["认真", "上进", "自信"], position: "Main Rapper" },
+                    { name: "Han Seungyeop(한승엽)", personality: ["冷静", "温柔", "开朗"], position: "Maknae" }
                 ]
             }
         }
@@ -535,1552 +284,64 @@ var COMPANIES = {
         desc: "涵盖众多中大型经纪公司的爱豆，实力与潜力并存，是韩娱不可忽视的力量。",
         tags: ["百花齐放", "实力派", "潜力无限"],
         groups: {
-            "VIXX": {
-                name: "VIXX",
-                desc: "3代男团，代表作Chained Up, Fantasy",
-                tier: "B",
-                members: [
-                    { name: "N", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Leo", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Ken", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Ravi", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Hongbin", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Hyuk", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "BTOB": {
-                name: "BTOB",
-                desc: "3代男团，代表作Missing You, Wow",
+            "Sky Hush": {
+                name: "Sky Hush（스카이허쉬）空寂星语王牌团",
+                desc: "空寂星语王牌团，清冷文艺安静温柔",
                 tier: "A",
                 members: [
-                    { name: "Eunkwang", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minhyuk", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Changsub", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyunsik", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Peniel", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Ilhoon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Sungjae", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
+                    { name: "Moon Junhee(문준희)", personality: ["冷静", "温柔", "认真"], position: "Leader" },
+                    { name: "Park Saeun(박사은)", personality: ["温柔", "认真", "开朗"], position: "Main Vocal" },
+                    { name: "Kim Taejin(김태진)", personality: ["上进", "开朗", "热情"], position: "Main Rapper" },
+                    { name: "Jung Jiwon(정지원)", personality: ["冷静", "自信", "认真"], position: "Main Dancer" },
+                    { name: "Choi Haerin(최해린)", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
                 ]
             },
-            "MONSTA X": {
-                name: "MONSTA X",
-                desc: "3代男团，代表作Hero, Shoot Out",
-                tier: "A",
-                members: [
-                    { name: "Shownu", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minhyuk", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Kihyun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyungwon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Joohoney", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "I.M", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "ASTRO": {
-                name: "ASTRO",
-                desc: "3代男团，代表作Crazy Sexy Cool, All Night",
+            "Little Glow": {
+                name: "Little Glow（리틀글로우）微光元气小众团",
+                desc: "微光元气小众团，元气纯粹感染力超强",
                 tier: "B",
                 members: [
-                    { name: "Jinjin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "MJ", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Cha Eunwoo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Moonbin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Rocky", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Yoon Sanha", personality: ["认真", "上进", "冷静"], position: "Maknae" }
+                    { name: "Yoo Sooyeon(유수연)", personality: ["开朗", "热情", "温柔"], position: "Leader" },
+                    { name: "Bae Daehyun(배대현)", personality: ["认真", "上进", "冷静"], position: "Main Vocal" },
+                    { name: "Oh Chaejin(오채진)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer" },
+                    { name: "Son Hyewon(손혜원)", personality: ["温柔", "认真", "开朗"], position: "Lead Vocal" },
+                    { name: "Im Jiho(임지호)", personality: ["冷静", "开朗", "温柔"], position: "Maknae" }
                 ]
             },
-            "Pentagon": {
-                name: "Pentagon",
-                desc: "3代男团，代表作Shine, Naughty Boy",
+            "Wind Ballad": {
+                name: "Wind Ballad（윈드발라드）风吟治愈民谣团",
+                desc: "风吟治愈民谣团，温柔质朴治愈声线",
                 tier: "B",
                 members: [
-                    { name: "Jinho", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hui", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hongseok", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Shinwon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yeo One", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Yan An", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yuto", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kino", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Wooseok", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
+                    { name: "Chae Eunwoo(채은우)", personality: ["温柔", "冷静", "认真"], position: "Leader" },
+                    { name: "Song Jihan(송지한)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
+                    { name: "Kang Daeun(강다은)", personality: ["开朗", "温柔", "上进"], position: "Main Dancer" },
+                    { name: "Kim Seoyun(김서윤)", personality: ["温柔", "热情", "认真"], position: "Lead Vocal" },
+                    { name: "Park Hyunwoo(박현우)", personality: ["冷静", "温柔", "开朗"], position: "Maknae" }
                 ]
             },
-            "SF9": {
-                name: "SF9",
-                desc: "3代男团，代表作O Sole Mio, Good Guy",
+            "Wild Edge": {
+                name: "Wild Edge（와일드엣지）野锐摇滚个性团",
+                desc: "野锐摇滚个性团，桀骜自由热爱真我",
                 tier: "B",
                 members: [
-                    { name: "Youngbin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Inseong", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jaeyoon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Dawon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Zuho", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Rowoon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Taeyang", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Hwiyoung", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Chani", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
+                    { name: "Jung Taewoo(정태우)", personality: ["自信", "热情", "上进"], position: "Leader" },
+                    { name: "Lee Kwangmin(이광민)", personality: ["自信", "开朗", "认真"], position: "Main Rapper" },
+                    { name: "Yoo Seungah(유승아)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "Choi Minjae(최민재)", personality: ["认真", "上进", "冷静"], position: "Main Dancer" },
+                    { name: "Ahn Jinwoo(안진우)", personality: ["开朗", "冷静", "温柔"], position: "Maknae" }
                 ]
             },
-            "Wanna One": {
-                name: "Wanna One",
-                desc: "3代男团，代表作Energetic, Beautiful",
-                tier: "S",
-                members: [
-                    { name: "Jisung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sungwoon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Minhyun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seongwoo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jaehwan", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Daniel", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Jihoon(지훈)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Woojin", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Jinyoung", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Daehwi", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Kuanlin", personality: ["开朗", "自信", "温柔"], position: "Maknae" }
-                ]
-            },
-            "The Boyz": {
-                name: "The Boyz",
-                desc: "3代男团，代表作Reveal, The Stealer",
+            "Dream Loop": {
+                name: "Dream Loop（드림루프）梦环空灵仙气团",
+                desc: "梦环空灵仙气团，浪漫梦幻想象力爆棚",
                 tier: "B",
                 members: [
-                    { name: "Sangyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jacob", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Younghoon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyunjae", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Juyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kevin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "New", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Q", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Ju Haknyeon", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Sunwoo", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Eric", personality: ["开朗", "自信", "温柔"], position: "Maknae" }
-                ]
-            },
-            "EXID": {
-                name: "EXID",
-                desc: "3代女团，代表作UpandDown, DDD",
-                tier: "B",
-                members: [
-                    { name: "Solji", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "LE", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hani", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyerin", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Jeonghwa", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "AOA": {
-                name: "AOA",
-                desc: "3代女团，代表作Heart Attack, Miniskirt",
-                tier: "B",
-                members: [
-                    { name: "Jimin(지민)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "ChoA", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yuna(유나)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyejeong", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Mina(미나)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Seolhyun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Chanmi", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "MAMAMOO": {
-                name: "MAMAMOO",
-                desc: "3代女团，代表作Starry Night, HIP",
-                tier: "S",
-                members: [
-                    { name: "Solar", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Moonbyul", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Wheein", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Hwasa", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "Lovelyz": {
-                name: "Lovelyz",
-                desc: "3代女团，代表作Ah-Choo, Destiny",
-                tier: "B",
-                members: [
-                    { name: "BabySoul", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jiae", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jisoo(지수)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Mijoo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kei", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jin(진)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Sujeong", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Yein", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "CLC": {
-                name: "CLC",
-                desc: "3代女团，代表作No, Hobgoblin",
-                tier: "B",
-                members: [
-                    { name: "Seunghee", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yujin(유진)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Seungyeon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sorn", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yeeun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Elkie", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Eunbin", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "Oh My Girl": {
-                name: "Oh My Girl",
-                desc: "3代女团，代表作Nonstop, Dun Dun Dance",
-                tier: "A",
-                members: [
-                    { name: "Hyojung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Mimi", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "YooA", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seunghee", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jiho", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Binnie", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Arin", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "APRIL": {
-                name: "APRIL",
-                desc: "3代女团，代表作Tinkerbell, The Blue Bird",
-                tier: "C",
-                members: [
-                    { name: "Chaekyung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Chaewon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Naeun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yena", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Rachel", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jinsol", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "I.O.I": {
-                name: "I.O.I",
-                desc: "3代女团，代表作Dream Girls, Very Very Very",
-                tier: "A",
-                members: [
-                    { name: "Nayoung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Chungha", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sejeong", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Chaeyeon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jieqiong", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Sohye", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yoojung", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Mina(미나)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Doyeon", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Som_i", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Yeunjung", personality: ["开朗", "自信", "温柔"], position: "Maknae" }
-                ]
-            },
-            "WJSN": {
-                name: "WJSN",
-                desc: "3代女团，代表作As You Wish, UNNATURAL",
-                tier: "B",
-                members: [
-                    { name: "Seola", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Xuan Yi", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Bona", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Exy", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Soobin(수빈)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Luda", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Dawon", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Eunseo", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Cheng Xiao", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Mei Qi", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Yeoreum", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "Dayoung", personality: ["创意", "认真", "上进"], position: "Sub Rapper" },
-                    { name: "Yeonjung", personality: ["热情", "自信", "上进"], position: "Maknae" }
-                ]
-            },
-            "LABOUM": {
-                name: "LABOUM",
-                desc: "3代女团，代表作Journey to Atlantis, Sugar Sugar",
-                tier: "C",
-                members: [
-                    { name: "Soyeon(소연)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "ZN", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Haein", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Solbin", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "Dreamcatcher": {
-                name: "Dreamcatcher",
-                desc: "3代女团，代表作Scream, BOCA",
-                tier: "A",
-                members: [
-                    { name: "JiU", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "SuA", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Siyeon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Handong", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yoohyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Dami", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Gahyun", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "Weki Meki": {
-                name: "Weki Meki",
-                desc: "3代女团，代表作I Don't Wanna See You Cry, La La La",
-                tier: "C",
-                members: [
-                    { name: "Suyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Elly", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yoojung", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Doyeon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Sei", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Lua", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Rina", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Lucy", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "PRISTIN": {
-                name: "PRISTIN",
-                desc: "3代女团，代表作We Like, Wee Woo",
-                tier: "C",
-                members: [
-                    { name: "Nayoung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Roa", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yuha", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Eunwoo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Rena", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kyulkyung", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yehana", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Sungyeon", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Xiyeon", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Kyla", personality: ["上进", "热情", "幽默"], position: "Maknae" }
-                ]
-            },
-            "SONAMOO": {
-                name: "SONAMOO",
-                desc: "3代女团，代表作Deja Vu, Cushion",
-                members: [
-                    { name: "Minjae", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "D.ana", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Nahyun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Euijin", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "NewSun", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "ATEEZ": {
-                name: "ATEEZ",
-                desc: "4代男团，代表作Wave, Wonderland",
-                tier: "S",
-                members: [
-                    { name: "Hongjoong", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seonghwa", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yunho", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yeosang", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "San", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Mingi", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Wooyoung", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Jongho", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "ONEUS": {
-                name: "ONEUS",
-                desc: "4代男团，代表作LUNA, Same Scent",
-                tier: "B",
-                members: [
-                    { name: "Ravn", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seoho", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Leedo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Keonhee", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Hwanwoong", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Xion", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "CIX": {
-                name: "CIX",
-                desc: "4代男团，代表作Movie Star, Jungle",
-                tier: "B",
-                members: [
-                    { name: "BX", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seunghun", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yonghee", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Bae Jinyoung", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Hyunsuk", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "AB6IX": {
-                name: "AB6IX",
-                desc: "4代男团，代表作Breathe, CLOSE",
-                tier: "B",
-                members: [
-                    { name: "Youngmin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Woong", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Donghyun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Woojin", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Daehwi", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "VERIVERY": {
-                name: "VERIVERY",
-                desc: "4代男团，代表作Tag Tag Tag, Lay Back",
-                tier: "B",
-                members: [
-                    { name: "Dongheon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hoyoung", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Minchan", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Gyehyeon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yongseung", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kangmin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yeonho", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "CRAVITY": {
-                name: "CRAVITY",
-                desc: "4代男团，代表作Adrenaline, My Turn",
-                tier: "A",
-                members: [
-                    { name: "Serim", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Allen", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jungmo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Woobin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Wonjin", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Minhee", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Hyeongjun", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Taeyoung", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Seongmin", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "P1Harmony": {
-                name: "P1Harmony",
-                desc: "4代男团，代表作Siren, Back Down",
-                tier: "A",
-                members: [
-                    { name: "Keeho", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Theo", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jiung", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Intak", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Soul", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jongseob", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "MCND": {
-                name: "MCND",
-                desc: "4代男团，代表作ICE AGE, NANANA",
-                tier: "B",
-                members: [
-                    { name: "Castle J", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "BIC", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Minjae", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Huijun", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "WIN", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "WEi": {
-                name: "WEi",
-                desc: "4代男团，代表作Twilight, Bye Bye Bye",
-                tier: "B",
-                members: [
-                    { name: "Jang Daehyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Kim Donghan", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yoo Yongha", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Kim Yohan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kang Seokhwa", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kim Junseo", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "E'LAST": {
-                name: "E'LAST",
-                desc: "4代男团，代表作Swear, Dark Dream",
-                tier: "B",
-                members: [
-                    { name: "Rano", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Choi In", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Seungyeop", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Romin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Won Hyuk", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Wonjun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yejun", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Gian", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "DKB": {
-                name: "DKB",
-                desc: "4代男团，代表作Just Do It, Work Hard",
-                tier: "B",
-                members: [
-                    { name: "D1", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "E-Chan", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Teo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "GK", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Heechan", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Lune", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Junseo", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Yuku", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Harry June", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "JUST B": {
-                name: "JUST B",
-                desc: "4代男团，代表作Damage, Get Away",
-                tier: "B",
-                members: [
-                    { name: "Geonu", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Bain", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "LIM", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "JM", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Sangwoo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Dy", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "MIRAE": {
-                name: "MIRAE",
-                desc: "4代男团，代表作KILLA, Splash",
-                tier: "B",
-                members: [
-                    { name: "Lee Junhyuk", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Park Siyoung", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Lee Sangmin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yoo Douhyun", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jang Yeol", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Son Dongpyo", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Khael", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "TO1": {
-                name: "TO1",
-                desc: "4代男团，代表作Son of Beast, No More X",
-                tier: "B",
-                members: [
-                    { name: "Chihoon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Donggeon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Chan", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jisu", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Minsu", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jaeyun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "J.You", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kyungho", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Jerome", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Woonggi", personality: ["上进", "热情", "幽默"], position: "Maknae" }
-                ]
-            },
-            "BAE173": {
-                name: "BAE173",
-                desc: "4代男团，代表作Crush on U, LOVED",
-                tier: "B",
-                members: [
-                    { name: "J-Min", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hangyul", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Muzin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Youngseo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yoojun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Doha", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Bit", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "D1", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Sihyun", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "Ciipher": {
-                name: "Ciipher",
-                desc: "4代男团，代表作I Like That, Rain",
-                tier: "B",
-                members: [
-                    { name: "Hyeok", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Keita", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Tag", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Dohwan", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Won", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "OMEGA X": {
-                name: "OMEGA X",
-                desc: "4代男团，代表作VAMOS, Love Me Like",
-                tier: "B",
-                members: [
-                    { name: "Jaehan", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hwichan", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sebin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hangyeom", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Taedong", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Xen", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Jehyun", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kevin", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Junghoon", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Hyuk", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Yechan", personality: ["开朗", "自信", "温柔"], position: "Maknae" }
-                ]
-            },
-            "DRIPPIN": {
-                name: "DRIPPIN",
-                desc: "4代男团，代表作Nostalgia, Villain",
-                tier: "B",
-                members: [
-                    { name: "Hyeop", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yunseong", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Changuk", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Dongyun", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Minseo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Junho", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Alex", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "GI-DLE": {
-                name: "GI-DLE",
-                desc: "4代女团，代表作TOMBOY, Queencard",
-                tier: "S",
-                members: [
-                    { name: "Miyeon(미연)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minnie(민니)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Soyeon(소연)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yuqi(우기)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Shuhua(슈화)", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "IZ*ONE": {
-                name: "IZ*ONE",
-                desc: "4代女团，代表作LA VI EN ROSE, FIESTA",
-                tier: "A",
-                members: [
-                    { name: "Jang Wonyoung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sakura(사쿠라)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jo Yuri", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Choi Yena", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kwon Eunbi", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kang Hyewon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Hitomi", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Nako", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Kim Chaewon(김채원)", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Kim Minju", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Lee Chaeyeon", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "An Yujin", personality: ["创意", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "LOONA": {
-                name: "LOONA",
-                desc: "4代女团，代表作Hi High, Butterfly",
-                tier: "A",
-                members: [
-                    { name: "ViVi", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yves", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "JinSoul", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "HaSeul", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kim Lip", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "HeeJin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "HyunJin", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Choerry", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Olivia Hye", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Go Won", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "YeoJin", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "JinSoul", personality: ["创意", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "STAYC": {
-                name: "STAYC",
-                desc: "4代女团，代表作ASAP, STEREOTYPE",
-                tier: "A",
-                members: [
-                    { name: "Sumin(수민)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sieun(시은)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Isa(아이사)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seeun(세은)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yoon(윤)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "J(제이)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "Weeekly": {
-                name: "Weeekly",
-                desc: "4代女团，代表作Tag Me, After School",
-                tier: "B",
-                members: [
-                    { name: "Lee Soojin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Monday", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jihan", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Zoa", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jaehee", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Lee Soeun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Park Soeun", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "PURPLE KISS": {
-                name: "PURPLE KISS",
-                desc: "4代女团，代表作Ponzona, On The Line",
-                tier: "B",
-                members: [
-                    { name: "Park Ji-eun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Nagomi", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Dosie", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Ireh", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yuki", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chaein", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Swan", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "Secret Number": {
-                name: "Secret Number",
-                desc: "4代女团，代表作Who Dis?, Got That Boom",
-                tier: "B",
-                members: [
-                    { name: "Léa", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Dita", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jinny", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Soodam", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Zuu", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "LIGHTSUM": {
-                name: "LIGHTSUM",
-                desc: "4代女团，代表作Vanilla, Vivace",
-                tier: "B",
-                members: [
-                    { name: "Sangah", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Chowon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Nayoung", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hina", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Juhyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Yujeong", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Huiyeon", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Jian", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "PIXY": {
-                name: "PIXY",
-                desc: "4代女团，代表作Wings, Addicted",
-                tier: "B",
-                members: [
-                    { name: "Ella", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Lola", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sua", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Dajeong", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Rinji", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kyuhee", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "ISSEN": {
-                name: "ISSEN",
-                desc: "4代女团，代表作C.O.C",
-                members: [
-                    { name: "Soomin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Gaeul(가을)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yeji(예지)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sena", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Kang Eunja", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "BugAboo": {
-                name: "BugAboo",
-                desc: "4代女团，代表作bugAboo, POP",
-                tier: "A",
-                members: [
-                    { name: "Eunchae(은채)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yoona", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Rainie", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Cyan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Choyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Zin", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "TRI.BE": {
-                name: "TRI.BE",
-                desc: "4代女团，代表作Doom Doom Ta, RUB-A-DUM",
-                tier: "B",
-                members: [
-                    { name: "Songsun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Kelly", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jinha", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyunbin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jia", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Soha", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Mire", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "H1-KEY": {
-                name: "H1-KEY",
-                desc: "4代女团，代表作Athletic Girl, Let It Burn",
-                tier: "B",
-                members: [
-                    { name: "Mabin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seoi", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Riina", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Hwiseo", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "BLINGBLING": {
-                name: "BLINGBLING",
-                desc: "4代女团，代表作G.G.B",
-                tier: "B",
-                members: [
-                    { name: "Ayamy", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Narin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yubin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jiwon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Juhyun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Ahyun", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "ELRIS": {
-                name: "ELRIS",
-                desc: "4代女团，代表作We, First, Pow Pow",
-                tier: "B",
-                members: [
-                    { name: "Sohee(소희)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yukyung", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Bella", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyeseong", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Karin", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Rose", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "EJ", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "Cherry Bullet": {
-                name: "Cherry Bullet",
-                desc: "4代女团，代表作QandA, Hands Up",
-                tier: "B",
-                members: [
-                    { name: "Haeyoon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yuju", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Bora", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jiwon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Remi", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chaerin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "May", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "WJSN Chocome": {
-                name: "WJSN Chocome",
-                desc: "4代女团，代表作Hmph!, Super Yuppers!",
-                members: [
-                    { name: "Soobin(수빈)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Luda", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yeoreum", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Dayoung", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "NATURE": {
-                name: "NATURE",
-                desc: "4代女团，代表作Allegro Cantabile, I'm So Pretty",
-                tier: "A",
-                members: [
-                    { name: "Saebom", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Aurora", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Lu", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Chaebin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Haru", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Loha", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "U", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Sohee(소희)", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "gugudan": {
-                name: "gugudan",
-                desc: "4代女团，代表作Wonderland, Chococo",
-                tier: "C",
-                members: [
-                    { name: "Mimi", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hana", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Haebin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Nayoung", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Sejeong", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Sally", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Soyee", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Mina(미나)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Hyeyeon", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "ZEROBASEONE": {
-                name: "ZEROBASEONE",
-                desc: "5代男团，代表作In Bloom, CRUSH",
-                tier: "S",
-                members: [
-                    { name: "Zhang Hao(장하오)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sung Hanbin(성한빈)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Seok Matthew(석매튜)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Ricky(리키)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Park Gunwook(박건욱)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kim Taerae(김태래)", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Kim Gyuvin(김규빈)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kim Jiwoong(김지웅)", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Han Yujin(한유진)", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "xikers": {
-                name: "xikers",
-                desc: "5代男团，代表作TRICKY HOUSE, ROCKSTAR",
-                tier: "B",
-                members: [
-                    { name: "Minjae", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Junmin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sumin(수민)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jinsik", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Hyunwoo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Junghoon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Seeun(세은)", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Hunter", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Yujun", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Yechan", personality: ["上进", "热情", "幽默"], position: "Maknae" }
-                ]
-            },
-            "EVNNE": {
-                name: "EVNNE",
-                desc: "5代男团，代表作TROUBLE, NERVE",
-                tier: "A",
-                members: [
-                    { name: "Keita", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Park Hanbin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Lee Jeonghyeon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yoo Seungeon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Ji Yunseo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Mun Junghyun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Park Jihoo", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "FANTASY BOYS": {
-                name: "FANTASY BOYS",
-                desc: "5代男团，代表作NEW TOMORROW, Potential",
-                tier: "A",
-                members: [
-                    { name: "Hong Sungmin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Lee Hanbin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hikari", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Ling Qi", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kang Minseo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Hwon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "K-Soul", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kim Gyurae", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Oh Hyuntae", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Park Boram", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Watanabe Sora", personality: ["开朗", "自信", "温柔"], position: "Maknae" }
-                ]
-            },
-            "8TURN": {
-                name: "8TURN",
-                desc: "5代男团，代表作TIC TAC, RU-PUMP PUMP",
-                tier: "B",
-                members: [
-                    { name: "Myungho", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jaeyun", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Minho", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yoonsung", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Haeun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Gyeomin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Seungheon", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Yoonyu", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "LUN8": {
-                name: "LUN8",
-                desc: "5代男团，代表作WILD HEART, BUFF",
-                tier: "B",
-                members: [
-                    { name: "Jian", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Junwoo", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Takuma", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Ian", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jinsu", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Eunseop", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Chael", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Dohyun", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "PLAVE": {
-                name: "PLAVE",
-                desc: "5代男团，代表作Wait for You, WAY 4 LUV",
-                tier: "A",
-                members: [
-                    { name: "Yejun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Noah", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Bamby", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Eunho", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Hamin", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "AMPERSAND-ONE": {
-                name: "AMPERSAND-ONE",
-                desc: "5代男团，代表作On and On, SweetandSour",
-                tier: "C",
-                members: [
-                    { name: "Kamden", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Brian", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Siwoo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seungmo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Mackiah", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kyrell", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Hyunwoo", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "82MAJOR": {
-                name: "82MAJOR",
-                desc: "5代男团，代表作Sure Thing, Choke",
-                tier: "B",
-                members: [
-                    { name: "Nam Seongmo", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Park Seokjun", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yoon Yechan", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Cho Seongil", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Hwang Seonghyeob", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kim Do Gyun", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "NOWADAYS": {
-                name: "NOWADAYS",
-                desc: "5代男团，代表作OoWee, Rainy Day",
-                tier: "B",
-                members: [
-                    { name: "Hyunbin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yoon(윤)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yeongwoo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Jinhyuk", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Siwoon", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "TIOT": {
-                name: "TIOT",
-                desc: "5代男团，代表作Magnetic, Must Have",
-                tier: "C",
-                members: [
-                    { name: "Kum Junhyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Choi Minyong", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hong Keonhee", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Kim Yeochan", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Shin Yechan", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "ALLHOURS": {
-                name: "ALLHOURS",
-                desc: "5代男团，代表作GOTCHA, SHOCK",
-                tier: "B",
-                members: [
-                    { name: "Kunho", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Youmin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Xayden", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Minje", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Masami", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Hyunbin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "On:n", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "WAKER": {
-                name: "WAKER",
-                desc: "5代男团，代表作ATLANTIS, Superfecta",
-                tier: "B",
-                members: [
-                    { name: "Kohyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Kwonhyeop", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Leo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sebum", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Ijun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Saebyeol", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "NCHIVE": {
-                name: "NCHIVE",
-                desc: "5代男团，代表作RACER, UNISON",
-                tier: "C",
-                members: [
-                    { name: "E.aN", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "HA.L", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Kangsang", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yoochan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jooyoon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Minjun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "N", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "DXMON": {
-                name: "DXMON",
-                desc: "5代男团，代表作Burn Up, SPARK",
-                tier: "B",
-                members: [
-                    { name: "Seita", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minjae", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hee", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "TK", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Rex", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "CRAVITY": {
-                name: "CRAVITY",
-                desc: "5代男团，代表作Groovy, Cheese",
-                members: [
-                    { name: "Serim", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Allen", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jungmo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Woobin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Wonjin", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Minhee", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Hyeongjun", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Taeyoung", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Seongmin", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "IVE": {
-                name: "IVE",
-                desc: "5代女团，代表作LOVE DIVE, ELEVEN",
-                tier: "S",
-                members: [
-                    { name: "Gaeul(가을)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yujin(유진)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Rei(레이)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Wonyoung(원영)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Liz(리즈)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Leeseo(이서)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "Kep1er": {
-                name: "Kep1er",
-                desc: "5代女团，代表作WA DA DA DA, Shooting Star",
-                tier: "A",
-                members: [
-                    { name: "Yujin(유진)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Xiaoting", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Mashiro", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yeseo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Dayeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Huening Bahiyyih", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Hikaru", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "Billlie": {
-                name: "Billlie",
-                desc: "5代女团，代表作GingaMingaYo, RING ma Bell",
-                tier: "A",
-                members: [
-                    { name: "Moon Sua", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Suhyeon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Haram(하람)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Tsuki", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Sheon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Siyou", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Haruna", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "KISS OF LIFE": {
-                name: "KISS OF LIFE",
-                desc: "5代女团，代表作Shhh, Midas Touch",
-                tier: "A",
-                members: [
-                    { name: "Julie(줄리)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Natty(내티)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Belle(벨)", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Haneul(하늘)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "UNIS": {
-                name: "UNIS",
-                desc: "5代女团，代表作SUPERWOMAN, Curious",
-                tier: "A",
-                members: [
-                    { name: "Hyeonju", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Nana", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Gehlee", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Kotoko", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yunha", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Elisia", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yoona", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Seowon", personality: ["幽默", "创意", "自信"], position: "Maknae" }
-                ]
-            },
-            "MEOVV": {
-                name: "MEOVV",
-                desc: "5代女团，代表作MEOW, TOXIC",
-                tier: "A",
-                members: [
-                    { name: "Sooin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Gawon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Anna", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Narin", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Ella", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "tripleS": {
-                name: "tripleS",
-                desc: "5代女团，代表作Rising, Mood Makin' Nights",
-                tier: "A",
-                members: [
-                    { name: "Yoon Seoyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jeong Hye-rin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Lee Ji-woo", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Kim Chae-yeon", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kim Yoo-yeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Kim Soo-min", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Gong Yu-bin", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Kaede", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Seo Da-hyun", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Nien", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Park So-hyun", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "Xinyu", personality: ["创意", "认真", "上进"], position: "Sub Rapper" },
-                    { name: "Mayu", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Lynn", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "JooBin", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "HaYeon", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "ShiOn", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "ChaYeon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Sullin", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "SeoAh", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "JiYeon", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "ChaeWon", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "SaeAh", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "HyeRin", personality: ["创意", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "FIFTY FIFTY": {
-                name: "FIFTY FIFTY",
-                desc: "5代女团，代表作Cupid, Lovin' Me",
-                tier: "A",
-                members: [
-                    { name: "Aran(아란)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sio(시오)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Saena(새나)", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Keena(키나)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "VIVIZ": {
-                name: "VIVIZ",
-                desc: "5代女团，代表作BOP BOP!, PULL UP",
-                tier: "A",
-                members: [
-                    { name: "Eunha", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "SinB", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Umji", personality: ["开朗", "幽默", "创意"], position: "Maknae" }
-                ]
-            },
-            "ARTMS": {
-                name: "ARTMS",
-                desc: "5代女团，代表作ViViD, Air",
-                tier: "A",
-                members: [
-                    { name: "HeeJin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Kim Lip", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "JinSoul", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Choerry", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "HaSeul", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "QWER": {
-                name: "QWER",
-                desc: "5代女团，代表作Discord, T.B.H",
-                tier: "A",
-                members: [
-                    { name: "Chodan", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Magenta", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hina", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Siyeon", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "BADVILLAIN": {
-                name: "BADVILLAIN",
-                desc: "5代女团，代表作BADVILLAIN, ZOOM",
-                tier: "A",
-                members: [
-                    { name: "Emma", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Chloe Young", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "HU'E", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "INA", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yunseo", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Vin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Kelly", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "MADEIN": {
-                name: "MADEIN",
-                desc: "5代女团，代表作UNO, Feel The Groove",
-                tier: "A",
-                members: [
-                    { name: "Mashiro", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "MiU", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Suhye", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yeseo", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Gaeun", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Serina", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Nagomi", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "EL7Z UP": {
-                name: "EL7Z UP",
-                desc: "5代女团，代表作Cheeky Ice Cream, Undercover",
-                tier: "C",
-                members: [
-                    { name: "Kei", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yuki", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Nana", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yeeun", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yeoreum", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Seoyeon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Haeun", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "izna": {
-                name: "izna",
-                desc: "5代女团，代表作Izna, Fake It",
-                tier: "C",
-                members: [
-                    { name: "Mai", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Bang Jee-min", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yoon Ji-yoon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Koko", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Ryu Sa-rang", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jeong Sae-byeok", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Kim Chae-joo", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "HITGS": {
-                name: "HITGS",
-                desc: "5代女团，代表作Things We Love : H, Gross",
-                tier: "A",
-                members: [
-                    { name: "Seojin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seohee", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hyerin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "VV", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Ahn", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "STAYC": {
-                name: "STAYC",
-                desc: "5代女团，代表作RUN2U, Teddy Bear",
-                members: [
-                    { name: "Sumin(수민)", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sieun(시은)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Isa(아이사)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seeun(세은)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yoon(윤)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "J(제이)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "H1-KEY": {
-                name: "H1-KEY",
-                desc: "5代女团，代表作Let It Burn, Seoul",
-                members: [
-                    { name: "Mabin", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seoi", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Riina", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Hwiseo", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "KATSEYE": {
-                name: "KATSEYE",
-                desc: "5代女团，代表作Debut, Touch",
-                tier: "A",
-                members: [
-                    { name: "Sophia", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Lara", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Yoonchae", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Megan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Daniela", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Manon", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "XLOV": {
-                name: "XLOV",
-                desc: "6代男团，代表作Breakthrough, I'mma Keep It",
-                tier: "C",
-                members: [
-                    { name: "Lumen", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Leon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hyun", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Rui", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "NouerA": {
-                name: "NouerA",
-                desc: "6代男团，代表作Chapter: New Is Now, Infinity",
-                tier: "C",
-                members: [
-                    { name: "Gihyeon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Junpyo", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Hyunjun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yuseop", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Lin", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Fan", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Miraku", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "NEWBEAT": {
-                name: "NEWBEAT",
-                desc: "6代男团，代表作Revolution, HICCUPS",
-                tier: "C",
-                members: [
-                    { name: "Seungwoo", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jinho", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Kyungmin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Daehyun", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yoonho", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Taehyun(태현)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "CLOSE YOUR EYES": {
-                name: "CLOSE YOUR EYES",
-                desc: "6代男团，代表作All My Dreams, Glitch",
-                tier: "C",
-                members: [
-                    { name: "Jinwook", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Seunghwan", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sungmin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Kyungmin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Jeonghyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Siyun", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Jihoo", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "AHOF": {
-                name: "AHOF",
-                desc: "6代男团，代表作Who We Are, Destiny",
-                tier: "C",
-                members: [
-                    { name: "Park Juwon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Hayato", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jeong Yumin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Osawa Shuya", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Park Han", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chen Shao", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Lee Junseo", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Ruto", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Mu Xiaze", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
-            },
-            "idntt": {
-                name: "idntt",
-                desc: "6代男团，代表作unevermet, GLITCH OVER",
-                tier: "C",
-                members: [
-                    { name: "Nam Jieun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Ahn Jiwon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Park Soyeon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Choi Yujin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Kim Seoyeon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Lee Haram", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Yoon Chaewon", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Jung Minji", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Seo Yeonhee", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Kim Jia", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Park Sujin", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "Lee Yoonseo", personality: ["创意", "认真", "上进"], position: "Sub Rapper" },
-                    { name: "Hwang Yeseo", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Cho Minju", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Kim Yeonju", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Jang Yubin", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Han Seoah", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Yoo Sihyeon", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Kwon Jiwon", personality: ["温柔", "开朗", "热情"], position: "Lead Rapper" },
-                    { name: "Bae Seohyun", personality: ["幽默", "创意", "自信"], position: "Visual" },
-                    { name: "Lim Sua", personality: ["冷静", "温柔", "认真"], position: "Center" },
-                    { name: "Song Haeun", personality: ["上进", "热情", "幽默"], position: "Maknae" },
-                    { name: "Oh Jiho", personality: ["开朗", "自信", "温柔"], position: "Sub Vocal" },
-                    { name: "Kang Dohyun", personality: ["创意", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "IDID": {
-                name: "IDID",
-                desc: "6代男团，代表作I Did It, OOMM",
-                tier: "C",
-                members: [
-                    { name: "Yonghoon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Minjae", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Wonbin(원빈)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Yoochan", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Junhyuk", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Semin", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "AxMxP": {
-                name: "AxMxP",
-                desc: "6代男团，代表作Pulsewave, Overload",
-                tier: "C",
-                members: [
-                    { name: "Ha Yoojoon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Cru", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Kim Shin", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Juhwan", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "KiiiKiii": {
-                name: "KiiiKiii",
-                desc: "6代女团，代表作I DO ME, KICK BACK",
-                tier: "C",
-                members: [
-                    { name: "Jiwon", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Eunha", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Soojin", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Hyelim", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Nayoung", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "Baby DONT Cry": {
-                name: "Baby DONT Cry",
-                desc: "6代女团，代表作YouandMe, Cry Baby",
-                tier: "C",
-                members: [
-                    { name: "Ihyun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Mia", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Sia", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Yoonseo", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "AtHeart": {
-                name: "AtHeart",
-                desc: "6代女团，代表作Good Girl Complex, Sweet but Psycho",
-                tier: "C",
-                members: [
-                    { name: "Sihyun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Jiwon", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Nahyun", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Seoah", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Yujin(유진)", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Chaerin", personality: ["认真", "上进", "冷静"], position: "Main Rapper" },
-                    { name: "Minju", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
-            },
-            "Kandis": {
-                name: "Kandis",
-                desc: "6代女团，代表作Hello, World!, Sweet Dream",
-                tier: "C",
-                members: [
-                    { name: "Sohyun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Roa", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jua", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sena", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Eunbi", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "USPEER": {
-                name: "USPEER",
-                desc: "6代女团，代表作Step Up, Go High",
-                tier: "C",
-                members: [
-                    { name: "Sohyun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yejin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jiwoo(지우)", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Harin", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Chaewon", personality: ["自信", "热情", "开朗"], position: "Lead Dancer" },
-                    { name: "Jisoo(지수)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
-            },
-            "VVUP": {
-                name: "VVUP",
-                desc: "6代女团，代表作Locked On, Doo Doom Chit",
-                tier: "C",
-                members: [
-                    { name: "Kim", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Paan", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Suyeon", personality: ["开朗", "幽默", "创意"], position: "Maknae" }
-                ]
-            },
-            "Geenius": {
-                name: "Geenius",
-                desc: "6代女团，代表作Voyage, Re:Born",
-                tier: "C",
-                members: [
-                    { name: "Yeyoung", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Sion", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Mika", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Zoe", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Andamiro", personality: ["自信", "热情", "开朗"], position: "Maknae" }
-                ]
-            },
-            "MAKING": {
-                name: "MAKING",
-                desc: "6代女团，代表作Make It, Shine On",
-                members: [
-                    { name: "Seoeun", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yejin", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Nara", personality: ["开朗", "幽默", "创意"], position: "Lead Vocal" },
-                    { name: "Haein", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
-            },
-            "AOA Black": {
-                name: "AOA Black",
-                desc: "6代女团，代表作Start Line, Blue Moon",
-                members: [
-                    { name: "Seunghui", personality: ["热情", "自信", "上进"], position: "Leader" },
-                    { name: "Yeonji", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jiwon", personality: ["开朗", "幽默", "创意"], position: "Main Dancer" },
-                    { name: "Sihyeon", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Doha", personality: ["自信", "热情", "开朗"], position: "Maknae" }
+                    { name: "Moon Soojin(문수진)", personality: ["开朗", "自信", "上进"], position: "Leader" },
+                    { name: "Park Jihae(박지혜)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
+                    { name: "Kim Daeun(김다은)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer" },
+                    { name: "Jung Seokyung(정서경)", personality: ["认真", "冷静", "上进"], position: "Lead Vocal" },
+                    { name: "Han Chaewon(한채원)", personality: ["开朗", "冷静", "温柔"], position: "Maknae" }
                 ]
             }
         }
@@ -2524,16 +785,25 @@ function renderCreationStep3() {
 
 function renderCreationStep4() {
     if (gameState.player.role === 'Idol') {
+        var company = COMPANIES[gameState.player.company];
+        var groupKeys = Object.keys(company.groups);
+        var groupEntries = [];
+        for (var _igei = 0; _igei < groupKeys.length; _igei++) { groupEntries.push([groupKeys[_igei], company.groups[groupKeys[_igei]]]); }
+        var idolGroupHtml = groupEntries.map(function(entry) {
+            var _ikey = entry[0]; var _igroup = entry[1];
+            var _isSelected = gameState.player.groups.indexOf(_ikey) > -1;
+            return '<div class="group-card ' + (_isSelected ? 'selected' : '') + '" data-key="' + _ikey + '" onclick="toggleIdolGroup(this.dataset.key)" style="cursor:pointer;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + _igroup.name + '</div>'
+            + (_isSelected ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">已选择</span>' : '')
+            + '</div><div class="group-desc">' + _igroup.desc + '</div></div>';
+        }).join('');
         return '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
         + '<div class="page-header"><div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div><div class="page-title">\u7b2c 4 \u6b65 / \u5171 6 \u6b65</div><div style="width:32px;"></div></div>'
         + '<div class="page-content" style="flex:1;overflow-y:auto;">'
-        + '<h2 style="font-size:24px;font-weight:700;color:var(--color-text);margin-bottom:8px;">\u539f\u521b\u56e2\u4f53</h2>'
-        + '<p style="color:var(--color-text-light);font-size:14px;margin-bottom:24px;">\u4f5c\u4e3a\u51fa\u9053\u7231\u8c46\uff0c\u4f60\u5c06\u5728\u539f\u521b\u56e2\u4f53\u4e2d\u51fa\u9053</p>'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-        + '<div style="font-size:20px;font-weight:700;">\u539f\u521b\u56e2\u4f53</div>'
-        + '<div style="font-size:14px;margin-top:8px;opacity:0.9;">\u4f60\u7684\u56e2\u540d\u5c06\u4ee5\u4f60\u7684\u540d\u5b57\u547d\u540d</div>'
-        + '<div style="font-size:12px;margin-top:4px;opacity:0.7;">\u540e\u7eed\u53ef\u5728\u6e38\u620f\u4e2d\u4fee\u6539\u56e2\u540d</div>'
-        + '</div></div>'
+        + '<h2 style="font-size:24px;font-weight:700;color:var(--color-text);margin-bottom:8px;">\u9009\u62e9\u56e2\u4f53</h2>'
+        + '<p style="color:var(--color-text-light);font-size:14px;margin-bottom:24px;">\u4f5c\u4e3a\u51fa\u9053\u7231\u8c46\uff0c\u9009\u62e9\u4f60\u6240\u5c5e\u7684\u56e2\u4f53</p>'
+        + idolGroupHtml
+        + '</div>'
         + '<div style="padding:16px 20px;background:var(--bg-card);border-top:1px solid var(--color-border);"><button class="btn btn-primary btn-lg" onclick="nextCreationStep(5)">\u4e0b\u4e00\u6b65</button></div>'
         + '</div>';
     }
@@ -2565,7 +835,7 @@ function renderCreationStep5() {
 function renderCreationStep6() {
     var company = COMPANIES[gameState.player.company];
     
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div class="avatar" style="width: 64px; height: 64px; font-size: 24px;">' + (gameState.player.name.charAt(0).toUpperCase()) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div class="avatar" style="width: 64px; height: 64px; font-size: 24px;">' + (gameState.player.name.charAt(0).toUpperCase()) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=COMPANIES[gameState.player.company]; return c&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
 }
 
 function genBirthOptions(start, count, part) {
@@ -2655,6 +925,11 @@ function toggleGroup(key) {
     }
 }
 
+function toggleIdolGroup(key) {
+    gameState.player.groups = [key];
+    render();
+}
+
 function togglePosition(p) {
     if (gameState.player.positions.length >= 3 && gameState.player.positions.indexOf(p) === -1) {
         showToast('最多选择3个定位');
@@ -2699,8 +974,12 @@ function nextCreationStep(step) {
     }
     // 验证步骤4必填项
     if (creationStep === 4) {
-        if (gameState.player.role !== 'Idol' && gameState.player.groups.length !== 3) {
-            showModal('提示', '请选择3个志愿团体');
+        if (gameState.player.role === 'Trainee' && gameState.player.groups.length !== 3) {
+            showModal('\u63d0\u793a', '\u8bf7\u9009\u62e93\u4e2a\u5fd7\u613f\u56e2');
+            return;
+        }
+        if (gameState.player.role === 'Idol' && gameState.player.groups.length !== 1) {
+            showModal('\u63d0\u793a', '\u8bf7\u9009\u62e9\u4e00\u4e2a\u56e2\u4f53');
             return;
         }
     }
@@ -2830,8 +1109,10 @@ function initAsIdol() {
         gameState.money = 80000 + Math.floor(Math.random() * 40001);
     }
     
-    var originalGroupName = gameState.player.name + '的团体';
-    gameState.player.group = originalGroupName; gameState.player.originalGroup = true;
+        var selectedGroupKey = (gameState.player.groups && gameState.player.groups.length > 0) ? gameState.player.groups[0] : null;
+        var _compObj = COMPANIES[company];
+        var originalGroupName = selectedGroupKey && _compObj && _compObj.groups[selectedGroupKey] ? _compObj.groups[selectedGroupKey].name : gameState.player.name + '\u7684\u56e2\u4f53';
+        gameState.player.group = originalGroupName; gameState.player.originalGroup = true;
     
     gameState.fans = 200 + Math.floor(Math.random() * 601);
     gameState.player.avatar = gameState.player.name.charAt(0).toUpperCase();
@@ -9187,7 +7468,7 @@ function _completeDebut() {
     var company = COMPANIES[gameState.player.company];
     var hasBusinessLoan = (gameState.loanAmount > 0 && gameState.loanInterest >= 5);
     if (!gameState.player.group) {
-        gameState.player.group = gameState.player.name + '的团体';
+        var _company = COMPANIES[gameState.player.company]; var _selGroup = (gameState.player.groups && gameState.player.groups.length > 0) ? gameState.player.groups[0] : null; gameState.player.group = _selGroup && _company && _company.groups[_selGroup] ? _company.groups[_selGroup].name : gameState.player.name + '\u7684\u56e2\u4f53';
     }
     gameState.player.originalGroup = true;
     if (!gameState.player.group) gameState.player.group = gameState.player.name + '的团体';
