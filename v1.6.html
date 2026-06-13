@@ -1225,7 +1225,7 @@ function navTo(page) { goToPage(page); }
 function setAndNav(stateExpr, page) { eval(stateExpr); goToPage(page); }
 
 // ==================== GAME DATA ====================
-const COMPANIES = {
+var COMPANIES = {
     "SM Entertainment": {
         name: "SM Entertainment",
         desc: "韩国最大型经纪公司，以精致标准化著称。旗下艺人以出众的颜值、完美的舞台展现和强大的综合实力闻名。",
@@ -3307,7 +3307,7 @@ var GROUP_INTROS = {};
 // Group intros generated dynamically from COMPANIES
 
 
-let gameState = {
+var gameState = {
     player: {
         name: '',
         gender: '',
@@ -3326,9 +3326,9 @@ let gameState = {
     life: 150,
     credit: 150,
     danger: 0,
-        trainCount: 0,
-        scheduleCount: 0,
-        firstPlaceCount: 0,
+    trainCount: 0,
+    scheduleCount: 0,
+    firstPlaceCount: 0,
     money: 50000,
     fans: 0,
     teamMembers: [],
@@ -3361,17 +3361,51 @@ let gameState = {
     liveMode: 'video',
     earnCooldowns: {},
     groupPopularity: 0,
+    kakaoChats: {},
+    kakaoFriends: [],
+    kakaoCurrentChat: '',
+    kakaoTab: 'chats',
+    certificates: {
+        dance: [false, false, false],
+        vocal: [false, false, false],
+        rap: [false, false, false],
+        acting: [false, false, false],
+        variety: [false, false, false]
+    },
+    examResult: { comprehensive: [false, false] },
+    preDebut: false,
     debutStep: 0,
     debutResult: null,
     noticeList: null,
-    noticeDetail: null
+    noticeDetail: null,
+    insUnread: 0,
+    tiktokUnread: 0,
+    bubbleUnread: 0,
+    weverseUnread: 0,
+    datingUnread: 0,
+    livePendingReward: false,
+    newNotice: false,
+    lastReadVersion: '',
+    aiUsage: {},
+    gacha: null,
+    vipTier: null,
+    aiBoostPacks: [],
+    teammates: [],
+    contract: null,
+    comeback: null,
+    management: null,
+    fanClub: null,
+    antiEvents: [],
+    achievements: [],
+    mvCollection: [],
+    kickMemberIndex: 0
 };
 var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 
 
 // ==================== NAVIGATION ====================
-let currentPage = 'welcome';
-let creationStep = 1;
+var currentPage = 'welcome';
+var creationStep = 1;
 var INVITE_CODES = ['LOVE7286', 'DREAM4886', 'DREAM5305', 'DREAM6461', 'DEBUT3677', 'V162877', 'MYIDOL5203', 'V165678', 'V164720', 'FAN3082'];
 
 function renderInviteCodePage(app) {
@@ -3401,7 +3435,7 @@ function handleInviteCodeInput(el) {
 }
 
 function checkInviteCode() {
-    var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase();
+    var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase().replace(/\s/g, '');
     var errEl = document.getElementById('inviteCodeError');
     var btnEl = document.getElementById('inviteCodeBtn');
     if (!code) {
@@ -3562,118 +3596,49 @@ function render() {
 
 // ==================== WELCOME PAGE ====================
 function renderWelcomePage(container) {
-    const saves = loadAllSaves();
-    
-    container.innerHTML = `
-        <div class="welcome-container">
-            <div class="welcome-logo">My Idol</div>
-            <div class="welcome-subtitle">K-Pop Idol Simulator</div>
-            
-            <button class="btn btn-primary btn-lg" onclick="startNewGame()" style="margin-bottom: 12px;">
-                开始游戏
-            </button>
-            
-            <div style="width: 100%; max-width: 280px; margin-top: 32px;">
-                <div class="section-title" style="text-align: center; margin-bottom: 16px;">存档槽位</div>
-                ${[0,1,2].map(i => {
-                    const save = saves[i];
-                    if (save && save.player && save.player.name) {
-                        return `
-                            <div class="save-slot occupied" onclick="loadGame(${i})">
-                                <div style="font-weight: 600; color: var(--color-text);">存档 ${i + 1}</div>
-                                <div style="font-size: 12px; color: var(--color-text-light);">${save.player.name} | ${save.player.role}</div>
-                                <div style="font-size: 11px; color: var(--color-text-light);">粉丝: ${(save.fans || 0).toLocaleString()}</div>
-                            </div>
-                        `;
-                    } else {
-                        return `
-                            <div class="save-slot empty" onclick="startNewGame(${i})">
-                                <div>空存档 ${i + 1}</div>
-                            </div>
-                        `;
-                    }
-                }).join('')}
-            </div>
-        </div>
-    `;
+    var saves = loadAllSaves();
+    var slotsHtml = '';
+    for (var si = 0; si < 3; si++) {
+        var save = saves[si];
+        if (save && save.player && save.player.name) {
+            var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+            slotsHtml += '<div class="save-slot occupied" onclick="loadGame(' + si + ')">'
+                + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (si + 1) + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);">粉丝: ' + (save.fans || 0).toLocaleString() + '</div>'
+                + '</div>';
+        } else {
+            slotsHtml += '<div class="save-slot empty" onclick="startNewGame(' + si + ')">'
+                + '<div>空存档 ' + (si + 1) + '</div></div>';
+        }
+    }
+    container.innerHTML = '<div class="welcome-container">'
+        + '<div class="welcome-logo">My Idol</div>'
+        + '<div class="welcome-subtitle">K-Pop Idol Simulator</div>'
+        + '<button class="btn btn-primary btn-lg" onclick="startNewGame()" style="margin-bottom:12px;">开始游戏</button>'
+        + '<div style="width:100%;max-width:280px;margin-top:32px;">'
+        + '<div class="section-title" style="text-align:center;margin-bottom:16px;">存档槽位</div>'
+        + slotsHtml
+        + '</div></div>';
 }
 
 // ==================== CHARACTER CREATION ====================
-function startNewGame(slot = 0) {
-    gameState = {
-        player: {
-            name: '',
-            gender: '',
-            birthDate: '',
-            age: 0,
-            personality: [],
-            company: '',
-            group: '',
-            groups: [],
-            positions: [],
-            role: '',
-            avatar: ''
-        },
-        体力: 200,
-        max体力: 200,
-        life: 150,
-        credit: 150,
-        danger: 0,
-        trainCount: 0,
-        scheduleCount: 0,
-        firstPlaceCount: 0,
-        money: 50000,
-        fans: 0,
-        teamMembers: [],
-        relationships: {},
-        emails: [],
-        bubbleMessages: [],
-        bubble已发送: [],
-        dating: null,
-        restTimeout: null,
-        inventory: [],
-        stats: { dance: 60, vocal: 50, rap: 40, acting: 55, variety: 45 },
-        scheduleItems: [],
-        meetings: [],
-        loanAmount: 0,
-        loanInterest: 0,
-        npc好感度: {},
-        meetingDialogState: null,
-        insProfileView: null,
-        influence: 50,
-        fame: 30,
-        lucky: 50,
-        totalLikes: 0,
-        insPosts: [],
-        tiktokPosts: [],
-        insMessages: [],
-        tiktokMessages: [],
-        membersViewLevel: 0,
-        membersViewCompany: '',
-        membersViewGroup: '',
-        liveMode: 'video',
-        groupPopularity: 0,
-        kakaoChats: {},
-        kakaoFriends: [],
-        kakaoCurrentChat: '',
-        kakaoTab: 'chats',
-        certificates: {
-            dance: [false, false, false],
-            vocal: [false, false, false],
-            rap: [false, false, false],
-            acting: [false, false, false],
-            variety: [false, false, false]
-        },
-        examResult: {
-            comprehensive: [false, false]
-        },
-        preDebut: false,
-        earnCooldowns: {},
-        debutStep: 0,
-        debutResult: null,
-        noticeList: null,
-        noticeDetail: null,
-        kickMemberIndex: 0
+function startNewGame(slot) {
+    if (slot === undefined) slot = 0;
+    Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
+    _ensureV16Fields();
+    gameState.player = {
+        name: '',
+        gender: '',
+        birthDate: '',
+        age: 0,
+        personality: [],
+        company: '',
+        group: '',
+        groups: [],
+        positions: [],
+        role: '',
+        avatar: ''
     };
     current存档 = slot;
     creationStep = 1;
@@ -3682,7 +3647,7 @@ function startNewGame(slot = 0) {
 }
 
 function renderCreationPage(container) {
-    let content = '';
+    var content = '';
     
     switch(creationStep) {
         case 1:
@@ -3710,7 +3675,7 @@ function renderCreationPage(container) {
     updateTime();
     
     // 绑定开始游戏按钮
-    const startBtn = document.getElementById('startGameBtn');
+    var startBtn = document.getElementById('startGameBtn');
     if (startBtn) {
         startBtn.addEventListener('click', function() {
             completeCreation();
@@ -3763,9 +3728,9 @@ function renderCreationStep1() {
                 
                 <div class="section-title" style="margin-top: 24px;">性格标签 (选择3个)</div>
                 <div id="personalityTags">
-                    ${['热情', '冷静', '开朗', '上进', '幽默', '认真', '温柔', '自信'].map(p => `
+                    ${['热情', '冷静', '开朗', '上进', '幽默', '认真', '温柔', '自信'].map(function(p) { return `
                         <span class="tag ${gameState.player.personality.includes(p) ? 'selected' : ''}" onclick="togglePersonality('${p}')">${p}</span>
-                    `).join('')}
+                    `}).join('')}
                 </div>
                 <div style="text-align: center; margin-top: 12px; color: var(--color-text-light); font-size: 13px;">
                     已选: <span id="personalityCount">${gameState.player.personality.length}</span>/3
@@ -3792,15 +3757,15 @@ function renderCreationStep2() {
                 <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择公司</h2>
                 <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">从五大公司中选择您的经纪公司</p>
                 
-                ${Object.entries(COMPANIES).map(([key, company]) => `
+                ${Object.entries(COMPANIES).map(function(entry) { var key = entry[0]; var company = entry[1]; return `
                     <div class="company-card ${gameState.player.company === key ? 'selected' : ''}" onclick="selectCompany('${key}')">
                         <div class="company-name">${company.name}</div>
                         <div class="company-desc">${company.desc}</div>
                         <div class="company-tags">
-                            ${company.tags.map(t => `<span class="badge badge-secondary">${t}</span>`).join('')}
+                            ${company.tags.map(function(t) { return '<span class="badge badge-secondary">' + t + '</span>'; }).join('')}
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
             
             <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">
@@ -3857,7 +3822,7 @@ function renderCreationStep4() {
                 <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">志愿团</h2>
                 <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择最多3个志愿团，按选择顺序为志愿顺序</p>
                 
-                ${groups.map(([key, group]) => {
+                ${groups.map(function(entry) { var key = entry[0]; var group = entry[1];
                     var gIdx = gameState.player.groups.indexOf(key);
                     var label = gIdx === 0 ? '第一志愿' : gIdx === 1 ? '第二志愿' : gIdx === 2 ? '第三志愿' : '';
                     return '<div class="group-card ' + (gIdx > -1 ? 'selected' : '') + '" data-key="' + key + '" onclick="toggleGroup(this.dataset.key)"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + group.name + '</div>' + (label ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</div><div class="group-desc">' + group.desc + '</div></div>';
@@ -3876,7 +3841,7 @@ function renderCreationStep4() {
 }
 
 function renderCreationStep5() {
-    const positions = ['主唱', '主舞', '主Rapper', '门面', '中心位', '队长', '忙内'];
+    var positions = ['主唱', '主舞', '主Rapper', '门面', '中心位', '队长', '忙内'];
     
     return `
         <div class="page active" style="display: flex; flex-direction: column; height: 100%;">
@@ -3891,7 +3856,7 @@ function renderCreationStep5() {
                 <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择最多3个定位，按志愿顺序排列</p>
                 
                 <div style="text-align: center;">
-                    ${positions.map(p => {
+                    ${positions.map(function(p) {
                         var pIdx = gameState.player.positions.indexOf(p);
                         var label = pIdx === 0 ? '第一定位' : pIdx === 1 ? '第二定位' : pIdx === 2 ? '第三定位' : '';
                         return '<span class="tag ' + (pIdx > -1 ? 'selected' : '') + '" data-p="' + p + '" onclick="togglePosition(this.dataset.p)" style="font-size:14px;padding:12px 20px;margin:6px;position:relative;">' + p + (label ? '<span style="position:absolute;top:-6px;right:-6px;font-size:9px;padding:1px 5px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</span>';
@@ -3984,22 +3949,22 @@ function calculateAge() {
     var yearEl = document.getElementById('inputBirth年');
     var monthEl = document.getElementById('inputBirth月');
     var dayEl = document.getElementById('inputBirth日');
-    const year = yearEl ? yearEl.value : '';
-    const month = monthEl ? monthEl.value : '';
-    const day = dayEl ? dayEl.value : '';
+    var year = yearEl ? yearEl.value : '';
+    var month = monthEl ? monthEl.value : '';
+    var day = dayEl ? dayEl.value : '';
     
     if (year && month && day) {
-        const birthDate = new Date(year, month - 1, day);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
+        var birthDate = new Date(year, month - 1, day);
+        var today = new Date();
+        var age = today.getFullYear() - birthDate.getFullYear();
+        var m = today.getMonth() - birthDate.getMonth();
         if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
             age--;
         }
         gameState.player.age = age;
         gameState.player.birthDate = `${year}-${month}-${day}`;
         
-        const ageEl = document.getElementById('ageValue');
+        var ageEl = document.getElementById('ageValue');
         if (ageEl) ageEl.textContent = age;
     }
 }
@@ -4046,7 +4011,7 @@ function toggleGroup(key) {
     } else {
         gameState.player.groups.push(key);
     }
-    const countEl = document.getElementById('groupCount');
+    var countEl = document.getElementById('groupCount');
     if (countEl) countEl.textContent = gameState.player.groups.length;
     render();
     // 选满3个志愿团后自动跳到下一步
@@ -4144,8 +4109,8 @@ function completeCreation() {
             initAsIdol();
         }
         
-        // 初始化KakaoTalk好友
-        _ensureKakaoState();
+        // 初始化所有V1.6字段（含gacha、kakao等）
+        _ensureV16Fields();
         
         // 检查管理员模式
         _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
@@ -4180,7 +4145,7 @@ function do工作() {
 function initAsTrainee() {
     gameState.money = 70000;
     
-    const company = gameState.player.company;
+    var company = gameState.player.company;
     if (company === 'SM Entertainment' || company === 'YG Entertainment' || company === 'HYBE') {
         gameState.fans = 500 + Math.floor(Math.random() * 201);
     } else if (company === 'JYP Entertainment') {
@@ -4219,7 +4184,7 @@ function initAsTrainee() {
 }
 
 function initAsIdol() {
-    const company = gameState.player.company;
+    var company = gameState.player.company;
     var gpBase3 = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
     gameState.groupPopularity = gpBase3[company] || 50;
     if (company === 'SM Entertainment' || company === 'YG Entertainment' || company === 'HYBE') {
@@ -4230,7 +4195,7 @@ function initAsIdol() {
         gameState.money = 80000 + Math.floor(Math.random() * 40001);
     }
     
-    const groupKey = gameState.player.groups[Math.floor(Math.random() * gameState.player.groups.length)];
+    var groupKey = gameState.player.groups[Math.floor(Math.random() * gameState.player.groups.length)];
     gameState.player.group = groupKey;
     
     gameState.fans = 200 + Math.floor(Math.random() * 601);
@@ -4238,10 +4203,10 @@ function initAsIdol() {
     
     var companyData = COMPANIES[company];
     if (companyData && companyData.groups && companyData.groups[groupKey]) {
-        const group = companyData.groups[groupKey];
-        gameState.teamMembers = group.members.map(m => m.name);
+        var group = companyData.groups[groupKey];
+        gameState.teamMembers = group.members.map(function(m) { return m.name; });
     
-        const memberList = group.members.map(m => m.name + '（' + m.position + '）').join('、');
+        var memberList = group.members.map(function(m) { return m.name + '（' + m.position + '）'; }).join('、');
         
         gameState.emails.unshift({
             title: '出道快乐！',
@@ -4271,7 +4236,7 @@ function initAsIdol() {
 
 // ==================== HOME PAGE (APP GRID) ====================
 function renderHomePage(container) {
-    const apps = [
+    var apps = [
         { id: 'debut', icon: 'debut', name: '出道企划', unlock: 0 },
         { id: 'earn', icon: 'earn', name: '赚钱中心', unlock: 0 },
         { id: 'hotsearch', icon: 'hotsearch', name: '热搜', unlock: 0 },
@@ -4309,7 +4274,7 @@ function renderHomePage(container) {
         { id: 'kpopwiki', icon: 'kpopwiki', name: 'Kpop百科', unlock: 0 }
     ];
     
-    const roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+    var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
     var company = COMPANIES[gameState.player.company];
     
     container.innerHTML = `
@@ -4359,7 +4324,7 @@ function renderHomePage(container) {
 
 // ==================== TRAINING PAGE ====================
 function render训练Page(container) {
-    const trainOptions = [
+    var trainOptions = [
         { name: '舞蹈训练', stat: 'dance', statName: '舞蹈', cost: 20, moneyCost: 1000, gain: 2 },
         { name: '声乐训练', stat: 'vocal', statName: '声乐', cost: 20, moneyCost: 1000, gain: 2 },
         { name: '说唱训练', stat: 'rap', statName: '说唱', cost: 20, moneyCost: 1000, gain: 2 },
@@ -4383,8 +4348,8 @@ function render训练Page(container) {
                 
                 <div class="section-title" style="margin-top: 16px;">能力值</div>
                 <div class="card">
-                    ${Object.entries(gameState.stats).map(([key, val]) => {
-                        const names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
+                    ${Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
+                        var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return `
                             <div class="my-stat-bar">
                                 <span class="my-stat-label">${names[key]}</span>
@@ -4398,7 +4363,7 @@ function render训练Page(container) {
                 </div>
                 
                 <div class="section-title" style="margin-top: 16px;">选择训练项目</div>
-                ${trainOptions.map(opt => `
+                ${trainOptions.map(function(opt) { return `
                     <div class="card" onclick="do训练项目('${opt.stat}', ${opt.cost}, ${opt.moneyCost}, '${opt.name}')">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
@@ -4407,7 +4372,7 @@ function render训练Page(container) {
                             </div>
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
                 <div style="margin-top: 16px;">
                     <button class="btn btn-outline btn-lg" onclick="goToPage('exam')" style="width:100%;">去考核</button>
                 </div>
@@ -5473,9 +5438,9 @@ function renderComprehensiveExam(container, attempt) {
 
 // ==================== MY PAGE ====================
 function render我的Page(container) {
-    const roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+    var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
     var company = COMPANIES[gameState.player.company];
-    const genderText = gameState.player.gender === 'F' ? '女' : '男';
+    var genderText = gameState.player.gender === 'F' ? '女' : '男';
     
     container.innerHTML = `
         <div class="page active">
@@ -5538,8 +5503,8 @@ function render我的Page(container) {
                 <!-- 能力卡 -->
                 <div class="section-title">能力</div>
                 <div class="card">
-                    ${Object.entries(gameState.stats).map(([key, val]) => {
-                        const names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
+                    ${Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
+                        var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return `
                             <div class="my-stat-bar">
                                 <span class="my-stat-label">${names[key]}</span>
@@ -5572,12 +5537,12 @@ function render我的Page(container) {
                 <div class="card">
                     ${gameState.inventory.length === 0 ? `
                         <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>
-                    ` : gameState.inventory.map((item, i) => `
+                    ` : gameState.inventory.map(function(item, i) { return `
                         <div class="inventory-item">
                             <span class="item-name">${item.name}</span>
                             <button class="item-use" onclick="useItem(${i})">使用</button>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
                 
                 <!-- 账号操作 -->
@@ -5592,7 +5557,7 @@ function render我的Page(container) {
 }
 
 function useItem(index) {
-    const item = gameState.inventory[index];
+    var item = gameState.inventory[index];
     if (!item) return;
     
     if (item.effect === '体力') {
@@ -5990,15 +5955,15 @@ function renderBottomNav() {
     
     function isActive(group) { return group.includes(currentPage); }
     
-    const items = [
+    var items = [
         { id: 'home', icon: 'navHome', label: '首页', group: homePages },
         { id: 'training', icon: 'navTrain', label: '训练', group: trainPages },
         { id: 'exam', icon: 'navExam', label: '考核', group: examPages },
         { id: 'me', icon: 'navMe', label: '我的', group: mePages }
     ];
     
-    nav.innerHTML = items.map(item => {
-        const active = isActive(item.group);
+    nav.innerHTML = items.map(function(item) {
+        var active = isActive(item.group);
         return `
             <div class="nav-item ${active ? 'active' : ''}" onclick="goToPage('${item.id}')">
                 <div class="nav-icon">${getNavIcon(item.icon, active)}</div>
@@ -6009,8 +5974,8 @@ function renderBottomNav() {
 }
 
 function getNavIcon(name, active) {
-    const color = active ? 'var(--color-primary)' : 'var(--color-text-light)';
-    const icons = {
+    var color = active ? 'var(--color-primary)' : 'var(--color-text-light)';
+    var icons = {
         'navHome': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
         'navTrain': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11v11h-11z"></path><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M2 12h4"></path><path d="M18 12h4"></path></svg>`,
         'navExam': `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`,
@@ -6020,7 +5985,7 @@ function getNavIcon(name, active) {
 }
 
 function getIcon(name) {
-    const icons = {
+    var icons = {
         'hotsearch': '<svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>',
         'ranking': '<svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>',
         'schedule': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
@@ -6136,9 +6101,9 @@ function renderHotsearchDetailPage(container) {
 
 function renderRankingPage(container) {
     if (!window._rankingTab) window._rankingTab = 'idol';
-    const tab = window._rankingTab;
+    var tab = window._rankingTab;
     
-    const idolRanking = [
+    var idolRanking = [
         { name: 'EXO', val: 100000, unit: '粉丝' },
         { name: 'Black Luna', val: 85000, unit: '粉丝' },
         { name: 'Myth', val: 70000, unit: '粉丝' },
@@ -6147,7 +6112,7 @@ function renderRankingPage(container) {
         { name: 'Taegi Flow', val: 25000, unit: '粉丝' },
         { name: 'Nova', val: 10000, unit: '粉丝' }
     ];
-    const powerRanking = [
+    var powerRanking = [
         { name: 'EXO', val: 92, unit: '综合能力' },
         { name: 'Black Luna', val: 88, unit: '综合能力' },
         { name: 'Myth', val: 85, unit: '综合能力' },
@@ -6156,7 +6121,7 @@ function renderRankingPage(container) {
         { name: 'Taegi Flow', val: 70, unit: '综合能力' },
         { name: 'Nova', val: 65, unit: '综合能力' }
     ];
-    const fanRanking = [
+    var fanRanking = [
         { name: 'EXO', val: 100000, unit: '粉丝' },
         { name: 'Black Luna', val: 85000, unit: '粉丝' },
         { name: 'Myth', val: 70000, unit: '粉丝' },
@@ -6165,7 +6130,7 @@ function renderRankingPage(container) {
         { name: 'Taegi Flow', val: 25000, unit: '粉丝' },
         { name: 'Nova', val: 10000, unit: '粉丝' }
     ];
-    const wealthRanking = [
+    var wealthRanking = [
         { name: 'EXO', val: 2500000, unit: '金币' },
         { name: 'Black Luna', val: 1800000, unit: '金币' },
         { name: 'Myth', val: 1500000, unit: '金币' },
@@ -6174,14 +6139,14 @@ function renderRankingPage(container) {
         { name: 'Taegi Flow', val: 500000, unit: '金币' },
         { name: 'Nova', val: 300000, unit: '金币' }
     ];
-    const tabs = [
+    var tabs = [
         { id: 'idol', label: '偶像' },
         { id: 'power', label: '实力' },
         { id: 'fan', label: '人气' },
         { id: 'wealth', label: '财富' }
     ];
-    const dataMap = { idol: idolRanking, power: powerRanking, fan: fanRanking, wealth: wealthRanking };
-    const rankings = dataMap[tab] || idolRanking;
+    var dataMap = { idol: idolRanking, power: powerRanking, fan: fanRanking, wealth: wealthRanking };
+    var rankings = dataMap[tab] || idolRanking;
     
     container.innerHTML = `
         <div class="page active">
@@ -6192,9 +6157,9 @@ function renderRankingPage(container) {
             </div>
             <div class="page-content">
                 <div style="display:flex;gap:6px;margin-bottom:16px;">
-                    ${tabs.map(t => '<button class="btn btn-sm '+(tab===t.id?'btn-primary':'btn-secondary')+'" data-tab="' + t.id + '" onclick="window._rankingTab=this.dataset.tab;render();" style="flex:1;">'+t.label+'</button>').join('')}
+                    ${tabs.map(function(t) { return '<button class="btn btn-sm '+(tab===t.id?'btn-primary':'btn-secondary')+'" data-tab="' + t.id + '" onclick="window._rankingTab=this.dataset.tab;render();" style="flex:1;">'+t.label+'</button>'; }).join('')}
                 </div>
-                ${rankings.map((r, i) => `
+                ${rankings.map(function(r, i) { return `
                     <div class="card" style="display: flex; align-items: center;">
                         <div style="font-size: 24px; font-weight: 700; color: ${i < 3 ? 'var(--color-primary)' : 'var(--color-text-light)'}; width: 40px;">${i + 1}</div>
                         <div class="avatar-sm" style="margin: 0 12px;">${r.name.charAt(0)}</div>
@@ -6203,7 +6168,7 @@ function renderRankingPage(container) {
                             <div style="font-size: 12px; color: var(--color-text-light);">${typeof r.val === 'number' && r.val > 10000 ? r.val.toLocaleString() : r.val} ${r.unit}</div>
                         </div>
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
         </div>
     `;
@@ -6262,13 +6227,13 @@ function render行程表Page(container) {
 }
 
 function initScheduleItems() {
-    const tags = [
+    var tags = [
         { tag: '练习', tagType: 'practice' },
         { tag: '通告', tagType: 'notice' },
         { tag: '演出', tagType: 'show' },
         { tag: '采访', tagType: 'interview' }
     ];
-    const items = [
+    var items = [
         { time: '09:00', name: '晨间舞蹈练习', tag: '练习', tagType: 'practice', status: 'todo' },
         { time: '11:00', name: '声乐指导课', tag: '练习', tagType: 'practice', status: 'todo' },
         { time: '13:00', name: '品牌代言拍摄', tag: '通告', tagType: 'notice', status: 'todo' },
@@ -6376,7 +6341,7 @@ function readMeeting(index) {
         if (!m) { goToPage('meeting'); return; }
         m.read = true;
         var savedIdx = index;
-        showModal(m.title, m.content, [
+        showModal(m.title || '会议通知', m.content || '暂无内容', [
             { text: '关闭', action: closeModal },
             { text: '参加会议', action: function() { closeModal(); start会议Dialog(savedIdx); } }
         ]);
@@ -6388,7 +6353,7 @@ function readMeeting(index) {
 }
 
 function renderMailPage(container) {
-    const 未读 = gameState.emails.filter(e => !e.read).length;
+    var 未读 = gameState.emails.filter(function(e) { return !e.read; }).length;
     
     container.innerHTML = `
         <div class="page active">
@@ -6405,19 +6370,19 @@ function renderMailPage(container) {
                         </div>
                         <div>暂无邮件</div>
                     </div>
-                ` : gameState.emails.map((email, i) => `
+                ` : gameState.emails.map(function(email, i) { return `
                     <div class="card ${email.read ? '' : 'selected'}" onclick="readEmail(${i})">
                         <div style="font-weight: 600; margin-bottom: 4px;">${email.title}</div>
                         <div style="font-size: 12px; color: var(--color-text-light);">${email.from} - ${email.time}</div>
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
         </div>
     `;
 }
 
 function readEmail(index) {
-    const email = gameState.emails[index];
+    var email = gameState.emails[index];
     email.read = true;
     showModal(email.title, email.content.replace(/\\n/g, '\n'));
 }
@@ -6679,7 +6644,7 @@ function _triggerKakaoComfort() {
 
 function render恋爱Page(container) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
-    const sameCompanyNPCs = getSameCompanyNPCs();
+    var sameCompanyNPCs = getSameCompanyNPCs();
     
     container.innerHTML = `
         <div class="page active">
@@ -6708,9 +6673,9 @@ function render恋爱Page(container) {
                     </div>
                 ` : `
                     <div class="section-title">同公司成员</div>
-                    ${sameCompanyNPCs.map(npc => {
-                        const 好感 = gameState.npc好感度[npc.name] || 0;
-                        const canDate = 好感 >= 60;
+                    ${sameCompanyNPCs.map(function(npc) {
+                        var 好感 = gameState.npc好感度[npc.name] || 0;
+                        var canDate = 好感 >= 60;
                         return `
                             <div class="card">
                                 <div style="display: flex; align-items: center;">
@@ -6758,12 +6723,12 @@ function getSameCompanyNPCs() {
 
 function npcChat(name) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
-    const conversations = [
+    var conversations = [
         { npc: '最近训练辛苦吗？', options: ['还行，加油！', '有点累但值得', '你也是，一起加油'] },
         { npc: '周末有什么安排吗？', options: ['想去看电影', '可能要加班训练', '想和你一起出去玩'] },
         { npc: '你觉得今天的表演怎么样？', options: ['非常棒！', '还有进步空间', '你表现得最好'] }
     ];
-    const conv = conversations[Math.floor(Math.random() * conversations.length)];
+    var conv = conversations[Math.floor(Math.random() * conversations.length)];
     var _chatOpts = conv.options.map(function(o, oi) { return '<button class="btn btn-sm btn-secondary" data-name="'+name+'" data-idx="'+oi+'" onclick="npcChatReply(this.dataset.name,conv.options[parseInt(this.dataset.idx)])" style="font-size:12px;">' + o + '</button>'; }).join('');
     showModal(name + ' 发来消息', conv.npc + '<div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">' + _chatOpts + '</div>');
 }
@@ -7658,9 +7623,9 @@ function order快递服务(name, price, value, effect) {
 
 // ==================== LOAN APP ====================
 function renderLoanPage(container) {
-    const maxLoan = Math.floor(gameState.credit * 1000);
-    const totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
-    const canLoanMore = totalOwed < maxLoan;
+    var maxLoan = Math.floor(gameState.credit * 1000);
+    var totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
+    var canLoanMore = totalOwed < maxLoan;
     
     container.innerHTML = `
         <div class="page active">
@@ -7740,7 +7705,7 @@ function applyLoan(amount, interest) {
 }
 
 function repayLoan() {
-    const totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
+    var totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
     if (gameState.money < totalOwed) {
         showModal('金币不足', '金币不够还款，当前余额: ' + gameState.money.toLocaleString());
         return;
@@ -8197,7 +8162,7 @@ function render更新通知Page(container) {
             </div>
             <div class="page-content">
                 <div class="section-title">版本更新</div>
-                ${versionLogs.map(v => `
+                ${versionLogs.map(function(v) { return `
                     <div class="card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <div style="font-weight: 600;">${v.title}</div>
@@ -8206,15 +8171,15 @@ function render更新通知Page(container) {
                         <div style="font-size: 11px; color: var(--color-text-light); margin-bottom: 8px;">${v.date}</div>
                         <div style="font-size: 13px; color: var(--color-text-light); line-height: 1.6; white-space: pre-line;">${v.content}</div>
                     </div>
-                `).join('')}
+                `}).join('')}
                 
                 <div class="section-title" style="margin-top: 16px;">系统通知</div>
-                ${sysNotices.map(n => `
+                ${sysNotices.map(function(n) { return `
                     <div class="card" onclick="showModal('${n.title}','${n.content}')">
                         <div style="font-weight: 600; margin-bottom: 4px;">${n.title}</div>
                         <div style="font-size: 12px; color: var(--color-text-light);">${n.time}</div>
                     </div>
-                `).join('')}
+                `}).join('')}
             </div>
         </div>
     `;
@@ -8597,7 +8562,7 @@ function _doSwitchSlot(slot) {
     if (data) {
         try {
             Object.assign(gameState, JSON.parse(data));
-            _ensureKakaoState();
+            _ensureV16Fields();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
             render();
@@ -8608,6 +8573,7 @@ function _doSwitchSlot(slot) {
         }
     } else {
         Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
+        _ensureV16Fields();
         gameState.player = {
             name: '', gender: '', birthDate: '', age: 0,
             personality: [], company: '', group: '', groups: [],
@@ -8697,11 +8663,11 @@ function do训练() {
     gameState.体力 = Math.max(0, gameState.体力 - 20);
     gameState.money -= 1000;
     
-    const keys = Object.keys(gameState.stats);
-    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    var keys = Object.keys(gameState.stats);
+    var randomKey = keys[Math.floor(Math.random() * keys.length)];
     gameState.stats[randomKey] = Math.min(150, gameState.stats[randomKey] + 1);
     
-    const names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
+    var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     showModal('训练完成', `-20 体力\n-1,000 金币\n+1 ${names[randomKey]}`);
     render();
 }
@@ -8713,7 +8679,11 @@ function showMail() {
 }
 
 // ==================== REST FUNCTIONS ====================
+var _isResting = false;
 function rest30sec() {
+    if (_isResting) return;
+    if (gameState.体力 >= gameState.max体力) { showToast('体力已满，无需休息'); return; }
+    _isResting = true;
     if (gameState.restTimeout) {
         clearTimeout(gameState.restTimeout);
     }
@@ -8727,12 +8697,14 @@ function rest30sec() {
         gameState['体力'] = Math.min(gameState['max体力'], gameState['体力'] + 2);
         recovered += 2;
         update体力Display();
+        triggerSilentSave();
     }, 100);
     _addTimer(interval);
     
     showModal('休息中', '正在恢复体力，请等待30秒...');
     var timeout = setTimeout(function() {
         clearInterval(interval);
+        _isResting = false;
         showModal('休息完成', '+60 体力已恢复！');
         render();
     }, 30000);
@@ -8740,9 +8712,13 @@ function rest30sec() {
 }
 
 function rest50percent() {
+    if (_isResting) return;
+    if (gameState.体力 >= gameState.max体力) { showToast('体力已满，无需休息'); return; }
+    _isResting = true;
     var restore = Math.floor(gameState.max体力 * 0.5);
     gameState.体力 = Math.min(gameState.max体力, gameState.体力 + restore);
     showModal('休息完成', '+' + restore + ' 体力已恢复！');
+    _isResting = false;
     render();
 }
 
@@ -8762,8 +8738,8 @@ function _checkAutoRest() {
 }
 
 function update体力Display() {
-    const 体力Bar = document.querySelector('.stat-fill.体力');
-    const 体力Value = document.querySelector('.stat-value');
+    var 体力Bar = document.querySelector('.stat-fill.体力');
+    var 体力Value = document.querySelector('.stat-value');
     if (体力Bar) {
         体力Bar.style.width = (gameState.体力 / gameState.max体力 * 100) + '%';
     }
@@ -8874,16 +8850,7 @@ function loadGame(slot) {
         if (data) {
             var saveData = JSON.parse(data);
             Object.assign(gameState, saveData);
-            if (!gameState.insUnread) gameState.insUnread = 0;
-            if (!gameState.tiktokUnread) gameState.tiktokUnread = 0;
-            if (!gameState.bubbleUnread) gameState.bubbleUnread = 0;
-            if (!gameState.weverseUnread) gameState.weverseUnread = 0;
-            if (!gameState.datingUnread) gameState.datingUnread = 0;
-            if (!gameState.livePendingReward) gameState.livePendingReward = false;
-            if (!gameState.newNotice) gameState.newNotice = false;
-            if (!gameState.lastReadVersion) gameState.lastReadVersion = '';
-            if (!gameState.aiUsage) gameState.aiUsage = {};
-            if (typeof initGachaPool === 'function') initGachaPool();
+            _ensureV16Fields();
             current存档 = slot;
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
@@ -8901,10 +8868,10 @@ function loadGame(slot) {
 }
 
 function loadAllSaves() {
-    const saves = [null, null, null];
-    for (let i = 0; i < 3; i++) {
+    var saves = [null, null, null];
+    for (var i = 0; i < 3; i++) {
         try {
-            const data = localStorage.getItem('myidol_save_' + i);
+            var data = localStorage.getItem('myidol_save_' + i);
             if (data) {
                 saves[i] = JSON.parse(data);
             }
@@ -8915,10 +8882,10 @@ function loadAllSaves() {
 
 // ==================== TIME ====================
 function updateTime() {
-    const now = new Date();
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const timeEl = document.getElementById('statusTime');
+    var now = new Date();
+    var hours = now.getHours().toString().padStart(2, '0');
+    var minutes = now.getMinutes().toString().padStart(2, '0');
+    var timeEl = document.getElementById('statusTime');
     if (timeEl) {
         timeEl.textContent = hours + ':' + minutes;
     }
@@ -9480,9 +9447,9 @@ function renderAntiBlackPage(container) {
             + '<div style="font-weight:600;">' + e.title + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + e.desc + '</div>'
             + '<div style="display:flex;gap:8px;margin-top:10px;">'
-            + '<button class="btn btn-sm btn-primary" style="flex:1;font-size:11px;" data-i="' + i + '" onclick="handleAnti(this.dataset.i)">发声明</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + i + '" onclick="handleAnti(this.dataset.i)">法律手段</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + i + '" onclick="handleAnti(this.dataset.i)">忽略</button></div></div>';
+            + '<button class=\"btn btn-sm btn-primary\" style=\"flex:1;font-size:11px;\" data-i=\"' + i + '\" data-action=\"statement\" onclick=\"handleAnti(parseInt(this.dataset.i),this.dataset.action)\">发声明</button>'
+            + '<button class=\"btn btn-sm\" style=\"flex:1;font-size:11px;\" data-i=\"' + i + '\" data-action=\"legal\" onclick=\"handleAnti(parseInt(this.dataset.i),this.dataset.action)\">法律手段</button>'
+            + '<button class=\"btn btn-sm\" style=\"flex:1;font-size:11px;\" data-i=\"' + i + '\" data-action=\"ignore\" onclick=\"handleAnti(parseInt(this.dataset.i),this.dataset.action)\">忽略</button></div></div>';
     }
     html += '</div></div>';
     container.innerHTML = html;
@@ -9658,7 +9625,11 @@ function renderPROfficePage(container) {
     container.innerHTML = html;
 }
 
+var _prActionCooldown = false;
 function prAction(type) {
+    if (_prActionCooldown) return;
+    _prActionCooldown = true;
+    setTimeout(function() { _prActionCooldown = false; }, 1000);
     if (type === 'charity') {
         if (gameState.money < 30000) { showToast('金币不足'); return; }
         gameState.money -= 30000; gameState.danger = Math.max(0, gameState.danger - 10);
@@ -9798,6 +9769,26 @@ function initGachaPool() {
             topIdol: { pulls: 0, pity: 0, dailyFree: 0, collection: {}, lastResetDate: todayStr }
         };
     }
+    if (!gameState.gacha.kpop) {
+        gameState.gacha.kpop = { pulls: 0, pity: 0, dailyFree: 1, collection: {}, lastResetDate: todayStr };
+    }
+    if (!gameState.gacha.topIdol) {
+        gameState.gacha.topIdol = { pulls: 0, pity: 0, dailyFree: 0, collection: {}, lastResetDate: todayStr };
+    }
+    if (!gameState.gacha.kpop.collection) gameState.gacha.kpop.collection = {};
+    if (!gameState.gacha.topIdol.collection) gameState.gacha.topIdol.collection = {};
+    // Preserve hidden cards and fragment data - do not reset existing entries
+    if (gameState.gacha._savedCollection) {
+        var _savedK = gameState.gacha._savedCollection.kpop || {};
+        var _savedT = gameState.gacha._savedCollection.topIdol || {};
+        for (var _sk in _savedK) { if (_savedK[_sk].isHidden || _savedK[_sk].fragments > 0) gameState.gacha.kpop.collection[_sk] = _savedK[_sk]; }
+        for (var _st in _savedT) { if (_savedT[_st].isHidden || _savedT[_st].fragments > 0) gameState.gacha.topIdol.collection[_st] = _savedT[_st]; }
+        delete gameState.gacha._savedCollection;
+    }
+    if (gameState.gacha.kpop.pity === undefined) gameState.gacha.kpop.pity = 0;
+    if (gameState.gacha.topIdol.pity === undefined) gameState.gacha.topIdol.pity = 0;
+    if (gameState.gacha.kpop.pulls === undefined) gameState.gacha.kpop.pulls = 0;
+    if (gameState.gacha.topIdol.pulls === undefined) gameState.gacha.topIdol.pulls = 0;
     // Daily reset for kpop free pull
     if (gameState.gacha.kpop.lastResetDate !== todayStr) {
         gameState.gacha.kpop.dailyFree = 1;
@@ -10073,6 +10064,56 @@ function _ensureKakaoState() {
     }
     if (!gameState.kakaoCurrentChat) gameState.kakaoCurrentChat = '';
     if (!gameState.kakaoTab) gameState.kakaoTab = 'chats';
+}
+
+function _ensureV16Fields() {
+    _ensureKakaoState();
+    if (!gameState.insUnread) gameState.insUnread = 0;
+    if (!gameState.tiktokUnread) gameState.tiktokUnread = 0;
+    if (!gameState.bubbleUnread) gameState.bubbleUnread = 0;
+    if (!gameState.weverseUnread) gameState.weverseUnread = 0;
+    if (!gameState.datingUnread) gameState.datingUnread = 0;
+    if (!gameState.livePendingReward) gameState.livePendingReward = false;
+    if (!gameState.newNotice) gameState.newNotice = false;
+    if (!gameState.lastReadVersion) gameState.lastReadVersion = '';
+    if (!gameState.aiUsage) gameState.aiUsage = {};
+    if (!gameState.certificates) {
+        gameState.certificates = {
+            dance: [false, false, false],
+            vocal: [false, false, false],
+            rap: [false, false, false],
+            acting: [false, false, false],
+            variety: [false, false, false]
+        };
+    }
+    if (!gameState.examResult) gameState.examResult = { comprehensive: [false, false] };
+    if (gameState.preDebut === undefined) gameState.preDebut = false;
+    if (!gameState.teammates) gameState.teammates = [];
+    if (!gameState.antiEvents) gameState.antiEvents = [];
+    if (!gameState.achievements) gameState.achievements = [];
+    if (!gameState.mvCollection) gameState.mvCollection = [];
+    if (!gameState.fanClub) {
+        gameState.fanClub = {
+            level: 1, members: 0, funds: 0,
+            projects: [
+                { name: '应援棒', cost: 10000, done: false },
+                { name: '生日应援', cost: 50000, done: false },
+                { name: '广告应援', cost: 100000, done: false }
+            ]
+        };
+    }
+    if (!gameState.vipTier) gameState.vipTier = null;
+    if (!gameState.aiBoostPacks) gameState.aiBoostPacks = [];
+    // Preserve gacha collection before initGachaPool potentially resets it
+    if (gameState.gacha && gameState.gacha.kpop && gameState.gacha.kpop.collection) {
+        if (!gameState.gacha._savedCollection) gameState.gacha._savedCollection = {};
+        gameState.gacha._savedCollection.kpop = JSON.parse(JSON.stringify(gameState.gacha.kpop.collection));
+    }
+    if (gameState.gacha && gameState.gacha.topIdol && gameState.gacha.topIdol.collection) {
+        if (!gameState.gacha._savedCollection) gameState.gacha._savedCollection = {};
+        gameState.gacha._savedCollection.topIdol = JSON.parse(JSON.stringify(gameState.gacha.topIdol.collection));
+    }
+    if (typeof initGachaPool === 'function') initGachaPool();
 }
 
 var _kakaoAddPersonality = '';
@@ -10559,7 +10600,7 @@ function _loadSlot(slot) {
     if (data) {
         try {
             Object.assign(gameState, JSON.parse(data));
-            _ensureKakaoState();
+            _ensureV16Fields();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             current存档 = slot;
             currentPage = 'home';
@@ -10580,6 +10621,7 @@ function _startNewSlot(slot) {
     current存档 = slot;
     creationStep = 1;
     Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
+    _ensureV16Fields();
     gameState.player = {
         name: '',
         gender: '',
