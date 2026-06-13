@@ -3447,7 +3447,7 @@ function checkInviteCode() {
     }
     if (INVITE_CODES.indexOf(code) !== -1) {
         if(btnEl) btnEl.textContent='验证中...';
-        localStorage.setItem('myIdolInviteVerified', 'true');
+        window._inviteVerified = true;
         currentPage = 'welcome';
         render();
     } else {
@@ -3467,7 +3467,7 @@ function render() {
     var app = document.getElementById('app');
     if (!app) return;
     try {
-        if (!localStorage.getItem('myIdolInviteVerified')) {
+        if (!window._inviteVerified) {
             renderInviteCodePage(app);
             return;
         }
@@ -3569,6 +3569,48 @@ function render() {
                 break;
             case 'debutdialog':
                 render出道DialogPage(app);
+                break;
+            case 'comeback':
+                renderComebackPage(app);
+                break;
+            case 'music':
+                renderMusicPage(app);
+                break;
+            case 'mvstudio':
+                renderMVStudioPage(app);
+                break;
+            case 'contract':
+                renderContractPage(app);
+                break;
+            case 'relation':
+                renderRelationPage(app);
+                break;
+            case 'management':
+                renderManagementPage(app);
+                break;
+            case 'antiblack':
+                renderAntiBlackPage(app);
+                break;
+            case 'fanclub':
+                renderFanClubPage(app);
+                break;
+            case 'pr':
+                renderPROfficePage(app);
+                break;
+            case 'kpopwiki':
+                renderKpopWikiPage(app);
+                break;
+            case 'achievement':
+                renderAchievementsPage(app);
+                break;
+            case 'gacha':
+                renderGachaPage(app);
+                break;
+            case 'vip':
+                renderVipPage(app);
+                break;
+            case 'company':
+                renderCompanyDetailPage(app);
                 break;
             case 'earn':
                 render赚钱中心Page(app);
@@ -3807,39 +3849,35 @@ function renderCreationStep3() {
 }
 
 function renderCreationStep4() {
+    if (gameState.player.role === 'Idol') {
+        return '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+        + '<div class="page-header"><div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div><div class="page-title">\u7b2c 4 \u6b65 / \u5171 6 \u6b65</div><div style="width:32px;"></div></div>'
+        + '<div class="page-content" style="flex:1;overflow-y:auto;">'
+        + '<h2 style="font-size:24px;font-weight:700;color:var(--color-text);margin-bottom:8px;">\u539f\u521b\u56e2\u4f53</h2>'
+        + '<p style="color:var(--color-text-light);font-size:14px;margin-bottom:24px;">\u4f5c\u4e3a\u51fa\u9053\u7231\u8c46\uff0c\u4f60\u5c06\u5728\u539f\u521b\u56e2\u4f53\u4e2d\u51fa\u9053</p>'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:20px;font-weight:700;">\u539f\u521b\u56e2\u4f53</div>'
+        + '<div style="font-size:14px;margin-top:8px;opacity:0.9;">\u4f60\u7684\u56e2\u540d\u5c06\u4ee5\u4f60\u7684\u540d\u5b57\u547d\u540d</div>'
+        + '<div style="font-size:12px;margin-top:4px;opacity:0.7;">\u540e\u7eed\u53ef\u5728\u6e38\u620f\u4e2d\u4fee\u6539\u56e2\u540d</div>'
+        + '</div></div>'
+        + '<div style="padding:16px 20px;background:var(--bg-card);border-top:1px solid var(--color-border);"><button class="btn btn-primary btn-lg" onclick="nextCreationStep(5)">\u4e0b\u4e00\u6b65</button></div>'
+        + '</div>';
+    }
     var company = COMPANIES[gameState.player.company];
-    var groups = Object.entries(company.groups);
-    
-    return `
-        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">
-            <div class="page-header">
-                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>
-                <div class="page-title">第 4 步 / 共 6 步</div>
-                <div style="width: 32px;"></div>
-            </div>
-            
-            <div class="page-content" style="flex: 1; overflow-y: auto;">
-                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">志愿团</h2>
-                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择最多3个志愿团，按选择顺序为志愿顺序</p>
-                
-                ${groups.map(function(entry) { var key = entry[0]; var group = entry[1];
-                    var gIdx = gameState.player.groups.indexOf(key);
-                    var label = gIdx === 0 ? '第一志愿' : gIdx === 1 ? '第二志愿' : gIdx === 2 ? '第三志愿' : '';
-                    return '<div class="group-card ' + (gIdx > -1 ? 'selected' : '') + '" data-key="' + key + '" onclick="toggleGroup(this.dataset.key)"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + group.name + '</div>' + (label ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</div><div class="group-desc">' + group.desc + '</div></div>';
-                }).join('')}
-                
-                <div style="text-align: center; margin-top: 16px; color: var(--color-text-light); font-size: 13px;">
-                    已选: <span id="groupCount">${gameState.player.groups.length}</span>/3
-                </div>
-            </div>
-            
-            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">
-                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(5)">下一步</button>
-            </div>
-        </div>
-    `;
+    var groupKeys = Object.keys(company.groups);
+    var groupEntries = [];
+    for (var _gei = 0; _gei < groupKeys.length; _gei++) { groupEntries.push([groupKeys[_gei], company.groups[groupKeys[_gei]]]); }
+    return '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+    + '<div class="page-header"><div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div><div class="page-title">\u7b2c 4 \u6b65 / \u5171 6 \u6b65</div><div style="width:32px;"></div></div>'
+    + '<div class="page-content" style="flex:1;overflow-y:auto;">'
+    + '<h2 style="font-size:24px;font-weight:700;color:var(--color-text);margin-bottom:8px;">\u5fd7\u613f\u56e2</h2>'
+    + '<p style="color:var(--color-text-light);font-size:14px;margin-bottom:24px;">\u9009\u62e9\u6700\u591a3\u4e2a\u5fd7\u613f\u56e2\uff0c\u6309\u9009\u62e9\u987a\u5e8f\u4e3a\u5fd7\u613f\u987a\u5e8f</p>'
+    + groupEntries.map(function(entry) { var _key = entry[0]; var _group = entry[1]; var _gIdx = gameState.player.groups.indexOf(_key); var _label = _gIdx === 0 ? '\u7b2c\u4e00\u5fd7\u613f' : _gIdx === 1 ? '\u7b2c\u4e8c\u5fd7\u613f' : _gIdx === 2 ? '\u7b2c\u4e09\u5fd7\u613f' : ''; return '<div class="group-card ' + (_gIdx > -1 ? 'selected' : '') + '" data-key="' + _key + '" onclick="toggleGroup(this.dataset.key)"><div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + _group.name + '</div>' + (_label ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + _label + '</span>' : '') + '</div><div class="group-desc">' + _group.desc + '</div></div>'; }).join('')
+    + '<div style="text-align:center;margin-top:16px;color:var(--color-text-light);font-size:13px;">\u5df2\u9009: <span id="groupCount">' + gameState.player.groups.length + '</span>/3</div>'
+    + '</div>'
+    + '<div style="padding:16px 20px;background:var(--bg-card);border-top:1px solid var(--color-border);"><button class="btn btn-primary btn-lg" onclick="nextCreationStep(5)">\u4e0b\u4e00\u6b65</button></div>'
+    + '</div>';
 }
-
 function renderCreationStep5() {
     var positions = ['主唱', '主舞', '主Rapper', '门面', '中心位', '队长', '忙内'];
     
@@ -4064,7 +4102,7 @@ function nextCreationStep(step) {
     }
     // 验证步骤4必填项
     if (creationStep === 4) {
-        if (gameState.player.groups.length !== 3) {
+        if (gameState.player.role !== 'Idol' && gameState.player.groups.length !== 3) {
             showModal('提示', '请选择3个志愿团体');
             return;
         }
@@ -4195,43 +4233,27 @@ function initAsIdol() {
         gameState.money = 80000 + Math.floor(Math.random() * 40001);
     }
     
-    var groupKey = gameState.player.groups[Math.floor(Math.random() * gameState.player.groups.length)];
-    gameState.player.group = groupKey;
+    var originalGroupName = gameState.player.name + '的团体';
+    gameState.player.group = originalGroupName; gameState.player.originalGroup = true;
     
     gameState.fans = 200 + Math.floor(Math.random() * 601);
     gameState.player.avatar = gameState.player.name.charAt(0).toUpperCase();
     
     var companyData = COMPANIES[company];
-    if (companyData && companyData.groups && companyData.groups[groupKey]) {
-        var group = companyData.groups[groupKey];
-        gameState.teamMembers = group.members.map(function(m) { return m.name; });
-    
-        var memberList = group.members.map(function(m) { return m.name + '（' + m.position + '）'; }).join('、');
-        
-        gameState.emails.unshift({
-            title: '出道快乐！',
-            from: (companyData.name || company) + ' 经纪部',
-            content: '恭喜 ' + gameState.player.name + '！\n\n你已正式作为 ' + group.name + ' 成员出道！\n\n【团名】' + group.name + '\n【成员】' + memberList + '\n\n【出道舞台安排】\n时间：下周六 20:00\n地点：首尔奥林匹克公园\n曲目：出道主打歌 + 副主打歌\n\n【经纪人寄语】\n出道只是开始，接下来的路更长。保持初心，团结互助，你们一定能走得更远！\n\n祝贺！\n——经纪部',
-            time: new Date().toLocaleDateString('zh-CN'),
-            read: false
-        });
-        
-        gameState.emails.push({
-            title: '出道宣传计划',
-            from: (companyData.name || company) + ' 宣传部',
-            content: '出道宣传计划如下：\n\n1. 音乐节目打歌（2周）\n2. 综艺节目录制\n3. 粉丝签名会\n4. 社交媒体宣传\n\n请各位成员配合行程安排。\n\n——宣传部',
-            time: new Date().toLocaleDateString('zh-CN'),
-            read: false
-        });
-    } else {
-        gameState.emails.unshift({
-            title: '出道快乐！',
-            from: company + ' 经纪部',
-            content: '恭喜 ' + gameState.player.name + '！你已成功出道！\n\n请准备好迎接新的挑战！\n\n——经纪部',
-            time: new Date().toLocaleDateString('zh-CN'),
-            read: false
-        });
-    }
+    gameState.emails.unshift({
+        title: '出道快乐！',
+        from: (companyData ? companyData.name || company : company) + ' 经纪部',
+        content: '恭喜 ' + gameState.player.name + '！\n\n你已正式作为原创团体「' + originalGroupName + '」成员出道！\n\n【团名】' + originalGroupName + '\n【成员】' + gameState.player.name + '\n\n【出道舞台安排】\n时间：下周六 20:00\n地点：首尔奥林匹克公园\n曲目：出道主打歌 + 副主打歌\n\n【经纪人寄语】\n出道只是开始，接下来的路更长。保持初心，团结互助，你们一定能走得更远！\n\n祝贺！\n——经纪部',
+        time: new Date().toLocaleDateString('zh-CN'),
+        read: false
+    });
+    gameState.emails.push({
+        title: '出道宣传计划',
+        from: (companyData ? companyData.name || company : company) + ' 宣传部',
+        content: '出道宣传计划如下：\n\n1. 音乐节目打歌（2周）\n2. 综艺节目录制\n3. 粉丝签名会\n4. 社交媒体宣传\n\n请各位成员配合行程安排。\n\n——宣传部',
+        time: new Date().toLocaleDateString('zh-CN'),
+        read: false
+    });
 }
 
 // ==================== HOME PAGE (APP GRID) ====================
@@ -4293,26 +4315,32 @@ function renderHomePage(container) {
                 ${function() {
                     var appMap = {};
                     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
+                    var homePageNum = gameState.homePageNum || 1;
                     var categories = [
-                        { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates'] },
-                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan'] },
-                        { title: '社交', ids: ['ins', 'tiktok', 'kakaotalk', 'bubble', 'weverse', 'dating'] },
-                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking'] }
+                        { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
+                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'vip'], page: 1 },
+                        { title: '社交', ids: ['ins', 'tiktok', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
+                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
                     ];
                     var catHtml = '';
                     for (var ci = 0; ci < categories.length; ci++) {
                         var cat = categories[ci];
-                        catHtml += '<div style="font-size:11px;color:var(--color-text-light);margin:' + (ci > 0 ? '16' : '0') + 'px 0 6px 4px;font-weight:500;">' + cat.title + '</div>';
+                        if (cat.page !== homePageNum) continue;
+                        catHtml += '<div style="font-size:11px;color:var(--color-text-light);margin:' + (catHtml.length > 0 ? '16' : '0') + 'px 0 6px 4px;font-weight:500;">' + cat.title + '</div>';
                         catHtml += '<div class="app-grid">';
                         for (var ji = 0; ji < cat.ids.length; ji++) {
-                            var app = appMap[cat.ids[ji]];
-                            if (!app) continue;
-                            var locked = app.unlock > 0 && gameState.fans < app.unlock;
-                            var _redDot = (!locked) ? getAppRedDot(app.id) : null;
-                            catHtml += '<div class="app-item ' + (locked ? 'locked' : '') + '" data-id="' + app.id + '" onclick="if(!this.classList.contains(\'locked\'))goToPage(this.dataset.id)"' + '><div class="app-icon-wrap ' + (locked ? 'locked' : '') + '">' + getIcon(app.icon) + (locked ? '<div class="app-lock">' + getIcon('lock') + '</div>' : '') + (_redDot ? '<div class="app-red-dot' + (_redDot > 1 ? ' has-count' : '') + '">' + (_redDot > 1 ? _redDot : '') + '</div>' : '') + '</div><div class="app-name">' + app.name + '</div></div>';
+                            var _appItem = appMap[cat.ids[ji]];
+                            if (!_appItem) continue;
+                            var _locked = _appItem.unlock > 0 && gameState.fans < _appItem.unlock;
+                            var _rd = (!_locked) ? getAppRedDot(_appItem.id) : null;
+                            catHtml += '<div class="app-item ' + (_locked ? 'locked' : '') + '" data-id="' + _appItem.id + '" onclick="if(!this.classList.contains(\'locked\'))goToPage(this.dataset.id)"' + '><div class="app-icon-wrap ' + (_locked ? 'locked' : '') + '">' + getIcon(_appItem.icon) + (_locked ? '<div class="app-lock">' + getIcon('lock') + '</div>' : '') + (_rd ? '<div class="app-red-dot' + (_rd > 1 ? ' has-count' : '') + '">' + (_rd > 1 ? _rd : '') + '</div>' : '') + '</div><div class="app-name">' + _appItem.name + '</div></div>';
                         }
                         catHtml += '</div>';
                     }
+                    catHtml += '<div style="display:flex;justify-content:center;gap:8px;margin-top:16px;padding-bottom:8px;">';
+                    catHtml += '<div style="width:8px;height:8px;border-radius:50%;background:' + (homePageNum === 1 ? 'var(--color-primary)' : '#DDD') + ';cursor:pointer;" onclick="gameState.homePageNum=1;render();"></div>';
+                    catHtml += '<div style="width:8px;height:8px;border-radius:50%;background:' + (homePageNum === 2 ? 'var(--color-primary)' : '#DDD') + ';cursor:pointer;" onclick="gameState.homePageNum=2;render();"></div>';
+                    catHtml += '</div>';
                     return catHtml;
                 }()}
             </div>
@@ -8088,13 +8116,14 @@ function toggleSpeechRecognition() {
 
 // ==================== UPDATES PAGE ====================
 function render成员信息Page(container) {
+    if (typeof COMPANIES === 'undefined' || !COMPANIES) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div><div class="page-title">\u6210\u5458\u4fe1\u606f</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding:40px;"><div style="color:var(--color-text-light);">\u6570\u636e\u52a0\u8f7d\u4e2d\uff0c\u8bf7\u7a0d\u540e\u518d\u8bd5</div></div></div>'; return; }
     var level = gameState.membersViewLevel || 0;
     var comp = gameState.membersViewCompany || '';
     var grp = gameState.membersViewGroup || '';
     var posMap = {'Main Vocal':'主唱','Lead Vocal':'领唱','Main Dance':'主舞','Lead Dance':'领舞','Main Rapper':'主Rapper','Lead Rapper':'领Rapper','Visual':'门面','Center':'中心位','Leader':'队长','Maknae':'忙内'};
     
     if (level === 0) {
-        var companyEntries = Object.entries(COMPANIES);
+        var companyKeys = Object.keys(COMPANIES); var companyEntries = []; for (var _mci = 0; _mci < companyKeys.length; _mci++) { companyEntries.push([companyKeys[_mci], COMPANIES[companyKeys[_mci]]]); }
         var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">成员信息</div><div style="width:32px;"></div></div><div class="page-content"><div class="section-title">经纪公司</div>';
         for (var i = 0; i < companyEntries.length; i++) {
             var key = companyEntries[i][0];
@@ -8107,7 +8136,7 @@ function render成员信息Page(container) {
     } else if (level === 1) {
         var company = COMPANIES[comp];
         if (!company) { gameState.membersViewLevel = 0; render(); return; }
-        var groups = Object.entries(company.groups);
+        var groupKeys = Object.keys(company.groups); var groups = []; for (var _mgi = 0; _mgi < groupKeys.length; _mgi++) { groups.push([groupKeys[_mgi], company.groups[groupKeys[_mgi]]]); }
         var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="gameState.membersViewLevel=0;render();">‹ 公司列表</div><div class="page-title">' + company.name + '</div><div style="width:32px;"></div></div><div class="page-content"><div class="section-title">团体列表</div>';
         for (var i = 0; i < groups.length; i++) {
             var gkey = groups[i][0];
@@ -9927,6 +9956,36 @@ function pullGacha(pool, count) {
     return results;
 }
 
+function renderVipPage(container) {
+    var vipLevel = gameState.vipLevel || 0;
+    var vipNames = ['\u666e\u901a\u4f1a\u5458', 'VIP\u94f6\u5361', 'VIP\u91d1\u5361', 'VIP\u94bb\u5361'];
+    var vipName = vipNames[Math.min(vipLevel, 3)];
+    var vipBenefits = [
+        ['\u57fa\u7840\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+0', '\u6253\u5de5\u6536\u76ca+0%'],
+        ['\u94f6\u5361\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+5', '\u6253\u5de5\u6536\u76ca+10%'],
+        ['\u91d1\u5361\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+10', '\u6253\u5de5\u6536\u76ca+20%'],
+        ['\u94bb\u5361\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+20', '\u6253\u5de5\u6536\u76ca+30%']
+    ];
+    var benefits = vipBenefits[Math.min(vipLevel, 3)];
+    var html = '<div class="page active">';
+    html += '<div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; \u9996\u9875</div><div class="page-title">\u4f1a\u5458\u4e2d\u5fc3</div><div style="width:32px;"></div></div>';
+    html += '<div class="page-content">';
+    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:white;">';
+    html += '<div style="font-size:24px;font-weight:700;">' + vipName + '</div>';
+    html += '<div style="font-size:12px;opacity:0.8;margin-top:4px;">\u5f53\u524d\u7b49\u7ea7 Lv.' + vipLevel + '</div>';
+    html += '</div>';
+    html += '<div class="section-title" style="margin-top:16px;">\u6743\u76ca\u8bf4\u660e</div>';
+    for (var bi = 0; bi < benefits.length; bi++) {
+        html += '<div class="card" style="padding:12px 16px;"><div style="font-size:14px;color:var(--color-text);">\u2022 ' + benefits[bi] + '</div></div>';
+    }
+    if (vipLevel < 3) {
+        html += '<button class="btn btn-primary btn-lg" style="margin-top:16px;width:100%;" onclick="showModal(\'\u5f00\u901a\u63d0\u793a\',\'VIP\u529f\u80fd\u656c\u8bf7\u671f\u5f85\uff0c\u5373\u5c06\u4e0a\u7ebf\uff01\')">\u5347\u7ea7VIP</button>';
+    } else {
+        html += '<div style="text-align:center;margin-top:16px;color:var(--color-text-light);font-size:13px;">\u5df2\u8fbe\u6700\u9ad8\u7b49\u7ea7</div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
 function renderGachaPage(container) {
     initGachaPool();
     var kpop = gameState.gacha.kpop;
@@ -10936,32 +10995,12 @@ function _completeDebut() {
         if(typeof checkAchievements==='function') checkAchievements();
     var company = COMPANIES[gameState.player.company];
     var hasBusinessLoan = (gameState.loanAmount > 0 && gameState.loanInterest >= 5);
-    if (company && company.groups) {
-        var groupKeys = Object.keys(company.groups);
-        if (gameState.player.groups && gameState.player.groups.length > 0) {
-            var validGroups = [];
-            for (var gi = 0; gi < gameState.player.groups.length; gi++) {
-                if (company.groups[gameState.player.groups[gi]]) validGroups.push(gameState.player.groups[gi]);
-            }
-            if (validGroups.length > 0) {
-                if (hasBusinessLoan && Math.random() < 0.4) {
-                    var nonPreferred = groupKeys.filter(function(gk) { return validGroups.indexOf(gk) === -1; });
-                    gameState.player.group = nonPreferred.length > 0 ? nonPreferred[Math.floor(Math.random() * nonPreferred.length)] : groupKeys[Math.floor(Math.random() * groupKeys.length)];
-                } else {
-                    gameState.player.group = validGroups[Math.floor(Math.random() * validGroups.length)];
-                }
-            } else {
-                gameState.player.group = groupKeys[Math.floor(Math.random() * groupKeys.length)];
-            }
-        } else {
-            gameState.player.group = groupKeys[Math.floor(Math.random() * groupKeys.length)];
-        }
-        var group = company.groups[gameState.player.group];
-        if (group) {
-            gameState.teamMembers = group.members.map(function(m) { return m.name; });
-        }
+    if (!gameState.player.group) {
+        gameState.player.group = gameState.player.name + '的团体';
     }
-    if (!gameState.player.group) gameState.player.group = 'New Group';
+    gameState.player.originalGroup = true;
+    if (!gameState.player.group) gameState.player.group = gameState.player.name + '的团体';
+    gameState.player.originalGroup = true;
 
     var gpBase = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
     gameState.groupPopularity = gpBase[gameState.player.company] || 50;
@@ -11221,7 +11260,7 @@ function render赚钱中心Page(container) {
         var cls = 'earn-tab';
         if (t.id === currentTab) cls += ' active';
         if (t.locked) cls += ' locked';
-        var onclick = t.locked ? '' : ' onclick="gameState.earnTab=\'\' + t.id + \'\';render赚钱中心Page(document.getElementById(\'app\'))"';
+        var onclick = t.locked ? '' : ' onclick="gameState.earnTab=\'\' + t.id + \'\';goToPage(\'earn\')';
         tabsHtml += '<div class="' + cls + '"' + onclick + '>' + t.name + '</div>';
     }
     tabsHtml += '</div>';
