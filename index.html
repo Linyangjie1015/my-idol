@@ -3756,7 +3756,7 @@ function getAIReply(appId, context, playerMessage, callback) {
         bot_id: COZE_BOT_ID,
         user_id: userId,
         stream: false,
-        auto_save_history: false,
+        auto_save_history: true,
         additional_messages: [
             { role: 'system', content: systemPrompt, content_type: 'text' },
             { role: 'user', content: playerMessage, content_type: 'text' }
