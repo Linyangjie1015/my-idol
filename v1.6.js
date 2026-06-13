@@ -7844,10 +7844,10 @@ function renderKpopWikiPage(container) {
             + '<div class="wiki-groups" style="display:none;margin-top:12px;">';
         for (var gi = 0; gi < gKeys.length; gi++) {
             var g = company.groups[gKeys[gi]];
-            html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);">'
+            html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);line-height:1.8;">'
                 + '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + g.name + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);">' + g.desc + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">成员: ' + g.members.length + '人</div></div>';
+                + '<div style="font-size:11px;color:var(--color-text-light);line-height:1.8;">' + g.desc + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;line-height:1.8;">成员: ' + g.members.length + '人</div></div>';
         }
         html += '</div></div>';
     }
@@ -8175,11 +8175,16 @@ function renderGachaPage(container) {
             var t = c.cardTier || 'C';
             var isHid = c.isHidden ? true : false;
             var hidBorder = isHid ? 'border:2px solid #FFD700;box-shadow:0 0 8px rgba(255,215,0,0.5);' : '';
-            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;' + hidBorder + '">'
+            var _pool = kc[c.name + '_' + c.group] ? 'kpop' : 'topIdol';
+            var _cid = c.name + '_' + c.group;
+            var _starStr = '';
+            for (var _si = 0; _si < (c.stars || 1); _si++) _starStr += '\u2605';
+            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;cursor:pointer;' + hidBorder + '" onclick="upgradeCardStar(\'' + _pool + '\',\'' + _cid + '\')">'
                 + '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'
                 + '<div style="font-size:8px;opacity:0.8;">' + t + '</div>'
                 + (isHid ? '<div style="position:absolute;top:1px;right:2px;font-size:7px;color:#FFD700;">*</div>' : '')
                 + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
+                + '<div style="position:absolute;top:1px;left:2px;font-size:6px;color:#FFD700;">' + _starStr + '</div>'
                 + '</div>';
         }
         if (allCards.length > 30) html += '<div style="display:flex;align-items:center;font-size:12px;color:var(--color-text-light);padding:8px;">+' + (allCards.length - 30) + '</div>';
@@ -8190,10 +8195,38 @@ function renderGachaPage(container) {
     container.innerHTML = html;
 }
 
+var GACHA_MAX_STARS = 3;
+
+function upgradeCardStar(pool, cardId) {
+    initGachaPool();
+    var poolData = gameState.gacha[pool];
+    if (!poolData) return;
+    var card = poolData.collection[cardId];
+    if (!card) return;
+    if (card.stars >= GACHA_MAX_STARS) {
+        showModal('\u5347\u661f\u63d0\u793a', '\u5df2\u6ee1\u661f\uff0c\u65e0\u6cd5\u7ee7\u7eed\u5347\u661f');
+        return;
+    }
+    var needFragments = card.stars + 1;
+    if (card.fragments < needFragments) {
+        showModal('\u5347\u661f\u63d0\u793a', '\u788e\u7247\u4e0d\u8db3\uff0c\u9700\u8981' + needFragments + '\u4e2a\u788e\u7247\uff0c\u5f53\u524d\u62e5\u6709' + card.fragments + '\u4e2a');
+        return;
+    }
+    card.fragments -= needFragments;
+    card.stars += 1;
+    showToast(card.name + '\u5347\u661f\u6210\u529f! \u2605' + card.stars);
+    triggerSilentSave();
+    goToPage('gacha');
+}
+
+var _gachaAnimating = false;
 function doGachaPull(pool, count) {
+    if (_gachaAnimating) return;
+    _gachaAnimating = true;
     var results = pullGacha(pool, count);
-    if (!results) return;
+    if (!results) { _gachaAnimating = false; return; }
     showGachaResult(results, pool);
+    setTimeout(function() { _gachaAnimating = false; }, 800);
 }
 
 function showGachaResult(results, pool) {
@@ -8916,6 +8949,9 @@ window.addEventListener('beforeunload', function(e) {
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden' && gameState.player.name && currentPage !== 'welcome') {
         triggerSilentSave();
+    }
+    if (document.visibilityState === 'visible' && gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
+        render();
     }
 });
 
