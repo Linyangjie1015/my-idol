@@ -658,6 +658,9 @@ function render() {
             case 'songprod':
                 renderSongProdPage(app);
                 break;
+            case 'mvshoot':
+                renderMVShootPage(app);
+                break;
             case 'music':
                 renderMusicPage(app);
                 break;
@@ -5820,8 +5823,7 @@ function startComeback() {
     if (gameState.体力 < 50) { showModal('体力不足', '回归准备需要至少50体力'); return; }
     if (gameState.money < 50000) { showModal('资金不足', '回归准备需要50,000金币'); return; }
     gameState.comeback = { phase: 'concept', concept: null, titleTrack: null, promotion: 0, musicShowResults: [], daysLeft: 14 };
-    gameState.体力 -= 10;
-    gameState.money -= 50000;
+    // 体力金币由歌曲制作和MV拍摄各自扣费
     // Auto post INS and trigger hotsearch when comeback starts
     if (!gameState.insPosts) gameState.insPosts = [];
     gameState.insPosts.unshift({
@@ -5843,7 +5845,7 @@ function selectComebackConcept(idx) {
 
 function selectTitleTrack(idx) {
     gameState.comeback.titleTrack = TITLE_TRACK_TYPES[idx];
-    gameState.comeback.phase = 'mv';
+    gameState.comeback.phase = 'songprod';
     render();
 }
 
@@ -5960,20 +5962,40 @@ function renderComebackPage(container) {
                 + '<div style="font-weight:600;">' + t.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + t.genre + ' / 加成: ' + statNames[t.bestStat] + '</div></div>';
         }
-    } else if (cb.phase === 'mv') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>'
+    } else if (cb.phase === 'songprod') {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
             + '<div style="font-size:13px;">概念: ' + cb.concept.name + '</div>'
             + '<div style="font-size:13px;">主打歌: ' + cb.titleTrack.name + '</div></div>'
             + '<div class="card" style="text-align:center;">'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要30体力 + 30,000金币</div>'
-            + '<button class="btn btn-primary btn-lg" onclick="shootMV()">拍摄MV</button></div>';
+            + '<button class="btn btn-primary btn-lg" onclick="goToSongProdFromComeback()">进行歌曲制作</button></div>';
+    } else if (cb.phase === 'mvselect') {
+        html += '<div class="card" style="background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择歌曲拍MV</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲制作完成！选择一首歌拍摄MV</div></div>';
+        if (gameState.songs && gameState.songs.length > 0) {
+            for (var msi = 0; msi < gameState.songs.length; msi++) {
+                var ms = gameState.songs[msi];
+                html += '<div class="card" style="cursor:pointer;" data-msi="' + msi + '" onclick="startMVShootFromComeback(this.dataset.msi)"><div style="font-weight:600;">' + ms.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ms.genre + ' | 品质: ' + ms.quality + '分</div><div style="font-size:11px;color:var(--color-primary);margin-top:4px;">点击选择拍MV</div></div>';
+            }
+        } else {
+            html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有制作歌曲，请先进行歌曲制作</div><button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
+        }
+    } else if (cb.phase === 'mv') {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>'
+            + '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">暂未拍摄MV，请进行MV拍摄</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
     } else if (cb.phase === 'promote') {
         var daysLeft = cb.daysLeft || 14;
+        var hasMV = cb.mvQuality > 0;
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#4CD964,#34C759);color:white;">'
             + '<div style="font-size:16px;font-weight:700;">宣传期</div>'
-            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">剩余' + daysLeft + '天 | MV品质' + (cb.mvQuality || 0) + '分 | 宣传度' + (cb.promotion || 0) + '</div></div>'
-            + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">宣传方式</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">剩余' + daysLeft + '天' + (hasMV ? ' | MV品质' + cb.mvQuality + '分' : ' | 暂未拍摄MV') + ' | 宣传度' + (cb.promotion || 0) + '</div></div>';
+        if (!hasMV) {
+            html += '<div class="card" style="text-align:center;background:#FFF3E0;">'
+                + '<div style="font-size:13px;color:#FF6B00;margin-bottom:8px;">暂未拍摄MV，请进行MV拍摄</div>'
+                + '<button class="btn btn-primary" onclick="goToMVSelectFromPromote()">选择歌曲拍MV</button></div>';
+        }
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:12px;">宣传方式</div>'
             + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
             + '<div class="card" onclick="promoteComeback(\'ins\')" style="cursor:pointer;text-align:center;padding:16px;"><div style="font-weight:600;">INS宣传</div><div style="font-size:11px;color:var(--color-text-light);">10体力/5千金币</div></div>'
             + '<div class="card" onclick="promoteComeback(\'tiktok\')" style="cursor:pointer;text-align:center;padding:16px;"><div style="font-weight:600;">TikTok挑战</div><div style="font-size:11px;color:var(--color-text-light);">10体力/5千金币</div></div>'
@@ -6014,6 +6036,314 @@ function renderComebackPage(container) {
     }
     html += '</div></div>';
     container.innerHTML = html;
+}
+
+
+
+function goToMVSelectFromPromote() {
+    if (gameState.comeback) {
+        gameState.comeback.phase = 'mvselect';
+    }
+    render();
+}
+
+// ==================== SONG PRODUCTION APP (歌曲制作) ====================
+
+var SONG_GENRES = [
+    { name: 'Pop', genre: '流行', bestStat: 'vocal', cost: 15000, energy: 10 },
+    { name: 'Ballad', genre: '抒情', bestStat: 'vocal', cost: 12000, energy: 8 },
+    { name: 'R&B', genre: '节奏布鲁斯', bestStat: 'vocal', cost: 18000, energy: 12 },
+    { name: 'Hip-hop', genre: '嘻哈', bestStat: 'rap', cost: 15000, energy: 10 },
+    { name: 'EDM', genre: '电子', bestStat: 'dance', cost: 20000, energy: 12 },
+    { name: 'Rock', genre: '摇滚', bestStat: 'dance', cost: 18000, energy: 12 }
+];
+
+var SONG_CONCEPTS = [
+    { name: '梦幻', style: 'dreamy', qualityBonus: 1.0 },
+    { name: '暗黑', style: 'dark', qualityBonus: 1.1 },
+    { name: '复古', style: 'retro', qualityBonus: 1.05 },
+    { name: '赛博朋克', style: 'cyber', qualityBonus: 1.15 },
+    { name: '自然', style: 'natural', qualityBonus: 0.95 },
+    { name: '街舞', style: 'street', qualityBonus: 1.1 },
+    { name: '抒情', style: 'lyrical', qualityBonus: 1.0 },
+    { name: '可爱', style: 'cute', qualityBonus: 0.9 }
+];
+
+var SONG_NAME_PARTS_A = ['Star', 'Moon', 'Dream', 'Night', 'Heart', 'Fire', 'Ice', 'Light', 'Rain', 'Rose', 'Blue', 'Silver', 'Golden', 'Crystal', 'Velvet'];
+var SONG_NAME_PARTS_B = ['light', 'shine', 'fall', 'rise', 'wave', 'dust', 'glow', 'storm', 'dance', 'song', 'sigh', 'kiss', 'call', 'dream', 'flight'];
+
+function renderSongProdPage(container) {
+    var sp = gameState.songProd;
+    if (!sp) {
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:40px;">'
+            + '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">歌曲制作工作室</div>'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">创作属于你的音乐作品</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="startSongProduction()">开始制作</button>'
+            + '</div></div>';
+        return;
+    }
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content">';
+
+    if (sp.step === 0) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择曲风</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">不同曲风影响歌曲品质和最佳属性</div></div>';
+        for (var gi = 0; gi < SONG_GENRES.length; gi++) {
+            var g = SONG_GENRES[gi];
+            var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
+            html += '<div class="card" data-gi="' + gi + '" onclick="selectSongGenre(this.dataset.gi)" style="cursor:pointer;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div><div style="font-weight:600;">' + g.name + ' (' + g.genre + ')</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">加成: ' + statNames[g.bestStat] + ' | ' + g.energy + '体力 + ' + g.cost + '金币</div></div>'
+                + '</div></div>';
+        }
+    } else if (sp.step === 1) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择歌曲概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + '</div></div>';
+        for (var ci = 0; ci < SONG_CONCEPTS.length; ci++) {
+            var co = SONG_CONCEPTS[ci];
+            html += '<div class="card" data-ci="' + ci + '" onclick="selectSongConcept(this.dataset.ci)" style="cursor:pointer;">'
+                + '<div style="font-weight:600;">' + co.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">品质倍率: x' + co.qualityBonus + '</div></div>';
+        }
+    } else if (sp.step === 2) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#4CD964,#34C759);color:white;"><div style="font-size:16px;font-weight:700;">作曲写词</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + ' | 概念: ' + sp.selectedConcept.name + '</div></div>';
+        html += '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要' + sp.selectedGenre.energy + '体力 + ' + sp.selectedGenre.cost + '金币</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="composeSong()">开始作曲写词</button></div>';
+    } else if (sp.step === 3) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF9500,#FF6B00);color:white;"><div style="font-size:16px;font-weight:700;">录音</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌名: ' + sp.songName + '</div></div>';
+        html += '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要15体力 + 20,000金币</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="recordSong()">开始录音</button></div>';
+    } else if (sp.step === 4) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5856D6,#3634A3);color:white;"><div style="font-size:16px;font-weight:700;">混音制作</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌名: ' + sp.songName + '</div></div>';
+        html += '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要10体力 + 15,000金币</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="mixSong()">开始混音</button></div>';
+    } else if (sp.step === 5) {
+        var song = sp.result;
+        var qualityColor = song.quality >= 80 ? '#4CD964' : song.quality >= 60 ? '#FF9500' : '#FF3B30';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + qualityColor + ',' + qualityColor + ');color:white;padding:24px;">'
+            + '<div style="font-size:32px;font-weight:700;">' + song.quality + '</div>'
+            + '<div style="font-size:14px;opacity:0.9;">歌曲品质</div></div>';
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">歌曲信息</div>'
+            + '<div style="font-size:13px;">歌名: ' + song.name + '</div>'
+            + '<div style="font-size:13px;">曲风: ' + song.genre + '</div>'
+            + '<div style="font-size:13px;">概念: ' + song.concept + '</div>'
+            + '<div style="font-size:13px;">品质: ' + song.quality + '分</div></div>';
+        if (sp.comebackMode) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="finishSongProdComeback()">返回回归计划</button>';
+        } else {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.songProd=null;render();">完成</button>';
+        }
+    }
+
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function startSongProduction() {
+    if (gameState.player.role !== 'Idol') { showToast('只有出道爱豆才能制作歌曲'); return; }
+    gameState.songProd = { step: 0, comebackMode: false };
+    render();
+}
+
+function selectSongGenre(idx) {
+    var i = parseInt(idx);
+    gameState.songProd.selectedGenre = SONG_GENRES[i];
+    gameState.songProd.step = 1;
+    render();
+}
+
+function selectSongConcept(idx) {
+    var i = parseInt(idx);
+    gameState.songProd.selectedConcept = SONG_CONCEPTS[i];
+    gameState.songProd.step = 2;
+    render();
+}
+
+function composeSong() {
+    var sp = gameState.songProd;
+    var g = sp.selectedGenre;
+    if (gameState.体力 < g.energy) { showModal('体力不足', '作曲写词需要' + g.energy + '体力'); return; }
+    if (gameState.money < g.cost) { showModal('资金不足', '作曲写词需要' + g.cost + '金币'); return; }
+    gameState.体力 -= g.energy;
+    gameState.money -= g.cost;
+    var a = SONG_NAME_PARTS_A[Math.floor(Math.random() * SONG_NAME_PARTS_A.length)];
+    var b = SONG_NAME_PARTS_B[Math.floor(Math.random() * SONG_NAME_PARTS_B.length)];
+    sp.songName = a + b;
+    sp.step = 3;
+    notifySystem('作曲完成', '歌名: ' + sp.songName);
+    render();
+}
+
+function recordSong() {
+    if (gameState.体力 < 15) { showModal('体力不足', '录音需要15体力'); return; }
+    if (gameState.money < 20000) { showModal('资金不足', '录音需要20,000金币'); return; }
+    gameState.体力 -= 15;
+    gameState.money -= 20000;
+    gameState.songProd.step = 4;
+    notifySystem('录音完成', '进入混音阶段');
+    render();
+}
+
+function mixSong() {
+    if (gameState.体力 < 10) { showModal('体力不足', '混音需要10体力'); return; }
+    if (gameState.money < 15000) { showModal('资金不足', '混音需要15,000金币'); return; }
+    gameState.体力 -= 10;
+    gameState.money -= 15000;
+    var sp = gameState.songProd;
+    var statVal = gameState.stats[sp.selectedGenre.bestStat] || 50;
+    var quality = Math.floor((statVal / 150) * 60 + Math.random() * 30 * sp.selectedConcept.qualityBonus + 10);
+    quality = Math.min(100, Math.max(20, quality));
+    var song = {
+        name: sp.songName,
+        genre: sp.selectedGenre.genre,
+        concept: sp.selectedConcept.name,
+        bestStat: sp.selectedGenre.bestStat,
+        quality: quality
+    };
+    if (!gameState.songs) gameState.songs = [];
+    gameState.songs.push(song);
+    sp.result = song;
+    sp.step = 5;
+    notifySystem('歌曲制作完成', song.name + ' 品质: ' + quality + '分');
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+    render();
+}
+
+function finishSongProdComeback() {
+    if (gameState.comeback) {
+        gameState.comeback.phase = 'mvselect';
+    }
+    gameState.songProd = null;
+    currentPage = 'comeback';
+    render();
+}
+
+// ==================== MV SHOOT PAGE (MV拍摄) ====================
+
+var MV_SHOOT_CONCEPTS = [
+    { name: '梦幻', style: 'dreamy', mvBonus: 1.0 },
+    { name: '暗黑', style: 'dark', mvBonus: 1.1 },
+    { name: '复古', style: 'retro', mvBonus: 1.05 },
+    { name: '赛博朋克', style: 'cyber', mvBonus: 1.15 },
+    { name: '自然', style: 'natural', mvBonus: 0.95 },
+    { name: '街舞', style: 'street', mvBonus: 1.1 },
+    { name: '剧情', style: 'story', mvBonus: 1.2 },
+    { name: '可爱', style: 'cute', mvBonus: 0.9 }
+];
+
+function renderMVShootPage(container) {
+    var ms = gameState.mvShoot;
+    if (!ms) {
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV拍摄</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:40px;">'
+            + '<div style="color:var(--color-text-light);">请从歌曲列表选择拍摄MV</div></div></div>';
+        return;
+    }
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV拍摄</div><div style="width:32px;"></div></div><div class="page-content">';
+
+    if (ms.step === 0) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择MV概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲: ' + ms.song.name + '</div></div>';
+        for (var mci = 0; mci < MV_SHOOT_CONCEPTS.length; mci++) {
+            var mc = MV_SHOOT_CONCEPTS[mci];
+            html += '<div class="card" data-mci="' + mci + '" onclick="selectMVConcept(this.dataset.mci)" style="cursor:pointer;">'
+                + '<div style="font-weight:600;">' + mc.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">MV品质倍率: x' + mc.mvBonus + '</div></div>';
+        }
+    } else if (ms.step === 1) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF9500,#FF6B00);color:white;"><div style="font-size:16px;font-weight:700;">拍摄MV</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲: ' + ms.song.name + ' | 概念: ' + ms.selectedConcept.name + '</div></div>';
+        html += '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要30体力 + 30,000金币</div>'
+            + '<button class="btn btn-primary btn-lg" onclick="executeMVShoot()">开始拍摄</button></div>';
+    } else if (ms.step === 2) {
+        var result = ms.result;
+        var qualityColor = result.quality >= 80 ? '#4CD964' : result.quality >= 60 ? '#FF9500' : '#FF3B30';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + qualityColor + ',' + qualityColor + ');color:white;padding:24px;">'
+            + '<div style="font-size:32px;font-weight:700;">' + result.quality + '</div>'
+            + '<div style="font-size:14px;opacity:0.9;">MV品质</div></div>';
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">MV信息</div>'
+            + '<div style="font-size:13px;">歌曲: ' + result.title + '</div>'
+            + '<div style="font-size:13px;">概念: ' + result.concept + '</div>'
+            + '<div style="font-size:13px;">品质: ' + result.quality + '分</div>'
+            + '<div style="font-size:13px;">播放量: ' + result.views.toLocaleString() + '</div></div>';
+        if (ms.comebackMode) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="finishMVShootComeback()">返回回归计划</button>';
+        } else {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.mvShoot=null;render();">完成</button>';
+        }
+    }
+
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function startMVShoot(song) {
+    if (gameState.player.role !== 'Idol') { showToast('只有出道爱豆才能拍摄MV'); return; }
+    var isComeback = !!(gameState.comeback && gameState.comeback.phase === 'mvselect');
+    gameState.mvShoot = { step: 0, song: song, comebackMode: isComeback };
+    currentPage = 'mvshoot';
+    render();
+}
+
+function selectMVConcept(idx) {
+    var i = parseInt(idx);
+    gameState.mvShoot.selectedConcept = MV_SHOOT_CONCEPTS[i];
+    gameState.mvShoot.step = 1;
+    render();
+}
+
+function executeMVShoot() {
+    if (gameState.体力 < 30) { showModal('体力不足', 'MV拍摄需要30体力'); return; }
+    if (gameState.money < 30000) { showModal('资金不足', 'MV拍摄需要30,000金币'); return; }
+    gameState.体力 -= 30;
+    gameState.money -= 30000;
+    var ms = gameState.mvShoot;
+    var song = ms.song;
+    var concept = ms.selectedConcept;
+    var statVal = gameState.stats[song.bestStat] || 50;
+    var quality = Math.floor((statVal / 150) * 50 + (song.quality / 100) * 30 + Math.random() * 20 * concept.mvBonus);
+    quality = Math.min(100, Math.max(20, quality));
+    var views = Math.floor(quality * 10000 + (gameState.fans || 0) * 5);
+    var result = {
+        title: song.name,
+        concept: concept.name,
+        quality: quality,
+        views: views
+    };
+    if (!gameState.mvCollection) gameState.mvCollection = [];
+    gameState.mvCollection.push(result);
+    ms.result = result;
+    ms.step = 2;
+    if (ms.comebackMode && gameState.comeback) {
+        gameState.comeback.mvQuality = quality;
+        gameState.comeback.mvViews = views;
+        gameState.comeback.mvTitle = song.name;
+    }
+    notifySystem('MV拍摄完成', 'MV品质: ' + quality + '分 | 播放量: ' + views.toLocaleString());
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+    render();
+}
+
+function finishMVShootComeback() {
+    if (gameState.comeback) {
+        gameState.comeback.phase = 'promote';
+        gameState.comeback.promotion = 0;
+    }
+    gameState.mvShoot = null;
+    currentPage = 'comeback';
+    render();
+}
+
+function goToSongProdFromComeback() {
+    gameState.songProd = { step: 0, comebackMode: true };
+    currentPage = 'songprod';
+    render();
+}
+
+function startMVShootFromComeback(idx) {
+    var i = parseInt(idx);
+    var song = gameState.songs[i];
+    if (!song) return;
+    startMVShoot(song);
 }
 
 // ==================== CONTRACT SYSTEM (合约系统) ====================
