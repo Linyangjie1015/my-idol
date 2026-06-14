@@ -7981,7 +7981,7 @@ window.onerror = function(msg, url, line) {
     document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;">' +
         '<h2 style="color:#FF6B8A;">加载出错</h2>' +
         '<p style="color:#666;margin:20px 0;">' + msg + ' (行 ' + line + ')</p>' +
-        '<button onclick="try{if(typeof gameState!==\'undefined\'&&gameState.player&&gameState.player.name){currentPage=\'home\';render();renderBottomNav();}else{location.reload();}}catch(e){location.reload();}" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:25px;font-size:16px;">重试</button>' +
+        '<button onclick="try{if(typeof gameState!==\'undefined\'&&gameState.player&&gameState.player.name){currentPage=\'home\';document.body.innerHTML=\'\';var _app=document.createElement(\'div\');_app.id=\'app\';document.body.appendChild(_app);render();renderBottomNav();}else{var _saved=localStorage.getItem(\'myIdolSaveData\');if(_saved){try{gameState=JSON.parse(_saved);window._inviteVerified=true;currentPage=\'home\';document.body.innerHTML=\'\';var _app2=document.createElement(\'div\');_app2.id=\'app\';document.body.appendChild(_app2);render();renderBottomNav();}catch(e){location.reload();}}else{location.reload();}}}catch(e){location.reload();}" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:25px;font-size:16px;">重试</button>' +
         '<br><br><a href="https://linyangjie1015.github.io/my-idol/v1.6.html?v=' + Date.now() + '" style="color:#FF8FA3;">强制刷新(清缓存)</a></div>';
     return true;
 };
