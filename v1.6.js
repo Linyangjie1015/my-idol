@@ -7699,7 +7699,7 @@ function _ensureKakaoState() {
         var _validNames = ['代表经纪人(Manager)'];
         var _comp2 = COMPANIES[_playerComp];
         var _gk2 = Object.keys(_comp2.groups);
-        for (var gk2i = 0; gk2i < _gk2.length; gk2i++) {
+        for (var _gk2i = 0; _gk2i < _gk2.length; _gk2i++) {
             var _gm2 = _comp2.groups[_gk2[_gk2i]].members;
             for (var gm2i = 0; gm2i < _gm2.length; gm2i++) {
                 var _gm2n = (typeof _gm2[_gm2i] === 'object') ? _gm2[_gm2i].name : _gm2[_gm2i];
