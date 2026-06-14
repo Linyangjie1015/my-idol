@@ -6818,6 +6818,20 @@ function buySpeedSkip() {
         { text: '前往购买', action: function() { closeModal(); window.open('https://afdian.com/a/myidol', '_blank'); } }
     ]);
 }
+
+function _countTotalGachaCards() {
+    var total = 0;
+    var compKeys = Object.keys(COMPANIES);
+    for (var ci = 0; ci < compKeys.length; ci++) {
+        var company = COMPANIES[compKeys[ci]];
+        var gkeys = Object.keys(company.groups);
+        for (var gi = 0; gi < gkeys.length; gi++) {
+            total += company.groups[gkeys[gi]].members.length;
+        }
+    }
+    return total;
+}
+
 function renderGachaPage(container) {
     initGachaPool();
     var kpop = gameState.gacha.kpop;
@@ -6856,7 +6870,7 @@ function renderGachaPage(container) {
 
     if (allCards.length > 0) {
         var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
-        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:600;margin-bottom:10px;">我的收藏 (' + allCards.length + ')</div><div style="display:flex;flex-wrap:wrap;gap:6px;">';
+        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:600;margin-bottom:10px;">我的收藏 (' + allCards.length + '/' + _countTotalGachaCards() + ')';
         for (var i = 0; i < Math.min(allCards.length, 30); i++) {
             var c = allCards[i];
             var t = c.cardTier || 'C';
@@ -6866,7 +6880,7 @@ function renderGachaPage(container) {
             var _cid = c.name + '_' + c.group;
             var _starStr = '';
             for (var _si = 0; _si < (c.stars || 1); _si++) _starStr += '\u2605';
-            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;cursor:pointer;' + hidBorder + '" onclick="upgradeCardStar(\'' + _pool + '\',\'' + _cid + '\')">'
+            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;cursor:pointer;' + hidBorder + '" onclick="showCardDetail(\'' + _pool + '\',\'' + _cid + '\')">'
                 + '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'
                 + '<div style="font-size:8px;opacity:0.8;">' + t + '</div>'
                 + (isHid ? '<div style="position:absolute;top:1px;right:2px;font-size:7px;color:#FFD700;">*</div>' : '')
@@ -6883,6 +6897,42 @@ function renderGachaPage(container) {
 }
 
 var GACHA_MAX_STARS = 3;
+
+
+function showCardDetail(pool, cardId) {
+    initGachaPool();
+    var poolData = gameState.gacha[pool];
+    if (!poolData) return;
+    var card = poolData.collection[cardId];
+    if (!card) return;
+    var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
+    var tierNames = { S: 'S\u7ea7-\u4f20\u8bf4', A: 'A\u7ea7-\u7a00\u6709', B: 'B\u7ea7-\u4f18\u826f', C: 'C\u7ea7-\u666e\u901a' };
+    var t = card.cardTier || 'C';
+    var color = tierColors[t];
+    var _starStr = '';
+    for (var _si = 0; _si < (card.stars || 1); _si++) _starStr += '\u2605';
+    var needFragments = (card.stars || 1) < 3 ? (card.stars || 1) + 1 : 0;
+    var canUpgrade = needFragments > 0 && (card.fragments || 0) >= needFragments;
+    var html = '<div style="text-align:center;">'
+        + '<div style="width:120px;height:160px;border-radius:16px;background:linear-gradient(135deg,' + color + ',' + color + '66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;margin:0 auto 16px;position:relative;' + (card.isHidden ? 'border:2px solid #FFD700;box-shadow:0 0 12px rgba(255,215,0,0.5);' : '') + '">'
+        + '<div style="font-size:36px;font-weight:700;">' + card.name.charAt(0) + '</div>'
+        + '<div style="font-size:16px;font-weight:600;margin-top:4px;">' + t + '\u7ea7</div>'
+        + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">' + (tierNames[t] || '') + '</div>'
+        + (card.isHidden ? '<div style="position:absolute;top:4px;right:6px;font-size:9px;color:#FFD700;">HIDDEN</div>' : '')
+        + '<div style="position:absolute;bottom:6px;font-size:12px;color:#FFD700;">' + _starStr + '</div>'
+        + '</div>'
+        + '<div style="font-size:18px;font-weight:700;">' + card.name + '</div>'
+        + '<div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">' + card.company + ' / ' + card.group + '</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + (card.position || '') + '</div>'
+        + '<div style="margin-top:12px;display:flex;justify-content:center;gap:12px;">'
+        + '<div style="text-align:center;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + (card.stars || 1) + '/3</div><div style="font-size:10px;color:var(--color-text-light);">\u661f\u7ea7</div></div>'
+        + '<div style="text-align:center;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + (card.fragments || 0) + '</div><div style="font-size:10px;color:var(--color-text-light);">\u788e\u7247</div></div>'
+        + '</div>'
+        + (canUpgrade ? '<div style="margin-top:12px;font-size:12px;color:var(--color-success);">\u788e\u7247\u5145\u8db3\uff0c\u53ef\u4ee5\u5347\u661f!</div>' : (needFragments > 0 ? '<div style="margin-top:12px;font-size:12px;color:var(--color-text-light);">\u5347\u661f\u9700\u8981' + needFragments + '\u4e2a\u788e\u7247\uff0c\u5f53\u524d' + (card.fragments || 0) + '\u4e2a</div>' : ''))
+        + '</div>';
+    var actions = [{ text: '\u5347\u661f', action: function() { closeModal(); upgradeCardStar(pool, cardId); } }, { text: '\u5173\u95ed', action: closeModal }];
+    showModal('\u5361\u7247\u8be6\u60c5 - ' + card.name, html, actions);
+}
 
 function upgradeCardStar(pool, cardId) {
     initGachaPool();
