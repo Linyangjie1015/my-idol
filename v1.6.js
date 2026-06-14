@@ -6433,6 +6433,91 @@ function prAction(type) {
 }
 
 // ==================== KPOP WIKI APP (Kpop百科) ====================
+
+// ==================== REAL KPOP GROUPS DATA (真实韩团数据) ====================
+var REAL_KPOP_GROUPS = [
+    {
+        name: 'BTS',
+        company: 'HYBE (Big Hit)',
+        debutYear: 2013,
+        members: ['RM', 'Jin', 'SUGA', 'j-hope', 'Jimin', 'V', 'Jung Kook'],
+        songs: ['Dynamite', 'Butter', 'Spring Day', 'Boy With Luv', 'DNA'],
+        desc: '\u9632\u5f39\u5c11\u5e74\u56e2\uff0c\u5168\u7403\u6700\u5177\u5f71\u54cd\u529b\u7684Kpop\u56e2\u4f53\u4e4b\u4e00'
+    },
+    {
+        name: 'BLACKPINK',
+        company: 'YG Entertainment',
+        debutYear: 2016,
+        members: ['Jisoo', 'Jennie', 'Ros\u00e9', 'Lisa'],
+        songs: ['DDU-DU DDU-DU', 'Kill This Love', 'How You Like That', 'Pink Venom', 'Shut Down'],
+        desc: '\u4eba\u6c14\u5973\u56e2\uff0cGirl Crush\u98ce\u683c\u4ee3\u8868\uff0c\u5168\u7403\u7c89\u4e1d\u6570\u4ee5\u4ebf\u8ba1'
+    },
+    {
+        name: 'TWICE',
+        company: 'JYP Entertainment',
+        debutYear: 2015,
+        members: ['Nayeon', 'Jeongyeon', 'Momo', 'Sana', 'Jihyo', 'Mina', 'Dahyun', 'Chaeyoung', 'Tzuyu'],
+        songs: ['TT', 'Cheer Up', 'Fancy', 'Feel Special', 'The Feels'],
+        desc: '\u56fd\u6c11\u5973\u56e2\uff0c\u6d3b\u6cfc\u53ef\u7231\u98ce\u683c\u4ee3\u8868\uff0c\u65e5\u97e9\u53cc\u6599\u738b\u56e2'
+    },
+    {
+        name: 'EXO',
+        company: 'SM Entertainment',
+        debutYear: 2012,
+        members: ['Xiumin', 'Suho', 'Lay', 'Baekhyun', 'Chen', 'Chanyeol', 'D.O.', 'Kai', 'Sehun'],
+        songs: ['Growl', 'Monster', 'Call Me Baby', 'Love Shot', 'Overdose'],
+        desc: '\u6781\u5149\u7537\u56e2\uff0cSM\u65d7\u4e0b\u9876\u7ea7\u7537\u56e2\uff0c\u5f00\u521b\u5206\u961f\u4f53\u7cfb\u5148\u6cb3'
+    },
+    {
+        name: 'SEVENTEEN',
+        company: 'HYBE (Pledis)',
+        debutYear: 2015,
+        members: ['S.Coups', 'Jeonghan', 'Joshua', 'Jun', 'Hoshi', 'Wonwoo', 'Woozi', 'DK', 'Mingyu', 'The8', 'Seungkwan', 'Vernon', 'Dino'],
+        songs: ['Don\'t Wanna Cry', 'Very Nice', 'Super', 'God of Music', 'HOT'],
+        desc: '\u81ea\u4f5c\u7231\u8c46\u56e2\uff0c13\u4eba\u5927\u56e2\u4f53\uff0c\u4e09\u4e2a\u5c0f\u5206\u961f\u5404\u5177\u7279\u8272'
+    },
+    {
+        name: 'Stray Kids',
+        company: 'HYBE (JYP)',
+        debutYear: 2018,
+        members: ['Bang Chan', 'Lee Know', 'Changbin', 'Hyunjin', 'Han', 'Felix', 'Seungmin', 'I.N'],
+        songs: ['God\'s Menu', 'Back Door', 'MANIAC', 'CASE 143', 'LALALALA'],
+        desc: '\u81ea\u4f5c\u5b9e\u529b\u6d3e\u7537\u56e2\uff0c\u97f3\u4e50\u98ce\u683c\u72ec\u7279\u524d\u536b'
+    },
+    {
+        name: 'aespa',
+        company: 'SM Entertainment',
+        debutYear: 2020,
+        members: ['Karina', 'Giselle', 'Winter', 'Ningning'],
+        songs: ['Next Level', 'Savage', 'Girls', 'Supernova', 'Whip lash'],
+        desc: '\u5143\u5b87\u5b99\u6982\u5ff5\u5973\u56e2\uff0cSM\u65b0\u4e00\u4ee3\u9876\u7ea7\u5973\u56e2'
+    },
+    {
+        name: '(G)I-DLE',
+        company: 'Cube Entertainment',
+        debutYear: 2018,
+        members: ['Miyeon', 'Minnie', 'Soyeon', 'Yuqi', 'Shuhua'],
+        songs: ['TOMBOY', 'Nxde', 'Queencard', 'Super Lady', 'Fate'],
+        desc: '\u81ea\u4f5c\u5973\u56e2\uff0c\u8bd7\u7433\u9886\u8854\u5236\u4f5c\uff0c\u6982\u5ff5\u5148\u950b\u98ce\u683c\u72ec\u7279'
+    },
+    {
+        name: 'IVE',
+        company: 'Starship Entertainment',
+        debutYear: 2021,
+        members: ['Yujin', 'Gaeul', 'Rei', 'Wonyoung', 'Liz', 'Leeseo'],
+        songs: ['ELEVEN', 'LOVE DIVE', 'After LIKE', 'Kitsch', 'Either Way'],
+        desc: '\u65b0\u4e16\u4ee3\u4eba\u6c14\u5973\u56e2\uff0c\u51fa\u9053\u5373\u5dc5\u5cf0\u7684\u5947\u8ff9\u56e2\u4f53'
+    },
+    {
+        name: 'NewJeans',
+        company: 'HYBE (ADOR)',
+        debutYear: 2022,
+        members: ['Minji', 'Hanni', 'Danielle', 'Haerin', 'Hyein'],
+        songs: ['Attention', 'Hype Boy', 'Ditto', 'Super Shy', 'OMG'],
+        desc: '\u5168\u7403\u73b0\u8c61\u7ea7\u65b0\u4eba\u5973\u56e2\uff0cY2K\u590d\u53e4\u98ce\u683c\u4ee3\u8868'
+    }
+];
+
 function renderKpopWikiPage(container) {
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">Kpop百科</div><div style="width:32px;"></div></div><div class="page-content">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5BB8E8,#4A90D9);color:white;">'
@@ -6459,7 +6544,23 @@ function renderKpopWikiPage(container) {
         }
         html += '</div></div>';
     }
-    html += '</div></div>';
+        html += '<div class="section-title" style="margin-top:20px;">\u771f\u5b9e\u97e9\u56e2\u767e\u79d1</div>';
+    for (var ri = 0; ri < REAL_KPOP_GROUPS.length; ri++) {
+        var rg = REAL_KPOP_GROUPS[ri];
+        html += '<div class="card" style="cursor:pointer;margin-bottom:8px;" onclick="toggleWikiRealGroup(this)">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-weight:700;font-size:15px;color:var(--color-primary);">' + rg.name + '</div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + rg.company + ' | ' + rg.debutYear + '\u5e74\u51fa\u9053</div>'
+            + '</div>'
+            + '<div style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
+            + '<div class="wiki-groups" style="display:none;margin-top:12px;">'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">' + rg.desc + '</div>'
+            + '<div style="font-size:12px;margin-bottom:6px;"><span style="color:var(--color-text-light);">\u6210\u5458:</span> ' + rg.members.join(', ') + '</div>'
+            + '<div style="font-size:12px;"><span style="color:var(--color-text-light);">\u4ee3\u8868\u66f2:</span> ' + rg.songs.join(', ') + '</div>'
+            + '</div></div>';
+    }
+html += '</div></div>';
     container.innerHTML = html;
 }
 function toggleWikiCompany(el) {
@@ -6473,6 +6574,20 @@ function toggleWikiCompany(el) {
         if (arrow) arrow.style.transform = 'rotate(0deg)';
     }
 }
+
+function toggleWikiRealGroup(el) {
+    var groupsDiv = el.querySelector('.wiki-groups');
+    var arrow = el.querySelector('div:last-child > div:last-child');
+    if (groupsDiv.style.display === 'none') {
+        groupsDiv.style.display = 'block';
+        if (arrow) arrow.style.transform = 'rotate(45deg)';
+    } else {
+        groupsDiv.style.display = 'none';
+        if (arrow) arrow.style.transform = 'rotate(0deg)';
+    }
+}
+
+
 
 // ==================== COMPANY DETAIL PAGE (公司详情) ====================
 function renderCompanyDetailPage(container) {
