@@ -6,7 +6,7 @@
 <title>My Idol 玩家调研</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:#FFF5F7;color:#333;min-height:100vh;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:#FFF5F7;color:#333;min-height:100vh;}
 .c{max-width:480px;margin:0 auto;padding:16px 16px 80px;}
 .hd{text-align:center;padding:32px 0 24px;}
 .hd h1{font-size:22px;font-weight:700;color:#7C4DFF;margin-bottom:4px;}
@@ -17,37 +17,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 .qt{font-size:14px;font-weight:600;margin-bottom:10px;line-height:1.5;}
 .qt b{color:#7C4DFF;margin-right:4px;}
 .qt em{font-style:normal;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:400;}
-.em1{background:#E8F5E9;color:#4CD964;}.em2{background:#FFF3E0;color:#FF9800;}
+.e1{background:#E8F5E9;color:#4CD964;}.e2{background:#FFF3E0;color:#FF9800;}
 .qd{font-size:12px;color:#999;margin-bottom:8px;line-height:1.4;}
 .os{display:flex;flex-direction:column;gap:8px;}
-.o{display:flex;align-items:center;padding:12px 14px;border:2px solid #EEE;border-radius:12px;font-size:14px;cursor:pointer;background:white;}
-.o:active{opacity:.6;}
-.o.on{border-color:#7C4DFF;background:#F0EAFF;}
-.o .k{width:22px;height:22px;border:2px solid #CCC;border-radius:50%;margin-right:10px;flex-shrink:0;position:relative;}
-.o .k.cb{border-radius:5px;}
-.o.on .k{border-color:#7C4DFF;background:#7C4DFF;}
-.o.on .k::after{content:'';position:absolute;top:4px;left:7px;width:5px;height:9px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);}
-.ta{width:100%;padding:12px;border:2px solid #EEE;border-radius:12px;font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit;-webkit-appearance:none;}
+.o{padding:12px 14px;border:2px solid #EEE;border-radius:12px;font-size:14px;cursor:pointer;background:white;-webkit-tap-highlight-color:transparent;}
+.ta{width:100%;padding:12px;border:2px solid #EEE;border-radius:12px;font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit;}
 .ta:focus{border-color:#7C4DFF;}
 .ua{margin-top:10px;border:2px dashed #E0D6FF;border-radius:12px;padding:16px;text-align:center;}
 .ua p{font-size:12px;color:#999;margin-bottom:8px;}
-.ub{display:inline-block;padding:10px 20px;background:#7C4DFF;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;-webkit-appearance:none;}
+.ub{display:inline-block;padding:10px 20px;background:#7C4DFF;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;}
 .ub:active{opacity:.8;}
 .up{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
 .tw{position:relative;width:80px;height:80px;}
 .tm{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid #F0EAFF;}
-.td{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:#FF3B30;color:white;border:none;border-radius:50%;font-size:11px;line-height:20px;text-align:center;cursor:pointer;-webkit-appearance:none;padding:0;}
+.td{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:#FF3B30;color:white;border:none;border-radius:50%;font-size:11px;line-height:20px;text-align:center;cursor:pointer;padding:0;}
 .ss{display:flex;gap:6px;flex-wrap:wrap;}
 .si{flex:1;min-width:36px;padding:10px 2px;border:2px solid #EEE;border-radius:8px;text-align:center;cursor:pointer;font-size:13px;}
-.si:active{opacity:.6;}
-.si.on{border-color:#7C4DFF;background:#7C4DFF;color:white;font-weight:600;}
-.bs{width:100%;padding:16px;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;-webkit-appearance:none;}
+.bs{width:100%;padding:16px;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;}
 .bs:active{opacity:.8;}
 .rb{display:none;background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(76,217,100,0.15);border:2px solid #4CD964;}
 .rb h3{color:#4CD964;font-size:16px;margin-bottom:12px;}
 .rt{font-size:12px;line-height:1.8;color:#666;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;background:#F8F8F8;padding:12px;border-radius:8px;}
-.bc{padding:10px 20px;background:#4CD964;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;-webkit-appearance:none;}
-.bc:active{opacity:.8;}
+.bc{padding:10px 20px;background:#4CD964;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;}
 .ft{text-align:center;padding:20px;font-size:11px;color:#CCC;}
 </style>
 </head>
@@ -57,235 +48,269 @@ body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue'
 
 <div class="sec">
 <div class="st">基本信息</div>
-<div class="q"><div class="qt"><b>1.</b>你的年龄段？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q1')" data-v="12岁以下"><div class="k"></div>12岁以下</div>
-<div class="o" onclick="s1(this,'q1')" data-v="12-15岁"><div class="k"></div>12-15岁</div>
-<div class="o" onclick="s1(this,'q1')" data-v="16-18岁"><div class="k"></div>16-18岁</div>
-<div class="o" onclick="s1(this,'q1')" data-v="19-22岁"><div class="k"></div>19-22岁</div>
-<div class="o" onclick="s1(this,'q1')" data-v="23岁以上"><div class="k"></div>23岁以上</div>
+<div class="q"><div class="qt"><b>1.</b>你的年龄段？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q1',this)" data-v="12岁以下">12岁以下</div>
+<div class="o" onclick="pick1('q1',this)" data-v="12-15岁">12-15岁</div>
+<div class="o" onclick="pick1('q1',this)" data-v="16-18岁">16-18岁</div>
+<div class="o" onclick="pick1('q1',this)" data-v="19-22岁">19-22岁</div>
+<div class="o" onclick="pick1('q1',this)" data-v="23岁以上">23岁以上</div>
 </div></div>
-<div class="q"><div class="qt"><b>2.</b>你的性别？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q2')" data-v="女"><div class="k"></div>女</div>
-<div class="o" onclick="s1(this,'q2')" data-v="男"><div class="k"></div>男</div>
-<div class="o" onclick="s1(this,'q2')" data-v="其他"><div class="k"></div>其他/不愿透露</div>
+<div class="q"><div class="qt"><b>2.</b>你的性别？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q2',this)" data-v="女">女</div>
+<div class="o" onclick="pick1('q2',this)" data-v="男">男</div>
+<div class="o" onclick="pick1('q2',this)" data-v="其他">其他/不愿透露</div>
 </div></div>
-<div class="q"><div class="qt"><b>3.</b>你玩了My Idol多久？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q3')" data-v="刚开始"><div class="k"></div>刚开始</div>
-<div class="o" onclick="s1(this,'q3')" data-v="1-3天"><div class="k"></div>1-3天</div>
-<div class="o" onclick="s1(this,'q3')" data-v="1-2周"><div class="k"></div>1-2周</div>
-<div class="o" onclick="s1(this,'q3')" data-v="2周以上"><div class="k"></div>2周以上</div>
+<div class="q"><div class="qt"><b>3.</b>你玩了My Idol多久？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q3',this)" data-v="刚开始">刚开始</div>
+<div class="o" onclick="pick1('q3',this)" data-v="1-3天">1-3天</div>
+<div class="o" onclick="pick1('q3',this)" data-v="1-2周">1-2周</div>
+<div class="o" onclick="pick1('q3',this)" data-v="2周以上">2周以上</div>
 </div></div>
-<div class="q"><div class="qt"><b>4.</b>你主要通过什么渠道了解My Idol？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q4')" data-v="抖音"><div class="k cb"></div>抖音</div>
-<div class="o" onclick="sm(this,'q4')" data-v="微信/QQ群"><div class="k cb"></div>微信/QQ群</div>
-<div class="o" onclick="sm(this,'q4')" data-v="朋友推荐"><div class="k cb"></div>朋友推荐</div>
-<div class="o" onclick="sm(this,'q4')" data-v="B站"><div class="k cb"></div>B站</div>
-<div class="o" onclick="sm(this,'q4')" data-v="微博"><div class="k cb"></div>微博</div>
-<div class="o" onclick="sm(this,'q4')" data-v="小红书"><div class="k cb"></div>小红书</div>
-<div class="o" onclick="sm(this,'q4')" data-v="其他"><div class="k cb"></div>其他</div>
+<div class="q"><div class="qt"><b>4.</b>你主要通过什么渠道了解My Idol？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q4',this)" data-v="抖音">抖音</div>
+<div class="o" onclick="pickM('q4',this)" data-v="微信/QQ群">微信/QQ群</div>
+<div class="o" onclick="pickM('q4',this)" data-v="朋友推荐">朋友推荐</div>
+<div class="o" onclick="pickM('q4',this)" data-v="B站">B站</div>
+<div class="o" onclick="pickM('q4',this)" data-v="微博">微博</div>
+<div class="o" onclick="pickM('q4',this)" data-v="小红书">小红书</div>
+<div class="o" onclick="pickM('q4',this)" data-v="其他">其他</div>
 </div></div>
 </div>
 
 <div class="sec">
 <div class="st">游戏体验</div>
-<div class="q"><div class="qt"><b>5.</b>你最喜欢My Idol的哪些系统？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q5')" data-v="角色创建/养成"><div class="k cb"></div>角色创建/养成</div>
-<div class="o" onclick="sm(this,'q5')" data-v="训练系统"><div class="k cb"></div>训练系统</div>
-<div class="o" onclick="sm(this,'q5')" data-v="抽卡系统"><div class="k cb"></div>抽卡系统</div>
-<div class="o" onclick="sm(this,'q5')" data-v="社交APP"><div class="k cb"></div>社交APP</div>
-<div class="o" onclick="sm(this,'q5')" data-v="回归打歌"><div class="k cb"></div>回归打歌</div>
-<div class="o" onclick="sm(this,'q5')" data-v="考核系统"><div class="k cb"></div>考核系统</div>
-<div class="o" onclick="sm(this,'q5')" data-v="歌曲制作/MV"><div class="k cb"></div>歌曲制作/MV拍摄</div>
-<div class="o" onclick="sm(this,'q5')" data-v="日常/赚钱"><div class="k cb"></div>日常/赚钱</div>
-<div class="o" onclick="sm(this,'q5')" data-v="Kpop百科"><div class="k cb"></div>Kpop百科</div>
-<div class="o" onclick="sm(this,'q5')" data-v="出道流程"><div class="k cb"></div>出道流程</div>
+<div class="q"><div class="qt"><b>5.</b>你最喜欢哪些系统？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q5',this)" data-v="角色养成">角色创建/养成</div>
+<div class="o" onclick="pickM('q5',this)" data-v="训练系统">训练系统</div>
+<div class="o" onclick="pickM('q5',this)" data-v="抽卡">抽卡系统</div>
+<div class="o" onclick="pickM('q5',this)" data-v="社交APP">社交APP</div>
+<div class="o" onclick="pickM('q5',this)" data-v="回归打歌">回归打歌</div>
+<div class="o" onclick="pickM('q5',this)" data-v="考核">考核系统</div>
+<div class="o" onclick="pickM('q5',this)" data-v="歌曲/MV">歌曲制作/MV拍摄</div>
+<div class="o" onclick="pickM('q5',this)" data-v="日常赚钱">日常/赚钱</div>
+<div class="o" onclick="pickM('q5',this)" data-v="百科">Kpop百科</div>
+<div class="o" onclick="pickM('q5',this)" data-v="出道">出道流程</div>
 </div></div>
-<div class="q"><div class="qt"><b>6.</b>你觉得哪个系统最需要改进？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q6')" data-v="养成训练太单调"><div class="k"></div>养成/训练太单调</div>
-<div class="o" onclick="s1(this,'q6')" data-v="社交太简单"><div class="k"></div>社交系统太简单</div>
-<div class="o" onclick="s1(this,'q6')" data-v="回归不够丰富"><div class="k"></div>回归流程不够丰富</div>
-<div class="o" onclick="s1(this,'q6')" data-v="抽卡缺动画卡面"><div class="k"></div>抽卡缺少动画/卡面</div>
-<div class="o" onclick="s1(this,'q6')" data-v="UI不好看"><div class="k"></div>UI界面不够好看</div>
-<div class="o" onclick="s1(this,'q6')" data-v="bug多卡顿"><div class="k"></div>bug太多/卡顿</div>
-<div class="o" onclick="s1(this,'q6')" data-v="内容少玩不久"><div class="k"></div>内容太少/玩不久</div>
-<div class="o" onclick="s1(this,'q6')" data-v="其他"><div class="k"></div>其他(最后补充)</div>
+<div class="q"><div class="qt"><b>6.</b>哪个系统最需要改进？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q6',this)" data-v="养成太单调">养成/训练太单调</div>
+<div class="o" onclick="pick1('q6',this)" data-v="社交太简单">社交系统太简单</div>
+<div class="o" onclick="pick1('q6',this)" data-v="回归不够丰富">回归流程不够丰富</div>
+<div class="o" onclick="pick1('q6',this)" data-v="抽卡缺动画">抽卡缺少动画/卡面</div>
+<div class="o" onclick="pick1('q6',this)" data-v="UI不好看">UI界面不够好看</div>
+<div class="o" onclick="pick1('q6',this)" data-v="bug多">bug太多/卡顿</div>
+<div class="o" onclick="pick1('q6',this)" data-v="内容少">内容太少/玩不久</div>
+<div class="o" onclick="pick1('q6',this)" data-v="其他">其他(最后补充)</div>
 </div></div>
-<div class="q"><div class="qt"><b>7.</b>你每天大概玩多长时间？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q7')" data-v="10分钟内"><div class="k"></div>10分钟以内</div>
-<div class="o" onclick="s1(this,'q7')" data-v="10-30分钟"><div class="k"></div>10-30分钟</div>
-<div class="o" onclick="s1(this,'q7')" data-v="30分-1小时"><div class="k"></div>30分钟-1小时</div>
-<div class="o" onclick="s1(this,'q7')" data-v="1-2小时"><div class="k"></div>1-2小时</div>
-<div class="o" onclick="s1(this,'q7')" data-v="2小时以上"><div class="k"></div>2小时以上</div>
+<div class="q"><div class="qt"><b>7.</b>每天玩多长时间？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q7',this)" data-v="10分钟内">10分钟以内</div>
+<div class="o" onclick="pick1('q7',this)" data-v="10-30分钟">10-30分钟</div>
+<div class="o" onclick="pick1('q7',this)" data-v="30分-1小时">30分钟-1小时</div>
+<div class="o" onclick="pick1('q7',this)" data-v="1-2小时">1-2小时</div>
+<div class="o" onclick="pick1('q7',this)" data-v="2小时+">2小时以上</div>
 </div></div>
-<div class="q"><div class="qt"><b>8.</b>游戏整体体验评分<em class="em1">1-10分</em></div><div class="ss">
-<div class="si" onclick="ss(this,'q8')">1</div><div class="si" onclick="ss(this,'q8')">2</div><div class="si" onclick="ss(this,'q8')">3</div><div class="si" onclick="ss(this,'q8')">4</div><div class="si" onclick="ss(this,'q8')">5</div><div class="si" onclick="ss(this,'q8')">6</div><div class="si" onclick="ss(this,'q8')">7</div><div class="si" onclick="ss(this,'q8')">8</div><div class="si" onclick="ss(this,'q8')">9</div><div class="si" onclick="ss(this,'q8')">10</div>
+<div class="q"><div class="qt"><b>8.</b>游戏整体评分<em class="e1">1-10分</em></div><div class="ss">
+<div class="si" onclick="pickS('q8',this)">1</div><div class="si" onclick="pickS('q8',this)">2</div><div class="si" onclick="pickS('q8',this)">3</div><div class="si" onclick="pickS('q8',this)">4</div><div class="si" onclick="pickS('q8',this)">5</div><div class="si" onclick="pickS('q8',this)">6</div><div class="si" onclick="pickS('q8',this)">7</div><div class="si" onclick="pickS('q8',this)">8</div><div class="si" onclick="pickS('q8',this)">9</div><div class="si" onclick="pickS('q8',this)">10</div>
 </div></div>
 </div>
 
 <div class="sec">
 <div class="st">卡面风格</div>
-<div class="q"><div class="qt"><b>9.</b>你希望卡面是什么风格？<em class="em1">单选</em></div><div class="qd">这决定了我们卡面美术的方向</div><div class="os">
-<div class="o" onclick="s1(this,'q9')" data-v="二次元动漫"><div class="k"></div>二次元动漫风格</div>
-<div class="o" onclick="s1(this,'q9')" data-v="真人写实"><div class="k"></div>真人/写实风格</div>
-<div class="o" onclick="s1(this,'q9')" data-v="半写实韩系"><div class="k"></div>半写实韩系插画</div>
-<div class="o" onclick="s1(this,'q9')" data-v="Q版可爱"><div class="k"></div>Q版可爱风格</div>
-<div class="o" onclick="s1(this,'q9')" data-v="混合风格"><div class="k"></div>混合(不同等级不同风格)</div>
+<div class="q"><div class="qt"><b>9.</b>你希望卡面是什么风格？<em class="e1">单选</em></div><div class="qd">这决定了我们卡面美术的方向</div><div class="os">
+<div class="o" onclick="pick1('q9',this)" data-v="二次元动漫">二次元动漫风格</div>
+<div class="o" onclick="pick1('q9',this)" data-v="真人写实">真人/写实风格</div>
+<div class="o" onclick="pick1('q9',this)" data-v="半写实韩系">半写实韩系插画</div>
+<div class="o" onclick="pick1('q9',this)" data-v="Q版可爱">Q版可爱风格</div>
+<div class="o" onclick="pick1('q9',this)" data-v="混合风格">混合(不同等级不同风格)</div>
 </div></div>
-<div class="q"><div class="qt"><b>10.</b>上传2-3张你喜欢的卡面参考图<em class="em2">2-3张</em></div><div class="qd">从其他游戏/动漫/插画中找你觉得好看的</div>
+<div class="q"><div class="qt"><b>10.</b>上传2-3张你喜欢的卡面参考图<em class="e2">2-3张</em></div><div class="qd">从其他游戏/动漫/插画中找你觉得好看的</div>
 <div class="ua"><p>点击选择图片(2-3张)</p><button class="ub" onclick="document.getElementById('fi').click()">选择图片</button><input type="file" id="fi" accept="image/*" multiple style="display:none" onchange="upl(this)"><div class="up" id="pv"></div></div></div>
-<div class="q"><div class="qt"><b>11.</b>抽卡动画你觉得怎么样？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q11')" data-v="很酷满意"><div class="k"></div>很酷很满意</div>
-<div class="o" onclick="s1(this,'q11')" data-v="还行"><div class="k"></div>还行可以更炫</div>
-<div class="o" onclick="s1(this,'q11')" data-v="一般"><div class="k"></div>一般没感觉</div>
-<div class="o" onclick="s1(this,'q11')" data-v="没看到过"><div class="k"></div>还没看到过</div>
+<div class="q"><div class="qt"><b>11.</b>抽卡动画怎么样？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q11',this)" data-v="很酷满意">很酷很满意</div>
+<div class="o" onclick="pick1('q11',this)" data-v="还行">还行可以更炫</div>
+<div class="o" onclick="pick1('q11',this)" data-v="一般">一般没感觉</div>
+<div class="o" onclick="pick1('q11',this)" data-v="没看过">还没看到过</div>
 </div></div>
 </div>
 
 <div class="sec">
 <div class="st">新功能期待</div>
-<div class="q"><div class="qt"><b>12.</b>你最期待哪些新功能？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q12')" data-v="换装"><div class="k cb"></div>换装/服装系统</div>
-<div class="o" onclick="sm(this,'q12')" data-v="演唱会"><div class="k cb"></div>演唱会系统</div>
-<div class="o" onclick="sm(this,'q12')" data-v="综艺"><div class="k cb"></div>综艺录制</div>
-<div class="o" onclick="sm(this,'q12')" data-v="恋爱CP"><div class="k cb"></div>恋爱/CP线</div>
-<div class="o" onclick="sm(this,'q12')" data-v="粉丝经营"><div class="k cb"></div>粉丝经营/后援会</div>
-<div class="o" onclick="sm(this,'q12')" data-v="团建"><div class="k cb"></div>团体活动/团建</div>
-<div class="o" onclick="sm(this,'q12')" data-v="NPC剧情"><div class="k cb"></div>更多NPC互动剧情</div>
-<div class="o" onclick="sm(this,'q12')" data-v="写真拍照"><div class="k cb"></div>写真/拍照系统</div>
-<div class="o" onclick="sm(this,'q12')" data-v="公司经营"><div class="k cb"></div>经纪公司经营</div>
-<div class="o" onclick="sm(this,'q12')" data-v="排行榜"><div class="k cb"></div>排行榜/竞技</div>
-<div class="o" onclick="sm(this,'q12')" data-v="更多音乐玩法"><div class="k cb"></div>音乐制作更多玩法</div>
+<div class="q"><div class="qt"><b>12.</b>你最期待哪些新功能？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q12',this)" data-v="换装">换装/服装系统</div>
+<div class="o" onclick="pickM('q12',this)" data-v="演唱会">演唱会系统</div>
+<div class="o" onclick="pickM('q12',this)" data-v="综艺">综艺录制</div>
+<div class="o" onclick="pickM('q12',this)" data-v="恋爱CP">恋爱/CP线</div>
+<div class="o" onclick="pickM('q12',this)" data-v="粉丝经营">粉丝经营/后援会</div>
+<div class="o" onclick="pickM('q12',this)" data-v="团建">团体活动/团建</div>
+<div class="o" onclick="pickM('q12',this)" data-v="NPC剧情">更多NPC互动剧情</div>
+<div class="o" onclick="pickM('q12',this)" data-v="写真拍照">写真/拍照系统</div>
+<div class="o" onclick="pickM('q12',this)" data-v="公司经营">经纪公司经营</div>
+<div class="o" onclick="pickM('q12',this)" data-v="排行榜">排行榜/竞技</div>
+<div class="o" onclick="pickM('q12',this)" data-v="更多音乐玩法">音乐制作更多玩法</div>
 </div></div>
-<div class="q"><div class="qt"><b>13.</b>你希望回归企划流程有多长？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q13')" data-v="快节奏3-5步"><div class="k"></div>快节奏3-5步搞定</div>
-<div class="o" onclick="s1(this,'q13')" data-v="中等7-10步"><div class="k"></div>中等7-10步有剧情</div>
-<div class="o" onclick="s1(this,'q13')" data-v="丰富10+步"><div class="k"></div>丰富10步以上</div>
-<div class="o" onclick="s1(this,'q13')" data-v="越详细越好"><div class="k"></div>越详细越好</div>
+<div class="q"><div class="qt"><b>13.</b>回归企划流程多长？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q13',this)" data-v="快3-5步">快节奏3-5步搞定</div>
+<div class="o" onclick="pick1('q13',this)" data-v="中等7-10步">中等7-10步有剧情</div>
+<div class="o" onclick="pick1('q13',this)" data-v="丰富10+步">丰富10步以上</div>
+<div class="o" onclick="pick1('q13',this)" data-v="越详细越好">越详细越好</div>
 </div></div>
-<div class="q"><div class="qt"><b>14.</b>你更偏向哪种游戏节奏？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q14')" data-v="快节奏看结果"><div class="k"></div>快节奏马上看结果</div>
-<div class="o" onclick="s1(this,'q14')" data-v="慢慢享受"><div class="k"></div>慢慢来享受过程</div>
-<div class="o" onclick="s1(this,'q14')" data-v="两者结合"><div class="k"></div>两者结合看心情</div>
+<div class="q"><div class="qt"><b>14.</b>游戏节奏偏好？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q14',this)" data-v="快节奏">快节奏马上看结果</div>
+<div class="o" onclick="pick1('q14',this)" data-v="慢慢享受">慢慢来享受过程</div>
+<div class="o" onclick="pick1('q14',this)" data-v="两者结合">两者结合看心情</div>
 </div></div>
-<div class="q"><div class="qt"><b>15.</b>你希望社交APP增加什么？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q15')" data-v="更多聊天内容"><div class="k cb"></div>更多聊天内容/剧情</div>
-<div class="o" onclick="sm(this,'q15')" data-v="发动态"><div class="k cb"></div>发朋友圈/动态</div>
-<div class="o" onclick="sm(this,'q15')" data-v="粉丝评论"><div class="k cb"></div>粉丝评论互动</div>
-<div class="o" onclick="sm(this,'q15')" data-v="直播"><div class="k cb"></div>直播功能</div>
-<div class="o" onclick="sm(this,'q15')" data-v="私信互动"><div class="k cb"></div>私信/粉丝互动</div>
-<div class="o" onclick="sm(this,'q15')" data-v="现在挺好"><div class="k cb"></div>现在就挺好</div>
+<div class="q"><div class="qt"><b>15.</b>社交APP增加什么？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q15',this)" data-v="更多聊天">更多聊天内容/剧情</div>
+<div class="o" onclick="pickM('q15',this)" data-v="发动态">发朋友圈/动态</div>
+<div class="o" onclick="pickM('q15',this)" data-v="粉丝评论">粉丝评论互动</div>
+<div class="o" onclick="pickM('q15',this)" data-v="直播">直播功能</div>
+<div class="o" onclick="pickM('q15',this)" data-v="私信">私信/粉丝互动</div>
+<div class="o" onclick="pickM('q15',this)" data-v="现在挺好">现在就挺好</div>
 </div></div>
 </div>
 
 <div class="sec">
 <div class="st">UI/视觉</div>
-<div class="q"><div class="qt"><b>16.</b>你觉得游戏界面好看吗？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q16')" data-v="很好看"><div class="k"></div>很好看很满意</div>
-<div class="o" onclick="s1(this,'q16')" data-v="还行"><div class="k"></div>还行可以更好</div>
-<div class="o" onclick="s1(this,'q16')" data-v="一般"><div class="k"></div>一般需要改进</div>
-<div class="o" onclick="s1(this,'q16')" data-v="不好看"><div class="k"></div>不好看需大改</div>
+<div class="q"><div class="qt"><b>16.</b>界面好看吗？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q16',this)" data-v="很好看">很好看很满意</div>
+<div class="o" onclick="pick1('q16',this)" data-v="还行">还行可以更好</div>
+<div class="o" onclick="pick1('q16',this)" data-v="一般">一般需改进</div>
+<div class="o" onclick="pick1('q16',this)" data-v="不好看">不好看需大改</div>
 </div></div>
-<div class="q"><div class="qt"><b>17.</b>你希望界面是什么风格？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q17')" data-v="粉色系就好"><div class="k"></div>现在粉色系就好</div>
-<div class="o" onclick="s1(this,'q17')" data-v="暗色高级感"><div class="k"></div>更暗色/高级感</div>
-<div class="o" onclick="s1(this,'q17')" data-v="韩系清新"><div class="k"></div>韩系清新简约</div>
-<div class="o" onclick="s1(this,'q17')" data-v="切换主题色"><div class="k"></div>可以切换主题色</div>
+<div class="q"><div class="qt"><b>17.</b>希望什么界面风格？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q17',this)" data-v="粉色系就好">现在粉色系就好</div>
+<div class="o" onclick="pick1('q17',this)" data-v="暗色高级感">更暗色/高级感</div>
+<div class="o" onclick="pick1('q17',this)" data-v="韩系清新">韩系清新简约</div>
+<div class="o" onclick="pick1('q17',this)" data-v="切换主题">可以切换主题色</div>
 </div></div>
-<div class="q"><div class="qt"><b>18.</b>你觉得哪些页面排版需要改进？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q18')" data-v="首页"><div class="k cb"></div>首页/手机桌面</div>
-<div class="o" onclick="sm(this,'q18')" data-v="训练考核"><div class="k cb"></div>训练/考核页面</div>
-<div class="o" onclick="sm(this,'q18')" data-v="社交APP"><div class="k cb"></div>社交APP页面</div>
-<div class="o" onclick="sm(this,'q18')" data-v="抽卡"><div class="k cb"></div>抽卡页面</div>
-<div class="o" onclick="sm(this,'q18')" data-v="回归打歌"><div class="k cb"></div>回归/打歌页面</div>
-<div class="o" onclick="sm(this,'q18')" data-v="百科"><div class="k cb"></div>Kpop百科</div>
-<div class="o" onclick="sm(this,'q18')" data-v="都OK"><div class="k cb"></div>都觉得OK</div>
+<div class="q"><div class="qt"><b>18.</b>哪些排版需改进？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q18',this)" data-v="首页">首页/手机桌面</div>
+<div class="o" onclick="pickM('q18',this)" data-v="训练考核">训练/考核页面</div>
+<div class="o" onclick="pickM('q18',this)" data-v="社交APP">社交APP页面</div>
+<div class="o" onclick="pickM('q18',this)" data-v="抽卡">抽卡页面</div>
+<div class="o" onclick="pickM('q18',this)" data-v="回归打歌">回归/打歌页面</div>
+<div class="o" onclick="pickM('q18',this)" data-v="百科">Kpop百科</div>
+<div class="o" onclick="pickM('q18',this)" data-v="都OK">都觉得OK</div>
 </div></div>
 </div>
 
 <div class="sec">
 <div class="st">付费意愿</div>
-<div class="q"><div class="qt"><b>19.</b>你愿意为哪些内容付费？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q19')" data-v="月卡会员"><div class="k cb"></div>月卡/会员</div>
-<div class="o" onclick="sm(this,'q19')" data-v="抽卡"><div class="k cb"></div>抽卡(单抽/十连)</div>
-<div class="o" onclick="sm(this,'q19')" data-v="限定服装"><div class="k cb"></div>限定服装/皮肤</div>
-<div class="o" onclick="sm(this,'q19')" data-v="AI对话"><div class="k cb"></div>AI对话次数</div>
-<div class="o" onclick="sm(this,'q19')" data-v="加速道具"><div class="k cb"></div>加速/省时道具</div>
-<div class="o" onclick="sm(this,'q19')" data-v="不建议收费"><div class="k cb"></div>不建议收费</div>
+<div class="q"><div class="qt"><b>19.</b>愿意为哪些付费？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q19',this)" data-v="月卡">月卡/会员</div>
+<div class="o" onclick="pickM('q19',this)" data-v="抽卡">抽卡(单抽/十连)</div>
+<div class="o" onclick="pickM('q19',this)" data-v="限定服装">限定服装/皮肤</div>
+<div class="o" onclick="pickM('q19',this)" data-v="AI对话">AI对话次数</div>
+<div class="o" onclick="pickM('q19',this)" data-v="加速道具">加速/省时道具</div>
+<div class="o" onclick="pickM('q19',this)" data-v="不收费">不建议收费</div>
 </div></div>
-<div class="q"><div class="qt"><b>20.</b>你能接受的月花费是？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q20')" data-v="免费"><div class="k"></div>只玩免费的</div>
-<div class="o" onclick="s1(this,'q20')" data-v="5元内"><div class="k"></div>5元以内</div>
-<div class="o" onclick="s1(this,'q20')" data-v="5-15元"><div class="k"></div>5-15元</div>
-<div class="o" onclick="s1(this,'q20')" data-v="15-30元"><div class="k"></div>15-30元</div>
-<div class="o" onclick="s1(this,'q20')" data-v="30元以上"><div class="k"></div>30元以上</div>
+<div class="q"><div class="qt"><b>20.</b>能接受的月花费？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q20',this)" data-v="免费">只玩免费的</div>
+<div class="o" onclick="pick1('q20',this)" data-v="5元内">5元以内</div>
+<div class="o" onclick="pick1('q20',this)" data-v="5-15元">5-15元</div>
+<div class="o" onclick="pick1('q20',this)" data-v="15-30元">15-30元</div>
+<div class="o" onclick="pick1('q20',this)" data-v="30元+">30元以上</div>
 </div></div>
-<div class="q"><div class="qt"><b>21.</b>你觉得1元1抽的价格怎么样？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q21')" data-v="便宜可接受"><div class="k"></div>很便宜可以接受</div>
-<div class="o" onclick="s1(this,'q21')" data-v="还行"><div class="k"></div>还行</div>
-<div class="o" onclick="s1(this,'q21')" data-v="有点贵"><div class="k"></div>有点贵</div>
-<div class="o" onclick="s1(this,'q21')" data-v="太贵了"><div class="k"></div>太贵了</div>
+<div class="q"><div class="qt"><b>21.</b>1元1抽的价格？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q21',this)" data-v="便宜">很便宜可以接受</div>
+<div class="o" onclick="pick1('q21',this)" data-v="还行">还行</div>
+<div class="o" onclick="pick1('q21',this)" data-v="有点贵">有点贵</div>
+<div class="o" onclick="pick1('q21',this)" data-v="太贵">太贵了</div>
 </div></div>
 </div>
 
 <div class="sec">
 <div class="st">Bug与建议</div>
-<div class="q"><div class="qt"><b>22.</b>你遇到过哪些bug？<em class="em2">多选</em></div><div class="os">
-<div class="o" onclick="sm(this,'q22')" data-v="白屏"><div class="k cb"></div>白屏/加载出错</div>
-<div class="o" onclick="sm(this,'q22')" data-v="存档丢失"><div class="k cb"></div>存档丢失/读取失败</div>
-<div class="o" onclick="sm(this,'q22')" data-v="卡顿闪退"><div class="k cb"></div>页面卡顿/闪退</div>
-<div class="o" onclick="sm(this,'q22')" data-v="点不了"><div class="k cb"></div>功能点不了/没反应</div>
-<div class="o" onclick="sm(this,'q22')" data-v="排版错乱"><div class="k cb"></div>排版错乱/显示异常</div>
-<div class="o" onclick="sm(this,'q22')" data-v="回验证码"><div class="k cb"></div>切回页面回验证码</div>
-<div class="o" onclick="sm(this,'q22')" data-v="没遇到"><div class="k cb"></div>没有遇到过bug</div>
+<div class="q"><div class="qt"><b>22.</b>遇到过哪些bug？<em class="e2">多选</em></div><div class="os">
+<div class="o" onclick="pickM('q22',this)" data-v="白屏">白屏/加载出错</div>
+<div class="o" onclick="pickM('q22',this)" data-v="存档丢失">存档丢失/读取失败</div>
+<div class="o" onclick="pickM('q22',this)" data-v="卡顿闪退">页面卡顿/闪退</div>
+<div class="o" onclick="pickM('q22',this)" data-v="点不了">功能点不了/没反应</div>
+<div class="o" onclick="pickM('q22',this)" data-v="排版错乱">排版错乱/显示异常</div>
+<div class="o" onclick="pickM('q22',this)" data-v="回验证码">切回页面回验证码</div>
+<div class="o" onclick="pickM('q22',this)" data-v="没遇到">没有遇到过bug</div>
 </div></div>
-<div class="q"><div class="qt"><b>23.</b>你使用的是什么设备？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q23')" data-v="iPhone"><div class="k"></div>iPhone</div>
-<div class="o" onclick="s1(this,'q23')" data-v="iPad"><div class="k"></div>iPad</div>
-<div class="o" onclick="s1(this,'q23')" data-v="安卓"><div class="k"></div>安卓手机</div>
-<div class="o" onclick="s1(this,'q23')" data-v="PC"><div class="k"></div>PC电脑</div>
+<div class="q"><div class="qt"><b>23.</b>使用什么设备？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q23',this)" data-v="iPhone">iPhone</div>
+<div class="o" onclick="pick1('q23',this)" data-v="iPad">iPad</div>
+<div class="o" onclick="pick1('q23',this)" data-v="安卓">安卓手机</div>
+<div class="o" onclick="pick1('q23',this)" data-v="PC">PC电脑</div>
 </div></div>
-<div class="q"><div class="qt"><b>24.</b>你觉得游戏最缺什么？<em class="em1">单选</em></div><div class="os">
-<div class="o" onclick="s1(this,'q24')" data-v="内容少"><div class="k"></div>内容不够多</div>
-<div class="o" onclick="s1(this,'q24')" data-v="画质差"><div class="k"></div>画质不够好</div>
-<div class="o" onclick="s1(this,'q24')" data-v="互动少"><div class="k"></div>互动不够丰富</div>
-<div class="o" onclick="s1(this,'q24')" data-v="缺社交"><div class="k"></div>缺少社交/分享</div>
-<div class="o" onclick="s1(this,'q24')" data-v="音效"><div class="k"></div>音效/音乐</div>
-<div class="o" onclick="s1(this,'q24')" data-v="稳定性"><div class="k"></div>稳定性和流畅度</div>
+<div class="q"><div class="qt"><b>24.</b>游戏最缺什么？<em class="e1">单选</em></div><div class="os">
+<div class="o" onclick="pick1('q24',this)" data-v="内容少">内容不够多</div>
+<div class="o" onclick="pick1('q24',this)" data-v="画质差">画质不够好</div>
+<div class="o" onclick="pick1('q24',this)" data-v="互动少">互动不够丰富</div>
+<div class="o" onclick="pick1('q24',this)" data-v="缺社交">缺少社交/分享</div>
+<div class="o" onclick="pick1('q24',this)" data-v="音效">音效/音乐</div>
+<div class="o" onclick="pick1('q24',this)" data-v="稳定性">稳定性和流畅度</div>
 </div></div>
-<div class="q"><div class="qt"><b>25.</b>你有什么建议或想说的话？<em class="em1">开放</em></div>
-<textarea class="ta" id="q25i" placeholder="畅所欲言！任何建议、吐槽、想法都可以写..."></textarea>
+<div class="q"><div class="qt"><b>25.</b>还有什么想说的？<em class="e1">开放</em></div>
+<textarea class="ta" id="q25i" placeholder="畅所欲言！"></textarea>
 </div>
 </div>
 
-<div class="rb" id="rb"><h3>提交成功！感谢你的反馈</h3><div class="rt" id="rt"></div><button class="bc" onclick="cp()">复制结果发给管理员</button></div>
+<div class="rb" id="rb"><h3>提交成功！感谢反馈</h3><div class="rt" id="rt"></div><button class="bc" onclick="cp()">复制结果</button></div>
 <button class="bs" id="sbtn" onclick="go()">提交问卷</button>
 <div class="ft">My Idol Team | 2026</div>
 </div>
 
 <script>
 var A={},IMGS=[];
-function s1(el,qid){
-var ps=el.parentNode,ch=ps.children,i;
-for(i=0;i<ch.length;i++)ch[i].classList.remove('on');
-el.classList.add('on');
+var ON_BD='2px solid #7C4DFF';
+var ON_BG='#F0EAFF';
+var OFF_BD='2px solid #EEE';
+var OFF_BG='white';
+
+function pick1(qid,el){
+var ps=el.parentNode;
+var ch=ps.children;
+for(var i=0;i<ch.length;i++){
+ch[i].style.borderColor=OFF_BD.slice(4);
+ch[i].style.background=OFF_BG;
+ch[i].setAttribute('data-on','0');
+}
+el.style.borderColor='#7C4DFF';
+el.style.background=ON_BG;
+el.setAttribute('data-on','1');
 A[qid]=el.getAttribute('data-v');
 }
-function sm(el,qid){
-el.classList.toggle('on');
-var ps=el.parentNode,ch=ps.children,vs=[],i;
-for(i=0;i<ch.length;i++){if(ch[i].classList.contains('on'))vs.push(ch[i].getAttribute('data-v'));}
+
+function pickM(qid,el){
+var cur=el.getAttribute('data-on');
+if(cur==='1'){
+el.style.borderColor=OFF_BD.slice(4);
+el.style.background=OFF_BG;
+el.setAttribute('data-on','0');
+}else{
+el.style.borderColor='#7C4DFF';
+el.style.background=ON_BG;
+el.setAttribute('data-on','1');
+}
+var ps=el.parentNode;
+var ch=ps.children;
+var vs=[];
+for(var i=0;i<ch.length;i++){
+if(ch[i].getAttribute('data-on')==='1')vs.push(ch[i].getAttribute('data-v'));
+}
 A[qid]=vs;
 }
-function ss(el,qid){
-var ps=el.parentNode,ch=ps.children,i;
-for(i=0;i<ch.length;i++)ch[i].classList.remove('on');
-el.classList.add('on');
-A[qid]=el.textContent;
+
+function pickS(qid,el){
+var ps=el.parentNode;
+var ch=ps.children;
+for(var i=0;i<ch.length;i++){
+ch[i].style.borderColor=OFF_BD.slice(4);
+ch[i].style.background=OFF_BG;
 }
+el.style.borderColor='#7C4DFF';
+el.style.background='#7C4DFF';
+el.style.color='white';
+A[qid]=el.innerHTML;
+}
+
 function upl(inp){
-var fs=inp.files,i;
+var fs=inp.files;
 if(!fs||!fs.length)return;
-for(i=0;i<fs.length;i++){
+for(var i=0;i<fs.length;i++){
 if(IMGS.length>=3){alert('最多3张');break;}
 var r=new FileReader();
 r.onload=(function(f){return function(e){IMGS.push({n:f.name,d:e.target.result});rp();};})(fs[i]);
@@ -293,17 +318,20 @@ r.readAsDataURL(fs[i]);
 }
 inp.value='';
 }
+
 function rp(){
-var c=document.getElementById('pv'),i;
+var c=document.getElementById('pv');
 c.innerHTML='';
-for(i=0;i<IMGS.length;i++){
+for(var i=0;i<IMGS.length;i++){
 var w=document.createElement('div');w.className='tw';
 var img=document.createElement('img');img.className='tm';img.src=IMGS[i].d;
-var b=document.createElement('button');b.className='td';b.textContent='x';b.setAttribute('data-i',String(i));
+var b=document.createElement('button');b.className='td';b.textContent='x';
+b.setAttribute('data-i',String(i));
 b.onclick=function(){IMGS.splice(parseInt(this.getAttribute('data-i')),1);rp();};
 w.appendChild(img);w.appendChild(b);c.appendChild(w);
 }
 }
+
 function go(){
 var o=document.getElementById('q25i').value.trim();
 if(o)A.q25=o;
@@ -333,17 +361,17 @@ r+='22.bug:'+(A.q22&&A.q22.length?A.q22.join(','):'-')+'\n';
 r+='23.设备:'+(A.q23||'-')+'\n';
 r+='24.最缺:'+(A.q24||'-')+'\n';
 r+='25.建议:'+(A.q25||'无')+'\n';
-try{fetch('https://my-idol-api.vercel.app/api/survey-submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(A)}).catch(function(){});}catch(e){}
-try{localStorage.setItem('myidol_survey',JSON.stringify(A));}catch(e){}
 document.getElementById('rt').textContent=r;
 document.getElementById('rb').style.display='block';
 document.getElementById('sbtn').style.display='none';
 document.getElementById('rb').scrollIntoView({behavior:'smooth'});
+try{localStorage.setItem('myidol_survey',JSON.stringify(A));}catch(e){}
 }
+
 function cp(){
 var t=document.getElementById('rt').textContent;
-if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert('已复制！发给管理员即可');});}
-else{var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('已复制！发给管理员即可');}
+if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert('已复制！');});}
+else{var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('已复制！');}
 }
 </script>
 </body>
