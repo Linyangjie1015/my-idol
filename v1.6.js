@@ -2531,13 +2531,13 @@ function getAIReply(appId, context, playerMessage, callback) {
     recordAIUsage(appId);
 
     var prompts = {
-        kakaotalk: '你是韩娱爱豆模拟器中的NPC，正在通过KakaoTalk和玩家聊天。' + context + '。用简短随意的韩式聊天语气回复，1-2句话，偶尔用~和！，不要用emoji。用中文回复。',
-        bubble: '你是韩娱爱豆模拟器中的爱豆，正在通过泡泡和粉丝聊天。' + context + '。用甜蜜亲切的语气回复粉丝，1-2句话，偶尔用~，不要用emoji。用中文回复。',
-        dating: '你是韩娱爱豆模拟器中和玩家恋爱的NPC。' + context + '。用温柔暧昧的恋爱语气回复，1-2句话，不要用emoji。用中文回复。',
-        ins: '你是韩娱爱豆模拟器中INS上的粉丝。用热情简短的评论语气回复，1句话，不要用emoji。用中文回复。',
-        tiktok: '你是韩娱爱豆模拟器中TikTok上的粉丝。用活泼简短的评论语气回复，1句话，不要用emoji。用中文回复。',
-        weverse: '你是韩娱爱豆模拟器中Weverse上的爱豆，在跟粉丝互动。用温暖真诚的语气回复，1-2句话，不要用emoji。用中文回复。',
-        live: '你是韩娱爱豆模拟器中直播间的观众。用热情简短的弹幕语气回复，1句话，不要用emoji。用中文回复。'
+        kakaotalk: '你是韩国娱乐圈的偶像/练习生，正在通过KakaoTalk和同事聊天。' + context + '。用简短随意的韩式聊天语气回复，1-2句话，偶尔用~和！，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        bubble: '你是韩国当红爱豆，正在通过泡泡和粉丝聊天。' + context + '。用甜蜜亲切的语气回复粉丝，1-2句话，偶尔用~，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        dating: '你是韩国娱乐圈的偶像，正在和恋人聊天。' + context + '。用温柔暧昧的恋爱语气回复，1-2句话，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        ins: '你是INS上的粉丝，正在评论爱豆的动态。用热情简短的评论语气回复，1句话，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        tiktok: '你是TikTok上的粉丝，正在评论爱豆的视频。用活泼简短的评论语气回复，1句话，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        weverse: '你是韩国当红爱豆，正在Weverse上和粉丝互动。用温暖真诚的语气回复，1-2句话，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        live: '你是直播间的观众，正在看爱豆直播。用热情简短的弹幕语气回复，1句话，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。'
     };
     var systemPrompt = prompts[appId] || prompts.kakaotalk;
     var userId = (gameState.player.name || 'player') + '_' + Math.floor(Math.random() * 10000);
@@ -3570,14 +3570,14 @@ function render泡泡Page(container) {
             chatHtml += '<div class="kakao-msg-row ' + (cm.fromMe ? 'me' : 'npc') + '"><div class="kakao-msg-bubble ' + (cm.fromMe ? 'me' : 'npc') + '">' + cm.text + '</div></div>';
         }
         chatHtml += '</div>';
-        container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;">'
-            + '<div class="page-header">'
+        container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+            + '<div class="page-header" style="flex-shrink:0;">'
             + '<div class="back-btn" onclick="bubbleChatTarget=\'\';render();">\u2039 返回</div>'
             + '<div class="page-title">' + bubbleChatTarget + '</div>'
             + '<div style="width:32px;"></div>'
             + '</div>'
             + chatHtml
-            + '<div style="display:flex;gap:8px;padding:8px 12px;background:var(--bg-card);border-top:1px solid var(--color-border);">'
+            + '<div style="display:flex;gap:8px;padding:8px 12px;background:var(--bg-card);border-top:1px solid var(--color-border);flex-shrink:0;">'
             + '<input type="text" id="bubbleChatInput" placeholder="输入消息..." style="flex:1;margin-bottom:0;font-size:13px;padding:10px 14px;">'
             + '<button class="btn btn-sm btn-primary" onclick="send泡泡Chat()" style="padding:10px 14px;">发送</button>'
             + '</div></div>';
@@ -3623,17 +3623,17 @@ function render泡泡Page(container) {
         if (!contentHtml) contentHtml = '<p style="text-align:center;color:var(--color-text-light);padding:20px;">暂无已发送消息</p>';
     } else if (currentTab === 'stickers') {
         var stickerPacks = [
-            { name: '可爱猫咪', price: 3000, count: 8, color: '#FF8FA3' },
-            { name: '韩系表情', price: 5000, count: 12, color: '#7C4DFF' },
-            { name: '爱豆日常', price: 8000, count: 16, color: '#4CD964' },
-            { name: '粉丝应援', price: 6000, count: 10, color: '#FFD700' },
-            { name: '泡泡专属', price: 10000, count: 20, color: '#FF69B4' }
+            { name: '可爱猫咪', price: 3000, count: 8, color: '#FF8FA3', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_0.jpg' },
+            { name: '韩系表情', price: 5000, count: 12, color: '#7C4DFF', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_1.jpg' },
+            { name: '爱豆日常', price: 8000, count: 16, color: '#4CD964', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_2.jpg' },
+            { name: '粉丝应援', price: 6000, count: 10, color: '#FFD700', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_3.jpg' },
+            { name: '泡泡专属', price: 10000, count: 20, color: '#FF69B4', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_4.jpg' }
         ];
         for (var pi = 0; pi < stickerPacks.length; pi++) {
             var sp = stickerPacks[pi];
             var owned = gameState.bubbleStickers && gameState.bubbleStickers.indexOf(sp.name) >= 0;
             contentHtml += '<div class="card" style="display:flex;align-items:center;gap:12px;">'
-                + '<div style="width:48px;height:48px;border-radius:12px;background:' + sp.color + ';color:white;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;">' + sp.name.charAt(0) + '</div>'
+                + '<div style="width:48px;height:48px;border-radius:12px;overflow:hidden;"><img src="' + sp.icon + '" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>'
                 + '<div style="flex:1;">'
                 + '<div style="font-weight:600;font-size:14px;">' + sp.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + sp.count + '个表情</div>'
@@ -6948,7 +6948,7 @@ function renderKpopWikiPage(container) {
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
             + '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:15px;color:var(--color-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + company.name + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + gKeys.length + '个团体 / ' + totalMembers + '名成员</div></div>'
-            + '<div style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
+            + '<div class="wiki-arrow" style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
             + '<div class="wiki-groups" style="display:none;margin-top:12px;overflow:hidden;">';
         for (var gi = 0; gi < gKeys.length; gi++) {
             var g = company.groups[gKeys[gi]];
@@ -6968,7 +6968,7 @@ function renderKpopWikiPage(container) {
             + '<div style="font-weight:700;font-size:15px;color:var(--color-primary);">' + rg.name + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + rg.company + ' | ' + rg.debutYear + '\u5e74\u51fa\u9053</div>'
             + '</div>'
-            + '<div style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
+            + '<div class="wiki-arrow" style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
             + '<div class="wiki-groups" style="display:none;margin-top:12px;">'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">' + rg.desc + '</div>'
             + '<div style="font-size:12px;margin-bottom:6px;"><span style="color:var(--color-text-light);">\u6210\u5458:</span> ' + rg.members.join(', ') + '</div>'
@@ -6980,7 +6980,7 @@ html += '</div></div>';
 }
 function toggleWikiCompany(el) {
     var groupsDiv = el.querySelector('.wiki-groups');
-    var arrow = el.querySelector('div:last-child > div:last-child');
+    var arrow = el.querySelector('.wiki-arrow');
     if (groupsDiv.style.display === 'none') {
         groupsDiv.style.display = 'block';
         if (arrow) arrow.style.transform = 'rotate(45deg)';
@@ -6992,7 +6992,7 @@ function toggleWikiCompany(el) {
 
 function toggleWikiRealGroup(el) {
     var groupsDiv = el.querySelector('.wiki-groups');
-    var arrow = el.querySelector('div:last-child > div:last-child');
+    var arrow = el.querySelector('.wiki-arrow');
     if (groupsDiv.style.display === 'none') {
         groupsDiv.style.display = 'block';
         if (arrow) arrow.style.transform = 'rotate(45deg)';
