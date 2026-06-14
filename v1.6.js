@@ -3557,12 +3557,56 @@ var bubbleMultilangMessages = [
     { from: 'glow_up', orig: 'You inspire me every single day!', zh: '你每天都激励着我！', lang: 'en', time: '5小时前' }
 ];
 
+function _restoreNav() {
+    var nav = document.getElementById('bottomNav');
+    var rest = document.getElementById('restButtons');
+    if (nav) nav.style.display = 'flex';
+    if (rest) rest.style.display = 'flex';
+}
+
+function toggleBubbleStickerPanel() {
+    var panel = document.getElementById('bubbleStickerPanel');
+    if (!panel) return;
+    if (panel.style.display === 'none') {
+        var html = '';
+        for (var si = 0; si < gameState.bubbleStickers.length; si++) {
+            var sn = gameState.bubbleStickers[si];
+            var stickerData = null;
+            for (var sj = 0; sj < STICKER_PACKS.length; sj++) {
+                if (STICKER_PACKS[sj].name === sn) { stickerData = STICKER_PACKS[sj]; break; }
+            }
+            if (stickerData && stickerData.icon) {
+                html += '<div style="display:inline-block;width:48px;height:48px;margin:4px;cursor:pointer;" onclick="send泡泡Sticker(\'' + sn.replace(/'/g, "\\'") + '\')"><img src="' + stickerData.icon + '" style="width:48px;height:48px;border-radius:8px;"></div>';
+            } else {
+                html += '<div style="display:inline-block;padding:6px 10px;margin:4px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;cursor:pointer;font-size:12px;" onclick="send泡泡Sticker(\'' + sn.replace(/'/g, "\\'") + '\')">' + sn + '</div>';
+            }
+        }
+        if (!html) html = '<div style="text-align:center;color:var(--color-text-light);padding:12px;font-size:12px;">暂无表情包</div>';
+        panel.innerHTML = html;
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function send泡泡Sticker(name) {
+    if (!bubbleChatTarget) return;
+    if (!gameState.bubbleChats) gameState.bubbleChats = {};
+    if (!gameState.bubbleChats[bubbleChatTarget]) gameState.bubbleChats[bubbleChatTarget] = [];
+    gameState.bubbleChats[bubbleChatTarget].push({ fromMe: true, text: '[' + name + ']' });
+    var panel = document.getElementById('bubbleStickerPanel');
+    if (panel) panel.style.display = 'none';
+    render泡泡Page(document.getElementById('app'));
+}
+
 function render泡泡Page(container) {
     if (!gameState.bubbleUnread) gameState.bubbleUnread = 0;
     if (!gameState.bubbleChats) gameState.bubbleChats = {};
     if (!gameState.bubble已发送) gameState.bubble已发送 = [];
     if (!gameState.bubbleStickers) gameState.bubbleStickers = [];
     if (bubbleChatTarget) {
+        document.getElementById('bottomNav').style.display = 'none';
+        document.getElementById('restButtons').style.display = 'none';
         var chatMsgs = gameState.bubbleChats[bubbleChatTarget] || [];
         var chatHtml = '<div style="flex:1;overflow-y:auto;padding:12px;" id="bubbleChatArea">';
         for (var ci = 0; ci < chatMsgs.length; ci++) {
@@ -3570,18 +3614,24 @@ function render泡泡Page(container) {
             chatHtml += '<div class="kakao-msg-row ' + (cm.fromMe ? 'me' : 'npc') + '"><div class="kakao-msg-bubble ' + (cm.fromMe ? 'me' : 'npc') + '">' + cm.text + '</div></div>';
         }
         chatHtml += '</div>';
+        var stickerBtnHtml = '';
+        if (gameState.bubbleStickers && gameState.bubbleStickers.length > 0) {
+            stickerBtnHtml = '<button class="btn btn-sm btn-secondary" onclick="toggleBubbleStickerPanel()" style="padding:10px;font-size:16px;line-height:1;">S</button>';
+        }
         container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
             + '<div class="page-header" style="flex-shrink:0;">'
-            + '<div class="back-btn" onclick="bubbleChatTarget=\'\';render();">\u2039 返回</div>'
+            + '<div class="back-btn" onclick="bubbleChatTarget=\'\';_restoreNav();render();">\u2039 返回</div>'
             + '<div class="page-title">' + bubbleChatTarget + '</div>'
             + '<div style="width:32px;"></div>'
             + '</div>'
             + chatHtml
+            + '<div id="bubbleStickerPanel" style="display:none;padding:8px;background:var(--bg-card);border-top:1px solid var(--color-border);flex-shrink:0;max-height:120px;overflow-y:auto;"></div>'
             + '<div style="display:flex;gap:8px;padding:8px 12px;background:var(--bg-card);border-top:1px solid var(--color-border);flex-shrink:0;">'
-            + '<input type="text" id="bubbleChatInput" placeholder="输入消息..." style="flex:1;margin-bottom:0;font-size:13px;padding:10px 14px;">'
+            + stickerBtnHtml
+            + '<input type="text" id="bubbleChatInput" placeholder="输入消息..." style="flex:1;margin-bottom:0;font-size:13px;padding:10px 14px;" onkeydown="if(event.key===\'Enter\')send泡泡Chat()">'
             + '<button class="btn btn-sm btn-primary" onclick="send泡泡Chat()" style="padding:10px 14px;">发送</button>'
             + '</div></div>';
-        setTimeout(function(){ var area = document.getElementById('bubbleChatArea'); if(area) area.scrollTop = area.scrollHeight; }, 100);
+        setTimeout(function(){ var area = document.getElementById('bubbleChatArea'); if(area) area.scrollTop = area.scrollHeight; var inp = document.getElementById('bubbleChatInput'); if(inp) inp.focus(); }, 100);
         return;
     }
     var currentTab = window._bubbleTab || 'inbox';
@@ -3797,21 +3847,42 @@ function send泡泡Chat() {
     if (!gameState.bubbleChats) gameState.bubbleChats = {};
     if (!gameState.bubbleChats[bubbleChatTarget]) gameState.bubbleChats[bubbleChatTarget] = [];
     gameState.bubbleChats[bubbleChatTarget].push({ fromMe: true, text: msg });
-    gameState.bubbleChats[bubbleChatTarget].push({ fromMe: false, text: '...' });
-    render();
+    var area = document.getElementById('bubbleChatArea');
+    if (area) {
+        var div = document.createElement('div');
+        div.className = 'kakao-msg-row me';
+        div.innerHTML = '<div class="kakao-msg-bubble me">' + msg + '</div>';
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
+    }
+    var typingDiv = null;
+    if (area) {
+        typingDiv = document.createElement('div');
+        typingDiv.className = 'kakao-msg-row npc';
+        typingDiv.id = 'bubbleTypingIndicator';
+        typingDiv.innerHTML = '<div class="kakao-msg-bubble npc" style="color:var(--color-text-light);font-style:italic;">对方正在输入...</div>';
+        area.appendChild(typingDiv);
+        area.scrollTop = area.scrollHeight;
+    }
     var npcCtx = bubbleChatTarget + '在泡泡和粉丝聊天';
     getAIReply('bubble', npcCtx, msg, function(reply) {
+        if (typingDiv && typingDiv.parentNode) typingDiv.parentNode.removeChild(typingDiv);
         if (!gameState.bubbleChats || !gameState.bubbleChats[bubbleChatTarget]) return;
-        for (var ri = gameState.bubbleChats[bubbleChatTarget].length - 1; ri >= 0; ri--) {
-            if (!gameState.bubbleChats[bubbleChatTarget][ri].fromMe && gameState.bubbleChats[bubbleChatTarget][ri].text === '...') {
-                gameState.bubbleChats[bubbleChatTarget][ri].text = reply;
-                break;
-            }
-        }
+        gameState.bubbleChats[bubbleChatTarget].push({ fromMe: false, text: reply });
         if (!gameState.bubble已发送) gameState.bubble已发送 = [];
         gameState.bubble已发送.push({ to: bubbleChatTarget, text: msg, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
-        render();
+        var chatArea = document.getElementById('bubbleChatArea');
+        if (chatArea) {
+            var rd = document.createElement('div');
+            rd.className = 'kakao-msg-row npc';
+            rd.innerHTML = '<div class="kakao-msg-bubble npc">' + reply + '</div>';
+            chatArea.appendChild(rd);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+        if (typeof triggerSilentSave === 'function') triggerSilentSave();
     });
+    var inp = document.getElementById('bubbleChatInput');
+    if (inp) inp.focus();
 }
 
 var weverseMultilangPosts = [
@@ -5956,7 +6027,7 @@ function renderComebackPage(container) {
                 + '</div></div>';
         }
     } else if (cb.phase === 'titletrack') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择主打歌</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念: ' + (cb.concept && cb.concept.name) || '未选择' + '</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择主打歌</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div></div>';
         for (var i = 0; i < TITLE_TRACK_TYPES.length; i++) {
             var t = TITLE_TRACK_TYPES[i];
             var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
@@ -5967,8 +6038,8 @@ function renderComebackPage(container) {
     } else if (cb.phase === 'songprod') {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
-            + '<div style="font-size:13px;">概念: ' + (cb.concept && cb.concept.name) || '未选择' + '</div>'
-            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack && cb.titleTrack.name) || '未选择' + '</div></div>'
+            + '<div style="font-size:13px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div>'
+            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div></div>'
             + '<div class="card" style="text-align:center;">'
             + '<button class="btn btn-primary btn-lg" onclick="goToSongProdFromComeback()">进行歌曲制作</button></div>';
     } else if (cb.phase === 'mvselect') {
@@ -6030,8 +6101,8 @@ function renderComebackPage(container) {
             + '<div style="font-size:48px;font-weight:700;">' + grade + '</div>'
             + '<div style="font-size:14px;opacity:0.9;margin-top:4px;">回归评级</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">回归总结</div>'
-            + '<div style="font-size:13px;">概念: ' + (cb.concept && cb.concept.name) || '未选择' + '</div>'
-            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack && cb.titleTrack.name) || '未选择' + '</div>'
+            + '<div style="font-size:13px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div>'
+            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div>'
             + '<div style="font-size:13px;">MV品质: ' + cb.mvQuality + '分</div>'
             + '<div style="font-size:13px;">一位数: ' + totalFirsts + '/3</div></div>'
             + '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback=null;render();">完成回归</button>';
@@ -8347,13 +8418,22 @@ function sendKakaoMessage() {
 
     input.value = '';
 
+    // Immediately show sent message in DOM
+    var area = document.getElementById('kakaoChatArea');
+    if (area) {
+        var sentDiv = document.createElement('div');
+        sentDiv.className = 'kakao-msg-row me';
+        sentDiv.innerHTML = '<div><div class="kakao-msg-bubble me">' + text + '</div><div class="kakao-msg-time">' + timeStr + '</div></div>';
+        area.appendChild(sentDiv);
+        area.scrollTop = area.scrollHeight;
+    }
+
     var npc = null;
     for (var i = 0; i < gameState.kakaoFriends.length; i++) {
         if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
     }
 
     // Show typing indicator
-    var area = document.getElementById('kakaoChatArea');
     if (area) {
         var typingEl = document.createElement('div');
         typingEl.className = 'kakao-msg-row npc';
