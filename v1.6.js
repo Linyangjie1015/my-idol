@@ -438,6 +438,7 @@ var gameState = {
     aiBoostPacks: [],
     teammates: [],
     contract: null,
+    looks: 50,
     comeback: null,
     management: null,
     fanClub: null,
@@ -3221,7 +3222,7 @@ function acceptNotice() {
     var fansGain = n.fans + Math.floor(Math.random() * 100);
     gameState.fans += fansGain;
     var dangerGain = Math.floor(Math.random() * 3);
-    if (gameState.danger >= 30 && Math.random() < 0.3) { if(typeof triggerAntiEvent==='function') triggerAntiEvent(); }
+    if (gameState.danger >= 30 && Math.random() < 0.6) { if(typeof triggerAntiEvent==='function') triggerAntiEvent(); }
     gameState.danger = Math.max(0, gameState.danger + dangerGain);
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
     if (gameState.player.role === 'Idol' && gameState.groupPopularity !== undefined) {
@@ -4195,7 +4196,7 @@ function renderFoodPage(container) {
         for (var fi = 0; fi < foods.length; fi++) {
             var f = foods[fi];
             if (f.category !== cat) continue;
-            foodCardsHtml += '<div class="card" onclick="orderFood(\'\' + f.name + \'\', \'\' + f.price + \'\', \'\' + f.体力 + \'\')">'
+            foodCardsHtml += '<div class="card" data-fname="' + f.name + '" data-fprice="' + f.price + '" data-fstamina="' + f.体力 + '" onclick="orderFood(this.dataset.fname,Number(this.dataset.fprice),Number(this.dataset.fstamina))">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
                 + '<div style="font-weight:600;">' + f.name + '</div>'
@@ -4243,20 +4244,20 @@ function orderFood(name, price, 体力) {
 // ==================== DELIVERY APP ====================
 function render快递服务Page(container) {
     var deliveryItems = [
-        // 护肤类
-        { name: '基础护肤套装', price: 15000, lifeVal: 10, category: '护肤', effect: '生命' },
-        { name: '精华液', price: 25000, lifeVal: 18, category: '护肤', effect: '生命' },
-        { name: '面膜套装', price: 12000, lifeVal: 8, category: '护肤', effect: '生命' },
-        { name: '防晒霜', price: 8000, lifeVal: 5, category: '护肤', effect: '生命' },
-        // 化妆品
-        { name: '化妆品套装', price: 20000, lifeVal: 15, category: '化妆品', effect: '生命' },
-        { name: '口红礼盒', price: 18000, lifeVal: 12, category: '化妆品', effect: '生命' },
-        { name: '气垫粉底', price: 16000, lifeVal: 10, category: '化妆品', effect: '生命' },
-        // 衣服
-        { name: '练习服', price: 10000, lifeVal: 8, category: '衣服', effect: '生命' },
-        { name: '舞台服装', price: 35000, lifeVal: 25, category: '衣服', effect: '生命' },
-        { name: '日常穿搭', price: 15000, lifeVal: 10, category: '衣服', effect: '生命' },
-        { name: '品牌联名款', price: 50000, lifeVal: 30, category: '衣服', effect: '生命' },
+        // 护肤类 - 主要加颜值，少量加生命
+        { name: '基础护肤套装', price: 15000, lifeVal: 3, looksVal: 8, category: '护肤', effect: '颜值' },
+        { name: '精华液', price: 25000, lifeVal: 5, looksVal: 12, category: '护肤', effect: '颜值' },
+        { name: '面膜套装', price: 12000, lifeVal: 2, looksVal: 6, category: '护肤', effect: '颜值' },
+        { name: '防晒霜', price: 8000, lifeVal: 1, looksVal: 4, category: '护肤', effect: '颜值' },
+        // 化妆品 - 加颜值
+        { name: '化妆品套装', price: 20000, looksVal: 10, category: '化妆品', effect: '颜值' },
+        { name: '口红礼盒', price: 18000, looksVal: 8, category: '化妆品', effect: '颜值' },
+        { name: '气垫粉底', price: 16000, looksVal: 7, category: '化妆品', effect: '颜值' },
+        // 衣服 - 加颜值
+        { name: '练习服', price: 10000, looksVal: 5, category: '衣服', effect: '颜值' },
+        { name: '舞台服装', price: 35000, looksVal: 18, category: '衣服', effect: '颜值' },
+        { name: '日常穿搭', price: 15000, looksVal: 8, category: '衣服', effect: '颜值' },
+        { name: '品牌联名款', price: 50000, looksVal: 25, category: '衣服', effect: '颜值' },
         // 粉丝礼物
         { name: '粉丝信件合集', price: 5000, fameVal: 5, category: '粉丝礼物', effect: '名气' },
         { name: '粉丝应援棒', price: 8000, fameVal: 8, category: '粉丝礼物', effect: '名气' },
@@ -4283,9 +4284,10 @@ function render快递服务Page(container) {
             if (item.category !== delCat) continue;
             var effectText = '';
             if (item.effect === '生命') effectText = '+' + item.lifeVal + ' 生命';
+            else if (item.effect === '颜值') effectText = '+' + (item.looksVal || 0) + ' 颜值';
             else if (item.effect === '名气') effectText = '+' + item.fameVal + ' 名气';
             else if (item.effect === '危险') effectText = '-' + Math.abs(item.dangerVal) + ' 危险值';
-            var itemVal = item.lifeVal || item.fameVal || Math.abs(item.dangerVal);
+            var itemVal = item.looksVal || item.lifeVal || item.fameVal || Math.abs(item.dangerVal);
             delCardsHtml += '<div class="card" data-name="'+item.name+'" data-price="'+item.price+'" data-val="'+itemVal+'" data-effect="'+item.effect+'" onclick="order快递服务(this.dataset.name,Number(this.dataset.price),Number(this.dataset.val),this.dataset.effect)">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
@@ -4319,6 +4321,7 @@ function order快递服务(name, price, value, effect) {
     }
     var effectDesc = '';
     if (effect === '生命') effectDesc = '+' + value + ' 生命';
+    else if (effect === '颜值') effectDesc = '+' + value + ' 颜值';
     else if (effect === '名气') effectDesc = '+' + value + ' 名气';
     else if (effect === '危险') effectDesc = '-' + value + ' 危险值';
     showModal('确认购买', '商品：' + name + '\n价格：' + (price || 0).toLocaleString() + ' 金币\n效果：' + effectDesc, [
@@ -4327,6 +4330,9 @@ function order快递服务(name, price, value, effect) {
             gameState.money -= price;
             if (effect === '生命') {
                 gameState.life = Math.min(150, (gameState.life || 150) + value);
+            } else if (effect === '颜值') {
+                if (!gameState.looks) gameState.looks = 50;
+                gameState.looks = Math.min(200, gameState.looks + value);
             } else if (effect === '名气') {
                 gameState.fame = Math.min(200, (gameState.fame || 30) + value);
             } else if (effect === '危险') {
@@ -6058,8 +6064,10 @@ function renderAntiBlackPage(container) {
         + '<div style="font-size:11px;opacity:0.7;margin-bottom:4px;">危险值达到30时触发黑粉事件</div>'
         + '<div style="font-size:14px;opacity:0.8;">当前危险值</div>'
         + '<div style="font-size:32px;font-weight:700;">' + gameState.danger + '/100</div></div>';
-    if (gameState.antiEvents.length === 0) {
-        html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">暂无黑粉事件</div></div>';
+    if (gameState.antiEvents.length === 0 && gameState.danger < 30) {
+        html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">暂无黑粉事件</div><div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">危险值达到30时自动触发</div></div>';
+    } else if (gameState.antiEvents.length === 0 && gameState.danger >= 30) {
+        if(typeof triggerAntiEvent==='function') triggerAntiEvent();
     }
     for (var i = 0; i < gameState.antiEvents.length; i++) {
         var e = gameState.antiEvents[i];
@@ -6353,7 +6361,7 @@ function renderKpopWikiPage(container) {
         for (var gi = 0; gi < gKeys.length; gi++) {
             var g = company.groups[gKeys[gi]];
             html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);line-height:1.6;">'
-                + '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;box-sizing:border-box;">' + g.name + '</div>'
+                + '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;box-sizing:border-box;padding-right:8px;line-height:1.4;">' + g.name + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + g.desc + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;line-height:1.4;">成员: ' + g.members.length + '人</div></div>';
         }
@@ -6866,6 +6874,7 @@ function _ensureV16Fields() {
     }
     if (!gameState.examResult) gameState.examResult = { comprehensive: [false, false] };
     if (gameState.preDebut === undefined) gameState.preDebut = false;
+    if (!gameState.looks) gameState.looks = 50;
     if (!gameState.teammates) gameState.teammates = [];
     if (!gameState.antiEvents) gameState.antiEvents = [];
     if (!gameState.achievements) gameState.achievements = [];
