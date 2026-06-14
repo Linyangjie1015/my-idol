@@ -1556,6 +1556,7 @@ function render考核Page(container) {
         + '<div class="section-title" style="margin-top:16px;">可参加考试</div>'
         + examEntriesHtml
         + compHtml
+        + renderWeeklyMonthlyExamSection()
         + '</div></div>';
 }
 
@@ -6547,6 +6548,174 @@ function showGroupDetail(groupKey, companyKey) {
     if (app) app.innerHTML = html;
 }
 
+
+// ==================== WEEKLY/MONTHLY EXAM SYSTEM (周考月考系统) ====================
+function _ensureWeeklyMonthlyExam() {
+    if (!gameState.weeklyExam) {
+        gameState.weeklyExam = { lastWeek: '', attended: false, score: 0 };
+    }
+    if (!gameState.monthlyExam) {
+        gameState.monthlyExam = { lastMonth: '', attended: false, score: 0 };
+    }
+}
+
+function _getWeekId() {
+    var d = new Date();
+    var onejan = new Date(d.getFullYear(), 0, 1);
+    var week = Math.ceil(((d - onejan) / 86400000 + onejan.getDay() + 1) / 7);
+    return d.getFullYear() + 'W' + week;
+}
+
+function _getMonthId() {
+    var d = new Date();
+    return d.getFullYear() + 'M' + (d.getMonth() + 1);
+}
+
+function _isWeeklyExamTime() {
+    var d = new Date();
+    var day = d.getDay();
+    var hour = d.getHours();
+    return day === 3 && hour >= 12 && hour < 20;
+}
+
+function _isMonthlyExamTime() {
+    var d = new Date();
+    var date = d.getDate();
+    var hour = d.getHours();
+    return date === 15 && hour >= 12 && hour < 20;
+}
+
+function _checkWeeklyMonthlyExamPenalty() {
+    _ensureWeeklyMonthlyExam();
+    var currentWeek = _getWeekId();
+    var currentMonth = _getMonthId();
+    var changed = false;
+    if (gameState.weeklyExam.lastWeek !== '' && gameState.weeklyExam.lastWeek !== currentWeek && !gameState.weeklyExam.attended) {
+        var statKeys = Object.keys(gameState.stats);
+        var rndStat = statKeys[Math.floor(Math.random() * statKeys.length)];
+        gameState.stats[rndStat] = Math.max(0, gameState.stats[rndStat] - 5);
+        gameState.credit = Math.max(0, (gameState.credit || 50) - 10);
+        showToast('\u5468\u8003\u7f3a\u5e2d\uff01' + rndStat + '-5 \u4fe1\u8a89-10');
+        changed = true;
+    }
+    if (gameState.monthlyExam.lastMonth !== '' && gameState.monthlyExam.lastMonth !== currentMonth && !gameState.monthlyExam.attended) {
+        var statKeys2 = Object.keys(gameState.stats);
+        for (var i = 0; i < statKeys2.length; i++) {
+            gameState.stats[statKeys2[i]] = Math.max(0, gameState.stats[statKeys2[i]] - 3);
+        }
+        gameState.credit = Math.max(0, (gameState.credit || 50) - 15);
+        showToast('\u6708\u8003\u7f3a\u5e2d\uff01\u5168\u90e8\u80fd\u529b-3 \u4fe1\u8a89-15');
+        changed = true;
+    }
+    if (changed) triggerSilentSave();
+    if (gameState.weeklyExam.lastWeek !== currentWeek) {
+        gameState.weeklyExam.lastWeek = currentWeek;
+        gameState.weeklyExam.attended = false;
+        gameState.weeklyExam.score = 0;
+    }
+    if (gameState.monthlyExam.lastMonth !== currentMonth) {
+        gameState.monthlyExam.lastMonth = currentMonth;
+        gameState.monthlyExam.attended = false;
+        gameState.monthlyExam.score = 0;
+    }
+}
+
+function takeWeeklyExam() {
+    _ensureWeeklyMonthlyExam();
+    if (gameState.weeklyExam.attended) { showToast('\u672c\u5468\u5df2\u53c2\u52a0\u8fc7\u5468\u8003'); return; }
+    if (!_isWeeklyExamTime()) { showToast('\u5468\u8003\u4ec5\u5728\u5468\u4e0912:00-20:00\u5f00\u653e'); return; }
+    if (gameState.体力 < 20) { showToast('\u4f53\u529b\u4e0d\u8db3\uff0c\u9700\u898120\u4f53\u529b'); return; }
+    gameState.体力 -= 20;
+    var statKeys = Object.keys(gameState.stats);
+    var testedStat = statKeys[Math.floor(Math.random() * statKeys.length)];
+    var statVal = gameState.stats[testedStat];
+    var score = Math.floor(statVal * 0.5 + Math.random() * 30 + 20);
+    score = Math.min(100, Math.max(0, score));
+    gameState.weeklyExam.attended = true;
+    gameState.weeklyExam.score = score;
+    var grade = score >= 90 ? 'S' : score >= 75 ? 'A' : score >= 60 ? 'B' : 'C';
+    var moneyReward = grade === 'S' ? 3000 : grade === 'A' ? 2000 : grade === 'B' ? 1000 : 500;
+    var creditBonus = grade === 'S' ? 8 : grade === 'A' ? 5 : grade === 'B' ? 3 : 0;
+    gameState.money += moneyReward;
+    gameState.credit = Math.min(150, (gameState.credit || 50) + creditBonus);
+    var statNames = { dance: '\u821e\u8e48', vocal: '\u58f0\u4e50', rap: '\u8bf4\u5531', acting: '\u8868\u6f14', variety: '\u7efc\u827a' };
+    var resultHtml = '<div style="text-align:center;">'
+        + '<div style="font-size:36px;font-weight:800;color:' + (grade === 'S' ? '#FFD700' : grade === 'A' ? '#4CD964' : grade === 'B' ? '#5BB8E8' : '#999') + ';">' + grade + '</div>'
+        + '<div style="font-size:14px;color:var(--color-text-light);margin-top:8px;">\u5468\u8003\u6210\u7ee9</div>'
+        + '<div style="font-size:24px;font-weight:700;margin-top:8px;">' + score + '\u5206</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">\u8003\u6838\u79d1\u76ee: ' + (statNames[testedStat] || testedStat) + '</div>'
+        + '<div style="margin-top:12px;font-size:13px;">\u5956\u52b1: +' + moneyReward + '\u91d1\u5e01' + (creditBonus > 0 ? ' \u4fe1\u8a89+' + creditBonus : '') + '</div>'
+        + '</div>';
+    showModal('\u5468\u8003\u7ed3\u679c', resultHtml);
+    triggerSilentSave();
+}
+
+function takeMonthlyExam() {
+    _ensureWeeklyMonthlyExam();
+    if (gameState.monthlyExam.attended) { showToast('\u672c\u6708\u5df2\u53c2\u52a0\u8fc7\u6708\u8003'); return; }
+    if (!_isMonthlyExamTime()) { showToast('\u6708\u8003\u4ec5\u5728\u6bcf\u670815\u53f712:00-20:00\u5f00\u653e'); return; }
+    if (gameState.体力 < 30) { showToast('\u4f53\u529b\u4e0d\u8db3\uff0c\u9700\u898130\u4f53\u529b'); return; }
+    gameState.体力 -= 30;
+    var statKeys = Object.keys(gameState.stats);
+    var totalScore = 0;
+    for (var i = 0; i < statKeys.length; i++) {
+        totalScore += Math.floor(gameState.stats[statKeys[i]] * 0.4 + Math.random() * 20 + 10);
+    }
+    var avgScore = Math.floor(totalScore / statKeys.length);
+    avgScore = Math.min(100, Math.max(0, avgScore));
+    gameState.monthlyExam.attended = true;
+    gameState.monthlyExam.score = avgScore;
+    var grade = avgScore >= 90 ? 'S' : avgScore >= 75 ? 'A' : avgScore >= 60 ? 'B' : 'C';
+    var moneyReward = grade === 'S' ? 8000 : grade === 'A' ? 5000 : grade === 'B' ? 3000 : 1000;
+    var creditBonus = grade === 'S' ? 15 : grade === 'A' ? 10 : grade === 'B' ? 5 : 0;
+    gameState.money += moneyReward;
+    gameState.credit = Math.min(150, (gameState.credit || 50) + creditBonus);
+    var resultHtml = '<div style="text-align:center;">'
+        + '<div style="font-size:36px;font-weight:800;color:' + (grade === 'S' ? '#FFD700' : grade === 'A' ? '#4CD964' : grade === 'B' ? '#5BB8E8' : '#999') + ';">' + grade + '</div>'
+        + '<div style="font-size:14px;color:var(--color-text-light);margin-top:8px;">\u6708\u8003\u6210\u7ee9</div>'
+        + '<div style="font-size:24px;font-weight:700;margin-top:8px;">' + avgScore + '\u5206</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">\u4e94\u79d1\u7efc\u5408\u8003\u6838</div>'
+        + '<div style="margin-top:12px;font-size:13px;">\u5956\u52b1: +' + moneyReward + '\u91d1\u5e01' + (creditBonus > 0 ? ' \u4fe1\u8a89+' + creditBonus : '') + '</div>'
+        + '</div>';
+    showModal('\u6708\u8003\u7ed3\u679c', resultHtml);
+    triggerSilentSave();
+}
+
+function renderWeeklyMonthlyExamSection() {
+    _ensureWeeklyMonthlyExam();
+    _checkWeeklyMonthlyExamPenalty();
+    var html = '';
+    var isWeeklyTime = _isWeeklyExamTime();
+    var isMonthlyTime = _isMonthlyExamTime();
+    var weeklyDone = gameState.weeklyExam.attended;
+    var monthlyDone = gameState.monthlyExam.attended;
+    html += '<div class="section-title" style="margin-top:16px;">\u5468\u8003/\u6708\u8003</div>';
+    html += '<div class="card" style="border-left:4px solid ' + (weeklyDone ? 'var(--color-success)' : isWeeklyTime ? '#FFD700' : 'var(--color-border)') + ';">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div>'
+        + '<div style="font-weight:600;">\u5468\u8003</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">\u5468\u4e09 12:00-20:00 | 20\u4f53\u529b</div>'
+        + '</div>'
+        + '<div>'
+        + (weeklyDone ? '<span style="color:var(--color-success);font-weight:600;font-size:13px;">\u2605 ' + gameState.weeklyExam.score + '\u5206</span>'
+           : isWeeklyTime ? '<button class="btn btn-sm btn-primary" onclick="takeWeeklyExam()">\u53c2\u52a0\u5468\u8003</button>'
+           : '<span style="font-size:12px;color:var(--color-text-light);">\u672a\u5f00\u653e</span>')
+        + '</div></div></div>';
+    html += '<div class="card" style="margin-top:8px;border-left:4px solid ' + (monthlyDone ? 'var(--color-success)' : isMonthlyTime ? '#FFD700' : 'var(--color-border)') + ';">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div>'
+        + '<div style="font-weight:600;">\u6708\u8003</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">\u6bcf\u670815\u53f7 12:00-20:00 | 30\u4f53\u529b</div>'
+        + '</div>'
+        + '<div>'
+        + (monthlyDone ? '<span style="color:var(--color-success);font-weight:600;font-size:13px;">\u2605 ' + gameState.monthlyExam.score + '\u5206</span>'
+           : isMonthlyTime ? '<button class="btn btn-sm btn-primary" onclick="takeMonthlyExam()">\u53c2\u52a0\u6708\u8003</button>'
+           : '<span style="font-size:12px;color:var(--color-text-light);">\u672a\u5f00\u653e</span>')
+        + '</div></div></div>';
+    html += '<div style="font-size:11px;color:var(--color-text-light);margin-top:8px;line-height:1.5;">\u8d85\u65f6\u672a\u53c2\u52a0\u5c06\u6263\u9664\u80fd\u529b\u548c\u4fe1\u8a89\uff0c\u8bf7\u53ca\u65f6\u53c2\u52a0\uff01</div>';
+    return html;
+}
+
 // ==================== GACHA SYSTEM (抽卡系统) ====================
 var GACHA_POOL = {
     kpop: {
@@ -7090,6 +7259,7 @@ function _ensureKakaoState() {
 
 function _ensureV16Fields() {
     _ensureKakaoState();
+    _checkWeeklyMonthlyExamPenalty();
     if (!gameState.insUnread) gameState.insUnread = 0;
     if (!gameState.tiktokUnread) gameState.tiktokUnread = 0;
     if (!gameState.bubbleUnread) gameState.bubbleUnread = 0;
