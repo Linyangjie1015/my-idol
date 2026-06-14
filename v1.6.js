@@ -1208,7 +1208,7 @@ function renderHomePage(container) {
         { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
-        { id: 'comeback', icon: 'comeback', name: '回归打歌', unlock: 0 },
+        { id: 'comeback', icon: 'comeback', name: '新专辑回归', unlock: 0 },
         { id: 'music', icon: 'music', name: '音乐放送', unlock: 0 },
         { id: 'mvstudio', icon: 'mvstudio', name: 'MV工作室', unlock: 0 },
         { id: 'contract', icon: 'contract', name: '合约', unlock: 0 },
@@ -5710,7 +5710,7 @@ function renderAchievementsPage(container) {
     container.innerHTML = html;
 }
 
-// ==================== COMEBACK SYSTEM (回归打歌) ====================
+// ==================== COMEBACK SYSTEM (新专辑回归) ====================
 var COMEBACK_CONCEPTS = [
     { name: 'Girl Crush', style: '酷飒', stat: 'dance', mvQuality: 1.2, desc: '强势霸气的概念，展现女性力量' },
     { name: 'Innocent', style: '清纯', stat: 'vocal', mvQuality: 1.0, desc: '清新甜美的概念，充满青春气息' },
@@ -5739,6 +5739,15 @@ function startComeback() {
     gameState.comeback = { phase: 'concept', concept: null, titleTrack: null, promotion: 0, musicShowResults: [], daysLeft: 14 };
     gameState.体力 -= 10;
     gameState.money -= 50000;
+    // Auto post INS and trigger hotsearch when comeback starts
+    if (!gameState.insPosts) gameState.insPosts = [];
+    gameState.insPosts.unshift({
+        text: gameState.player.name + '\u7684\u65b0\u56de\u5f52\u5373\u5c06\u5f00\u59cb\uff01\u656c\u8bf7\u671f\u5f85~ \u2728',
+        likes: Math.floor(Math.random() * 500) + 200,
+        time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+    });
+    if (gameState.player.role === 'Idol') gameState.insUnread = (gameState.insUnread || 0) + 1;
+    _triggerHotsearch(gameState.player.group + '\u65b0\u56de\u5f52\u786e\u5b9a', (Math.floor(Math.random() * 10) + 8) + '\u4e07', gameState.player.group + '\u5ba3\u5e03\u65b0\u56de\u5f52\uff01\u7c89\u4e1d\u4eec\u7eb7\u7eb7\u8868\u793a\u671f\u5f85\uff0c\u8bdd\u9898\u8ba8\u8bba\u5ea6\u7a81\u7834\u767e\u4e07\u3002', false);
     currentPage = 'comeback';
     render();
 }
@@ -5838,7 +5847,7 @@ function performMusicShow() {
 function renderComebackPage(container) {
     var cb = gameState.comeback;
     if (!cb) {
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归打歌</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;">'
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">新专辑回归</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;">'
             + '<div style="font-size:48px;margin-bottom:16px;">M</div>'
             + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">准备新回归</div>'
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">需要: 50体力 + 50,000金币</div>'
@@ -5846,7 +5855,7 @@ function renderComebackPage(container) {
             + '</div></div>';
         return;
     }
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归打歌</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">新专辑回归</div><div style="width:32px;"></div></div><div class="page-content">';
     
     if (cb.phase === 'concept') {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
