@@ -655,6 +655,9 @@ function render() {
             case 'comeback':
                 renderComebackPage(app);
                 break;
+            case 'songprod':
+                renderSongProdPage(app);
+                break;
             case 'music':
                 renderMusicPage(app);
                 break;
@@ -1209,6 +1212,7 @@ function renderHomePage(container) {
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
         { id: 'comeback', icon: 'comeback', name: '回归计划', unlock: 0 },
+        { id: 'songprod', icon: 'songprod', name: '歌曲制作', unlock: 0 },
         { id: 'music', icon: 'music', name: '音乐放送', unlock: 0 },
         { id: 'mvstudio', icon: 'mvstudio', name: 'MV工作室', unlock: 0 },
         { id: 'contract', icon: 'contract', name: '合约', unlock: 0 },
@@ -1241,7 +1245,7 @@ function renderHomePage(container) {
                         { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
                         { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'vip'], page: 1 },
                         { title: '社交', ids: ['ins', 'tiktok', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
-                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
+                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
                     ];
                     var catHtml = '';
                     for (var ci = 0; ci < categories.length; ci++) {
@@ -4114,7 +4118,7 @@ function renderTiktokPage(container) {
         tabContent = '<div style="flex:1;overflow-y:auto;"><div style="display:flex;justify-content:flex-end;padding:8px 16px;"><button class="btn btn-sm btn-primary" onclick="postToTiktok()">+ 上传视频</button></div>';
         for (var vi = 0; vi < videos.length; vi++) {
             var v = videos[vi];
-            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + v.user + \'\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this.dataset.vi)"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(v.desc, vi, \'ttDesc\')">翻译</span></p></div>';
+            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + v.user + \'\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this, parseInt(this.dataset.vi))"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="translateContent(v.desc, vi, \'ttDesc\')">翻译</span></p></div>';
         }
         for (var upi = 0; upi < gameState.tiktokPosts.length; upi++) {
             var up = gameState.tiktokPosts[upi];
@@ -4226,6 +4230,7 @@ function sendTiktokChat() {
 }
 
 function simulateVideoPlay(el, index) {
+    if (!el) return;
     var colors = ['#FF8FA3','#7EC8E3','#FFD700','#C9A0FF','#4CD964','#FF6B8A'];
     var step = 0;
     var interval = setInterval(function() {
@@ -8393,7 +8398,7 @@ document.addEventListener('visibilitychange', function() {
         triggerSilentSave();
     }
     if (document.visibilityState === 'visible' && gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
-        window._inviteVerified=false;render();
+        render();
     }
 });
 
