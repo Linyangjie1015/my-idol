@@ -7052,6 +7052,40 @@ function _ensureKakaoState() {
     }
     if (!gameState.kakaoCurrentChat) gameState.kakaoCurrentChat = '';
     if (!gameState.kakaoTab) gameState.kakaoTab = 'chats';
+    // Add teammates and company colleagues for debuted Idols
+    if (gameState.player.role === 'Idol' && gameState.player.group) {
+        var _comp = COMPANIES[gameState.player.company];
+        if (_comp) {
+            var _gkeys = Object.keys(_comp.groups);
+            for (var _gki = 0; _gki < _gkeys.length; _gki++) {
+                var _grp = _comp.groups[_gkeys[_gki]];
+                for (var _mi = 0; _mi < _grp.members.length; _mi++) {
+                    var _m = _grp.members[_mi];
+                    var _mName = (typeof _m === 'object') ? _m.name : _m;
+                    if (_mName === gameState.player.name) continue;
+                    var _exists = false;
+                    for (var _fi = 0; _fi < gameState.kakaoFriends.length; _fi++) {
+                        if (gameState.kakaoFriends[_fi].name === _mName) { _exists = true; break; }
+                    }
+                    if (!_exists) {
+                        var _mPers = 'helpful';
+                        if (_m.personality && _m.personality.indexOf('hostile') > -1) _mPers = 'hostile';
+                        else if (_m.personality && _m.personality.indexOf('backstabber') > -1) _mPers = 'backstabber';
+                        else if (_m.personality && _m.personality.indexOf('protective') > -1) _mPers = 'protective';
+                        else if (_m.personality && _m.personality.indexOf('prankster') > -1) _mPers = 'prankster';
+                        var _colors = ['#FF8FA3','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1'];
+                        var _mColor = _colors[Math.floor(Math.random() * _colors.length)];
+                        var _isTeammate = (_grp.name === gameState.player.group);
+                        gameState.kakaoFriends.push({
+                            name: _mName, nameEn: _mName, personality: _mPers,
+                            specialty: _m.position || '\u7efc\u5408', avatarColor: _mColor, online: true,
+                            isTeammate: _isTeammate
+                        });
+                    }
+                }
+            }
+        }
+    }
 }
 
 function _ensureV16Fields() {
@@ -7181,7 +7215,7 @@ function _renderKakaoFriendList() {
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
             + '<div class="kakao-friend-info">'
-            + '<div class="kakao-friend-name">' + f.name + (f.isManager ? '<span class="kakao-manager-pill">经纪人</span>' : '<span class="kakao-personality-pill">' + f.specialty + '</span>') + '</div>'
+            + '<div class="kakao-friend-name">' + f.name + (f.isManager ? '<span class="kakao-manager-pill">经纪人</span>' : f.isTeammate ? '<span class="kakao-manager-pill" style="background:#FFD700;color:#333;">队友</span>' : '<span class="kakao-personality-pill">' + f.specialty + '</span>') + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">' + f.nameEn + '</div>'
             + '</div>'
             + '</div>';
