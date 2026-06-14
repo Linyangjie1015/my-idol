@@ -6,466 +6,344 @@
 <title>My Idol 玩家调研</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:#FFF5F7;color:#333;min-height:100vh;-webkit-user-select:none;user-select:none;}
-.container{max-width:480px;margin:0 auto;padding:16px 16px 80px;}
-.header{text-align:center;padding:32px 0 24px;}
-.header h1{font-size:22px;font-weight:700;color:#7C4DFF;margin-bottom:4px;}
-.header p{font-size:13px;color:#999;}
-.section{background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(124,77,255,0.06);}
-.section-title{font-size:15px;font-weight:700;color:#7C4DFF;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #F0EAFF;}
-.q{margin-bottom:20px;}
-.q:last-child{margin-bottom:0;}
-.q-text{font-size:14px;font-weight:600;margin-bottom:10px;line-height:1.5;}
-.q-text .num{color:#7C4DFF;margin-right:4px;}
-.q-text .tag{font-size:11px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:400;}
-.tag-s{background:#E8F5E9;color:#4CD964;}
-.tag-m{background:#FFF3E0;color:#FF9800;}
-.q-desc{font-size:12px;color:#999;margin-bottom:8px;line-height:1.4;}
-.opts{display:flex;flex-direction:column;gap:8px;}
-.opt{display:flex;align-items:center;padding:12px 14px;border:1.5px solid #F0EAFF;border-radius:10px;cursor:pointer;transition:all .2s;font-size:14px;}
-.opt:active{background:#F5F0FF;}
-.opt.selected{border-color:#7C4DFF;background:#F0EAFF;}
-.opt input{display:none;}
-.opt .dot{width:18px;height:18px;border:2px solid #DDD;border-radius:50%;margin-right:10px;flex-shrink:0;position:relative;transition:all .2s;}
-.opt.selected .dot{border-color:#7C4DFF;}
-.opt.selected .dot::after{content:'';position:absolute;top:3px;left:3px;width:8px;height:8px;border-radius:50%;background:#7C4DFF;}
-.opt-cb .dot{border-radius:4px;}
-.opt.selected .dot::after{top:2px;left:2px;border-radius:2px;}
-.text-input{width:100%;padding:12px;border:1.5px solid #F0EAFF;border-radius:10px;font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit;transition:border .2s;}
-.text-input:focus{border-color:#7C4DFF;}
-.upload-area{margin-top:10px;border:2px dashed #E0D6FF;border-radius:12px;padding:16px;text-align:center;position:relative;}
-.upload-area p{font-size:12px;color:#999;margin-bottom:8px;}
-.upload-btn{display:inline-block;padding:10px 20px;background:#7C4DFF;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;}
-.upload-btn:active{opacity:.8;}
-.upload-preview{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
-.upload-preview .thumb{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid #F0EAFF;}
-.upload-preview .thumb-wrap{position:relative;width:80px;height:80px;}
-.upload-preview .thumb-del{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:#FF3B30;color:white;border:none;border-radius:50%;font-size:12px;line-height:20px;text-align:center;cursor:pointer;}
-.btn-submit{width:100%;padding:16px;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;}
-.btn-submit:active{opacity:.8;}
-.result-box{display:none;background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(76,217,100,0.15);border:2px solid #4CD964;}
-.result-box h3{color:#4CD964;font-size:16px;margin-bottom:12px;}
-.result-text{font-size:12px;line-height:1.8;color:#666;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;background:#F8F8F8;padding:12px;border-radius:8px;}
-.btn-copy{padding:10px 20px;background:#4CD964;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;margin-top:8px;}
-.scale-opts{display:flex;gap:6px;flex-wrap:wrap;}
-.scale-opt{flex:1;min-width:36px;padding:10px 2px;border:1.5px solid #F0EAFF;border-radius:8px;text-align:center;cursor:pointer;font-size:13px;transition:all .2s;}
-.scale-opt:active{background:#F5F0FF;}
-.scale-opt.selected{border-color:#7C4DFF;background:#7C4DFF;color:white;font-weight:600;}
-.footer{text-align:center;padding:20px;font-size:11px;color:#CCC;}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:#FFF5F7;color:#333;min-height:100vh;-webkit-tap-highlight-color:transparent;}
+.c{max-width:480px;margin:0 auto;padding:16px 16px 80px;}
+.hd{text-align:center;padding:32px 0 24px;}
+.hd h1{font-size:22px;font-weight:700;color:#7C4DFF;margin-bottom:4px;}
+.hd p{font-size:13px;color:#999;}
+.sec{background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(124,77,255,0.06);}
+.st{font-size:15px;font-weight:700;color:#7C4DFF;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #F0EAFF;}
+.q{margin-bottom:20px;}.q:last-child{margin-bottom:0;}
+.qt{font-size:14px;font-weight:600;margin-bottom:10px;line-height:1.5;}
+.qt b{color:#7C4DFF;margin-right:4px;}
+.qt em{font-style:normal;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:4px;font-weight:400;}
+.em1{background:#E8F5E9;color:#4CD964;}.em2{background:#FFF3E0;color:#FF9800;}
+.qd{font-size:12px;color:#999;margin-bottom:8px;line-height:1.4;}
+.os{display:flex;flex-direction:column;gap:8px;}
+.o{display:flex;align-items:center;padding:12px 14px;border:2px solid #EEE;border-radius:12px;font-size:14px;cursor:pointer;background:white;}
+.o:active{opacity:.6;}
+.o.on{border-color:#7C4DFF;background:#F0EAFF;}
+.o .k{width:22px;height:22px;border:2px solid #CCC;border-radius:50%;margin-right:10px;flex-shrink:0;position:relative;}
+.o .k.cb{border-radius:5px;}
+.o.on .k{border-color:#7C4DFF;background:#7C4DFF;}
+.o.on .k::after{content:'';position:absolute;top:4px;left:7px;width:5px;height:9px;border:solid white;border-width:0 2px 2px 0;transform:rotate(45deg);}
+.ta{width:100%;padding:12px;border:2px solid #EEE;border-radius:12px;font-size:14px;outline:none;resize:vertical;min-height:80px;font-family:inherit;-webkit-appearance:none;}
+.ta:focus{border-color:#7C4DFF;}
+.ua{margin-top:10px;border:2px dashed #E0D6FF;border-radius:12px;padding:16px;text-align:center;}
+.ua p{font-size:12px;color:#999;margin-bottom:8px;}
+.ub{display:inline-block;padding:10px 20px;background:#7C4DFF;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;-webkit-appearance:none;}
+.ub:active{opacity:.8;}
+.up{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;justify-content:center;}
+.tw{position:relative;width:80px;height:80px;}
+.tm{width:80px;height:80px;border-radius:8px;object-fit:cover;border:2px solid #F0EAFF;}
+.td{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:#FF3B30;color:white;border:none;border-radius:50%;font-size:11px;line-height:20px;text-align:center;cursor:pointer;-webkit-appearance:none;padding:0;}
+.ss{display:flex;gap:6px;flex-wrap:wrap;}
+.si{flex:1;min-width:36px;padding:10px 2px;border:2px solid #EEE;border-radius:8px;text-align:center;cursor:pointer;font-size:13px;}
+.si:active{opacity:.6;}
+.si.on{border-color:#7C4DFF;background:#7C4DFF;color:white;font-weight:600;}
+.bs{width:100%;padding:16px;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;-webkit-appearance:none;}
+.bs:active{opacity:.8;}
+.rb{display:none;background:white;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 12px rgba(76,217,100,0.15);border:2px solid #4CD964;}
+.rb h3{color:#4CD964;font-size:16px;margin-bottom:12px;}
+.rt{font-size:12px;line-height:1.8;color:#666;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;background:#F8F8F8;padding:12px;border-radius:8px;}
+.bc{padding:10px 20px;background:#4CD964;color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;-webkit-appearance:none;}
+.bc:active{opacity:.8;}
+.ft{text-align:center;padding:20px;font-size:11px;color:#CCC;}
 </style>
 </head>
 <body>
-<div class="container">
-<div class="header">
-<h1>My Idol 玩家调研</h1>
-<p>你的反馈是我们前进的动力</p>
-</div>
+<div class="c">
+<div class="hd"><h1>My Idol 玩家调研</h1><p>你的反馈是我们前进的动力</p></div>
 
-<div class="section">
-<div class="section-title">基本信息</div>
-<div class="q"><div class="q-text"><span class="num">1.</span>你的年龄段？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q1">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q1" value="12岁以下"><span class="dot"></span>12岁以下</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q1" value="12-15岁"><span class="dot"></span>12-15岁</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q1" value="16-18岁"><span class="dot"></span>16-18岁</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q1" value="19-22岁"><span class="dot"></span>19-22岁</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q1" value="23岁以上"><span class="dot"></span>23岁以上</label>
+<div class="sec">
+<div class="st">基本信息</div>
+<div class="q"><div class="qt"><b>1.</b>你的年龄段？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q1')" data-v="12岁以下"><div class="k"></div>12岁以下</div>
+<div class="o" onclick="s1(this,'q1')" data-v="12-15岁"><div class="k"></div>12-15岁</div>
+<div class="o" onclick="s1(this,'q1')" data-v="16-18岁"><div class="k"></div>16-18岁</div>
+<div class="o" onclick="s1(this,'q1')" data-v="19-22岁"><div class="k"></div>19-22岁</div>
+<div class="o" onclick="s1(this,'q1')" data-v="23岁以上"><div class="k"></div>23岁以上</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">2.</span>你的性别？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q2">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q2" value="女"><span class="dot"></span>女</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q2" value="男"><span class="dot"></span>男</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q2" value="其他/不愿透露"><span class="dot"></span>其他/不愿透露</label>
+<div class="q"><div class="qt"><b>2.</b>你的性别？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q2')" data-v="女"><div class="k"></div>女</div>
+<div class="o" onclick="s1(this,'q2')" data-v="男"><div class="k"></div>男</div>
+<div class="o" onclick="s1(this,'q2')" data-v="其他"><div class="k"></div>其他/不愿透露</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">3.</span>你玩了My Idol多久？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q3">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q3" value="刚开始"><span class="dot"></span>刚开始</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q3" value="1-3天"><span class="dot"></span>1-3天</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q3" value="1-2周"><span class="dot"></span>1-2周</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q3" value="2周以上"><span class="dot"></span>2周以上</label>
+<div class="q"><div class="qt"><b>3.</b>你玩了My Idol多久？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q3')" data-v="刚开始"><div class="k"></div>刚开始</div>
+<div class="o" onclick="s1(this,'q3')" data-v="1-3天"><div class="k"></div>1-3天</div>
+<div class="o" onclick="s1(this,'q3')" data-v="1-2周"><div class="k"></div>1-2周</div>
+<div class="o" onclick="s1(this,'q3')" data-v="2周以上"><div class="k"></div>2周以上</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">4.</span>你主要通过什么渠道了解My Idol？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q4">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="抖音"><span class="dot"></span>抖音</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="微信/QQ群"><span class="dot"></span>微信/QQ群</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="朋友推荐"><span class="dot"></span>朋友推荐</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="B站"><span class="dot"></span>B站</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="微博"><span class="dot"></span>微博</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="小红书"><span class="dot"></span>小红书</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q4" value="其他"><span class="dot"></span>其他</label>
+<div class="q"><div class="qt"><b>4.</b>你主要通过什么渠道了解My Idol？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q4')" data-v="抖音"><div class="k cb"></div>抖音</div>
+<div class="o" onclick="sm(this,'q4')" data-v="微信/QQ群"><div class="k cb"></div>微信/QQ群</div>
+<div class="o" onclick="sm(this,'q4')" data-v="朋友推荐"><div class="k cb"></div>朋友推荐</div>
+<div class="o" onclick="sm(this,'q4')" data-v="B站"><div class="k cb"></div>B站</div>
+<div class="o" onclick="sm(this,'q4')" data-v="微博"><div class="k cb"></div>微博</div>
+<div class="o" onclick="sm(this,'q4')" data-v="小红书"><div class="k cb"></div>小红书</div>
+<div class="o" onclick="sm(this,'q4')" data-v="其他"><div class="k cb"></div>其他</div>
 </div></div>
 </div>
 
-<div class="section">
-<div class="section-title">游戏体验</div>
-<div class="q"><div class="q-text"><span class="num">5.</span>你最喜欢My Idol的哪些系统？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q5">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="角色创建/养成"><span class="dot"></span>角色创建/养成</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="训练系统(舞蹈/声乐/说唱)"><span class="dot"></span>训练系统(舞蹈/声乐/说唱)</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="抽卡系统"><span class="dot"></span>抽卡系统</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="社交APP(Kakao/泡泡/INS)"><span class="dot"></span>社交APP(Kakao/泡泡/INS)</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="回归打歌系统"><span class="dot"></span>回归打歌系统</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="考核系统"><span class="dot"></span>考核系统</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="歌曲制作/MV拍摄"><span class="dot"></span>歌曲制作/MV拍摄</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="外卖/赚钱等日常"><span class="dot"></span>外卖/赚钱等日常</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="Kpop百科"><span class="dot"></span>Kpop百科</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q5" value="出道流程"><span class="dot"></span>出道流程</label>
+<div class="sec">
+<div class="st">游戏体验</div>
+<div class="q"><div class="qt"><b>5.</b>你最喜欢My Idol的哪些系统？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q5')" data-v="角色创建/养成"><div class="k cb"></div>角色创建/养成</div>
+<div class="o" onclick="sm(this,'q5')" data-v="训练系统"><div class="k cb"></div>训练系统</div>
+<div class="o" onclick="sm(this,'q5')" data-v="抽卡系统"><div class="k cb"></div>抽卡系统</div>
+<div class="o" onclick="sm(this,'q5')" data-v="社交APP"><div class="k cb"></div>社交APP</div>
+<div class="o" onclick="sm(this,'q5')" data-v="回归打歌"><div class="k cb"></div>回归打歌</div>
+<div class="o" onclick="sm(this,'q5')" data-v="考核系统"><div class="k cb"></div>考核系统</div>
+<div class="o" onclick="sm(this,'q5')" data-v="歌曲制作/MV"><div class="k cb"></div>歌曲制作/MV拍摄</div>
+<div class="o" onclick="sm(this,'q5')" data-v="日常/赚钱"><div class="k cb"></div>日常/赚钱</div>
+<div class="o" onclick="sm(this,'q5')" data-v="Kpop百科"><div class="k cb"></div>Kpop百科</div>
+<div class="o" onclick="sm(this,'q5')" data-v="出道流程"><div class="k cb"></div>出道流程</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">6.</span>你觉得哪个系统最需要改进？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q6">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="养成/训练太单调"><span class="dot"></span>养成/训练太单调</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="社交系统太简单"><span class="dot"></span>社交系统太简单</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="回归流程不够丰富"><span class="dot"></span>回归流程不够丰富</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="抽卡缺少动画/卡面"><span class="dot"></span>抽卡缺少动画/卡面</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="UI界面不够好看"><span class="dot"></span>UI界面不够好看</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="bug太多/卡顿"><span class="dot"></span>bug太多/卡顿</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="内容太少/玩不久"><span class="dot"></span>内容太少/玩不久</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q6" value="其他(请在最后补充)"><span class="dot"></span>其他(请在最后补充)</label>
+<div class="q"><div class="qt"><b>6.</b>你觉得哪个系统最需要改进？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q6')" data-v="养成训练太单调"><div class="k"></div>养成/训练太单调</div>
+<div class="o" onclick="s1(this,'q6')" data-v="社交太简单"><div class="k"></div>社交系统太简单</div>
+<div class="o" onclick="s1(this,'q6')" data-v="回归不够丰富"><div class="k"></div>回归流程不够丰富</div>
+<div class="o" onclick="s1(this,'q6')" data-v="抽卡缺动画卡面"><div class="k"></div>抽卡缺少动画/卡面</div>
+<div class="o" onclick="s1(this,'q6')" data-v="UI不好看"><div class="k"></div>UI界面不够好看</div>
+<div class="o" onclick="s1(this,'q6')" data-v="bug多卡顿"><div class="k"></div>bug太多/卡顿</div>
+<div class="o" onclick="s1(this,'q6')" data-v="内容少玩不久"><div class="k"></div>内容太少/玩不久</div>
+<div class="o" onclick="s1(this,'q6')" data-v="其他"><div class="k"></div>其他(最后补充)</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">7.</span>你每天大概玩多长时间？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q7">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q7" value="10分钟以内"><span class="dot"></span>10分钟以内</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q7" value="10-30分钟"><span class="dot"></span>10-30分钟</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q7" value="30分钟-1小时"><span class="dot"></span>30分钟-1小时</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q7" value="1-2小时"><span class="dot"></span>1-2小时</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q7" value="2小时以上"><span class="dot"></span>2小时以上</label>
+<div class="q"><div class="qt"><b>7.</b>你每天大概玩多长时间？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q7')" data-v="10分钟内"><div class="k"></div>10分钟以内</div>
+<div class="o" onclick="s1(this,'q7')" data-v="10-30分钟"><div class="k"></div>10-30分钟</div>
+<div class="o" onclick="s1(this,'q7')" data-v="30分-1小时"><div class="k"></div>30分钟-1小时</div>
+<div class="o" onclick="s1(this,'q7')" data-v="1-2小时"><div class="k"></div>1-2小时</div>
+<div class="o" onclick="s1(this,'q7')" data-v="2小时以上"><div class="k"></div>2小时以上</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">8.</span>游戏整体体验评分<span class="tag tag-s">1-10分</span></div>
-<div class="scale-opts" data-q="q8">
-<div class="scale-opt" onclick="selectScale(this,'q8')">1</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">2</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">3</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">4</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">5</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">6</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">7</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">8</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">9</div>
-<div class="scale-opt" onclick="selectScale(this,'q8')">10</div>
+<div class="q"><div class="qt"><b>8.</b>游戏整体体验评分<em class="em1">1-10分</em></div><div class="ss">
+<div class="si" onclick="ss(this,'q8')">1</div><div class="si" onclick="ss(this,'q8')">2</div><div class="si" onclick="ss(this,'q8')">3</div><div class="si" onclick="ss(this,'q8')">4</div><div class="si" onclick="ss(this,'q8')">5</div><div class="si" onclick="ss(this,'q8')">6</div><div class="si" onclick="ss(this,'q8')">7</div><div class="si" onclick="ss(this,'q8')">8</div><div class="si" onclick="ss(this,'q8')">9</div><div class="si" onclick="ss(this,'q8')">10</div>
 </div></div>
 </div>
 
-<div class="section">
-<div class="section-title">卡面风格</div>
-<div class="q"><div class="q-text"><span class="num">9.</span>你希望抽卡的卡面是什么风格？<span class="tag tag-s">单选</span></div>
-<div class="q-desc">这决定了我们卡面美术的方向，请认真选择</div>
-<div class="opts" data-q="q9">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q9" value="二次元动漫风格"><span class="dot"></span>二次元动漫风格</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q9" value="真人/写实风格"><span class="dot"></span>真人/写实风格</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q9" value="半写实韩系插画"><span class="dot"></span>半写实韩系插画</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q9" value="Q版可爱风格"><span class="dot"></span>Q版可爱风格</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q9" value="混合(不同等级不同风格)"><span class="dot"></span>混合(不同等级不同风格)</label>
+<div class="sec">
+<div class="st">卡面风格</div>
+<div class="q"><div class="qt"><b>9.</b>你希望卡面是什么风格？<em class="em1">单选</em></div><div class="qd">这决定了我们卡面美术的方向</div><div class="os">
+<div class="o" onclick="s1(this,'q9')" data-v="二次元动漫"><div class="k"></div>二次元动漫风格</div>
+<div class="o" onclick="s1(this,'q9')" data-v="真人写实"><div class="k"></div>真人/写实风格</div>
+<div class="o" onclick="s1(this,'q9')" data-v="半写实韩系"><div class="k"></div>半写实韩系插画</div>
+<div class="o" onclick="s1(this,'q9')" data-v="Q版可爱"><div class="k"></div>Q版可爱风格</div>
+<div class="o" onclick="s1(this,'q9')" data-v="混合风格"><div class="k"></div>混合(不同等级不同风格)</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">10.</span>上传2-3张你喜欢的卡面风格参考图<span class="tag tag-m">2-3张</span></div>
-<div class="q-desc">从其他游戏/动漫/插画中找你觉得好看的卡面风格，帮我们更准确理解你的喜好</div>
-<div class="upload-area" id="uploadArea9">
-<p>点击选择图片（2-3张）</p>
-<button class="upload-btn" onclick="document.getElementById('fileInput9').click()">选择图片</button>
-<input type="file" id="fileInput9" accept="image/*" multiple style="display:none" onchange="handleUpload(this,'q9')">
-<div class="upload-preview" id="preview9"></div>
-</div>
-</div>
-
-<div class="q"><div class="q-text"><span class="num">11.</span>抽卡动画你觉得怎么样？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q11">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q11" value="很酷！很满意"><span class="dot"></span>很酷！很满意</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q11" value="还行，可以更炫"><span class="dot"></span>还行，可以更炫</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q11" value="一般，没感觉"><span class="dot"></span>一般，没感觉</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q11" value="还没看到过"><span class="dot"></span>还没看到过</label>
+<div class="q"><div class="qt"><b>10.</b>上传2-3张你喜欢的卡面参考图<em class="em2">2-3张</em></div><div class="qd">从其他游戏/动漫/插画中找你觉得好看的</div>
+<div class="ua"><p>点击选择图片(2-3张)</p><button class="ub" onclick="document.getElementById('fi').click()">选择图片</button><input type="file" id="fi" accept="image/*" multiple style="display:none" onchange="upl(this)"><div class="up" id="pv"></div></div></div>
+<div class="q"><div class="qt"><b>11.</b>抽卡动画你觉得怎么样？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q11')" data-v="很酷满意"><div class="k"></div>很酷很满意</div>
+<div class="o" onclick="s1(this,'q11')" data-v="还行"><div class="k"></div>还行可以更炫</div>
+<div class="o" onclick="s1(this,'q11')" data-v="一般"><div class="k"></div>一般没感觉</div>
+<div class="o" onclick="s1(this,'q11')" data-v="没看到过"><div class="k"></div>还没看到过</div>
 </div></div>
 </div>
 
-<div class="section">
-<div class="section-title">新功能期待</div>
-<div class="q"><div class="q-text"><span class="num">12.</span>你最期待哪些新功能？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q12">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="换装/服装系统"><span class="dot"></span>换装/服装系统</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="演唱会系统"><span class="dot"></span>演唱会系统</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="综艺录制"><span class="dot"></span>综艺录制</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="恋爱/CP线"><span class="dot"></span>恋爱/CP线</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="粉丝经营/后援会"><span class="dot"></span>粉丝经营/后援会</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="团体活动/团建"><span class="dot"></span>团体活动/团建</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="更多NPC互动剧情"><span class="dot"></span>更多NPC互动剧情</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="写真/拍照系统"><span class="dot"></span>写真/拍照系统</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="经纪公司经营"><span class="dot"></span>经纪公司经营</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="排行榜/竞技"><span class="dot"></span>排行榜/竞技</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q12" value="音乐制作更多玩法"><span class="dot"></span>音乐制作更多玩法</label>
+<div class="sec">
+<div class="st">新功能期待</div>
+<div class="q"><div class="qt"><b>12.</b>你最期待哪些新功能？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q12')" data-v="换装"><div class="k cb"></div>换装/服装系统</div>
+<div class="o" onclick="sm(this,'q12')" data-v="演唱会"><div class="k cb"></div>演唱会系统</div>
+<div class="o" onclick="sm(this,'q12')" data-v="综艺"><div class="k cb"></div>综艺录制</div>
+<div class="o" onclick="sm(this,'q12')" data-v="恋爱CP"><div class="k cb"></div>恋爱/CP线</div>
+<div class="o" onclick="sm(this,'q12')" data-v="粉丝经营"><div class="k cb"></div>粉丝经营/后援会</div>
+<div class="o" onclick="sm(this,'q12')" data-v="团建"><div class="k cb"></div>团体活动/团建</div>
+<div class="o" onclick="sm(this,'q12')" data-v="NPC剧情"><div class="k cb"></div>更多NPC互动剧情</div>
+<div class="o" onclick="sm(this,'q12')" data-v="写真拍照"><div class="k cb"></div>写真/拍照系统</div>
+<div class="o" onclick="sm(this,'q12')" data-v="公司经营"><div class="k cb"></div>经纪公司经营</div>
+<div class="o" onclick="sm(this,'q12')" data-v="排行榜"><div class="k cb"></div>排行榜/竞技</div>
+<div class="o" onclick="sm(this,'q12')" data-v="更多音乐玩法"><div class="k cb"></div>音乐制作更多玩法</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">13.</span>你希望回归企划流程有多长？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q13">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q13" value="快节奏3-5步搞定"><span class="dot"></span>快节奏3-5步搞定</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q13" value="中等7-10步有剧情"><span class="dot"></span>中等7-10步有剧情</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q13" value="丰富10步以上完整体验"><span class="dot"></span>丰富10步以上完整体验</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q13" value="越详细越好"><span class="dot"></span>越详细越好</label>
+<div class="q"><div class="qt"><b>13.</b>你希望回归企划流程有多长？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q13')" data-v="快节奏3-5步"><div class="k"></div>快节奏3-5步搞定</div>
+<div class="o" onclick="s1(this,'q13')" data-v="中等7-10步"><div class="k"></div>中等7-10步有剧情</div>
+<div class="o" onclick="s1(this,'q13')" data-v="丰富10+步"><div class="k"></div>丰富10步以上</div>
+<div class="o" onclick="s1(this,'q13')" data-v="越详细越好"><div class="k"></div>越详细越好</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">14.</span>你更偏向哪种游戏节奏？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q14">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q14" value="快节奏马上看到结果"><span class="dot"></span>快节奏马上看到结果</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q14" value="慢慢来享受过程"><span class="dot"></span>慢慢来享受过程</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q14" value="两者结合看心情"><span class="dot"></span>两者结合看心情</label>
+<div class="q"><div class="qt"><b>14.</b>你更偏向哪种游戏节奏？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q14')" data-v="快节奏看结果"><div class="k"></div>快节奏马上看结果</div>
+<div class="o" onclick="s1(this,'q14')" data-v="慢慢享受"><div class="k"></div>慢慢来享受过程</div>
+<div class="o" onclick="s1(this,'q14')" data-v="两者结合"><div class="k"></div>两者结合看心情</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">15.</span>你希望社交APP增加什么功能？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q15">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q15" value="更多聊天内容/剧情"><span class="dot"></span>更多聊天内容/剧情</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q15" value="发朋友圈/动态"><span class="dot"></span>发朋友圈/动态</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q15" value="粉丝评论互动"><span class="dot"></span>粉丝评论互动</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q15" value="直播功能"><span class="dot"></span>直播功能</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q15" value="私信/粉丝互动"><span class="dot"></span>私信/粉丝互动</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q15" value="现在就挺好"><span class="dot"></span>现在就挺好</label>
+<div class="q"><div class="qt"><b>15.</b>你希望社交APP增加什么？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q15')" data-v="更多聊天内容"><div class="k cb"></div>更多聊天内容/剧情</div>
+<div class="o" onclick="sm(this,'q15')" data-v="发动态"><div class="k cb"></div>发朋友圈/动态</div>
+<div class="o" onclick="sm(this,'q15')" data-v="粉丝评论"><div class="k cb"></div>粉丝评论互动</div>
+<div class="o" onclick="sm(this,'q15')" data-v="直播"><div class="k cb"></div>直播功能</div>
+<div class="o" onclick="sm(this,'q15')" data-v="私信互动"><div class="k cb"></div>私信/粉丝互动</div>
+<div class="o" onclick="sm(this,'q15')" data-v="现在挺好"><div class="k cb"></div>现在就挺好</div>
 </div></div>
 </div>
 
-<div class="section">
-<div class="section-title">UI/视觉</div>
-<div class="q"><div class="q-text"><span class="num">16.</span>你觉得游戏界面好看吗？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q16">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q16" value="很好看，很满意"><span class="dot"></span>很好看，很满意</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q16" value="还行，但可以更好"><span class="dot"></span>还行，但可以更好</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q16" value="一般，需要改进"><span class="dot"></span>一般，需要改进</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q16" value="不好看，需要大改"><span class="dot"></span>不好看，需要大改</label>
+<div class="sec">
+<div class="st">UI/视觉</div>
+<div class="q"><div class="qt"><b>16.</b>你觉得游戏界面好看吗？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q16')" data-v="很好看"><div class="k"></div>很好看很满意</div>
+<div class="o" onclick="s1(this,'q16')" data-v="还行"><div class="k"></div>还行可以更好</div>
+<div class="o" onclick="s1(this,'q16')" data-v="一般"><div class="k"></div>一般需要改进</div>
+<div class="o" onclick="s1(this,'q16')" data-v="不好看"><div class="k"></div>不好看需大改</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">17.</span>你希望界面是什么风格？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q17">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q17" value="现在粉色系就好"><span class="dot"></span>现在粉色系就好</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q17" value="更暗色/高级感"><span class="dot"></span>更暗色/高级感</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q17" value="韩系清新简约"><span class="dot"></span>韩系清新简约</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q17" value="可以切换主题色"><span class="dot"></span>可以切换主题色</label>
+<div class="q"><div class="qt"><b>17.</b>你希望界面是什么风格？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q17')" data-v="粉色系就好"><div class="k"></div>现在粉色系就好</div>
+<div class="o" onclick="s1(this,'q17')" data-v="暗色高级感"><div class="k"></div>更暗色/高级感</div>
+<div class="o" onclick="s1(this,'q17')" data-v="韩系清新"><div class="k"></div>韩系清新简约</div>
+<div class="o" onclick="s1(this,'q17')" data-v="切换主题色"><div class="k"></div>可以切换主题色</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">18.</span>你觉得哪些页面排版需要改进？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q18">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="首页/手机桌面"><span class="dot"></span>首页/手机桌面</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="训练/考核页面"><span class="dot"></span>训练/考核页面</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="社交APP页面"><span class="dot"></span>社交APP页面</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="抽卡页面"><span class="dot"></span>抽卡页面</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="回归/打歌页面"><span class="dot"></span>回归/打歌页面</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="Kpop百科"><span class="dot"></span>Kpop百科</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q18" value="都觉得OK"><span class="dot"></span>都觉得OK</label>
+<div class="q"><div class="qt"><b>18.</b>你觉得哪些页面排版需要改进？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q18')" data-v="首页"><div class="k cb"></div>首页/手机桌面</div>
+<div class="o" onclick="sm(this,'q18')" data-v="训练考核"><div class="k cb"></div>训练/考核页面</div>
+<div class="o" onclick="sm(this,'q18')" data-v="社交APP"><div class="k cb"></div>社交APP页面</div>
+<div class="o" onclick="sm(this,'q18')" data-v="抽卡"><div class="k cb"></div>抽卡页面</div>
+<div class="o" onclick="sm(this,'q18')" data-v="回归打歌"><div class="k cb"></div>回归/打歌页面</div>
+<div class="o" onclick="sm(this,'q18')" data-v="百科"><div class="k cb"></div>Kpop百科</div>
+<div class="o" onclick="sm(this,'q18')" data-v="都OK"><div class="k cb"></div>都觉得OK</div>
 </div></div>
 </div>
 
-<div class="section">
-<div class="section-title">付费意愿</div>
-<div class="q"><div class="q-text"><span class="num">19.</span>你愿意为哪些内容付费？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q19">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q19" value="月卡/会员"><span class="dot"></span>月卡/会员</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q19" value="抽卡(单抽/十连)"><span class="dot"></span>抽卡(单抽/十连)</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q19" value="限定服装/皮肤"><span class="dot"></span>限定服装/皮肤</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q19" value="AI对话次数"><span class="dot"></span>AI对话次数</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q19" value="加速/省时道具"><span class="dot"></span>加速/省时道具</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q19" value="不建议收费"><span class="dot"></span>不建议收费</label>
+<div class="sec">
+<div class="st">付费意愿</div>
+<div class="q"><div class="qt"><b>19.</b>你愿意为哪些内容付费？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q19')" data-v="月卡会员"><div class="k cb"></div>月卡/会员</div>
+<div class="o" onclick="sm(this,'q19')" data-v="抽卡"><div class="k cb"></div>抽卡(单抽/十连)</div>
+<div class="o" onclick="sm(this,'q19')" data-v="限定服装"><div class="k cb"></div>限定服装/皮肤</div>
+<div class="o" onclick="sm(this,'q19')" data-v="AI对话"><div class="k cb"></div>AI对话次数</div>
+<div class="o" onclick="sm(this,'q19')" data-v="加速道具"><div class="k cb"></div>加速/省时道具</div>
+<div class="o" onclick="sm(this,'q19')" data-v="不建议收费"><div class="k cb"></div>不建议收费</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">20.</span>你能接受的月花费是？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q20">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q20" value="只玩免费的"><span class="dot"></span>只玩免费的</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q20" value="5元以内"><span class="dot"></span>5元以内</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q20" value="5-15元"><span class="dot"></span>5-15元</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q20" value="15-30元"><span class="dot"></span>15-30元</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q20" value="30元以上"><span class="dot"></span>30元以上</label>
+<div class="q"><div class="qt"><b>20.</b>你能接受的月花费是？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q20')" data-v="免费"><div class="k"></div>只玩免费的</div>
+<div class="o" onclick="s1(this,'q20')" data-v="5元内"><div class="k"></div>5元以内</div>
+<div class="o" onclick="s1(this,'q20')" data-v="5-15元"><div class="k"></div>5-15元</div>
+<div class="o" onclick="s1(this,'q20')" data-v="15-30元"><div class="k"></div>15-30元</div>
+<div class="o" onclick="s1(this,'q20')" data-v="30元以上"><div class="k"></div>30元以上</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">21.</span>你觉得1元1抽的价格怎么样？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q21">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q21" value="很便宜可以接受"><span class="dot"></span>很便宜可以接受</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q21" value="还行"><span class="dot"></span>还行</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q21" value="有点贵"><span class="dot"></span>有点贵</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q21" value="太贵了"><span class="dot"></span>太贵了</label>
+<div class="q"><div class="qt"><b>21.</b>你觉得1元1抽的价格怎么样？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q21')" data-v="便宜可接受"><div class="k"></div>很便宜可以接受</div>
+<div class="o" onclick="s1(this,'q21')" data-v="还行"><div class="k"></div>还行</div>
+<div class="o" onclick="s1(this,'q21')" data-v="有点贵"><div class="k"></div>有点贵</div>
+<div class="o" onclick="s1(this,'q21')" data-v="太贵了"><div class="k"></div>太贵了</div>
 </div></div>
 </div>
 
-<div class="section">
-<div class="section-title">Bug与建议</div>
-<div class="q"><div class="q-text"><span class="num">22.</span>你遇到过哪些bug？<span class="tag tag-m">多选</span></div>
-<div class="opts" data-q="q22">
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="白屏/加载出错"><span class="dot"></span>白屏/加载出错</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="存档丢失/读取失败"><span class="dot"></span>存档丢失/读取失败</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="页面卡顿/闪退"><span class="dot"></span>页面卡顿/闪退</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="功能点不了/没反应"><span class="dot"></span>功能点不了/没反应</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="排版错乱/显示异常"><span class="dot"></span>排版错乱/显示异常</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="切回页面回到验证码"><span class="dot"></span>切回页面回到验证码</label>
-<label class="opt opt-cb" onclick="toggleCheck(this)"><input type="checkbox" name="q22" value="没有遇到过bug"><span class="dot"></span>没有遇到过bug</label>
+<div class="sec">
+<div class="st">Bug与建议</div>
+<div class="q"><div class="qt"><b>22.</b>你遇到过哪些bug？<em class="em2">多选</em></div><div class="os">
+<div class="o" onclick="sm(this,'q22')" data-v="白屏"><div class="k cb"></div>白屏/加载出错</div>
+<div class="o" onclick="sm(this,'q22')" data-v="存档丢失"><div class="k cb"></div>存档丢失/读取失败</div>
+<div class="o" onclick="sm(this,'q22')" data-v="卡顿闪退"><div class="k cb"></div>页面卡顿/闪退</div>
+<div class="o" onclick="sm(this,'q22')" data-v="点不了"><div class="k cb"></div>功能点不了/没反应</div>
+<div class="o" onclick="sm(this,'q22')" data-v="排版错乱"><div class="k cb"></div>排版错乱/显示异常</div>
+<div class="o" onclick="sm(this,'q22')" data-v="回验证码"><div class="k cb"></div>切回页面回验证码</div>
+<div class="o" onclick="sm(this,'q22')" data-v="没遇到"><div class="k cb"></div>没有遇到过bug</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">23.</span>你使用的是什么设备？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q23">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q23" value="iPhone Safari"><span class="dot"></span>iPhone Safari</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q23" value="iPad Safari"><span class="dot"></span>iPad Safari</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q23" value="安卓手机"><span class="dot"></span>安卓手机</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q23" value="PC电脑"><span class="dot"></span>PC电脑</label>
+<div class="q"><div class="qt"><b>23.</b>你使用的是什么设备？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q23')" data-v="iPhone"><div class="k"></div>iPhone</div>
+<div class="o" onclick="s1(this,'q23')" data-v="iPad"><div class="k"></div>iPad</div>
+<div class="o" onclick="s1(this,'q23')" data-v="安卓"><div class="k"></div>安卓手机</div>
+<div class="o" onclick="s1(this,'q23')" data-v="PC"><div class="k"></div>PC电脑</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">24.</span>你觉得游戏最缺什么？<span class="tag tag-s">单选</span></div>
-<div class="opts" data-q="q24">
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q24" value="内容不够多"><span class="dot"></span>内容不够多</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q24" value="画质不够好"><span class="dot"></span>画质不够好</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q24" value="互动不够丰富"><span class="dot"></span>互动不够丰富</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q24" value="缺少社交/分享"><span class="dot"></span>缺少社交/分享</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q24" value="音效/音乐"><span class="dot"></span>音效/音乐</label>
-<label class="opt" onclick="selectRadio(this)"><input type="radio" name="q24" value="稳定性和流畅度"><span class="dot"></span>稳定性和流畅度</label>
+<div class="q"><div class="qt"><b>24.</b>你觉得游戏最缺什么？<em class="em1">单选</em></div><div class="os">
+<div class="o" onclick="s1(this,'q24')" data-v="内容少"><div class="k"></div>内容不够多</div>
+<div class="o" onclick="s1(this,'q24')" data-v="画质差"><div class="k"></div>画质不够好</div>
+<div class="o" onclick="s1(this,'q24')" data-v="互动少"><div class="k"></div>互动不够丰富</div>
+<div class="o" onclick="s1(this,'q24')" data-v="缺社交"><div class="k"></div>缺少社交/分享</div>
+<div class="o" onclick="s1(this,'q24')" data-v="音效"><div class="k"></div>音效/音乐</div>
+<div class="o" onclick="s1(this,'q24')" data-v="稳定性"><div class="k"></div>稳定性和流畅度</div>
 </div></div>
-
-<div class="q"><div class="q-text"><span class="num">25.</span>你有什么建议或想说的话？<span class="tag tag-s">开放</span></div>
-<textarea class="text-input" id="q25" placeholder="畅所欲言！任何建议、吐槽、想法都可以写..."></textarea>
+<div class="q"><div class="qt"><b>25.</b>你有什么建议或想说的话？<em class="em1">开放</em></div>
+<textarea class="ta" id="q25i" placeholder="畅所欲言！任何建议、吐槽、想法都可以写..."></textarea>
 </div>
 </div>
 
-<div class="result-box" id="resultBox">
-<h3>提交成功！感谢你的反馈</h3>
-<div class="result-text" id="resultText"></div>
-<button class="btn-copy" onclick="copyResult()">复制结果发给管理员</button>
-</div>
-
-<button class="btn-submit" onclick="submitSurvey()">提交问卷</button>
-
-<div class="footer">My Idol Team | 2026</div>
+<div class="rb" id="rb"><h3>提交成功！感谢你的反馈</h3><div class="rt" id="rt"></div><button class="bc" onclick="cp()">复制结果发给管理员</button></div>
+<button class="bs" id="sbtn" onclick="go()">提交问卷</button>
+<div class="ft">My Idol Team | 2026</div>
 </div>
 
 <script>
-var answers = {};
-var uploadedImages = {};
-
-function selectRadio(el) {
-    var parent = el.parentNode;
-    var siblings = parent.querySelectorAll('.opt');
-    for (var i = 0; i < siblings.length; i++) { siblings[i].classList.remove('selected'); }
-    el.classList.add('selected');
-    var qName = el.querySelector('input').name;
-    answers[qName] = el.querySelector('input').value;
+var A={},IMGS=[];
+function s1(el,qid){
+var ps=el.parentNode,ch=ps.children,i;
+for(i=0;i<ch.length;i++)ch[i].classList.remove('on');
+el.classList.add('on');
+A[qid]=el.getAttribute('data-v');
 }
-
-function toggleCheck(el) {
-    el.classList.toggle('selected');
-    var qName = el.querySelector('input').name;
-    if (!answers[qName]) answers[qName] = [];
-    var val = el.querySelector('input').value;
-    var idx = answers[qName].indexOf(val);
-    if (el.classList.contains('selected')) {
-        if (idx === -1) answers[qName].push(val);
-    } else {
-        if (idx > -1) answers[qName].splice(idx, 1);
-    }
+function sm(el,qid){
+el.classList.toggle('on');
+var ps=el.parentNode,ch=ps.children,vs=[],i;
+for(i=0;i<ch.length;i++){if(ch[i].classList.contains('on'))vs.push(ch[i].getAttribute('data-v'));}
+A[qid]=vs;
 }
-
-function selectScale(el, qName) {
-    var parent = el.parentNode;
-    var siblings = parent.querySelectorAll('.scale-opt');
-    for (var i = 0; i < siblings.length; i++) { siblings[i].classList.remove('selected'); }
-    el.classList.add('selected');
-    answers[qName] = el.textContent;
+function ss(el,qid){
+var ps=el.parentNode,ch=ps.children,i;
+for(i=0;i<ch.length;i++)ch[i].classList.remove('on');
+el.classList.add('on');
+A[qid]=el.textContent;
 }
-
-function handleUpload(input, qName) {
-    var files = input.files;
-    if (!files || files.length === 0) return;
-    if (!uploadedImages[qName]) uploadedImages[qName] = [];
-    var previewEl = document.getElementById('preview9');
-    for (var i = 0; i < files.length; i++) {
-        if (uploadedImages[qName].length >= 3) {
-            alert('最多上传3张图片');
-            break;
-        }
-        var file = files[i];
-        var reader = new FileReader();
-        reader.onload = (function(f) {
-            return function(e) {
-                uploadedImages[qName].push({ name: f.name, data: e.target.result });
-                renderPreview(qName);
-            };
-        })(file);
-        reader.readAsDataURL(file);
-    }
-    input.value = '';
+function upl(inp){
+var fs=inp.files,i;
+if(!fs||!fs.length)return;
+for(i=0;i<fs.length;i++){
+if(IMGS.length>=3){alert('最多3张');break;}
+var r=new FileReader();
+r.onload=(function(f){return function(e){IMGS.push({n:f.name,d:e.target.result});rp();};})(fs[i]);
+r.readAsDataURL(fs[i]);
 }
-
-function renderPreview(qName) {
-    var previewEl = document.getElementById('preview9');
-    previewEl.innerHTML = '';
-    var imgs = uploadedImages[qName] || [];
-    for (var i = 0; i < imgs.length; i++) {
-        var wrap = document.createElement('div');
-        wrap.className = 'thumb-wrap';
-        var img = document.createElement('img');
-        img.className = 'thumb';
-        img.src = imgs[i].data;
-        var btn = document.createElement('button');
-        btn.className = 'thumb-del';
-        btn.textContent = 'x';
-        btn.setAttribute('data-qname', qName);
-        btn.setAttribute('data-idx', String(i));
-        btn.onclick = function() {
-            var qn = this.getAttribute('data-qname');
-            var idx = parseInt(this.getAttribute('data-idx'));
-            uploadedImages[qn].splice(idx, 1);
-            renderPreview(qn);
-        };
-        wrap.appendChild(img);
-        wrap.appendChild(btn);
-        previewEl.appendChild(wrap);
-    }
+inp.value='';
 }
-
-function submitSurvey() {
-    var openQ = document.getElementById('q25').value.trim();
-    if (openQ) answers['q25'] = openQ;
-    var result = '【My Idol 玩家调研结果】\n\n';
-    result += '1. 年龄段: ' + (answers.q1 || '未作答') + '\n';
-    result += '2. 性别: ' + (answers.q2 || '未作答') + '\n';
-    result += '3. 玩了多久: ' + (answers.q3 || '未作答') + '\n';
-    result += '4. 了解渠道: ' + (answers.q4 ? answers.q4.join(',') : '未作答') + '\n';
-    result += '5. 最喜欢系统: ' + (answers.q5 ? answers.q5.join(',') : '未作答') + '\n';
-    result += '6. 最需改进: ' + (answers.q6 || '未作答') + '\n';
-    result += '7. 每天玩多长: ' + (answers.q7 || '未作答') + '\n';
-    result += '8. 体验评分: ' + (answers.q8 || '未作答') + '/10\n';
-    result += '9. 卡面风格: ' + (answers.q9 || '未作答') + '\n';
-    var imgCount = uploadedImages['q9'] ? uploadedImages['q9'].length : 0;
-    result += '10. 参考图: ' + (imgCount > 0 ? '已上传' + imgCount + '张' : '未上传') + '\n';
-    result += '11. 抽卡动画: ' + (answers.q11 || '未作答') + '\n';
-    result += '12. 期待新功能: ' + (answers.q12 ? answers.q12.join(',') : '未作答') + '\n';
-    result += '13. 回归流程长度: ' + (answers.q13 || '未作答') + '\n';
-    result += '14. 游戏节奏偏好: ' + (answers.q14 || '未作答') + '\n';
-    result += '15. 社交APP增加: ' + (answers.q15 ? answers.q15.join(',') : '未作答') + '\n';
-    result += '16. 界面满意度: ' + (answers.q16 || '未作答') + '\n';
-    result += '17. 界面风格偏好: ' + (answers.q17 || '未作答') + '\n';
-    result += '18. 需改进排版: ' + (answers.q18 ? answers.q18.join(',') : '未作答') + '\n';
-    result += '19. 愿意付费内容: ' + (answers.q19 ? answers.q19.join(',') : '未作答') + '\n';
-    result += '20. 月花费接受度: ' + (answers.q20 || '未作答') + '\n';
-    result += '21. 1元1抽价格: ' + (answers.q21 || '未作答') + '\n';
-    result += '22. 遇到过bug: ' + (answers.q22 ? answers.q22.join(',') : '未作答') + '\n';
-    result += '23. 使用设备: ' + (answers.q23 || '未作答') + '\n';
-    result += '24. 最缺什么: ' + (answers.q24 || '未作答') + '\n';
-    result += '25. 建议: ' + (answers.q25 || '无') + '\n';
-    document.getElementById('resultText').textContent = result;
-    document.getElementById('resultBox').style.display = 'block';
-    document.querySelector('.btn-submit').style.display = 'none';
-    document.getElementById('resultBox').scrollIntoView({ behavior: 'smooth' });
-    try { localStorage.setItem('myidol_survey_' + Date.now(), JSON.stringify(answers)); } catch(e) {}
+function rp(){
+var c=document.getElementById('pv'),i;
+c.innerHTML='';
+for(i=0;i<IMGS.length;i++){
+var w=document.createElement('div');w.className='tw';
+var img=document.createElement('img');img.className='tm';img.src=IMGS[i].d;
+var b=document.createElement('button');b.className='td';b.textContent='x';b.setAttribute('data-i',String(i));
+b.onclick=function(){IMGS.splice(parseInt(this.getAttribute('data-i')),1);rp();};
+w.appendChild(img);w.appendChild(b);c.appendChild(w);
 }
-
-function copyResult() {
-    var text = document.getElementById('resultText').textContent;
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(function() { alert('已复制！发给管理员即可'); });
-    } else {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        alert('已复制！发给管理员即可');
-    }
+}
+function go(){
+var o=document.getElementById('q25i').value.trim();
+if(o)A.q25=o;
+var r='【My Idol 玩家调研】\n\n';
+r+='1.年龄段:'+(A.q1||'-')+'\n';
+r+='2.性别:'+(A.q2||'-')+'\n';
+r+='3.玩了多久:'+(A.q3||'-')+'\n';
+r+='4.渠道:'+(A.q4&&A.q4.length?A.q4.join(','):'-')+'\n';
+r+='5.喜欢系统:'+(A.q5&&A.q5.length?A.q5.join(','):'-')+'\n';
+r+='6.最需改进:'+(A.q6||'-')+'\n';
+r+='7.每天时长:'+(A.q7||'-')+'\n';
+r+='8.评分:'+(A.q8||'-')+'/10\n';
+r+='9.卡面风格:'+(A.q9||'-')+'\n';
+r+='10.参考图:'+(IMGS.length?IMGS.length+'张':'未上传')+'\n';
+r+='11.抽卡动画:'+(A.q11||'-')+'\n';
+r+='12.期待功能:'+(A.q12&&A.q12.length?A.q12.join(','):'-')+'\n';
+r+='13.回归长度:'+(A.q13||'-')+'\n';
+r+='14.节奏偏好:'+(A.q14||'-')+'\n';
+r+='15.社交增加:'+(A.q15&&A.q15.length?A.q15.join(','):'-')+'\n';
+r+='16.界面满意:'+(A.q16||'-')+'\n';
+r+='17.界面风格:'+(A.q17||'-')+'\n';
+r+='18.排版改进:'+(A.q18&&A.q18.length?A.q18.join(','):'-')+'\n';
+r+='19.付费内容:'+(A.q19&&A.q19.length?A.q19.join(','):'-')+'\n';
+r+='20.月花费:'+(A.q20||'-')+'\n';
+r+='21.1元1抽:'+(A.q21||'-')+'\n';
+r+='22.bug:'+(A.q22&&A.q22.length?A.q22.join(','):'-')+'\n';
+r+='23.设备:'+(A.q23||'-')+'\n';
+r+='24.最缺:'+(A.q24||'-')+'\n';
+r+='25.建议:'+(A.q25||'无')+'\n';
+try{fetch('https://my-idol-api.vercel.app/api/survey-submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(A)}).catch(function(){});}catch(e){}
+try{localStorage.setItem('myidol_survey',JSON.stringify(A));}catch(e){}
+document.getElementById('rt').textContent=r;
+document.getElementById('rb').style.display='block';
+document.getElementById('sbtn').style.display='none';
+document.getElementById('rb').scrollIntoView({behavior:'smooth'});
+}
+function cp(){
+var t=document.getElementById('rt').textContent;
+if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){alert('已复制！发给管理员即可');});}
+else{var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('已复制！发给管理员即可');}
 }
 </script>
 </body>
