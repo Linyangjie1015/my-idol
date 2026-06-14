@@ -726,8 +726,8 @@
     /* ==================== EXAM SYSTEM ==================== */
     .exam-cert-card {
         background: var(--bg-card);
-        border-radius: var(--radius-md);
-        padding: 10px 8px;
+        border-radius: 16px;
+        padding: 14px 12px;
         text-align: center;
         border: 2px solid var(--color-border);
         transition: all 0.3s;
@@ -751,12 +751,12 @@
     }
     .exam-cert-card .cert-name { font-size: 11px; font-weight: 600; color: var(--color-text); }
     .exam-cert-card .cert-levels { font-size: 10px; color: var(--color-text-light); margin-top: 2px; }
-    .exam-subject-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
-    .exam-subject-row .exam-cert-card { min-width: 65px; flex: 1; }
+    .exam-subject-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .exam-subject-row .exam-cert-card { min-width: 0; }
     .exam-entry {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 14px 16px; background: var(--bg-card); border-radius: var(--radius-md);
-        margin-bottom: 8px; border: 1px solid var(--color-border); cursor: pointer;
+        padding: 14px 16px; background: var(--bg-card); border-radius: 16px;
+        margin-bottom: 10px; border: 1.5px solid var(--color-border); cursor: pointer;
         transition: all 0.2s;
     }
     .exam-entry:active { transform: scale(0.98); }
@@ -766,8 +766,8 @@
     .exam-entry .exam-entry-sub { font-size: 12px; color: var(--color-text-light); margin-top: 2px; }
     .exam-entry .exam-entry-right { font-size: 12px; color: var(--color-primary); font-weight: 600; white-space: nowrap; }
     .exam-comprehensive-entry {
-        padding: 16px; background: linear-gradient(135deg, #FFF5F7, #FFE4EC);
-        border-radius: var(--radius-lg); margin-top: 16px; text-align: center;
+        padding: 20px; background: linear-gradient(135deg, #FFF5F7, #FFE4EC);
+        border-radius: 16px; margin-top: 12px; text-align: center;
         border: 2px dashed var(--color-primary);
     }
     .exam-comprehensive-entry.unlocked { border-style: solid; cursor: pointer; }
@@ -807,8 +807,8 @@
 
     /* Quiz options */
     .quiz-option {
-        padding: 14px 16px; background: var(--bg-card); border-radius: var(--radius-md);
-        margin-bottom: 8px; border: 1px solid var(--color-border); cursor: pointer;
+        padding: 14px 16px; background: var(--bg-card); border-radius: 16px;
+        margin-bottom: 10px; border: 1.5px solid var(--color-border); cursor: pointer;
         font-size: 14px; transition: all 0.2s;
     }
     .quiz-option:active { transform: scale(0.98); }
