@@ -7401,47 +7401,218 @@ function doGachaPull(pool, count) {
     setTimeout(function() { _gachaAnimating = false; }, 800);
 }
 
-function showGachaResult(results, pool) {
-    var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
-    var tierGlow = { S: '0 0 20px #FFD700,0 0 40px rgba(255,215,0,0.3)', A: '0 0 15px #4CD964', B: '0 0 10px #5BB8E8', C: 'none' };
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'gacha\')">‹ 返回</div><div class="page-title">抽卡结果</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:20px;">';
+var _gachaCSSInjected = false;
+function _injectGachaCSS() {
+    if (_gachaCSSInjected) return;
+    _gachaCSSInjected = true;
+    var style = document.createElement('style');
+    style.textContent = ''
+        + '@keyframes gachaGoldBurst{0%{transform:scale(0);opacity:1}50%{transform:scale(3);opacity:0.8}100%{transform:scale(5);opacity:0}}'
+        + '@keyframes gachaCardSIntro{0%{transform:scale(0) rotateY(180deg);opacity:0}60%{transform:scale(1.15) rotateY(0);opacity:1}80%{transform:scale(0.95)}100%{transform:scale(1)}}'
+        + '@keyframes gachaCardAIntro{0%{transform:scale(0.5) rotateY(90deg);opacity:0}70%{transform:scale(1.05) rotateY(0);opacity:1}100%{transform:scale(1)}}'
+        + '@keyframes gachaCardBCIntro{0%{transform:scale(0.8);opacity:0}100%{transform:scale(1);opacity:1}}'
+        + '@keyframes gachaShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}'
+        + '@keyframes gachaFloatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) scale(0.5);opacity:0}}'
+        + '@keyframes gachaPulse{0%,100%{box-shadow:0 0 15px rgba(255,215,0,0.6),0 0 30px rgba(255,215,0,0.3)}50%{box-shadow:0 0 25px rgba(255,215,0,0.9),0 0 50px rgba(255,215,0,0.5)}}'
+        + '@keyframes gachaTenReveal{0%{transform:scale(0) rotate(15deg);opacity:0}60%{transform:scale(1.1) rotate(-3deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}'
+        + '@keyframes gachaScreenFlash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}'
+        + '@keyframes gachaParticleFly{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--px),var(--py)) scale(0);opacity:0}}'
+        + '.gacha-overlay{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column}'
+        + '.gacha-burst-ring{position:absolute;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(255,215,0,0.9),rgba(255,165,0,0.5),transparent);animation:gachaGoldBurst 0.8s ease-out forwards}'
+        + '.gacha-screen-flash{position:fixed;top:0;left:0;width:100%;height:100%;background:white;animation:gachaScreenFlash 0.5s ease-out forwards;z-index:9998}'
+        + '.gacha-particle{position:absolute;width:6px;height:6px;border-radius:50%;animation:gachaParticleFly 1s ease-out forwards}';
+    document.head.appendChild(style);
+}
 
-    if (results.length === 1) {
+function _showGachaParticleBurst(container, color, count) {
+    for (var i = 0; i < count; i++) {
+        var p = document.createElement('div');
+        p.className = 'gacha-particle';
+        var angle = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.5;
+        var dist = 60 + Math.random() * 80;
+        p.style.cssText = 'background:' + color + ';left:50%;top:50%;--px:' + Math.cos(angle) * dist + 'px;--py:' + Math.sin(angle) * dist + 'px;animation-delay:' + (Math.random() * 0.3) + 's;';
+        container.appendChild(p);
+        (function(el) { setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 1500); })(p);
+    }
+}
+
+function showGachaResult(results, pool) {
+    _injectGachaCSS();
+    var tierColors = { S: '#FFD700', A: '#C77DFF', B: '#5BB8E8', C: '#888' };
+    var tierBg = {
+        S: 'linear-gradient(135deg,#FFD700,#FF8C00,#FFD700)',
+        A: 'linear-gradient(135deg,#C77DFF,#9B5DE5,#C77DFF)',
+        B: 'linear-gradient(135deg,#5BB8E8,#4A90D9,#5BB8E8)',
+        C: 'linear-gradient(135deg,#888,#666,#888)'
+    };
+    var tierBorder = { S: '3px solid #FFD700', A: '2px solid #C77DFF', B: '1px solid #5BB8E8', C: '1px solid #555' };
+    var highestTier = 'C';
+    for (var hi = 0; hi < results.length; hi++) {
+        var ht = results[hi].cardTier || results[hi].tier;
+        if (ht === 'S') { highestTier = 'S'; break; }
+        if (ht === 'A' && highestTier !== 'S') highestTier = 'A';
+        if (ht === 'B' && highestTier === 'C') highestTier = 'B';
+    }
+
+    var isSingle = (results.length === 1);
+    var app = document.getElementById('app');
+    if (!app) return;
+
+    if (highestTier === 'S') {
+        var overlay = document.createElement('div');
+        overlay.className = 'gacha-overlay';
+        overlay.style.background = 'rgba(0,0,0,0.95)';
+        overlay.innerHTML = '<div id="gacha-burst" style="position:relative;"></div><div id="gacha-s-card" style="display:none;margin-top:20px;"></div>';
+        app.innerHTML = '';
+        app.appendChild(overlay);
+
+        var flash = document.createElement('div');
+        flash.className = 'gacha-screen-flash';
+        app.appendChild(flash);
+        setTimeout(function() { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 600);
+
+        setTimeout(function() {
+            var burst = document.getElementById('gacha-burst');
+            if (burst) {
+                var ring = document.createElement('div');
+                ring.className = 'gacha-burst-ring';
+                burst.appendChild(ring);
+                _showGachaParticleBurst(burst, '#FFD700', 20);
+                _showGachaParticleBurst(burst, '#FF8C00', 12);
+            }
+        }, 200);
+
+        setTimeout(function() {
+            var cardArea = document.getElementById('gacha-s-card');
+            if (!cardArea) return;
+            cardArea.style.display = 'flex';
+            cardArea.style.flexDirection = 'column';
+            cardArea.style.alignItems = 'center';
+            if (isSingle) {
+                var c = results[0];
+                var t = c.cardTier || c.tier;
+                cardArea.innerHTML = _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, true);
+            } else {
+                var html = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:320px;">';
+                for (var i = 0; i < results.length; i++) {
+                    var c = results[i];
+                    var t = c.cardTier || c.tier;
+                    html += _buildMiniCardHTML(c, t, tierColors, tierBg, tierBorder, i);
+                }
+                html += '</div>';
+                cardArea.innerHTML = html;
+            }
+            var cardEl = cardArea.querySelector('.gacha-card-el');
+            if (cardEl) {
+                cardEl.style.animation = 'gachaCardSIntro 0.7s ease-out forwards';
+            }
+            var miniCards = cardArea.querySelectorAll('.gacha-mini-el');
+            for (var mi = 0; mi < miniCards.length; mi++) {
+                miniCards[mi].style.animation = 'gachaTenReveal 0.4s ease-out ' + (mi * 0.08) + 's forwards';
+                miniCards[mi].style.opacity = '0';
+            }
+        }, 800);
+
+        setTimeout(function() {
+            var btnArea = document.createElement('div');
+            btnArea.style.cssText = 'position:fixed;bottom:60px;left:0;width:100%;text-align:center;z-index:10000;';
+            btnArea.innerHTML = '<button class="btn btn-primary btn-lg" style="width:80%;max-width:280px;" onclick="goToPage(\'gacha\')">继续抽卡</button>';
+            app.appendChild(btnArea);
+        }, 1200);
+        return;
+    }
+
+    if (highestTier === 'A') {
+        var overlay = document.createElement('div');
+        overlay.className = 'gacha-overlay';
+        overlay.style.background = 'rgba(20,10,40,0.92)';
+        var cardArea = document.createElement('div');
+        cardArea.id = 'gacha-a-card';
+        cardArea.style.cssText = 'display:flex;flex-direction:column;align-items:center;';
+        overlay.appendChild(cardArea);
+        app.innerHTML = '';
+        app.appendChild(overlay);
+        _showGachaParticleBurst(overlay, '#C77DFF', 10);
+
+        if (isSingle) {
+            var c = results[0];
+            var t = c.cardTier || c.tier;
+            cardArea.innerHTML = _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, true);
+        } else {
+            var html = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:320px;">';
+            for (var i = 0; i < results.length; i++) {
+                var c = results[i];
+                var t = c.cardTier || c.tier;
+                html += _buildMiniCardHTML(c, t, tierColors, tierBg, tierBorder, i);
+            }
+            html += '</div>';
+            cardArea.innerHTML = html;
+        }
+        var cardEl = cardArea.querySelector('.gacha-card-el');
+        if (cardEl) cardEl.style.animation = 'gachaCardAIntro 0.6s ease-out forwards';
+        var miniCards = cardArea.querySelectorAll('.gacha-mini-el');
+        for (var mi = 0; mi < miniCards.length; mi++) {
+            miniCards[mi].style.animation = 'gachaTenReveal 0.35s ease-out ' + (mi * 0.07) + 's forwards';
+            miniCards[mi].style.opacity = '0';
+        }
+        setTimeout(function() {
+            var btnArea = document.createElement('div');
+            btnArea.style.cssText = 'position:fixed;bottom:60px;left:0;width:100%;text-align:center;z-index:10000;';
+            btnArea.innerHTML = '<button class="btn btn-primary btn-lg" style="width:80%;max-width:280px;" onclick="goToPage(\'gacha\')">继续抽卡</button>';
+            app.appendChild(btnArea);
+        }, 600);
+        return;
+    }
+
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'gacha\')">‹ 返回</div><div class="page-title">抽卡结果</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:20px;">';
+    if (isSingle) {
         var c = results[0];
         var t = c.cardTier || c.tier;
-        var animClass = t === 'S' ? 'gacha-card-s' : t === 'A' ? 'gacha-card-a' : 'gacha-card-anim';
-        var shimmerOverlay = (t === 'S' || t === 'A') ? '<div class="gacha-shimmer" style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:16px;"></div>' : '';
-        html += '<div class="' + animClass + '" style="margin:0 auto;width:160px;height:210px;border-radius:16px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;">'
-            + shimmerOverlay
-            + '<div style="font-size:40px;font-weight:700;">' + c.name.charAt(0) + '</div>'
-            + '<div style="font-size:14px;font-weight:600;margin-top:4px;">' + t + '级</div>'
-            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px;">' + c.group + '</div>'
-            + (c.isDuplicate ? '<div style="font-size:11px;margin-top:6px;opacity:0.9;">碎片+1</div>' : '<div style="font-size:11px;margin-top:6px;opacity:0.9;">NEW!</div>')
-            + '</div>'
-            + '<div style="font-weight:700;font-size:16px;margin-top:16px;">' + c.name + '</div>'
-            + '<div style="font-size:13px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + c.company + ' / ' + c.group + '</div>';
+        html += _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, false);
     } else {
-        html += '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:16px 0;">';
+        html += '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;padding:16px 0;">';
         for (var i = 0; i < results.length; i++) {
             var c = results[i];
             var t = c.cardTier || c.tier;
-            var isS = (t === 'S');
-            var animClass = isS ? 'gacha-card-s' : t === 'A' ? 'gacha-card-a' : 'gacha-card-anim';
-            var delay = (i * 0.1) + 's';
-            html += '<div class="' + animClass + '" style="width:58px;height:76px;border-radius:10px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);' + (isS ? 'box-shadow:' + tierGlow.S + ';' : '') + 'display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;animation-delay:' + delay + ';opacity:0;">'
-                + '<div style="font-size:16px;font-weight:700;">' + c.name.charAt(0) + '</div>'
-                + '<div style="font-size:9px;">' + t + '</div>'
-                + (c.isDuplicate ? '<div style="position:absolute;top:2px;right:4px;font-size:7px;opacity:0.8;">+1</div>' : '')
-                + '</div>';
+            html += _buildMiniCardHTML(c, t, tierColors, tierBg, tierBorder, i);
         }
         html += '</div>';
     }
+    html += '<button class="btn btn-primary btn-lg" style="margin-top:24px;width:80%;" onclick="goToPage(\'gacha\')">继续抽卡</button></div></div>';
+    app.innerHTML = html;
+    var miniCards = app.querySelectorAll('.gacha-mini-el');
+    for (var mi = 0; mi < miniCards.length; mi++) {
+        miniCards[mi].style.animation = 'gachaCardBCIntro 0.3s ease-out ' + (mi * 0.06) + 's forwards';
+        miniCards[mi].style.opacity = '0';
+    }
+}
 
-    html += '<button class="btn btn-primary btn-lg" style="margin-top:24px;width:80%;" onclick="goToPage(\'gacha\')">继续抽卡</button>'
-        + '</div></div>';
+function _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, isDramatic) {
+    var tierLabel = { S: 'S  LEGENDARY', A: 'A  EPIC', B: 'B  RARE', C: 'C  NORMAL' };
+    var animClass = isDramatic ? 'gacha-card-el' : 'gacha-card-el';
+    var glowShadow = t === 'S' ? 'animation:gachaPulse 2s infinite;' : t === 'A' ? 'box-shadow:0 0 20px rgba(199,125,255,0.5);' : '';
+    var shimmerBg = (t === 'S' || t === 'A') ? 'background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;animation:gachaShimmer 2s infinite;' : '';
+    return '<div class="' + animClass + '" style="width:170px;height:230px;border-radius:16px;background:' + tierBg[t] + ';border:' + tierBorder[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;' + glowShadow + '">'
+        + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:16px;' + shimmerBg + '"></div>'
+        + '<div style="position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;">' + (tierLabel[t] || t) + '</div>'
+        + '<div style="font-size:44px;font-weight:700;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,0.3);">' + c.name.charAt(0) + '</div>'
+        + '<div style="font-size:14px;font-weight:600;margin-top:6px;z-index:1;">' + c.name + '</div>'
+        + '<div style="font-size:11px;opacity:0.8;margin-top:2px;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">' + c.group + '</div>'
+        + (c.isDuplicate ? '<div style="font-size:11px;margin-top:8px;opacity:0.9;z-index:1;background:rgba(0,0,0,0.3);padding:2px 8px;border-radius:8px;">碎片+1</div>' : '<div style="font-size:11px;margin-top:8px;opacity:0.9;z-index:1;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:8px;">NEW!</div>')
+        + '</div>'
+        + '<div style="font-weight:700;font-size:16px;margin-top:12px;color:white;">' + c.name + '</div>'
+        + '<div style="font-size:13px;opacity:0.7;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + c.company + ' / ' + c.group + '</div>';
+}
 
-    var app = document.getElementById('app');
-    if (app) app.innerHTML = html;
+function _buildMiniCardHTML(c, t, tierColors, tierBg, tierBorder, index) {
+    var glowShadow = t === 'S' ? 'animation:gachaPulse 2s infinite;' : t === 'A' ? 'box-shadow:0 0 12px rgba(199,125,255,0.5);' : '';
+    var shimmerBg = (t === 'S' || t === 'A') ? 'background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);background-size:200% 100%;animation:gachaShimmer 2s infinite;' : '';
+    return '<div class="gacha-mini-el" style="width:62px;height:82px;border-radius:10px;background:' + tierBg[t] + ';border:' + tierBorder[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;' + glowShadow + 'opacity:0;">'
+        + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;' + shimmerBg + '"></div>'
+        + '<div style="font-size:16px;font-weight:700;z-index:1;">' + c.name.charAt(0) + '</div>'
+        + '<div style="font-size:9px;z-index:1;">' + t + '</div>'
+        + (c.isDuplicate ? '<div style="position:absolute;top:2px;right:4px;font-size:7px;opacity:0.8;z-index:1;">+1</div>' : '<div style="position:absolute;top:2px;left:4px;font-size:7px;opacity:0.8;z-index:1;">NEW</div>')
+        + '</div>';
 }
 
 // ==================== SIMPLE NPC REPLY ====================
