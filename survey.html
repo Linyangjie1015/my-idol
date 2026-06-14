@@ -365,7 +365,8 @@ document.getElementById('rt').textContent=r;
 document.getElementById('rb').style.display='block';
 document.getElementById('sbtn').style.display='none';
 document.getElementById('rb').scrollIntoView({behavior:'smooth'});
-try{localStorage.setItem('myidol_survey',JSON.stringify(A));}catch(e){}
+try{localStorage.setItem("myidol_survey",JSON.stringify(A));}catch(e){}
+try{var fd=new FormData();for(var k in A){if(A.hasOwnProperty(k)){fd.append(k,typeof A[k]==="object"?A[k].join(","):A[k]);}}fetch("https://my-idol-api.vercel.app/api/survey-submit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(A)}).catch(function(){});}catch(e3){}
 }
 
 function cp(){
