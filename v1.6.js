@@ -21,60 +21,65 @@ var COMPANIES = {
                 desc: "曙光纯白治愈团，以温暖治愈风格著称",
                 tier: "S",
                 members: [
-                    { name: "Kim Siwon(김시원)", personality: ["认真", "自信", "上进"], position: "Leader" },
-                    { name: "Choi Naeun(최나은)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal" },
-                    { name: "Park Jiwoo(박지우)", personality: ["开朗", "幽默", "热情"], position: "Main Dancer" },
-                    { name: "Lee Hyunjin(이현진)", personality: ["冷静", "认真", "上进"], position: "Lead Vocal" },
-                    { name: "Jung Seoha(정서하)", personality: ["温柔", "冷静", "认真"], position: "Maknae" }
-                ]
+                    { name: "金始源(Kim Siwon)", personality: ["认真", "自信", "上进"], position: "Leader" },
+                    { name: "崔娜恩(Choi Naeun)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal" },
+                    { name: "朴智宇(Park Jiwoo)", personality: ["开朗", "幽默", "热情"], position: "Main Dancer" },
+                    { name: "李贤珍(Lee Hyunjin)", personality: ["冷静", "认真", "上进"], position: "Lead Vocal" },
+                    { name: "郑瑞夏(Jung Seoha)", personality: ["温柔", "冷静", "认真"], position: "Maknae" }
+                ,
+                    { name: "洪秀贤(Hong Soohyun)", personality: ["温柔", "认真"], position: "Sub Vocal" }]
             },
             "Nuriwave": {
                 name: "Nuriwave（누리웨이브）未来赛博舞台团",
                 desc: "未来赛博舞台团，先锋大胆的舞台创意",
                 tier: "S",
                 members: [
-                    { name: "Kang Junghoon(강정훈)", personality: ["自信", "上进", "热情"], position: "Leader" },
-                    { name: "Han Yujin(한유진)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
-                    { name: "Moon Chaewon(문채원)", personality: ["自信", "幽默", "热情"], position: "Main Dancer" },
-                    { name: "Bae Seongah(배성아)", personality: ["开朗", "幽默", "自信"], position: "Main Vocal" },
-                    { name: "Ahn Minwoo(안민우)", personality: ["温柔", "认真", "上进"], position: "Maknae" }
-                ]
+                    { name: "姜正勋(Kang Junghoon)", personality: ["自信", "上进", "热情"], position: "Leader" },
+                    { name: "韩有珍(Han Yujin)", personality: ["冷静", "认真", "上进"], position: "Main Rapper" },
+                    { name: "文采媛(Moon Chaewon)", personality: ["自信", "幽默", "热情"], position: "Main Dancer" },
+                    { name: "裴成雅(Bae Seongah)", personality: ["开朗", "幽默", "自信"], position: "Main Vocal" },
+                    { name: "安敏宇(Ahn Minwoo)", personality: ["温柔", "认真", "上进"], position: "Maknae" }
+                ,
+                    { name: "刘泰民(Yoo Taemin)", personality: ["自信", "上进"], position: "Main Dancer" }]
             },
             "Saeunlyric": {
                 name: "Saeunlyric（새은리릭）清吟抒情主唱团",
                 desc: "清吟抒情主唱团，以感性深情歌声著称",
                 tier: "A",
                 members: [
-                    { name: "Im Woojin(임우진)", personality: ["温柔", "自信", "上进"], position: "Leader" },
-                    { name: "Yoo Minjae(유민재)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
-                    { name: "Cha Heewon(차희원)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer" },
-                    { name: "Shin Yuna(신유나)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
-                    { name: "Oh Seungtae(오승태)", personality: ["温柔", "冷静", "认真"], position: "Maknae" }
-                ]
+                    { name: "林宇珍(Im Woojin)", personality: ["温柔", "自信", "上进"], position: "Leader" },
+                    { name: "刘敏宰(Yoo Minjae)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
+                    { name: "车希媛(Cha Heewon)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer" },
+                    { name: "申柔娜(Shin Yuna)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "吴承泰(Oh Seungtae)", personality: ["温柔", "冷静", "认真"], position: "Maknae" }
+                ,
+                    { name: "韩艺琳(Han Yerin)", personality: ["开朗", "温柔"], position: "Lead Vocal" }]
             },
             "Gaeulvibe": {
                 name: "Gaeulvibe（가을바이브）秋日复古清新团",
                 desc: "秋日复古清新团，阳光友善路人好感极高",
                 tier: "A",
                 members: [
-                    { name: "Jeong Dabin(정다빈)", personality: ["开朗", "热情", "温柔"], position: "Leader" },
-                    { name: "Song Hanbyul(송한별)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
-                    { name: "Nam Jiho(남지호)", personality: ["自信", "开朗", "上进"], position: "Main Rapper" },
-                    { name: "Go Eunji(고은지)", personality: ["温柔", "认真", "冷静"], position: "Main Dancer" },
-                    { name: "Hwang Chawon(황차원)", personality: ["冷静", "自信", "认真"], position: "Maknae" }
-                ]
+                    { name: "郑多彬(Jeong Dabin)", personality: ["开朗", "热情", "温柔"], position: "Leader" },
+                    { name: "宋韩星(Song Hanbyul)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
+                    { name: "南智浩(Nam Jiho)", personality: ["自信", "开朗", "上进"], position: "Main Rapper" },
+                    { name: "高恩智(Go Eunji)", personality: ["温柔", "认真", "冷静"], position: "Main Dancer" },
+                    { name: "黄茶媛(Hwang Chawon)", personality: ["冷静", "自信", "认真"], position: "Maknae" }
+                ,
+                    { name: "徐道允(Seo Doyun)", personality: ["幽默", "冷静"], position: "Sub Rapper" }]
             },
             "Star Apex": {
                 name: "Star Apex（스타에이펙스）星巅全能王牌团",
                 desc: "星巅全能王牌团，强力队长与顶尖实力",
                 tier: "S",
                 members: [
-                    { name: "Lee Seungwoo(이승우)", personality: ["上进", "自信", "认真"], position: "Leader" },
-                    { name: "Kim Soojin(김수진)", personality: ["自信", "冷静", "开朗"], position: "Main Vocal" },
-                    { name: "Park Hyunho(박현호)", personality: ["上进", "自信", "热情"], position: "Main Rapper" },
-                    { name: "Choi Yoonsung(최윤성)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Kang Saeha(강세하)", personality: ["开朗", "温柔", "冷静"], position: "Maknae" }
-                ]
+                    { name: "李承宇(Lee Seungwoo)", personality: ["上进", "自信", "认真"], position: "Leader" },
+                    { name: "金秀珍(Kim Soojin)", personality: ["自信", "冷静", "开朗"], position: "Main Vocal" },
+                    { name: "朴贤浩(Park Hyunho)", personality: ["上进", "自信", "热情"], position: "Main Rapper" },
+                    { name: "崔允成(Choi Yoonsung)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "姜世夏(Kang Saeha)", personality: ["开朗", "温柔", "冷静"], position: "Maknae" }
+                ,
+                    { name: "申惠珍(Shin Hyejin)", personality: ["上进", "自信"], position: "Main Vocal" }]
             }
         }
     },
@@ -88,60 +93,65 @@ var COMPANIES = {
                 desc: "不羁黑泡王牌团，霸气领袖与创作极强",
                 tier: "S",
                 members: [
-                    { name: "Jang Taewoo(장태우)", personality: ["自信", "上进", "热情"], position: "Leader" },
-                    { name: "Ryu Hajun(류하준)", personality: ["冷静", "自信", "上进"], position: "Main Rapper" },
-                    { name: "Seo Junho(서준호)", personality: ["热情", "自信", "认真"], position: "Main Dancer" },
-                    { name: "Won Wooyoung(원우영)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jeon Daehyun(전대현)", personality: ["开朗", "幽默", "热情"], position: "Maknae" }
-                ]
+                    { name: "张太宇(Jang Taewoo)", personality: ["自信", "上进", "热情"], position: "Leader" },
+                    { name: "柳夏俊(Ryu Hajun)", personality: ["冷静", "自信", "上进"], position: "Main Rapper" },
+                    { name: "徐俊浩(Seo Junho)", personality: ["热情", "自信", "认真"], position: "Main Dancer" },
+                    { name: "元宇英(Won Wooyoung)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "田大贤(Jeon Daehyun)", personality: ["开朗", "幽默", "热情"], position: "Maknae" }
+                ,
+                    { name: "朴瑞俊(Park Seojun)", personality: ["热情", "认真"], position: "Lead Rapper" }]
             },
             "Black Luna": {
                 name: "Black Luna（블랙루나）暗夜高级氛围团",
                 desc: "暗夜高级氛围团，冷艳疏离高级氛围",
                 tier: "S",
                 members: [
-                    { name: "Kim Nari(김나리)", personality: ["自信", "冷静", "上进"], position: "Leader" },
-                    { name: "Yoon Sejin(윤세진)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
-                    { name: "Hong Jiyeon(홍지연)", personality: ["热情", "自信", "开朗"], position: "Main Rapper" },
-                    { name: "Lim Soeun(임소은)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer" },
-                    { name: "Chae Yujin(채유진)", personality: ["自信", "上进", "认真"], position: "Maknae" }
-                ]
+                    { name: "金娜里(Kim Nari)", personality: ["自信", "冷静", "上进"], position: "Leader" },
+                    { name: "尹世珍(Yoon Sejin)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
+                    { name: "洪智延(Hong Jiyeon)", personality: ["热情", "自信", "开朗"], position: "Main Rapper" },
+                    { name: "林昭恩(Lim Soeun)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer" },
+                    { name: "采有珍(Chae Yujin)", personality: ["自信", "上进", "认真"], position: "Maknae" }
+                ,
+                    { name: "崔恩雅(Choi Euna)", personality: ["冷静", "自信"], position: "Sub Vocal" }]
             },
             "Artist Moon": {
                 name: "Artist Moon（아티스트문）月光全员创作团",
                 desc: "月光全员创作团，文艺浪漫灵感充沛",
                 tier: "A",
                 members: [
-                    { name: "Moon Junhee(문준희)", personality: ["开朗", "自信", "上进"], position: "Leader" },
-                    { name: "Kwon Minjae(권민재)", personality: ["认真", "上进", "冷静"], position: "Main Vocal" },
-                    { name: "Oh Taekyung(오태경)", personality: ["开朗", "幽默", "自信"], position: "Main Rapper" },
-                    { name: "Lee Siyeon(이시연)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer" },
-                    { name: "Park Hyewon(박혜원)", personality: ["温柔", "开朗", "冷静"], position: "Maknae" }
-                ]
+                    { name: "文俊熙(Moon Junhee)", personality: ["开朗", "自信", "上进"], position: "Leader" },
+                    { name: "权限宰(Kwon Minjae)", personality: ["认真", "上进", "冷静"], position: "Main Vocal" },
+                    { name: "吴泰京(Oh Taekyung)", personality: ["开朗", "幽默", "自信"], position: "Main Rapper" },
+                    { name: "李诗妍(Lee Siyeon)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer" },
+                    { name: "朴惠媛(Park Hyewon)", personality: ["温柔", "开朗", "冷静"], position: "Maknae" }
+                ,
+                    { name: "金秀彬(Kim Soobin)", personality: ["温柔", "开朗"], position: "Visual" }]
             },
             "Cloud Echo": {
                 name: "Cloud Echo（클라우드에코）云雾治愈抒情团",
                 desc: "云雾治愈抒情团，温柔绵软治愈音色",
                 tier: "A",
                 members: [
-                    { name: "Jung Eunha(정은하)", personality: ["温柔", "开朗", "热情"], position: "Leader" },
-                    { name: "Son Jaeah(손재아)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Bum Seokmin(범석민)", personality: ["开朗", "温柔", "热情"], position: "Main Dancer" },
-                    { name: "Yoo Chaeun(유채은)", personality: ["认真", "温柔", "冷静"], position: "Lead Vocal" },
-                    { name: "Ahn Seungyeop(안승엽)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
+                    { name: "郑银河(Jung Eunha)", personality: ["温柔", "开朗", "热情"], position: "Leader" },
+                    { name: "孙宰雅(Son Jaeah)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "范锡民(Bum Seokmin)", personality: ["开朗", "温柔", "热情"], position: "Main Dancer" },
+                    { name: "刘彩恩(Yoo Chaeun)", personality: ["认真", "温柔", "冷静"], position: "Lead Vocal" },
+                    { name: "安承烨(Ahn Seungyeop)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
+                ,
+                    { name: "李多顺(Lee Dasun)", personality: ["认真", "上进"], position: "Sub Vocal" }]
             },
             "Odd Muse": {
                 name: "Odd Muse（오드뮤즈）小众艺术概念团",
                 desc: "小众艺术概念团，特立独行审美超前",
                 tier: "A",
                 members: [
-                    { name: "Lee Taemin(이태민)", personality: ["自信", "上进", "开朗"], position: "Leader" },
-                    { name: "Choi Kyujin(최규진)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Jung Daeun(정다은)", personality: ["开朗", "温柔", "热情"], position: "Main Vocal" },
-                    { name: "Nam Kihyun(남기현)", personality: ["认真", "上进", "自信"], position: "Main Rapper" },
-                    { name: "Kim Jaewoon(김재운)", personality: ["冷静", "认真", "温柔"], position: "Maknae" }
-                ]
+                    { name: "李泰民(Lee Taemin)", personality: ["自信", "上进", "开朗"], position: "Leader" },
+                    { name: "崔圭珍(Choi Kyujin)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "郑多恩(Jung Daeun)", personality: ["开朗", "温柔", "热情"], position: "Main Vocal" },
+                    { name: "南基贤(Nam Kihyun)", personality: ["认真", "上进", "自信"], position: "Main Rapper" },
+                    { name: "金宰运(Kim Jaewoon)", personality: ["冷静", "认真", "温柔"], position: "Maknae" }
+                ,
+                    { name: "郑彩润(Jung Chaeyun)", personality: ["幽默", "自信"], position: "Main Dancer" }]
             }
         }
     },
@@ -155,60 +165,65 @@ var COMPANIES = {
                 desc: "晴空元气王牌团，阳光亲和感染力满格",
                 tier: "S",
                 members: [
-                    { name: "Kim Heesun(김희선)", personality: ["开朗", "热情", "自信"], position: "Leader" },
-                    { name: "Park Dohyun(박도현)", personality: ["认真", "温柔", "上进"], position: "Main Vocal" },
-                    { name: "Yoo Kwangmin(유광민)", personality: ["开朗", "幽默", "热情"], position: "Main Rapper" },
-                    { name: "Shin Yeonwoo(신연우)", personality: ["温柔", "冷静", "认真"], position: "Main Dancer" },
-                    { name: "Han Seungah(한승아)", personality: ["温柔", "开朗", "冷静"], position: "Maknae" }
-                ]
+                    { name: "金熙仙(Kim Heesun)", personality: ["开朗", "热情", "自信"], position: "Leader" },
+                    { name: "朴都贤(Park Dohyun)", personality: ["认真", "温柔", "上进"], position: "Main Vocal" },
+                    { name: "刘光民(Yoo Kwangmin)", personality: ["开朗", "幽默", "热情"], position: "Main Rapper" },
+                    { name: "申延宇(Shin Yeonwoo)", personality: ["温柔", "冷静", "认真"], position: "Main Dancer" },
+                    { name: "韩承雅(Han Seungah)", personality: ["温柔", "开朗", "冷静"], position: "Maknae" }
+                ,
+                    { name: "韩俊书(Han Junseo)", personality: ["热情", "上进"], position: "Lead Vocal" }]
             },
             "Melody Pitch": {
                 name: "Melody Pitch（멜로디피치）和声主唱团",
                 desc: "和声主唱团，稳重大气零失误唱功",
                 tier: "A",
                 members: [
-                    { name: "Im Jaehyun(임재현)", personality: ["认真", "自信", "上进"], position: "Leader" },
-                    { name: "Jung Soomin(정수민)", personality: ["自信", "开朗", "热情"], position: "Main Vocal" },
-                    { name: "Choi Woojin(최우진)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Moon Seoeun(문서은)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
-                    { name: "Bae Jinwoo(배진우)", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
-                ]
+                    { name: "林在贤(Im Jaehyun)", personality: ["认真", "自信", "上进"], position: "Leader" },
+                    { name: "郑秀民(Jung Soomin)", personality: ["自信", "开朗", "热情"], position: "Main Vocal" },
+                    { name: "崔宇珍(Choi Woojin)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "文瑞恩(Moon Seoeun)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "裴镇宇(Bae Jinwoo)", personality: ["温柔", "开朗", "热情"], position: "Maknae" }
+                ,
+                    { name: "申敏浩(Shin Minho)", personality: ["冷静", "认真"], position: "Main Rapper" }]
             },
             "Beat Motion": {
                 name: "Beat Motion（비트모션）刀群舞蹈团",
                 desc: "刀群舞蹈团，自律带队舞蹈天花板",
                 tier: "A",
                 members: [
-                    { name: "Kang Hyuntae(강현태)", personality: ["上进", "认真", "自信"], position: "Leader" },
-                    { name: "Oh Junghyun(오정현)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
-                    { name: "Nam Youngho(남영호)", personality: ["开朗", "热情", "上进"], position: "Main Rapper" },
-                    { name: "Son Jihoon(손지훈)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal" },
-                    { name: "Lee Chanwoo(이찬우)", personality: ["温柔", "开朗", "认真"], position: "Maknae" }
-                ]
+                    { name: "姜贤泰(Kang Hyuntae)", personality: ["上进", "认真", "自信"], position: "Leader" },
+                    { name: "吴正贤(Oh Junghyun)", personality: ["冷静", "认真", "上进"], position: "Main Dancer" },
+                    { name: "南永浩(Nam Youngho)", personality: ["开朗", "热情", "上进"], position: "Main Rapper" },
+                    { name: "孙智勋(Son Jihoon)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal" },
+                    { name: "李灿宇(Lee Chanwoo)", personality: ["温柔", "开朗", "认真"], position: "Maknae" }
+                ,
+                    { name: "金夏妍(Kim Hayeon)", personality: ["开朗", "自信"], position: "Sub Dancer" }]
             },
             "Warm Horizon": {
                 name: "Warm Horizon（웜호라이즌）温柔治愈团",
                 desc: "温柔治愈团，恬静温柔治愈气质",
                 tier: "A",
                 members: [
-                    { name: "Chae Sooyun(채수윤)", personality: ["温柔", "冷静", "认真"], position: "Leader" },
-                    { name: "Yoon Jihae(윤지혜)", personality: ["温柔", "开朗", "认真"], position: "Main Vocal" },
-                    { name: "Park Sunwoo(박선우)", personality: ["开朗", "热情", "上进"], position: "Main Dancer" },
-                    { name: "Kim Hyerin(김혜린)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
-                    { name: "Jung Haein(정해인)", personality: ["冷静", "认真", "温柔"], position: "Maknae" }
-                ]
+                    { name: "采秀允(Chae Sooyun)", personality: ["温柔", "冷静", "认真"], position: "Leader" },
+                    { name: "尹智惠(Yoon Jihae)", personality: ["温柔", "开朗", "认真"], position: "Main Vocal" },
+                    { name: "朴宣宇(Park Sunwoo)", personality: ["开朗", "热情", "上进"], position: "Main Dancer" },
+                    { name: "金惠琳(Kim Hyerin)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "郑海仁(Jung Haein)", personality: ["冷静", "认真", "温柔"], position: "Maknae" }
+                ,
+                    { name: "朴智安(Park Jiah)", personality: ["温柔", "上进"], position: "Lead Vocal" }]
             },
             "Funky Glow": {
                 name: "Funky Glow（펑키글로우）综艺人气团",
                 desc: "综艺人气团，反应超快临场梗王",
                 tier: "S",
                 members: [
-                    { name: "Lee Kwangi(이광이)", personality: ["开朗", "幽默", "自信"], position: "Leader" },
-                    { name: "Choi Sungyul(최성열)", personality: ["开朗", "热情", "幽默"], position: "Main Rapper" },
-                    { name: "Yoo Taejin(유태진)", personality: ["冷静", "幽默", "认真"], position: "Main Vocal" },
-                    { name: "Won Jieun(원지은)", personality: ["热情", "温柔", "开朗"], position: "Main Dancer" },
-                    { name: "Bae Minjae(배민재)", personality: ["自信", "冷静", "认真"], position: "Maknae" }
-                ]
+                    { name: "李光翼(Lee Kwangi)", personality: ["开朗", "幽默", "自信"], position: "Leader" },
+                    { name: "崔成烈(Choi Sungyul)", personality: ["开朗", "热情", "幽默"], position: "Main Rapper" },
+                    { name: "刘泰珍(Yoo Taejin)", personality: ["冷静", "幽默", "认真"], position: "Main Vocal" },
+                    { name: "元智恩(Won Jieun)", personality: ["热情", "温柔", "开朗"], position: "Main Dancer" },
+                    { name: "裴敏宰(Bae Minjae)", personality: ["自信", "冷静", "认真"], position: "Maknae" }
+                ,
+                    { name: "崔敏赫(Choi Minhyuk)", personality: ["幽默", "开朗"], position: "Main Rapper" }]
             }
         }
     },
@@ -222,60 +237,65 @@ var COMPANIES = {
                 desc: "全球顶级概念王牌团，格局大抗压极强",
                 tier: "S",
                 members: [
-                    { name: "Jeon Seokjin(전석진)", personality: ["上进", "自信", "认真"], position: "Leader" },
-                    { name: "Kim Jihoon(김지훈)", personality: ["上进", "自信", "热情"], position: "Main Rapper" },
-                    { name: "Park Heeyoung(박희영)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Jung Taekyun(정택균)", personality: ["开朗", "自信", "幽默"], position: "Main Dancer" },
-                    { name: "Kang Yuna(강유나)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
+                    { name: "田锡珍(Jeon Seokjin)", personality: ["上进", "自信", "认真"], position: "Leader" },
+                    { name: "金智勋(Kim Jihoon)", personality: ["上进", "自信", "热情"], position: "Main Rapper" },
+                    { name: "朴熙英(Park Heeyoung)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "郑泽均(Jung Taekyun)", personality: ["开朗", "自信", "幽默"], position: "Main Dancer" },
+                    { name: "姜柔娜(Kang Yuna)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
+                ,
+                    { name: "郑浩镇(Jung Hojin)", personality: ["认真", "上进"], position: "Sub Vocal" }]
             },
             "Teen Nova": {
                 name: "Teen Nova（틴노바）少年养成成长团",
                 desc: "少年养成成长团，青涩上进拼命努力",
                 tier: "A",
                 members: [
-                    { name: "Choi Sunwoo(최선우)", personality: ["上进", "认真", "热情"], position: "Leader" },
-                    { name: "Lee Junghan(이정한)", personality: ["开朗", "热情", "温柔"], position: "Main Vocal" },
-                    { name: "Yoo Jihoon(유지훈)", personality: ["认真", "上进", "冷静"], position: "Main Dancer" },
-                    { name: "Song Daehyun(송대현)", personality: ["冷静", "温柔", "认真"], position: "Main Rapper" },
-                    { name: "Oh Seungjin(오승진)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
-                ]
+                    { name: "崔宣宇(Choi Sunwoo)", personality: ["上进", "认真", "热情"], position: "Leader" },
+                    { name: "李正汉(Lee Junghan)", personality: ["开朗", "热情", "温柔"], position: "Main Vocal" },
+                    { name: "刘智勋(Yoo Jihoon)", personality: ["认真", "上进", "冷静"], position: "Main Dancer" },
+                    { name: "宋大贤(Song Daehyun)", personality: ["冷静", "温柔", "认真"], position: "Main Rapper" },
+                    { name: "吴承镇(Oh Seungjin)", personality: ["认真", "上进", "冷静"], position: "Maknae" }
+                ,
+                    { name: "金素恩(Kim Soeun)", personality: ["开朗", "温柔"], position: "Sub Vocal" }]
             },
             "Crush Aura": {
                 name: "Crush Aura（크러쉬오라）炽飒Girl Crush团",
                 desc: "炽飒Girl Crush团，气场王者舞台统治力MAX",
                 tier: "S",
                 members: [
-                    { name: "Kim Chawon(김차원)", personality: ["自信", "上进", "热情"], position: "Leader" },
-                    { name: "Jung Seoyeon(정서연)", personality: ["自信", "热情", "上进"], position: "Main Dancer" },
-                    { name: "Hong Eunji(홍은지)", personality: ["热情", "温柔", "认真"], position: "Main Rapper" },
-                    { name: "Lim Nayeon(임나연)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
-                    { name: "Bae Soojin(배수진)", personality: ["开朗", "自信", "幽默"], position: "Maknae" }
-                ]
+                    { name: "金茶媛(Kim Chawon)", personality: ["自信", "上进", "热情"], position: "Leader" },
+                    { name: "郑瑞妍(Jung Seoyeon)", personality: ["自信", "热情", "上进"], position: "Main Dancer" },
+                    { name: "洪恩智(Hong Eunji)", personality: ["热情", "温柔", "认真"], position: "Main Rapper" },
+                    { name: "林娜延(Lim Nayeon)", personality: ["冷静", "认真", "上进"], position: "Main Vocal" },
+                    { name: "裴秀珍(Bae Soojin)", personality: ["开朗", "自信", "幽默"], position: "Maknae" }
+                ,
+                    { name: "李泰永(Lee Taeyoung)", personality: ["自信", "热情"], position: "Lead Dancer" }]
             },
             "Moon Lyric": {
                 name: "Moon Lyric（문리릭）月光叙事抒情团",
                 desc: "月光叙事抒情团，忧郁浪漫电影感歌声",
                 tier: "A",
                 members: [
-                    { name: "Park Woojin(박우진)", personality: ["温柔", "认真", "冷静"], position: "Leader" },
-                    { name: "Kim Seoha(김서하)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal" },
-                    { name: "Choi Jiwoo(최지우)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer" },
-                    { name: "Yoon Chaeun(윤채은)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
-                    { name: "Jung Hyunkyu(정현규)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
-                ]
+                    { name: "朴宇珍(Park Woojin)", personality: ["温柔", "认真", "冷静"], position: "Leader" },
+                    { name: "金瑞夏(Kim Seoha)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal" },
+                    { name: "崔智宇(Choi Jiwoo)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer" },
+                    { name: "尹彩恩(Yoon Chaeun)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal" },
+                    { name: "郑贤圭(Jung Hyunkyu)", personality: ["冷静", "认真", "上进"], position: "Maknae" }
+                ,
+                    { name: "姜书妍(Kang Seoyeon)", personality: ["温柔", "认真"], position: "Sub Vocal" }]
             },
             "Secret Verse": {
                 name: "Secret Verse（시크릿버스）悬疑小众概念团",
                 desc: "悬疑小众概念团，神秘内敛思维深邃",
                 tier: "A",
                 members: [
-                    { name: "Ahn Kyujin(안규진)", personality: ["冷静", "认真", "上进"], position: "Leader" },
-                    { name: "Son Taeyong(손태용)", personality: ["自信", "开朗", "上进"], position: "Main Dancer" },
-                    { name: "Lee Eunsoo(이은수)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal" },
-                    { name: "Nam Jaehyun(남재현)", personality: ["认真", "上进", "自信"], position: "Main Rapper" },
-                    { name: "Han Seungyeop(한승엽)", personality: ["冷静", "温柔", "开朗"], position: "Maknae" }
-                ]
+                    { name: "安圭珍(Ahn Kyujin)", personality: ["冷静", "认真", "上进"], position: "Leader" },
+                    { name: "孙泰容(Son Taeyong)", personality: ["自信", "开朗", "上进"], position: "Main Dancer" },
+                    { name: "李恩秀(Lee Eunsoo)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal" },
+                    { name: "南在贤(Nam Jaehyun)", personality: ["认真", "上进", "自信"], position: "Main Rapper" },
+                    { name: "韩承烨(Han Seungyeop)", personality: ["冷静", "温柔", "开朗"], position: "Maknae" }
+                ,
+                    { name: "申东贤(Shin Donghyun)", personality: ["冷静", "上进"], position: "Main Rapper" }]
             }
         }
     },
@@ -289,60 +309,65 @@ var COMPANIES = {
                 desc: "空寂星语王牌团，清冷文艺安静温柔",
                 tier: "A",
                 members: [
-                    { name: "Moon Junhee(문준희)", personality: ["冷静", "温柔", "认真"], position: "Leader" },
-                    { name: "Park Saeun(박사은)", personality: ["温柔", "认真", "开朗"], position: "Main Vocal" },
-                    { name: "Kim Taejin(김태진)", personality: ["上进", "开朗", "热情"], position: "Main Rapper" },
-                    { name: "Jung Jiwon(정지원)", personality: ["冷静", "自信", "认真"], position: "Main Dancer" },
-                    { name: "Choi Haerin(최해린)", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
-                ]
+                    { name: "文俊熙(Moon Junhee)", personality: ["冷静", "温柔", "认真"], position: "Leader" },
+                    { name: "朴思恩(Park Saeun)", personality: ["温柔", "认真", "开朗"], position: "Main Vocal" },
+                    { name: "金泰珍(Kim Taejin)", personality: ["上进", "开朗", "热情"], position: "Main Rapper" },
+                    { name: "郑智媛(Jung Jiwon)", personality: ["冷静", "自信", "认真"], position: "Main Dancer" },
+                    { name: "崔海琳(Choi Haerin)", personality: ["冷静", "温柔", "认真"], position: "Maknae" }
+                ,
+                    { name: "韩瑞琳(Han Serin)", personality: ["开朗", "温柔"], position: "Lead Vocal" }]
             },
             "Little Glow": {
                 name: "Little Glow（리틀글로우）微光元气小众团",
                 desc: "微光元气小众团，元气纯粹感染力超强",
                 tier: "B",
                 members: [
-                    { name: "Yoo Sooyeon(유수연)", personality: ["开朗", "热情", "温柔"], position: "Leader" },
-                    { name: "Bae Daehyun(배대현)", personality: ["认真", "上进", "冷静"], position: "Main Vocal" },
-                    { name: "Oh Chaejin(오채진)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer" },
-                    { name: "Son Hyewon(손혜원)", personality: ["温柔", "认真", "开朗"], position: "Lead Vocal" },
-                    { name: "Im Jiho(임지호)", personality: ["冷静", "开朗", "温柔"], position: "Maknae" }
-                ]
+                    { name: "刘秀妍(Yoo Sooyeon)", personality: ["开朗", "热情", "温柔"], position: "Leader" },
+                    { name: "裴大贤(Bae Daehyun)", personality: ["认真", "上进", "冷静"], position: "Main Vocal" },
+                    { name: "吴采珍(Oh Chaejin)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer" },
+                    { name: "孙惠媛(Son Hyewon)", personality: ["温柔", "认真", "开朗"], position: "Lead Vocal" },
+                    { name: "林智浩(Im Jiho)", personality: ["冷静", "开朗", "温柔"], position: "Maknae" }
+                ,
+                    { name: "林俊赫(Lim Junhyuk)", personality: ["热情", "上进"], position: "Sub Rapper" }]
             },
             "Wind Ballad": {
                 name: "Wind Ballad（윈드발라드）风吟治愈民谣团",
                 desc: "风吟治愈民谣团，温柔质朴治愈声线",
                 tier: "B",
                 members: [
-                    { name: "Chae Eunwoo(채은우)", personality: ["温柔", "冷静", "认真"], position: "Leader" },
-                    { name: "Song Jihan(송지한)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
-                    { name: "Kang Daeun(강다은)", personality: ["开朗", "温柔", "上进"], position: "Main Dancer" },
-                    { name: "Kim Seoyun(김서윤)", personality: ["温柔", "热情", "认真"], position: "Lead Vocal" },
-                    { name: "Park Hyunwoo(박현우)", personality: ["冷静", "温柔", "开朗"], position: "Maknae" }
-                ]
+                    { name: "采恩宇(Chae Eunwoo)", personality: ["温柔", "冷静", "认真"], position: "Leader" },
+                    { name: "宋智汉(Song Jihan)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
+                    { name: "姜多恩(Kang Daeun)", personality: ["开朗", "温柔", "上进"], position: "Main Dancer" },
+                    { name: "金瑞允(Kim Seoyun)", personality: ["温柔", "热情", "认真"], position: "Lead Vocal" },
+                    { name: "朴贤宇(Park Hyunwoo)", personality: ["冷静", "温柔", "开朗"], position: "Maknae" }
+                ,
+                    { name: "文恩菲(Moon Eunbi)", personality: ["温柔", "开朗"], position: "Sub Vocal" }]
             },
             "Wild Edge": {
                 name: "Wild Edge（와일드엣지）野锐摇滚个性团",
                 desc: "野锐摇滚个性团，桀骜自由热爱真我",
                 tier: "B",
                 members: [
-                    { name: "Jung Taewoo(정태우)", personality: ["自信", "热情", "上进"], position: "Leader" },
-                    { name: "Lee Kwangmin(이광민)", personality: ["自信", "开朗", "认真"], position: "Main Rapper" },
-                    { name: "Yoo Seungah(유승아)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
-                    { name: "Choi Minjae(최민재)", personality: ["认真", "上进", "冷静"], position: "Main Dancer" },
-                    { name: "Ahn Jinwoo(안진우)", personality: ["开朗", "冷静", "温柔"], position: "Maknae" }
-                ]
+                    { name: "郑太宇(Jung Taewoo)", personality: ["自信", "热情", "上进"], position: "Leader" },
+                    { name: "李光民(Lee Kwangmin)", personality: ["自信", "开朗", "认真"], position: "Main Rapper" },
+                    { name: "刘承雅(Yoo Seungah)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal" },
+                    { name: "崔敏宰(Choi Minjae)", personality: ["认真", "上进", "冷静"], position: "Main Dancer" },
+                    { name: "安镇宇(Ahn Jinwoo)", personality: ["开朗", "冷静", "温柔"], position: "Maknae" }
+                ,
+                    { name: "金泰宪(Kim Taheun)", personality: ["自信", "认真"], position: "Lead Vocal" }]
             },
             "Dream Loop": {
                 name: "Dream Loop（드림루프）梦环空灵仙气团",
                 desc: "梦环空灵仙气团，浪漫梦幻想象力爆棚",
                 tier: "B",
                 members: [
-                    { name: "Moon Soojin(문수진)", personality: ["开朗", "自信", "上进"], position: "Leader" },
-                    { name: "Park Jihae(박지혜)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
-                    { name: "Kim Daeun(김다은)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer" },
-                    { name: "Jung Seokyung(정서경)", personality: ["认真", "冷静", "上进"], position: "Lead Vocal" },
-                    { name: "Han Chaewon(한채원)", personality: ["开朗", "冷静", "温柔"], position: "Maknae" }
-                ]
+                    { name: "文秀珍(Moon Soojin)", personality: ["开朗", "自信", "上进"], position: "Leader" },
+                    { name: "朴智惠(Park Jihae)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal" },
+                    { name: "金多恩(Kim Daeun)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer" },
+                    { name: "郑瑞京(Jung Seokyung)", personality: ["认真", "冷静", "上进"], position: "Lead Vocal" },
+                    { name: "韩采媛(Han Chaewon)", personality: ["开朗", "冷静", "温柔"], position: "Maknae" }
+                ,
+                    { name: "郑诗雅(Jung Siya)", personality: ["温柔", "幽默"], position: "Sub Vocal" }]
             }
         }
     }
@@ -2456,7 +2481,7 @@ function verifyVipOrder() {
                 saves.vipTier = data.tier; saves.vipOrderNo = data.orderNo; saves.vipVerifiedAt = Date.now();
                 localStorage.setItem('myidol_saves_' + account, JSON.stringify(saves));
                 msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！激活中...';
-                setTimeout(function() { closeModal(); render(); showToast('会员权益已激活！'); }, 800);
+                setTimeout(function() { closeModal(); render(); notifySystem('会员', '会员权益已激活'); showToast('会员权益已激活！'); }, 800);
             } else {
                 msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '验证失败';
             }
@@ -5588,6 +5613,14 @@ function notifyWeverse(title, text) { showPhoneNotification('Weverse', title, te
 function notifySystem(title, text) { showPhoneNotification('System', title, text, '#FF8FA3'); }
 function notifySchedule(title, text) { showPhoneNotification('Schedule', title, text, '#4A90D9'); }
 function notifyNews(title, text) { showPhoneNotification('News', title, text, '#FF6B6B'); }
+function notifyMusic(title, text) { showPhoneNotification('Music', title, text, '#5BB8E8'); }
+function notifyMV(title, text) { showPhoneNotification('MV Studio', title, text, '#7C4DFF'); }
+function notifyContract(title, text) { showPhoneNotification('Contract', title, text, '#2C2C2C'); }
+function notifyManagement(title, text) { showPhoneNotification('Management', title, text, '#FF9500'); }
+function notifyPR(title, text) { showPhoneNotification('PR', title, text, '#636366'); }
+function notifyGacha(title, text) { showPhoneNotification('Gacha', title, text, '#FFD700'); }
+function notifyAchievement(title, text) { showPhoneNotification('Achievement', title, text, '#4CD964'); }
+
 
 // ==================== ACHIEVEMENT SYSTEM ====================
 var ACHIEVEMENTS = [
@@ -5916,7 +5949,7 @@ function renewContract() {
     gameState.contract.revenue.artist = Math.min(50, gameState.contract.revenue.artist + 5);
     gameState.contract.revenue.company = 100 - gameState.contract.revenue.artist;
     gameState.contract.clauses.push('续约附加: 艺人分成提升至' + gameState.contract.revenue.artist + '%');
-    showToast('续约成功! 分成提升至' + gameState.contract.revenue.artist + '%');
+    notifySystem('合约', '续约成功'); showToast('续约成功! 分成提升至' + gameState.contract.revenue.artist + '%');
     render();
 }
 
@@ -6684,34 +6717,104 @@ function pullGacha(pool, count) {
 }
 
 function renderVipPage(container) {
-    var vipLevel = gameState.vipLevel || 0;
-    var vipNames = ['\u666e\u901a\u4f1a\u5458', 'VIP\u94f6\u5361', 'VIP\u91d1\u5361', 'VIP\u94bb\u5361'];
-    var vipName = vipNames[Math.min(vipLevel, 3)];
-    var vipBenefits = [
-        ['\u57fa\u7840\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+0', '\u6253\u5de5\u6536\u76ca+0%'],
-        ['\u94f6\u5361\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+5', '\u6253\u5de5\u6536\u76ca+10%'],
-        ['\u91d1\u5361\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+10', '\u6253\u5de5\u6536\u76ca+20%'],
-        ['\u94bb\u5361\u6743\u76ca', '\u6bcf\u65e5\u4f53\u529b+20', '\u6253\u5de5\u6536\u76ca+30%']
-    ];
-    var benefits = vipBenefits[Math.min(vipLevel, 3)];
-    var html = '<div class="page active">';
-    html += '<div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; \u9996\u9875</div><div class="page-title">\u4f1a\u5458\u4e2d\u5fc3</div><div style="width:32px;"></div></div>';
-    html += '<div class="page-content">';
-    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:white;">';
-    html += '<div style="font-size:24px;font-weight:700;">' + vipName + '</div>';
-    html += '<div style="font-size:12px;opacity:0.8;margin-top:4px;">\u5f53\u524d\u7b49\u7ea7 Lv.' + vipLevel + '</div>';
-    html += '</div>';
-    html += '<div class="section-title" style="margin-top:16px;">\u6743\u76ca\u8bf4\u660e</div>';
-    for (var bi = 0; bi < benefits.length; bi++) {
-        html += '<div class="card" style="padding:12px 16px;"><div style="font-size:14px;color:var(--color-text);">\u2022 ' + benefits[bi] + '</div></div>';
-    }
-    if (vipLevel < 3) {
-        html += '<button class="btn btn-primary btn-lg" style="margin-top:16px;width:100%;" onclick="showModal(\'\u5f00\u901a\u63d0\u793a\',\'VIP\u529f\u80fd\u656c\u8bf7\u671f\u5f85\uff0c\u5373\u5c06\u4e0a\u7ebf\uff01\')">\u5347\u7ea7VIP</button>';
+    var currentTier = getVipTier();
+    var tierLabel = currentTier ? VIP_TIERS[currentTier].name : '免费用户';
+    var tierColor = currentTier === 'premium' ? 'linear-gradient(135deg,#FFD700,#FFA500)' : currentTier === 'advanced' ? 'linear-gradient(135deg,#C0C0C0,#A0A0A0)' : currentTier === 'basic' ? 'linear-gradient(135deg,#CD7F32,#B87333)' : 'linear-gradient(135deg,#8E8E93,#636366)';
+
+    var html = '<div class="page active">'
+        + '<div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">会员中心</div><div style="width:32px;"></div></div>'
+        + '<div class="page-content">'
+        + '<div class="card" style="text-align:center;background:' + tierColor + ';color:white;padding:24px;">'
+        + '<div style="font-size:22px;font-weight:700;">' + tierLabel + '</div>'
+        + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">' + (currentTier ? 'AI对话 ' + VIP_TIERS[currentTier].dailyLimit + '条/天' : 'AI对话需开通会员') + '</div>'
+        + '</div>';
+
+    // VIP Tier Cards
+    if (!currentTier) {
+        html += '<div class="section-title" style="margin-top:16px;">开通会员</div>';
+        var tierKeys = ['premium', 'advanced', 'basic'];
+        for (var ti = 0; ti < tierKeys.length; ti++) {
+            var tk = tierKeys[ti];
+            var t = VIP_TIERS[tk];
+            html += '<div class="card" style="margin-bottom:8px;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div><div style="font-weight:600;">' + t.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + t.features.join(' / ') + '</div></div>'
+                + '<div style="font-weight:700;font-size:18px;color:var(--color-primary);">' + t.price + '元/月</div>'
+                + '</div></div>';
+        }
+        html += '<button class="btn btn-primary btn-lg" style="margin-top:12px;width:100%;" onclick="window.open(\'https://afdian.com/a/myidol\',\'_blank\')">前往爱发电开通</button>'
+            + '<button class="btn btn-secondary btn-lg" style="margin-top:8px;width:100%;" onclick="showVerifyOrder()">已付费？验证订单</button>';
     } else {
-        html += '<div style="text-align:center;margin-top:16px;color:var(--color-text-light);font-size:13px;">\u5df2\u8fbe\u6700\u9ad8\u7b49\u7ea7</div>';
+        html += '<div class="card" style="margin-top:12px;text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);">当前已开通 ' + VIP_TIERS[currentTier].name + '</div>'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">AI对话 ' + VIP_TIERS[currentTier].dailyLimit + '条/天</div>'
+            + '</div>';
     }
+
+    // Value-Add Items (轻量增值项)
+    html += '<div class="section-title" style="margin-top:20px;">增值服务</div>';
+
+    // AI加油包
+    html += '<div class="card" style="margin-bottom:8px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div><div style="font-weight:600;">AI加油包(小)</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">额外5条AI对话</div></div>'
+        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buyAiPack(\'small\')">1元</button>'
+        + '</div></div>';
+    html += '<div class="card" style="margin-bottom:8px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div><div style="font-weight:600;">AI加油包(大)</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">额外20条AI对话</div></div>'
+        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buyAiPack(\'large\')">3元</button>'
+        + '</div></div>';
+
+    // 存档槽
+    var slotCount = gameState.saveSlots ? gameState.saveSlots.length : 3;
+    html += '<div class="card" style="margin-bottom:8px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div><div style="font-weight:600;">额外存档槽</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">当前' + slotCount + '个 / 最多6个</div></div>'
+        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buySaveSlot()">3元</button>'
+        + '</div></div>';
+
+    // 加速跳过
+    html += '<div class="card" style="margin-bottom:8px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div><div style="font-weight:600;">加速跳过</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">跳过训练/工作等待</div></div>'
+        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buySpeedSkip()">1元</button>'
+        + '</div></div>';
+
     html += '</div></div>';
     container.innerHTML = html;
+}
+
+function buyAiPack(size) {
+    var packs = { small: { name: 'AI加油包(小)', count: 5, price: 1 }, large: { name: 'AI加油包(大)', count: 20, price: 3 } };
+    var pack = packs[size];
+    if (!pack) return;
+    showModal('购买' + pack.name, '需支付' + pack.price + '元，购买后获得' + pack.count + '条额外AI对话次数。\n\n请前往爱发电购买后输入订单号验证。', [
+        { text: '取消', action: function() { closeModal(); } },
+        { text: '前往购买', action: function() { closeModal(); window.open('https://afdian.com/a/myidol', '_blank'); } }
+    ]);
+}
+
+function buySaveSlot() {
+    var current = gameState.saveSlots ? gameState.saveSlots.length : 3;
+    if (current >= 6) { showToast('已达到最大存档槽数量'); return; }
+    showModal('购买存档槽', '需支付3元，增加1个存档槽位。\n\n请前往爱发电购买后输入订单号验证。', [
+        { text: '取消', action: function() { closeModal(); } },
+        { text: '前往购买', action: function() { closeModal(); window.open('https://afdian.com/a/myidol', '_blank'); } }
+    ]);
+}
+
+function buySpeedSkip() {
+    if (!gameState.speedSkips) gameState.speedSkips = 0;
+    showModal('购买加速跳过', '需支付1元，获得3次加速跳过机会。\n\n请前往爱发电购买后输入订单号验证。', [
+        { text: '取消', action: function() { closeModal(); } },
+        { text: '前往购买', action: function() { closeModal(); window.open('https://afdian.com/a/myidol', '_blank'); } }
+    ]);
 }
 function renderGachaPage(container) {
     initGachaPool();
@@ -8168,4 +8271,4 @@ window.onerror = function(msg, url, line) {
     return true;
 };
 
-render
+render();

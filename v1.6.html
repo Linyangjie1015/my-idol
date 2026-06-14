@@ -79,7 +79,8 @@
     .page { display: none; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; min-height: 0; }
     .page.active { display: flex; flex-direction: column; }
 
-    .page-content { padding: 20px; padding-bottom: 100px; flex: 1; min-height: 0; overflow-y: auto; }
+    .page-content {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); padding: 20px; padding-bottom: 100px; flex: 1; min-height: 0; overflow-y: auto; }
 
     .page-header {
         background: var(--bg-card);
@@ -1179,6 +1180,17 @@
 
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Visual fix: Long name text overflow */
+    .name-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 200px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
 </style>
 </head>
 <body>
