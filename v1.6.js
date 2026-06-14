@@ -1460,17 +1460,31 @@ function render考核Page(container) {
     for (var si = 0; si < subjects.length; si++) {
         var s = subjects[si];
         var allObtained = certs[s.key][0] && certs[s.key][1] && certs[s.key][2];
+        var obtainedCount = 0;
+        for (var li = 0; li < 3; li++) { if (certs[s.key][li]) obtainedCount++; }
         var levelStr = '';
         for (var li = 0; li < 3; li++) {
-            levelStr += certs[s.key][li] ? '★' : '☆';
+            if (certs[s.key][li]) {
+                levelStr += '<span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:' + (allObtained ? 'linear-gradient(135deg,#FFD700,#FFA500)' : 'var(--color-primary)') + ';color:white;font-size:9px;font-weight:700;line-height:18px;text-align:center;margin:0 1px;">' + (li+1) + '</span>';
+            } else {
+                levelStr += '<span style="display:inline-block;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--color-border);color:var(--color-text-light);font-size:9px;font-weight:600;line-height:18px;text-align:center;margin:0 1px;">' + (li+1) + '</span>';
+            }
         }
-        certCardsHtml += '<div class="exam-cert-card ' + (allObtained ? 'obtained' : '') + '">'
-            + '<div class="cert-icon" style="background:' + (allObtained ? 'linear-gradient(135deg, var(--color-primary), var(--color-accent))' : s.color) + ';color:white;font-weight:700;font-size:14px;">' + s.icon + '</div>'
-            + '<div class="cert-name">' + s.name + '</div>'
-            + '<div class="cert-levels">' + levelStr + '</div>'
+        var progressPct = Math.floor(obtainedCount / 3 * 100);
+        var certBg = allObtained ? 'background:linear-gradient(135deg,rgba(255,143,163,0.12),rgba(255,179,193,0.08));border:1.5px solid var(--color-primary);' : 'background:var(--bg-card);border:1.5px solid var(--color-border);';
+        certCardsHtml += '<div class="exam-cert-card ' + (allObtained ? 'obtained' : '') + '" style="' + certBg + 'border-radius:12px;padding:12px;">'
+            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+            + '<div class="cert-icon" style="background:' + (allObtained ? 'linear-gradient(135deg,#FFD700,#FFA500)' : s.color) + ';color:white;font-weight:700;font-size:14px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;">' + s.icon + '</div>'
+            + '<div style="flex:1;">'
+            + '<div class="cert-name" style="font-weight:600;font-size:13px;">' + s.name + (allObtained ? ' <span style="font-size:10px;color:#FFD700;">MASTER</span>' : '') + '</div>'
+            + '<div style="font-size:10px;color:var(--color-text-light);margin-top:2px;">' + obtainedCount + '/3 \u5df2\u901a\u8fc7</div>'
+            + '</div></div>'
+            + '<div style="display:flex;justify-content:center;gap:2px;margin-bottom:8px;">' + levelStr + '</div>'
+            + '<div style="height:4px;background:var(--color-border);border-radius:2px;overflow:hidden;">'
+            + '<div style="height:100%;width:' + progressPct + '%;background:' + (allObtained ? 'linear-gradient(90deg,#FFD700,#FFA500)' : 'linear-gradient(90deg,var(--color-primary),var(--color-accent))') + ';border-radius:2px;"></div>'
+            + '</div>'
             + '</div>';
     }
-
     var examEntriesHtml = '';
     for (var si = 0; si < subjects.length; si++) {
         var s = subjects[si];
