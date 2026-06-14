@@ -6039,9 +6039,26 @@ function renderComebackPage(container) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
             + '<div style="font-size:13px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div>'
-            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div></div>'
-            + '<div class="card" style="text-align:center;">'
-            + '<button class="btn btn-primary btn-lg" onclick="goToSongProdFromComeback()">进行歌曲制作</button></div>';
+            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div></div>';
+        if (gameState.songs && gameState.songs.length > 0) {
+            html += '<div class="section-title" style="margin-top:8px;">已制作歌曲</div>';
+            for (var ssi = 0; ssi < gameState.songs.length; ssi++) {
+                var ss = gameState.songs[ssi];
+                var usedInComeback = ss._comebackUsed;
+                var cardStyle = usedInComeback ? 'opacity:0.4;pointer-events:none;' : 'cursor:pointer;';
+                var statusTag = usedInComeback ? '<span style="font-size:10px;color:var(--color-text-light);margin-left:6px;">已打歌</span>' : '<span style="font-size:10px;color:#4CD964;margin-left:6px;">可用</span>';
+                html += '<div class="card" style="' + cardStyle + '" data-ssi="' + ssi + '" onclick="selectSongForComeback(this.dataset.ssi)">'
+                    + '<div style="font-weight:600;">' + ss.name + statusTag + '</div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ss.genre + ' | 概念: ' + ss.concept + ' | 品质: ' + ss.quality + '分</div>'
+                    + '</div>';
+            }
+            html += '<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--color-text-light);">点击可用歌曲进入下一步</div>';
+        } else {
+            html += '<div class="card" style="text-align:center;">'
+                + '<div style="color:var(--color-text-light);font-size:13px;">暂无歌曲，请到歌曲制作APP制作歌曲</div>'
+                + '<button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button>'
+                + '</div>';
+        }
     } else if (cb.phase === 'mvselect') {
         html += '<div class="card" style="background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择歌曲拍MV</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲制作完成！选择一首歌拍摄MV</div></div>';
         if (gameState.songs && gameState.songs.length > 0) {
@@ -6053,10 +6070,22 @@ function renderComebackPage(container) {
             html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有制作歌曲，请先进行歌曲制作</div><button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
         }
     } else if (cb.phase === 'mv') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>'
-            + '<div class="card" style="text-align:center;">'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">暂未拍摄MV，请进行MV拍摄</div>'
-            + '<button class="btn btn-primary btn-lg" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>';
+        if (gameState.mvs && gameState.mvs.length > 0) {
+            html += '<div class="section-title">已拍摄MV</div>';
+            for (var mvi = 0; mvi < gameState.mvs.length; mvi++) {
+                var mv = gameState.mvs[mvi];
+                html += '<div class="card">'
+                    + '<div style="font-weight:600;">' + mv.name + '</div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">歌曲: ' + (mv.songName || mv.song || '未知') + ' | 品质: ' + (mv.quality || 0) + '分</div>'
+                    + '</div>';
+            }
+            html += '<div class="card" style="text-align:center;"><button class="btn btn-primary btn-lg" onclick="gameState.comeback.phase=\'promote\';render();">进入宣传期</button></div>';
+        } else {
+            html += '<div class="card" style="text-align:center;">'
+                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">暂未拍摄MV，请拍摄MV</div>'
+                + '<button class="btn btn-primary btn-lg" onclick="gameState.comeback.phase=\'mvselect\';render();">选择歌曲拍MV</button></div>';
+        }
     } else if (cb.phase === 'promote') {
         var daysLeft = cb.daysLeft || 14;
         var hasMV = cb.mvQuality > 0;
@@ -6409,6 +6438,15 @@ function finishMVShootComeback() {
 function goToSongProdFromComeback() {
     gameState.songProd = { step: 0, comebackMode: true };
     currentPage = 'songprod';
+    render();
+}
+
+function selectSongForComeback(idx) {
+    var i = parseInt(idx);
+    var song = gameState.songs[i];
+    if (!song) return;
+    gameState.comeback.selectedSong = song;
+    gameState.comeback.phase = 'mvselect';
     render();
 }
 
