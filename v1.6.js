@@ -7694,29 +7694,31 @@ function _ensureKakaoState() {
         }
     }
     // Remove friends from other companies (only keep same company + manager)
-    var _playerComp = gameState.player.company;
-    if (_playerComp && COMPANIES[_playerComp]) {
-        var _validNames = ['代表经纪人(Manager)'];
-        var _comp2 = COMPANIES[_playerComp];
-        var _gk2 = Object.keys(_comp2.groups);
-        for (var _gk2i = 0; _gk2i < _gk2.length; _gk2i++) {
-            var _gm2 = _comp2.groups[_gk2[_gk2i]].members;
-            for (var gm2i = 0; gm2i < _gm2.length; gm2i++) {
-                var _gm2n = (typeof _gm2[_gm2i] === 'object') ? _gm2[_gm2i].name : _gm2[_gm2i];
-                _validNames.push(_gm2n);
+    try {
+        var _playerComp = gameState.player.company;
+        if (_playerComp && COMPANIES[_playerComp]) {
+            var _validNames = ['代表经纪人(Manager)'];
+            var _comp2 = COMPANIES[_playerComp];
+            var _gk2 = Object.keys(_comp2.groups);
+            for (var _gk2i = 0; _gk2i < _gk2.length; _gk2i++) {
+                var _gm2 = _comp2.groups[_gk2[_gk2i]].members;
+                for (var gm2i = 0; gm2i < _gm2.length; gm2i++) {
+                    var _gm2n = (typeof _gm2[_gm2i] === 'object') ? _gm2[_gm2i].name : _gm2[_gm2i];
+                    _validNames.push(_gm2n);
+                }
             }
-        }
-        if (gameState.player.role === 'Trainee') {
-            _validNames.push('练习生小美', '练习生俊宇', '练习生秀贤', '练习生恩菲');
-        }
-        var _filtered = [];
-        for (var fi = 0; fi < gameState.kakaoFriends.length; fi++) {
-            if (_validNames.indexOf(gameState.kakaoFriends[fi].name) >= 0) {
-                _filtered.push(gameState.kakaoFriends[fi]);
+            if (gameState.player.role === 'Trainee') {
+                _validNames.push('练习生小美', '练习生俊宇', '练习生秀贤', '练习生恩菲');
             }
+            var _filtered = [];
+            for (var fi = 0; fi < gameState.kakaoFriends.length; fi++) {
+                if (_validNames.indexOf(gameState.kakaoFriends[fi].name) >= 0) {
+                    _filtered.push(gameState.kakaoFriends[fi]);
+                }
+            }
+            gameState.kakaoFriends = _filtered;
         }
-        gameState.kakaoFriends = _filtered;
-    }
+    } catch(e) { /* ignore filter errors on load */ }
 }
 
 function _ensureV16Fields() {
