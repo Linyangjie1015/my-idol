@@ -5865,7 +5865,7 @@ function shootMV() {
     gameState.comeback.mvViews = Math.floor(quality * 10000 + gameState.fans * 5);
     gameState.comeback.phase = 'promote';
     if (!gameState.mvCollection) gameState.mvCollection = [];
-    gameState.mvCollection.push({ title: gameState.comeback.titleTrack.name, concept: gameState.comeback.concept.name, quality: quality, views: gameState.comeback.mvViews });
+    gameState.mvCollection.push({ title: gameState.comeback.titleTrack.name, concept: (gameState.comeback.concept && gameState.comeback.concept.name) || '未选择', quality: quality, views: gameState.comeback.mvViews });
     gameState.comeback.promotion = 0;
     notifySystem('MV拍摄完成', 'MV品质: ' + quality + '分');
     render();
@@ -5893,10 +5893,10 @@ function performMusicShow() {
     if (!gameState.comeback || gameState.comeback.phase !== 'musicshow') return;
     if (gameState.体力 < 25) { showToast('体力不足，打歌需要25体力'); return; }
     gameState.体力 -= 25;
-    var concept = gameState.comeback.concept;
+    var concept = gameState.comeback.concept || {name:'默认',stat:'dance',mvQuality:1.0};
     var mvQ = gameState.comeback.mvQuality || 50;
     var promo = gameState.comeback.promotion || 0;
-    var statVal = gameState.stats[concept.stat] || 50;
+    var statVal = gameState.stats[concept.stat || 'dance'] || 50;
     var score = Math.floor(statVal * 0.3 + mvQ * 0.3 + promo * 0.2 + Math.random() * 20);
     var result = {};
     if (score >= 80) {
@@ -5956,7 +5956,7 @@ function renderComebackPage(container) {
                 + '</div></div>';
         }
     } else if (cb.phase === 'titletrack') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择主打歌</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念: ' + cb.concept.name + '</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择主打歌</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念: ' + (cb.concept && cb.concept.name) || '未选择' + '</div></div>';
         for (var i = 0; i < TITLE_TRACK_TYPES.length; i++) {
             var t = TITLE_TRACK_TYPES[i];
             var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
@@ -5967,8 +5967,8 @@ function renderComebackPage(container) {
     } else if (cb.phase === 'songprod') {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
-            + '<div style="font-size:13px;">概念: ' + cb.concept.name + '</div>'
-            + '<div style="font-size:13px;">主打歌: ' + cb.titleTrack.name + '</div></div>'
+            + '<div style="font-size:13px;">概念: ' + (cb.concept && cb.concept.name) || '未选择' + '</div>'
+            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack && cb.titleTrack.name) || '未选择' + '</div></div>'
             + '<div class="card" style="text-align:center;">'
             + '<button class="btn btn-primary btn-lg" onclick="goToSongProdFromComeback()">进行歌曲制作</button></div>';
     } else if (cb.phase === 'mvselect') {
@@ -6030,8 +6030,8 @@ function renderComebackPage(container) {
             + '<div style="font-size:48px;font-weight:700;">' + grade + '</div>'
             + '<div style="font-size:14px;opacity:0.9;margin-top:4px;">回归评级</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">回归总结</div>'
-            + '<div style="font-size:13px;">概念: ' + cb.concept.name + '</div>'
-            + '<div style="font-size:13px;">主打歌: ' + cb.titleTrack.name + '</div>'
+            + '<div style="font-size:13px;">概念: ' + (cb.concept && cb.concept.name) || '未选择' + '</div>'
+            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack && cb.titleTrack.name) || '未选择' + '</div>'
             + '<div style="font-size:13px;">MV品质: ' + cb.mvQuality + '分</div>'
             + '<div style="font-size:13px;">一位数: ' + totalFirsts + '/3</div></div>'
             + '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback=null;render();">完成回归</button>';
