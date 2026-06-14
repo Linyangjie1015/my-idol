@@ -802,7 +802,7 @@ function renderCreationStep4() {
         var idolGroupHtml = groupEntries.map(function(entry) {
             var _ikey = entry[0]; var _igroup = entry[1];
             var _isSelected = gameState.player.groups.indexOf(_ikey) > -1;
-            return '<div class="group-card ' + (_isSelected ? 'selected' : '') + '" data-key="' + _ikey + '" onclick="toggleIdolGroup(this.dataset.key)" style="cursor:pointer;">'
+            return '<div class="group-card ' + (_isSelected ? 'selected' : '') + '" data-key="' + _ikey + '" onclick="toggleGroup(this.dataset.key)" style="cursor:pointer;">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + _igroup.name + '</div>'
             + (_isSelected ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">已选择</span>' : '')
             + '</div><div class="group-desc">' + _igroup.desc + '</div></div>';
@@ -936,7 +936,15 @@ function toggleGroup(key) {
 }
 
 function toggleIdolGroup(key) {
-    gameState.player.groups = [key];
+    var idx = gameState.player.groups.indexOf(key);
+    if (idx > -1) {
+        gameState.player.groups.splice(idx, 1);
+    } else if (gameState.player.groups.length >= 3) {
+        showToast('最多选择3个志愿团');
+        return;
+    } else {
+        gameState.player.groups.push(key);
+    }
     render();
 }
 
@@ -988,8 +996,8 @@ function nextCreationStep(step) {
             showModal('\u63d0\u793a', '\u8bf7\u9009\u62e93\u4e2a\u5fd7\u613f\u56e2');
             return;
         }
-        if (gameState.player.role === 'Idol' && gameState.player.groups.length !== 1) {
-            showModal('\u63d0\u793a', '\u8bf7\u9009\u62e9\u4e00\u4e2a\u56e2\u4f53');
+        if (gameState.player.role === 'Idol' && gameState.player.groups.length < 1) {
+            showModal('\u63d0\u793a', '\u8bf7\u81f3\u5c11\u9009\u62e91\u4e2a\u56e2\u4f53');
             return;
         }
     }
@@ -3546,7 +3554,14 @@ function switch泡泡Tab(tab) {
     } else {
         inboxBtn.className = 'btn btn-sm btn-secondary';
         sentBtn.className = 'btn btn-sm btn-primary';
-        contentEl.innerHTML = '<p style="text-align: center; color: var(--color-text-light);">暂无已发送消息</p>';
+        var sentHtml = '';
+        if (gameState.bubble已发送 && gameState.bubble已发送.length > 0) {
+            for (var si = 0; si < gameState.bubble已发送.length; si++) {
+                var sm = gameState.bubble已发送[si];
+                sentHtml += '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-weight:600;color:var(--color-primary);">回复给 ' + sm.to + '</span><span style="font-size:11px;color:var(--color-text-light);">' + sm.time + '</span></div><p style="font-size:14px;">' + sm.text + '</p></div>';
+            }
+        }
+        contentEl.innerHTML = sentHtml || '<p style="text-align: center; color: var(--color-text-light);">暂无已发送消息</p>';
     }
 }
 
@@ -3576,7 +3591,7 @@ var weverseMultilangPosts = [
 ];
 
 function renderWeversePage(container) {
-    if (!gameState.weverseUnread) gameState.weverseUnread = 0;
+    if (!gameState.weverseMyPosts) gameState.weverseMyPosts = []; if (!gameState.weverseUnread) gameState.weverseUnread = 0;
     var postsHtml = '';
     for (var i = 0; i < weverseMultilangPosts.length; i++) {
         var p = weverseMultilangPosts[i];
@@ -3603,6 +3618,8 @@ function renderWeversePage(container) {
         + '<div class="page-content">'
         + '<button class="btn btn-primary btn-lg" onclick="postToWeverse()" style="margin-bottom:16px;">+ 发布动态</button>'
         + postsHtml
+        + '<div class="section-title" style="margin-top:16px;">我的发布</div>'
+        + (gameState.weverseMyPosts.length === 0 ? '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有发过动态</div></div>' : (function(){ var myHtml = ''; for(var wi=0;wi<gameState.weverseMyPosts.length;wi++){ var wp=gameState.weverseMyPosts[wi]; myHtml += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="avatar-sm">' + (gameState.player.avatar||'') + '</div><div style="margin-left:8px;"><div style="font-weight:600;">' + (gameState.player.name||'') + '</div><div style="font-size:11px;color:var(--color-text-light);">' + wp.time + '</div></div></div><p style="font-size:14px;">' + wp.text + '</p></div>'; } return myHtml; })())
         + '</div></div>';
 }
 
@@ -3625,6 +3642,8 @@ function postToWeverse() {
         { text: '发布', action: function() {
             var ta = document.getElementById('weverse发布');
             if (ta && ta.value) {
+                if (!gameState.weverseMyPosts) gameState.weverseMyPosts = [];
+                gameState.weverseMyPosts.push({ text: ta.value, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
                 gameState.fans += Math.floor(Math.random() * 30) + 10;
                 gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 2) + 1);
                 gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 2) + 1);
@@ -3753,7 +3772,7 @@ function renderInsPage(container) {
                 var lastMsg = '';
                 var uMsgs = gameState.insMessages.filter(function(m2) { return m2.with === u; });
                 if (uMsgs.length > 0) lastMsg = uMsgs[uMsgs.length-1].text;
-                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" onclick="insMsgChatUser=\'\' + u + \'\';render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (lastMsg || '暂无消息') + '</div></div></div>';
+                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" data-user="' + u + '" onclick="insMsgChatUser=this.dataset.user;render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (lastMsg || '暂无消息') + '</div></div></div>';
             }
             tabContent += '</div>';
         }
@@ -3918,7 +3937,7 @@ function renderTiktokPage(container) {
                 var lastMsg = '';
                 var uMsgs = gameState.tiktokMessages.filter(function(m2) { return m2.with === u; });
                 if (uMsgs.length > 0) lastMsg = uMsgs[uMsgs.length-1].text;
-                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" onclick="tiktokMsgChatUser=\'\' + u + \'\';render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);">' + (lastMsg || '暂无消息') + '</div></div></div>';
+                tabContent += '<div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--color-border);cursor:pointer;" data-user="' + u + '" onclick="tiktokMsgChatUser=this.dataset.user;render();"><div class="avatar-sm" style="width:36px;height:36px;font-size:14px;">' + u.charAt(0).toUpperCase() + '</div><div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + u + '</div><div style="font-size:11px;color:var(--color-text-light);">' + (lastMsg || '暂无消息') + '</div></div></div>';
             }
             tabContent += '</div>';
         }
@@ -4204,8 +4223,10 @@ function order快递服务(name, price, value, effect) {
                 gameState.danger = Math.max(0, gameState.danger - value);
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
             }
+            if (!gameState.inventory) gameState.inventory = [];
+            gameState.inventory.push({ name: name, effect: effect, value: value });
             closeModal();
-            showToast(effectDesc);
+            showToast(name + ' 已存入背包');
             render();
         }}
     ]);
@@ -4302,9 +4323,9 @@ function renderCrisisPage(container) {
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:4px;">' + e.desc + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:8px;line-height:1.4;">' + e.detail + '</div>'
             + '<div style="display:flex;gap:6px;">'
-            + '<button class="btn btn-sm btn-primary" data-i="' + i + '" onclick="handleCrisis(this.dataset.i)">妥善处理</button>'
-            + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="handleCrisis(this.dataset.i)">无视</button>'
-            + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="handleCrisis(this.dataset.i)" style="color:var(--color-danger);border-color:var(--color-danger);">处理不当</button>'
+            + '<button class="btn btn-sm btn-primary" data-i="' + i + '" data-a="0" onclick="handleCrisis(parseInt(this.dataset.i),parseInt(this.dataset.a))">妥善处理</button>'
+            + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" data-a="1" onclick="handleCrisis(parseInt(this.dataset.i),parseInt(this.dataset.a))">无视</button>'
+            + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" data-a="2" onclick="handleCrisis(parseInt(this.dataset.i),parseInt(this.dataset.a))" style="color:var(--color-danger);border-color:var(--color-danger);">处理不当</button>'
             + '</div></div>';
     }
     if (!eventsHtml) eventsHtml = '<div style="text-align:center;color:var(--color-text-light);padding:40px;">暂无活跃危机事件</div>';
@@ -5397,7 +5418,7 @@ var _phoneNotifQueue = [];
 var _phoneNotifShowing = false;
 
 function showPhoneNotification(appName, title, text, iconBg, duration) {
-    if (!duration) duration = 3500;
+    if (!duration) duration = 2500;
     _phoneNotifQueue.push({ appName: appName, title: title, text: text, iconBg: iconBg || '#FF8FA3', duration: duration });
     if (!_phoneNotifShowing) _processPhoneNotif();
 }
@@ -5924,6 +5945,7 @@ function renderAntiBlackPage(container) {
     if (!gameState.antiEvents) gameState.antiEvents = [];
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">反黑中心</div><div style="width:32px;"></div></div><div class="page-content">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#333,#555);color:white;">'
+        + '<div style="font-size:11px;opacity:0.7;margin-bottom:4px;">危险值达到30时触发黑粉事件</div>'
         + '<div style="font-size:14px;opacity:0.8;">当前危险值</div>'
         + '<div style="font-size:32px;font-weight:700;">' + gameState.danger + '/100</div></div>';
     if (gameState.antiEvents.length === 0) {
@@ -6084,12 +6106,14 @@ function performOnMusicShow(idx) {
     var show = shows[parseInt(idx)];
     if (!show) return;
     if (gameState.体力 < 20) { showToast('体力不足，需要20体力'); return; }
-    if (!gameState.comeback || gameState.comeback.phase !== 'musicShow') {
-        showToast('当前没有回归打歌行程，无法出演');
-        return;
+    // Allow Idol to perform on music shows with or without active comeback
+    if (!gameState.comeback) {
+        // No comeback at all, still allow but with lower base
+    } else if (gameState.comeback.phase !== 'musicShow') {
+        // Comeback exists but not in music show phase, still allow
     }
     gameState.体力 = Math.max(0, gameState.体力 - 20);
-    var score = Math.floor(Math.random() * 40) + 30 + Math.floor((gameState.fame || 30) / 5);
+    var baseScore = (gameState.comeback && gameState.comeback.phase === 'musicShow') ? 50 : 25; var score = Math.floor(Math.random() * 30) + baseScore + Math.floor((gameState.fame || 30) / 5);
     var rank = score >= 90 ? 1 : score >= 75 ? 2 : score >= 60 ? 3 : Math.floor(Math.random() * 3) + 4;
     var result = { show: show.name, score: score, rank: rank };
     if (!gameState.comeback.musicShowResults) gameState.comeback.musicShowResults = [];
@@ -6215,7 +6239,7 @@ function renderKpopWikiPage(container) {
             + '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:15px;color:var(--color-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + company.name + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + gKeys.length + '个团体 / ' + totalMembers + '名成员</div></div>'
             + '<div style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
-            + '<div class="wiki-groups" style="display:none;margin-top:12px;">';
+            + '<div class="wiki-groups" style="display:none;margin-top:12px;overflow:hidden;">';
         for (var gi = 0; gi < gKeys.length; gi++) {
             var g = company.groups[gKeys[gi]];
             html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);line-height:1.6;">'
@@ -7587,7 +7611,7 @@ function _completeDebut() {
     var company = COMPANIES[gameState.player.company];
     var hasBusinessLoan = (gameState.loanAmount > 0 && gameState.loanInterest >= 5);
     if (!gameState.player.group) {
-        var _company = COMPANIES[gameState.player.company]; var _selGroup = (gameState.player.groups && gameState.player.groups.length > 0) ? gameState.player.groups[0] : null; gameState.player.group = _selGroup && _company && _company.groups[_selGroup] ? _company.groups[_selGroup].name : gameState.player.name + '\u7684\u56e2\u4f53';
+        var _company = COMPANIES[gameState.player.company]; var _selGroupKey = null; if (gameState.player.groups && gameState.player.groups.length > 0) { if (gameState.player.groups.length === 1) { _selGroupKey = gameState.player.groups[0]; } else { var _randIdx = Math.floor(Math.random() * gameState.player.groups.length); _selGroupKey = gameState.player.groups[_randIdx]; } } gameState.player.group = _selGroupKey && _company && _company.groups[_selGroupKey] ? _company.groups[_selGroupKey].name : gameState.player.name + '\u7684\u56e2\u4f53';
     }
     gameState.player.originalGroup = true;
     if (!gameState.player.group) gameState.player.group = gameState.player.name + '的团体';
