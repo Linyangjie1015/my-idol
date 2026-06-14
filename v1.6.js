@@ -827,10 +827,12 @@ function renderCreationStep4() {
         for (var _igei = 0; _igei < groupKeys.length; _igei++) { groupEntries.push([groupKeys[_igei], company.groups[groupKeys[_igei]]]); }
         var idolGroupHtml = groupEntries.map(function(entry) {
             var _ikey = entry[0]; var _igroup = entry[1];
-            var _isSelected = gameState.player.groups.indexOf(_ikey) > -1;
+            var _igIdx = gameState.player.groups.indexOf(_ikey);
+            var _isSelected = _igIdx > -1;
+            var _ilabel = _igIdx === 0 ? '\u7b2c\u4e00\u5fd7\u613f' : _igIdx === 1 ? '\u7b2c\u4e8c\u5fd7\u613f' : _igIdx === 2 ? '\u7b2c\u4e09\u5fd7\u613f' : '';
             return '<div class="group-card ' + (_isSelected ? 'selected' : '') + '" data-key="' + _ikey + '" onclick="toggleGroup(this.dataset.key)" style="cursor:pointer;">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;"><div class="group-name">' + _igroup.name + '</div>'
-            + (_isSelected ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">已选择</span>' : '')
+            + (_ilabel ? '<span style="font-size:11px;padding:2px 8px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + _ilabel + '</span>' : '')
             + '</div><div class="group-desc">' + _igroup.desc + '</div></div>';
         }).join('');
         return '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
