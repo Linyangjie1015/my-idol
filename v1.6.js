@@ -1208,7 +1208,7 @@ function renderHomePage(container) {
         { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
-        { id: 'comeback', icon: 'comeback', name: '新专辑回归', unlock: 0 },
+        { id: 'comeback', icon: 'comeback', name: '回归计划', unlock: 0 },
         { id: 'music', icon: 'music', name: '音乐放送', unlock: 0 },
         { id: 'mvstudio', icon: 'mvstudio', name: 'MV工作室', unlock: 0 },
         { id: 'contract', icon: 'contract', name: '合约', unlock: 0 },
@@ -2356,7 +2356,7 @@ function render我的Page(container) {
     var company = COMPANIES[gameState.player.company];
     var genderText = gameState.player.gender === 'F' ? '女' : '男';
     
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
+    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color:#FF69B4;">颜值</span>\n                        <div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.looks || 0) / 2) + '%;background:linear-gradient(90deg,#FF69B4,#FFB6C1);"></div></div>\n                        <span class="stat-value" style="color:#FF69B4;">' + (gameState.looks || 0) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
                     }).join('')) + '\n                </div>\n                \n                <!-- 经济卡 -->\n                <div class="section-title">经济</div>\n                <div class="card">\n                    <div style="display: flex; justify-content: space-around;">\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + (gameState.money.toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">金币</div>\n                        </div>\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + (gameState.fans.toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">粉丝</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <!-- 背包卡 -->\n                <div class="section-title">背包</div>\n                <div class="card">\n                    ' + (gameState.inventory.length === 0 ? '\n                        <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>\n                    ' : gameState.inventory.map(function(item, i) { return '\n                        <div class="inventory-item">\n                            <span class="item-name">' + (item.name) + '</span>\n                            <button class="item-use" onclick="useItem(' + (i) + ')">使用</button>\n                        </div>\n                    '}).join('')) + '\n                </div>\n                \n                <!-- 账号操作 -->\n                <div class="section-title" style="margin-top:16px;">账号</div>\n                <div class="card" onclick="_doLogout()" style="cursor:pointer;">\n                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>\n                </div>\n            </div>\n        </div>\n    ';
@@ -2642,8 +2642,8 @@ function getFallbackReply(appId) {
         kakaotalk: ['好的呀~', '嗯嗯，我知道了！', '哈哈真的吗？', '加油哦！', '好期待呢~', '今天辛苦了！', '下次一起练习吧~', '听说最近有新通告呢', '一起去食堂吧？', '你今天状态好好！'],
         bubble: ['谢谢你的消息！', '想你哦~', '今天也要开心！', '一起加油吧！', '爱你~', '一直在等你呢~', '你是最好的！', '刚练完舞好累~', '给你比心！', '晚安~'],
         dating: ['我也想你了~', '下次一起出去吧', '今天过得怎么样？', '有你在真好', '好想见你~', '最喜欢你了~', '今天看了好美的夕阳', '想和你分享今天的歌', '你吃饭了吗？'],
-        ins: ['好喜欢这条！', '太美了吧', '期待你的下一条动态', '点赞了！', '绝了！', '氛围感拉满', '神仙颜值'],
-        tiktok: ['这个视频好好看！', '太有才了', '转发了！', '期待下一个视频', '火了火了！', '刷了十遍', '背景音乐是什么'],
+        ins: ['姐姐这组图也太绝了吧，每一张都能当壁纸！', '这颜值是真的真实存在的吗？太仙了', '造型师加鸡腿！今天这身好好看', '氛围感好强，感觉像画报一样', '期待你的下一组照片，永远不嫌多', '这个角度太绝了，好会拍！', '今天的妆容好好看，求分享色号', '每次看到你的动态都会反复看好几遍'],
+        tiktok: ['这个编舞也太帅了吧！教教我吧', '刷到就停不下来，已经循环了二十遍', '背景音乐是什么？太好听了', '你跳的这个挑战比原版还好看', '转发了！闺蜜们都在看', '这个视频必须上热门！', '又是被你帅到的一天', '评论区都在说你是这个挑战的天花板'],
         weverse: ['想你们了！', '今天辛苦了', '一起加油', '爱你们！', '永远在一起~', '你们是最好的粉丝', '明天也要来看哦'],
         live: ['加油加油！', '好可爱', '哈哈笑死了', '太棒了！', '爱了爱了！', '再看一遍！', '主持人好幽默']
     };
@@ -3552,6 +3552,7 @@ function render泡泡Page(container) {
     if (!gameState.bubbleUnread) gameState.bubbleUnread = 0;
     if (!gameState.bubbleChats) gameState.bubbleChats = {};
     if (!gameState.bubble已发送) gameState.bubble已发送 = [];
+    if (!gameState.bubbleStickers) gameState.bubbleStickers = [];
     if (bubbleChatTarget) {
         var chatMsgs = gameState.bubbleChats[bubbleChatTarget] || [];
         var chatHtml = '<div style="flex:1;overflow-y:auto;padding:12px;" id="bubbleChatArea">';
@@ -3574,25 +3575,66 @@ function render泡泡Page(container) {
         setTimeout(function(){ var area = document.getElementById('bubbleChatArea'); if(area) area.scrollTop = area.scrollHeight; }, 100);
         return;
     }
-    var messages = bubbleMultilangMessages;
-    
-    var msgsHtml = '';
-    for (var i = 0; i < messages.length; i++) {
-        var m = messages[i];
-        var langTag = m.lang === 'ko' ? '韩' : m.lang === 'ja' ? '日' : 'EN';
-        var langColor = m.lang === 'ko' ? '#FF8FA3' : m.lang === 'ja' ? '#7EC8E3' : '#FFD700';
-        msgsHtml += '<div class="card bubble-msg-anim" style="animation-delay:' + (i * 0.08) + 's;">'
-            + '<div style="display:flex;justify-content:space-between;margin-bottom:8px;">'
-            + '<span style="font-weight:600;color:var(--color-primary);">' + m.from + ' <span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span></span>'
-            + '<span style="font-size:11px;color:var(--color-text-light);">' + m.time + '</span>'
-            + '</div>'
-            + '<p style="font-size:14px;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + i + ')">翻译</span></p>'
-            + '<div style="display:flex;gap:8px;margin-top:10px;">'
-            + '<button class="btn btn-sm btn-secondary" data-from="'+m.from+'" onclick="window._replyTarget=this.dataset.from;replyTo泡泡()">回复</button>'
-            + '<button class="btn btn-sm btn-primary" data-from="'+m.from+'" onclick="bubbleChatTarget=this.dataset.from;render();">聊天</button>'
-            + '</div></div>';
+    var currentTab = window._bubbleTab || 'inbox';
+    var tabBtns = '<div style="display:flex;gap:6px;margin-bottom:12px;">'
+        + '<button class="btn btn-sm ' + (currentTab === 'inbox' ? 'btn-primary' : 'btn-secondary') + '" onclick="window._bubbleTab=\'inbox\';render();" style="flex:1;">收件箱</button>'
+        + '<button class="btn btn-sm ' + (currentTab === 'sent' ? 'btn-primary' : 'btn-secondary') + '" onclick="window._bubbleTab=\'sent\';render();" style="flex:1;">已发送</button>'
+        + '<button class="btn btn-sm ' + (currentTab === 'stickers' ? 'btn-primary' : 'btn-secondary') + '" onclick="window._bubbleTab=\'stickers\';render();" style="flex:1;">表情包商店</button>'
+        + '</div>';
+
+    var contentHtml = '';
+    if (currentTab === 'inbox') {
+        var messages = bubbleMultilangMessages;
+        for (var i = 0; i < messages.length; i++) {
+            var m = messages[i];
+            var langTag = m.lang === 'ko' ? '韩' : m.lang === 'ja' ? '日' : 'EN';
+            var langColor = m.lang === 'ko' ? '#FF8FA3' : m.lang === 'ja' ? '#7EC8E3' : '#FFD700';
+            contentHtml += '<div class="card">'
+                + '<div style="display:flex;justify-content:space-between;margin-bottom:8px;">'
+                + '<span style="font-weight:600;color:var(--color-primary);">' + m.from + ' <span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span></span>'
+                + '<span style="font-size:11px;color:var(--color-text-light);">' + m.time + '</span>'
+                + '</div>'
+                + '<p style="font-size:14px;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + i + ')">翻译</span></p>'
+                + '<div style="display:flex;gap:8px;margin-top:10px;">'
+                + '<button class="btn btn-sm btn-secondary" data-from="'+m.from+'" onclick="window._replyTarget=this.dataset.from;replyTo泡泡()">回复</button>'
+                + '</div></div>';
+        }
+        // Bottom input bar for inbox
+        contentHtml += '<div style="display:flex;gap:8px;padding:8px 0;margin-top:12px;border-top:1px solid var(--color-border);">'
+            + '<input type="text" id="bubbleInboxInput" placeholder="回复粉丝消息..." style="flex:1;font-size:13px;padding:10px 14px;border:1px solid var(--color-border);border-radius:8px;">'
+            + '<div class="btn btn-sm" style="padding:10px 12px;background:var(--color-primary);color:white;border-radius:8px;" onclick="showBubblePlusMenu()">+</div>'
+            + '</div>';
+    } else if (currentTab === 'sent') {
+        if (gameState.bubble已发送 && gameState.bubble已发送.length > 0) {
+            for (var si = 0; si < gameState.bubble已发送.length; si++) {
+                var sm = gameState.bubble已发送[si];
+                contentHtml += '<div class="card"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-weight:600;color:var(--color-primary);">回复给 ' + sm.to + '</span><span style="font-size:11px;color:var(--color-text-light);">' + sm.time + '</span></div><p style="font-size:14px;">' + sm.text + '</p></div>';
+            }
+        }
+        if (!contentHtml) contentHtml = '<p style="text-align:center;color:var(--color-text-light);padding:20px;">暂无已发送消息</p>';
+    } else if (currentTab === 'stickers') {
+        var stickerPacks = [
+            { name: '可爱猫咪', price: 3000, count: 8, color: '#FF8FA3' },
+            { name: '韩系表情', price: 5000, count: 12, color: '#7C4DFF' },
+            { name: '爱豆日常', price: 8000, count: 16, color: '#4CD964' },
+            { name: '粉丝应援', price: 6000, count: 10, color: '#FFD700' },
+            { name: '泡泡专属', price: 10000, count: 20, color: '#FF69B4' }
+        ];
+        for (var pi = 0; pi < stickerPacks.length; pi++) {
+            var sp = stickerPacks[pi];
+            var owned = gameState.bubbleStickers && gameState.bubbleStickers.indexOf(sp.name) >= 0;
+            contentHtml += '<div class="card" style="display:flex;align-items:center;gap:12px;">'
+                + '<div style="width:48px;height:48px;border-radius:12px;background:' + sp.color + ';color:white;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;">' + sp.name.charAt(0) + '</div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-weight:600;font-size:14px;">' + sp.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + sp.count + '个表情</div>'
+                + '</div>'
+                + (owned ? '<span style="color:var(--color-success);font-weight:600;font-size:12px;">已拥有</span>'
+                   : '<button class="btn btn-sm btn-primary" onclick="buyStickerPack(\'' + sp.name + '\',' + sp.price + ')">' + sp.price.toLocaleString() + '金币</button>')
+                + '</div>';
+        }
     }
-    
+
     container.innerHTML = '<div class="page active">'
         + '<div class="page-header">'
         + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
@@ -3600,15 +3642,49 @@ function render泡泡Page(container) {
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="page-content">'
-        + '<div style="display:flex;gap:6px;margin-bottom:12px;">'
-        + '<button class="btn btn-sm btn-primary" onclick="switch泡泡Tab(\'inbox\')" style="flex:1;">收件箱</button>'
-        + '<button class="btn btn-sm btn-secondary" onclick="switch泡泡Tab(\'sent\')" style="flex:1;">已发送</button>'
-        + '<button class="btn btn-sm btn-secondary" onclick="switch泡泡Tab(\'chats\')" style="flex:1;">聊天</button>'
-        + '</div>'
+        + tabBtns
         + '<div id="bubbleContent">'
-        + msgsHtml
+        + contentHtml
         + '</div>'
         + '</div></div>';
+}
+
+function buyStickerPack(name, price) {
+    if (gameState.money < price) { showToast('金币不足'); return; }
+    if (!gameState.bubbleStickers) gameState.bubbleStickers = [];
+    if (gameState.bubbleStickers.indexOf(name) >= 0) { showToast('已拥有该表情包'); return; }
+    showModal('购买表情包', '确认购买「' + name + '」？\n价格: ' + price.toLocaleString() + ' 金币', [
+        { text: '取消', action: closeModal },
+        { text: '确认', action: function() {
+            gameState.money -= price;
+            gameState.bubbleStickers.push(name);
+            closeModal();
+            showToast('已购买「' + name + '」');
+            triggerSilentSave();
+            render();
+        }}
+    ]);
+}
+
+function showBubblePlusMenu() {
+    var stickerHtml = '';
+    if (gameState.bubbleStickers && gameState.bubbleStickers.length > 0) {
+        stickerHtml = '<div style="font-weight:600;margin-bottom:8px;">我的表情包</div>';
+        for (var si = 0; si < gameState.bubbleStickers.length; si++) {
+            var sn = gameState.bubbleStickers[si];
+            stickerHtml += '<div class="card" style="padding:10px;cursor:pointer;margin-bottom:6px;" onclick="insertBubbleSticker(\'' + sn + '\')">'
+                + '<div style="font-size:13px;">[' + sn + ']</div></div>';
+        }
+    }
+    showModal('添加内容', stickerHtml + '<div style="font-size:12px;color:var(--color-text-light);margin-top:8px;">更多内容开发中...</div>', [
+        { text: '关闭', action: closeModal }
+    ]);
+}
+
+function insertBubbleSticker(name) {
+    var input = document.getElementById('bubbleInboxInput');
+    if (input) input.value = '[' + name + '] ';
+    closeModal();
 }
 
 function translateBubbleMsg(idx) {
@@ -4286,8 +4362,10 @@ function orderFood(name, price, 体力) {
         { text: '确认购买', action: function() {
             gameState.money -= price;
             gameState.体力 = Math.min(gameState.max体力, gameState.体力 + 体力);
+            if (!gameState.inventory) gameState.inventory = [];
+            gameState.inventory.push({ name: name, effect: '体力', value: 体力 });
             closeModal();
-            showToast('+' + 体力 + ' 体力');
+            showToast('+' + 体力 + ' 体力，已存入背包');
             render();
         }}
     ]);
@@ -5847,7 +5925,7 @@ function performMusicShow() {
 function renderComebackPage(container) {
     var cb = gameState.comeback;
     if (!cb) {
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">新专辑回归</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;">'
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归计划</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;">'
             + '<div style="font-size:48px;margin-bottom:16px;">M</div>'
             + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">准备新回归</div>'
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">需要: 50体力 + 50,000金币</div>'
@@ -5855,7 +5933,7 @@ function renderComebackPage(container) {
             + '</div></div>';
         return;
     }
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">新专辑回归</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归计划</div><div style="width:32px;"></div></div><div class="page-content">';
     
     if (cb.phase === 'concept') {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
@@ -6318,15 +6396,15 @@ function performOnMusicShow(idx) {
     if (gameState.体力 < 20) { showToast('体力不足，需要20体力'); return; }
     // Allow Idol to perform on music shows with or without active comeback
     if (!gameState.comeback) {
-        // No comeback at all, still allow but with lower base
-    } else if (gameState.comeback.phase !== 'musicShow') {
-        // Comeback exists but not in music show phase, still allow
+        gameState.comeback = { phase: 'musicshow', musicShowResults: [], concept: null, titleTrack: null, mvQuality: 0, promotion: 0, daysLeft: 0, totalFirsts: 0 };
     }
-    gameState.体力 = Math.max(0, gameState.体力 - 20);
-    var baseScore = (gameState.comeback && gameState.comeback.phase === 'musicShow') ? 50 : 25; var score = Math.floor(Math.random() * 30) + baseScore + Math.floor((gameState.fame || 30) / 5);
-    var rank = score >= 90 ? 1 : score >= 75 ? 2 : score >= 60 ? 3 : Math.floor(Math.random() * 3) + 4;
-    var result = { show: show.name, score: score, rank: rank };
+    if (!gameState.comeback.phase) gameState.comeback.phase = 'musicshow';
     if (!gameState.comeback.musicShowResults) gameState.comeback.musicShowResults = [];
+    var isMusicShowPhase = gameState.comeback.phase === 'musicshow' || gameState.comeback.phase === 'musicShow';
+    gameState.体力 = Math.max(0, gameState.体力 - 20);
+    var baseScore = isMusicShowPhase ? 50 : 25; var score = Math.floor(Math.random() * 30) + baseScore + Math.floor((gameState.fame || 30) / 5);
+    var rank = score >= 90 ? 1 : score >= 75 ? 2 : score >= 60 ? 3 : Math.floor(Math.random() * 3) + 4;
+    var result = { show: show.name, score: score, rank: rank, label: (rank === 1 ? '1位' : rank + '位') };
     gameState.comeback.musicShowResults.push(result);
     var rankText = rank === 1 ? '1位! 恭喜一位!' : rank + '位';
     showModal(show.name + ' 出演结果', '得分: ' + score + '分\n排名: ' + rankText);
@@ -6538,8 +6616,8 @@ function renderKpopWikiPage(container) {
         for (var gi = 0; gi < gKeys.length; gi++) {
             var g = company.groups[gKeys[gi]];
             html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);line-height:1.6;">'
-                + '<div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;box-sizing:border-box;padding-right:8px;line-height:1.4;">' + g.name + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + g.desc + '</div>'
+                + '<div style="font-weight:600;font-size:13px;word-break:break-all;max-width:100%;box-sizing:border-box;padding-right:8px;line-height:1.4;">' + g.name + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);line-height:1.4;margin-top:2px;word-break:break-all;">' + g.desc + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;line-height:1.4;">成员: ' + g.members.length + '人</div></div>';
         }
         html += '</div></div>';
@@ -6837,7 +6915,57 @@ function renderWeeklyMonthlyExamSection() {
            : '<span style="font-size:12px;color:var(--color-text-light);">\u672a\u5f00\u653e</span>')
         + '</div></div></div>';
     html += '<div style="font-size:11px;color:var(--color-text-light);margin-top:8px;line-height:1.5;">\u8d85\u65f6\u672a\u53c2\u52a0\u5c06\u6263\u9664\u80fd\u529b\u548c\u4fe1\u8a89\uff0c\u8bf7\u53ca\u65f6\u53c2\u52a0\uff01</div>';
+    // Random inspection section
+    if (!gameState.randomInspection) gameState.randomInspection = { lastDay: '', done: false, passed: false };
+    var todayStr = new Date().toDateString();
+    if (gameState.randomInspection.lastDay !== todayStr) {
+        gameState.randomInspection.done = false;
+        gameState.randomInspection.passed = false;
+        gameState.randomInspection.lastDay = todayStr;
+    }
+    html += '<div class="card" style="margin-top:8px;border-left:4px solid #FF69B4;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+        + '<div>'
+        + '<div style="font-weight:600;color:#FF69B4;">随机检测</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">每日不定时检查，通过全能力+15</div>'
+        + '</div>'
+        + '<div>'
+        + (gameState.randomInspection.done ? (gameState.randomInspection.passed ? '<span style="color:var(--color-success);font-weight:600;font-size:13px;">已通过</span>' : '<span style="color:var(--color-danger);font-weight:600;font-size:13px;">未通过</span>')
+           : '<button class="btn btn-sm btn-primary" style="background:#FF69B4;border-color:#FF69B4;" onclick="takeRandomInspection()">接受检测</button>')
+        + '</div></div></div>';
     return html;
+}
+
+function takeRandomInspection() {
+    if (!gameState.randomInspection) gameState.randomInspection = { lastDay: '', done: false, passed: false };
+    var todayStr = new Date().toDateString();
+    if (gameState.randomInspection.lastDay === todayStr && gameState.randomInspection.done) {
+        showToast('今日已参加过随机检测');
+        return;
+    }
+    var statKeys = Object.keys(gameState.stats);
+    var allPass = true;
+    var details = '';
+    for (var i = 0; i < statKeys.length; i++) {
+        var val = gameState.stats[statKeys[i]];
+        var threshold = 30 + Math.floor(Math.random() * 30);
+        var passed = val >= threshold;
+        var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
+        details += statNames[statKeys[i]] + ': ' + val + ' (门槛' + threshold + ') ' + (passed ? '通过' : '未通过') + '\n';
+        if (!passed) allPass = false;
+    }
+    if (allPass) {
+        for (var j = 0; j < statKeys.length; j++) {
+            gameState.stats[statKeys[j]] = Math.min(200, gameState.stats[statKeys[j]] + 15);
+        }
+        details += '\n恭喜！全部通过，所有能力+15！';
+    } else {
+        details += '\n未全部通过，下次继续加油！';
+    }
+    gameState.randomInspection = { lastDay: todayStr, done: true, passed: allPass };
+    showModal('随机检测结果', details);
+    triggerSilentSave();
+    render();
 }
 
 // ==================== GACHA SYSTEM (抽卡系统) ====================
@@ -7335,11 +7463,6 @@ function _ensureKakaoState() {
     if (!gameState.kakaoChats) gameState.kakaoChats = {};
     if (!gameState.kakaoFriends) {
         gameState.kakaoFriends = [
-            { name: '朴智恩(Park Ji-eun)', nameEn: 'Park Ji-eun', personality: 'protective', specialty: '声乐', avatarColor: '#FF8FA3', online: true },
-            { name: '金敏浩(Kim Min-ho)', nameEn: 'Kim Min-ho', personality: 'helpful', specialty: '舞蹈', avatarColor: '#7EC8E3', online: true },
-            { name: '崔瑞妍(Choi Seo-yeon)', nameEn: 'Choi Seo-yeon', personality: 'hostile', specialty: '说唱', avatarColor: '#C8A2C8', online: true },
-            { name: '李俊赫(Lee Jun-hyuk)', nameEn: 'Lee Jun-hyuk', personality: 'backstabber', specialty: '表演', avatarColor: '#98D8AA', online: true },
-            { name: '郑河娜(Jung Ha-na)', nameEn: 'Jung Ha-na', personality: 'prankster', specialty: '综艺', avatarColor: '#FFD700', online: true },
             { name: '代表经纪人(Manager)', nameEn: 'Manager Kim', personality: 'helpful', specialty: '经纪人', avatarColor: '#4A90D9', online: true, isManager: true }
         ];
     }
@@ -7378,6 +7501,50 @@ function _ensureKakaoState() {
                 }
             }
         }
+    }
+    // Add trainee colleagues for Trainees
+    if (gameState.player.role === 'Trainee') {
+        var _traineeNames = ['练习生小美', '练习生俊宇', '练习生秀贤', '练习生恩菲'];
+        var _traineePers = ['helpful', 'prankster', 'protective', 'helpful'];
+        var _traineeSpec = ['声乐', '舞蹈', '说唱', '表演'];
+        var _traineeColors = ['#FF8FA3', '#7EC8E3', '#C8A2C8', '#98D8AA'];
+        for (var ti = 0; ti < _traineeNames.length; ti++) {
+            var _texists = false;
+            for (var tfi = 0; tfi < gameState.kakaoFriends.length; tfi++) {
+                if (gameState.kakaoFriends[tfi].name === _traineeNames[ti]) { _texists = true; break; }
+            }
+            if (!_texists) {
+                gameState.kakaoFriends.push({
+                    name: _traineeNames[ti], nameEn: _traineeNames[ti], personality: _traineePers[ti],
+                    specialty: _traineeSpec[ti], avatarColor: _traineeColors[ti], online: true,
+                    isTeammate: false
+                });
+            }
+        }
+    }
+    // Remove friends from other companies (only keep same company + manager)
+    var _playerComp = gameState.player.company;
+    if (_playerComp && COMPANIES[_playerComp]) {
+        var _validNames = ['代表经纪人(Manager)'];
+        var _comp2 = COMPANIES[_playerComp];
+        var _gk2 = Object.keys(_comp2.groups);
+        for (var gk2i = 0; gk2i < _gk2.length; gk2i++) {
+            var _gm2 = _comp2.groups[_gk2[_gk2i]].members;
+            for (var gm2i = 0; gm2i < _gm2.length; gm2i++) {
+                var _gm2n = (typeof _gm2[_gm2i] === 'object') ? _gm2[_gm2i].name : _gm2[_gm2i];
+                _validNames.push(_gm2n);
+            }
+        }
+        if (gameState.player.role === 'Trainee') {
+            _validNames.push('练习生小美', '练习生俊宇', '练习生秀贤', '练习生恩菲');
+        }
+        var _filtered = [];
+        for (var fi = 0; fi < gameState.kakaoFriends.length; fi++) {
+            if (_validNames.indexOf(gameState.kakaoFriends[fi].name) >= 0) {
+                _filtered.push(gameState.kakaoFriends[fi]);
+            }
+        }
+        gameState.kakaoFriends = _filtered;
     }
 }
 
@@ -7471,6 +7638,14 @@ function renderKakaoTalkPage(container) {
 function _renderKakaoChatList() {
     var html = '';
     var friends = gameState.kakaoFriends;
+    // Sort: manager first, then teammates, then others
+    friends.sort(function(a, b) {
+        if (a.isManager && !b.isManager) return -1;
+        if (!a.isManager && b.isManager) return 1;
+        if (a.isTeammate && !b.isTeammate) return -1;
+        if (!a.isTeammate && b.isTeammate) return 1;
+        return 0;
+    });
     var hasChats = false;
     for (var i = 0; i < friends.length; i++) {
         var f = friends[i];
@@ -7482,7 +7657,7 @@ function _renderKakaoChatList() {
             lastMsg = chats[chats.length - 1].text;
             lastTime = chats[chats.length - 1].time;
         }
-        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'\' + f.name + \'\';goToPage(\'kakaochat\');">'
+        html += '<div class="kakao-friend-item" data-fname="' + f.name + '" onclick="gameState.kakaoCurrentChat=this.dataset.fname;goToPage(\'kakaochat\');">'
             + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
@@ -7502,9 +7677,17 @@ function _renderKakaoChatList() {
 function _renderKakaoFriendList() {
     var html = '';
     var friends = gameState.kakaoFriends;
+    // Sort: manager first, then teammates, then others
+    friends.sort(function(a, b) {
+        if (a.isManager && !b.isManager) return -1;
+        if (!a.isManager && b.isManager) return 1;
+        if (a.isTeammate && !b.isTeammate) return -1;
+        if (!a.isTeammate && b.isTeammate) return 1;
+        return 0;
+    });
     for (var i = 0; i < friends.length; i++) {
         var f = friends[i];
-        html += '<div class="kakao-friend-item" onclick="gameState.kakaoCurrentChat=\'\' + f.name + \'\';goToPage(\'kakaochat\');">'
+        html += '<div class="kakao-friend-item" data-fname="' + f.name + '" onclick="gameState.kakaoCurrentChat=this.dataset.fname;goToPage(\'kakaochat\');">'
             + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
