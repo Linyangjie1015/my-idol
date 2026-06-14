@@ -7016,7 +7016,8 @@ function sendKakaoMessage() {
 // ==================== ACCOUNT SYSTEM ====================
 function _getSaveKey(slot) {
     var user = localStorage.getItem('myIdolCurrentUser');
-    var s = (typeof slot === 'number') ? slot : current存档;
+    var s = (typeof slot === 'number') ? slot : parseInt(slot, 10);
+    if (isNaN(s)) s = current存档;
     if (user) return 'myIdolSave_' + user + '_' + s;
     return 'myIdolSave_guest_' + s;
 }
@@ -7239,6 +7240,7 @@ function _createNewCharacter() {
 }
 
 function _loadSlot(slot) {
+    slot = parseInt(slot, 10);
     var key = _getSaveKey(slot);
     var data = localStorage.getItem(key);
     if (data) {
@@ -7262,6 +7264,7 @@ function _loadSlot(slot) {
 }
 
 function _startNewSlot(slot) {
+    slot = parseInt(slot, 10);
     current存档 = slot;
     creationStep = 1;
     Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
