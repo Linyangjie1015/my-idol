@@ -9,6 +9,71 @@ if (!String.prototype.padStart) { String.prototype.padStart = function padStart(
 function navTo(page) { goToPage(page); }
 function setAndNav(stateExpr, page) { eval(stateExpr); goToPage(page); }
 
+// ==================== CARD IMAGE MAPPING ====================
+var CARD_IMG_BASE = 'imgs/cards/';
+var CARD_IMG_MAP = {
+    '金始源': 'card_haeoreum_leader.jpg',
+    '崔娜恩': 'card_haeoreum_main_vocal.jpg',
+    '朴智宇': 'card_haeoreum_main_dancer.jpg',
+    '李贤珍': 'card_haeoreum_lead_vocal.jpg',
+    '郑瑞夏': 'card_haeoreum_maknae.jpg',
+    '洪秀贤': 'card_haeoreum_sub_vocal.jpg',
+    '姜正勋': 'card_nuriwave_leader.jpg',
+    '韩有珍': 'card_nuriwave_main_rapper.jpg',
+    '文采媛': 'card_nuriwave_main_dancer.jpg',
+    '裴成雅': 'card_nuriwave_main_vocal.jpg',
+    '安敏宇': 'card_nuriwave_maknae.jpg',
+    '刘泰民': 'card_nuriwave_sub_dancer.jpg',
+    '李承宇': 'card_starapex_leader.jpg',
+    '金秀珍': 'card_starapex_main_vocal.jpg',
+    '朴贤浩': 'card_starapex_main_rapper.jpg',
+    '崔允成': 'card_starapex_main_dancer.jpg',
+    '姜世夏': 'card_starapex_maknae.jpg',
+    '申惠珍': 'card_starapex_sub_vocal.jpg',
+    '张太宇': 'card_taegiflow_leader.jpg',
+    '柳夏俊': 'card_taegiflow_main_rapper.jpg',
+    '徐俊浩': 'card_taegiflow_main_dancer.jpg',
+    '元宇英': 'card_taegiflow_main_vocal.jpg',
+    '田大贤': 'card_taegiflow_maknae.jpg',
+    '朴瑞俊': 'card_taegiflow_lead_rapper.jpg',
+    '金娜里': 'card_blackluna_leader.jpg',
+    '尹世珍': 'card_blackluna_main_vocal.jpg',
+    '洪智延': 'card_blackluna_main_rapper.jpg',
+    '林昭恩': 'card_blackluna_main_dancer.jpg',
+    '采有珍': 'card_blackluna_maknae.jpg',
+    '崔恩雅': 'card_blackluna_sub_vocal.jpg',
+    '金熙仙': 'card_wavebright_leader.jpg',
+    '朴都贤': 'card_wavebright_main_vocal.jpg',
+    '刘光民': 'card_wavebright_main_rapper.jpg',
+    '申延宇': 'card_wavebright_main_dancer.jpg',
+    '韩承雅': 'card_wavebright_maknae.jpg',
+    '韩俊书': 'card_wavebright_lead_vocal.jpg',
+    '李光翼': 'card_funkyglow_leader.jpg',
+    '崔成烈': 'card_funkyglow_main_rapper.jpg',
+    '刘泰珍': 'card_funkyglow_main_vocal.jpg',
+    '元智恩': 'card_funkyglow_main_dancer.jpg',
+    '裴敏宰': 'card_funkyglow_maknae.jpg',
+    '崔敏赫': 'card_funkyglow_sub_rapper.jpg',
+    '田锡珍': 'card_mythecho_leader.jpg',
+    '金智勋': 'card_mythecho_main_rapper.jpg',
+    '朴熙英': 'card_mythecho_main_vocal.jpg',
+    '郑泽均': 'card_mythecho_main_dancer.jpg',
+    '姜柔娜': 'card_mythecho_maknae.jpg',
+    '郑浩镇': 'card_mythecho_sub_vocal.jpg',
+    '金茶媛': 'card_crushaura_leader.jpg',
+    '郑瑞妍': 'card_crushaura_main_dancer.jpg',
+    '洪恩智': 'card_crushaura_main_rapper.jpg',
+    '林娜延': 'card_crushaura_main_vocal.jpg',
+    '裴秀珍': 'card_crushaura_maknae.jpg',
+    '李泰永': 'card_crushaura_lead_dancer.jpg'
+};
+
+function _getCardImgUrl(cardName) {
+    var cn = cardName.replace(/\(.*?\)/, '').replace(/[\s\u3000]/g, '');
+    if (CARD_IMG_MAP[cn]) return CARD_IMG_BASE + CARD_IMG_MAP[cn];
+    return '';
+}
+
 // ==================== GAME DATA ====================
 var COMPANIES = {
     "SM Entertainment": {
@@ -7762,8 +7827,8 @@ function renderGachaPage(container) {
             var _starStr = '';
             for (var _si = 0; _si < (c.stars || 1); _si++) _starStr += '\u2605';
             html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;cursor:pointer;' + hidBorder + '" onclick="showCardDetail(\'' + _pool + '\',\'' + _cid + '\')">'
-                + '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'
-                + '<div style="font-size:8px;opacity:0.8;">' + t + '</div>'
+                + (function(){ var _iu = _getCardImgUrl(c.name); if (_iu) return '<div style="position:absolute;top:0;left:0;width:100%;height:100%;"><img src="' + _iu + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:8px;" onerror="this.parentNode.style.display=\'none\'"></div><div style="font-weight:700;font-size:14px;position:relative;z-index:1;">' + c.name.charAt(0) + '</div>'; return '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'; })()
+                + '<div style="font-size:8px;opacity:0.8;position:relative;z-index:1;">' + t + '</div>'
                 + (isHid ? '<div style="position:absolute;top:1px;right:2px;font-size:7px;color:#FFD700;">*</div>' : '')
                 + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
                 + '<div style="position:absolute;top:1px;left:2px;font-size:6px;color:#FFD700;">' + _starStr + '</div>'
@@ -7794,11 +7859,20 @@ function showCardDetail(pool, cardId) {
     for (var _si = 0; _si < (card.stars || 1); _si++) _starStr += '\u2605';
     var needFragments = (card.stars || 1) < 3 ? (card.stars || 1) + 1 : 0;
     var canUpgrade = needFragments > 0 && (card.fragments || 0) >= needFragments;
+    var _detailImgUrl = _getCardImgUrl(card.name);
+    var _detailCardInner = '';
+    if (_detailImgUrl) {
+        _detailCardInner = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:16px;overflow:hidden;"><img src="' + _detailImgUrl + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.parentNode.style.display=\'none\'"></div>'
+            + '<div style="font-size:16px;font-weight:600;position:relative;z-index:1;">' + t + '\u7ea7</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;position:relative;z-index:1;">' + (tierNames[t] || '') + '</div>';
+    } else {
+        _detailCardInner = '<div style="font-size:36px;font-weight:700;">' + card.name.charAt(0) + '</div>'
+            + '<div style="font-size:16px;font-weight:600;margin-top:4px;">' + t + '\u7ea7</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">' + (tierNames[t] || '') + '</div>';
+    }
     var html = '<div style="text-align:center;">'
         + '<div style="width:120px;height:160px;border-radius:16px;background:linear-gradient(135deg,' + color + ',' + color + '66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;margin:0 auto 16px;position:relative;' + (card.isHidden ? 'border:2px solid #FFD700;box-shadow:0 0 12px rgba(255,215,0,0.5);' : '') + '">'
-        + '<div style="font-size:36px;font-weight:700;">' + card.name.charAt(0) + '</div>'
-        + '<div style="font-size:16px;font-weight:600;margin-top:4px;">' + t + '\u7ea7</div>'
-        + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">' + (tierNames[t] || '') + '</div>'
+        + _detailCardInner
         + (card.isHidden ? '<div style="position:absolute;top:4px;right:6px;font-size:9px;color:#FFD700;">HIDDEN</div>' : '')
         + '<div style="position:absolute;bottom:6px;font-size:12px;color:#FFD700;">' + _starStr + '</div>'
         + '</div>'
@@ -8038,13 +8112,27 @@ function _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, isDramatic) 
     var animClass = isDramatic ? 'gacha-card-el' : 'gacha-card-el';
     var glowShadow = t === 'S' ? 'animation:gachaPulse 2s infinite;' : t === 'A' ? 'box-shadow:0 0 20px rgba(199,125,255,0.5);' : '';
     var shimmerBg = (t === 'S' || t === 'A') ? 'background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);background-size:200% 100%;animation:gachaShimmer 2s infinite;' : '';
+    var imgUrl = _getCardImgUrl(c.name);
+    var cardInner = '';
+    if (imgUrl) {
+        cardInner = '<img src="' + imgUrl + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">'
+            + '<div style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">'
+            + '<div style="font-size:44px;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,0.3);">' + c.name.charAt(0) + '</div>'
+            + '<div style="font-size:14px;font-weight:600;margin-top:6px;">' + c.name + '</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">' + c.group + '</div>'
+            + '</div>';
+    } else {
+        cardInner = '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+            + '<div style="font-size:44px;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,0.3);">' + c.name.charAt(0) + '</div>'
+            + '<div style="font-size:14px;font-weight:600;margin-top:6px;">' + c.name + '</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">' + c.group + '</div>'
+            + '</div>';
+    }
     return '<div class="' + animClass + '" style="width:170px;height:230px;border-radius:16px;background:' + tierBg[t] + ';border:' + tierBorder[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;' + glowShadow + '">'
         + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:16px;' + shimmerBg + '"></div>'
-        + '<div style="position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;">' + (tierLabel[t] || t) + '</div>'
-        + '<div style="font-size:44px;font-weight:700;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,0.3);">' + c.name.charAt(0) + '</div>'
-        + '<div style="font-size:14px;font-weight:600;margin-top:6px;z-index:1;">' + c.name + '</div>'
-        + '<div style="font-size:11px;opacity:0.8;margin-top:2px;z-index:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">' + c.group + '</div>'
-        + (c.isDuplicate ? '<div style="font-size:11px;margin-top:8px;opacity:0.9;z-index:1;background:rgba(0,0,0,0.3);padding:2px 8px;border-radius:8px;">碎片+1</div>' : '<div style="font-size:11px;margin-top:8px;opacity:0.9;z-index:1;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:8px;">NEW!</div>')
+        + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;">' + cardInner + '</div>'
+        + '<div style="position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;z-index:2;">' + (tierLabel[t] || t) + '</div>'
+        + (c.isDuplicate ? '<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;opacity:0.9;z-index:2;background:rgba(0,0,0,0.3);padding:2px 8px;border-radius:8px;">碎片+1</div>' : '<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;opacity:0.9;z-index:2;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:8px;">NEW!</div>')
         + '</div>'
         + '<div style="font-weight:700;font-size:16px;margin-top:12px;color:white;">' + c.name + '</div>'
         + '<div style="font-size:13px;opacity:0.7;color:white;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + c.company + ' / ' + c.group + '</div>';
@@ -8053,11 +8141,24 @@ function _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, isDramatic) 
 function _buildMiniCardHTML(c, t, tierColors, tierBg, tierBorder, index) {
     var glowShadow = t === 'S' ? 'animation:gachaPulse 2s infinite;' : t === 'A' ? 'box-shadow:0 0 12px rgba(199,125,255,0.5);' : '';
     var shimmerBg = (t === 'S' || t === 'A') ? 'background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent);background-size:200% 100%;animation:gachaShimmer 2s infinite;' : '';
+    var imgUrl = _getCardImgUrl(c.name);
+    var miniInner = '';
+    if (imgUrl) {
+        miniInner = '<img src="' + imgUrl + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';">'
+            + '<div style="display:none;width:100%;height:100%;flex-direction:column;align-items:center;justify-content:center;">'
+            + '<div style="font-size:16px;font-weight:700;">' + c.name.charAt(0) + '</div>'
+            + '<div style="font-size:9px;">' + t + '</div>'
+            + '</div>';
+    } else {
+        miniInner = '<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+            + '<div style="font-size:16px;font-weight:700;">' + c.name.charAt(0) + '</div>'
+            + '<div style="font-size:9px;">' + t + '</div>'
+            + '</div>';
+    }
     return '<div class="gacha-mini-el" style="width:62px;height:82px;border-radius:10px;background:' + tierBg[t] + ';border:' + tierBorder[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;' + glowShadow + 'opacity:0;">'
         + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:10px;' + shimmerBg + '"></div>'
-        + '<div style="font-size:16px;font-weight:700;z-index:1;">' + c.name.charAt(0) + '</div>'
-        + '<div style="font-size:9px;z-index:1;">' + t + '</div>'
-        + (c.isDuplicate ? '<div style="position:absolute;top:2px;right:4px;font-size:7px;opacity:0.8;z-index:1;">+1</div>' : '<div style="position:absolute;top:2px;left:4px;font-size:7px;opacity:0.8;z-index:1;">NEW</div>')
+        + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;">' + miniInner + '</div>'
+        + (c.isDuplicate ? '<div style="position:absolute;top:2px;right:4px;font-size:7px;opacity:0.8;z-index:2;">+1</div>' : '<div style="position:absolute;top:2px;left:4px;font-size:7px;opacity:0.8;z-index:2;">NEW</div>')
         + '</div>';
 }
 
