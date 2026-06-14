@@ -526,7 +526,7 @@ function checkInviteCode() {
     if (INVITE_CODES.indexOf(code) !== -1) {
         if(btnEl) btnEl.textContent='验证中...';
         window._inviteVerified = true;
-        localStorage.setItem('myIdolInviteVerified', 'true');
+        /* localStorage.setItem('myIdolInviteVerified', 'true'); */
         currentPage = 'welcome';
         render();
     } else {
@@ -546,11 +546,11 @@ function render() {
     var app = document.getElementById('app');
     if (!app) return;
     try {
-        if (!window._inviteVerified && !localStorage.getItem('myIdolInviteVerified')) {
+        if (!window._inviteVerified) {
             renderInviteCodePage(app);
             return;
         }
-        if (!window._inviteVerified && localStorage.getItem('myIdolInviteVerified')) {
+        if (!window._inviteVerified && false) {
             window._inviteVerified = true;
         }
         switch(currentPage) {
@@ -7643,7 +7643,7 @@ document.addEventListener('visibilitychange', function() {
         triggerSilentSave();
     }
     if (document.visibilityState === 'visible' && gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
-        render();
+        window._inviteVerified=false;render();
     }
 });
 
