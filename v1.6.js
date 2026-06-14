@@ -3482,6 +3482,7 @@ function breakup() {
 }
 
 // ==================== BUBBLE & WEVERSE ====================
+var bubbleChatTarget = '';
 var bubbleMultilangMessages = [
     { from: 'fan_lover', orig: '당신의 최신 공연이 정말 멋져요!', zh: '你最新的表演太棒了！', lang: 'ko', time: '刚刚' },
     { from: 'kpop_stan', orig: 'ライブ配信をお願いします！', zh: '请开直播吧！', lang: 'ja', time: '5分钟前' },
@@ -3496,6 +3497,30 @@ var bubbleMultilangMessages = [
 
 function render泡泡Page(container) {
     if (!gameState.bubbleUnread) gameState.bubbleUnread = 0;
+    if (!gameState.bubbleChats) gameState.bubbleChats = {};
+    if (!gameState.bubble已发送) gameState.bubble已发送 = [];
+    if (bubbleChatTarget) {
+        var chatMsgs = gameState.bubbleChats[bubbleChatTarget] || [];
+        var chatHtml = '<div style="flex:1;overflow-y:auto;padding:12px;" id="bubbleChatArea">';
+        for (var ci = 0; ci < chatMsgs.length; ci++) {
+            var cm = chatMsgs[ci];
+            chatHtml += '<div class="kakao-msg-row ' + (cm.fromMe ? 'me' : 'npc') + '"><div class="kakao-msg-bubble ' + (cm.fromMe ? 'me' : 'npc') + '">' + cm.text + '</div></div>';
+        }
+        chatHtml += '</div>';
+        container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;">'
+            + '<div class="page-header">'
+            + '<div class="back-btn" onclick="bubbleChatTarget=\'\';render();">\u2039 返回</div>'
+            + '<div class="page-title">' + bubbleChatTarget + '</div>'
+            + '<div style="width:32px;"></div>'
+            + '</div>'
+            + chatHtml
+            + '<div style="display:flex;gap:8px;padding:8px 12px;background:var(--bg-card);border-top:1px solid var(--color-border);">'
+            + '<input type="text" id="bubbleChatInput" placeholder="输入消息..." style="flex:1;margin-bottom:0;font-size:13px;padding:10px 14px;">'
+            + '<button class="btn btn-sm btn-primary" onclick="send泡泡Chat()" style="padding:10px 14px;">发送</button>'
+            + '</div></div>';
+        setTimeout(function(){ var area = document.getElementById('bubbleChatArea'); if(area) area.scrollTop = area.scrollHeight; }, 100);
+        return;
+    }
     var messages = bubbleMultilangMessages;
     
     var msgsHtml = '';
@@ -3509,8 +3534,10 @@ function render泡泡Page(container) {
             + '<span style="font-size:11px;color:var(--color-text-light);">' + m.time + '</span>'
             + '</div>'
             + '<p style="font-size:14px;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="translateBubbleMsg(' + i + ')">翻译</span></p>'
-            + '<button class="btn btn-sm btn-secondary" data-from="'+m.from+'" onclick="window._replyTarget=this.dataset.from;replyTo泡泡()" style="margin-top:10px;">回复</button>'
-            + '</div>';
+            + '<div style="display:flex;gap:8px;margin-top:10px;">'
+            + '<button class="btn btn-sm btn-secondary" data-from="'+m.from+'" onclick="window._replyTarget=this.dataset.from;replyTo泡泡()">回复</button>'
+            + '<button class="btn btn-sm btn-primary" data-from="'+m.from+'" onclick="bubbleChatTarget=this.dataset.from;render();">聊天</button>'
+            + '</div></div>';
     }
     
     container.innerHTML = '<div class="page active">'
@@ -3520,9 +3547,10 @@ function render泡泡Page(container) {
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="page-content">'
-        + '<div style="display:flex;gap:8px;margin-bottom:16px;">'
-        + '<button class="btn btn-sm btn-primary" onclick="switch泡泡Tab(\'inbox\')" id="bubble收件箱" style="flex:1;">收件箱</button>'
-        + '<button class="btn btn-sm btn-secondary" onclick="switch泡泡Tab(\'sent\')" id="bubble已发送" style="flex:1;">已发送</button>'
+        + '<div style="display:flex;gap:6px;margin-bottom:12px;">'
+        + '<button class="btn btn-sm btn-primary" onclick="switch泡泡Tab(\'inbox\')" style="flex:1;">收件箱</button>'
+        + '<button class="btn btn-sm btn-secondary" onclick="switch泡泡Tab(\'sent\')" style="flex:1;">已发送</button>'
+        + '<button class="btn btn-sm btn-secondary" onclick="switch泡泡Tab(\'chats\')" style="flex:1;">聊天</button>'
         + '</div>'
         + '<div id="bubbleContent">'
         + msgsHtml
@@ -3543,17 +3571,30 @@ function translateBubbleMsg(idx) {
     }
 }
 function switch泡泡Tab(tab) {
-    var inboxBtn = document.getElementById('bubble收件箱');
-    var sentBtn = document.getElementById('bubble已发送');
+    if (!gameState.bubbleChats) gameState.bubbleChats = {};
+    if (!gameState.bubble已发送) gameState.bubble已发送 = [];
     var contentEl = document.getElementById('bubbleContent');
-    
+    if (!contentEl) { render(); return; }
     if (tab === 'inbox') {
-        inboxBtn.className = 'btn btn-sm btn-primary';
-        sentBtn.className = 'btn btn-sm btn-secondary';
-        contentEl.innerHTML = '<p style="text-align: center; color: var(--color-text-light);">更多消息加载中...</p>';
-    } else {
-        inboxBtn.className = 'btn btn-sm btn-secondary';
-        sentBtn.className = 'btn btn-sm btn-primary';
+        var messages = bubbleMultilangMessages;
+        var msgsHtml = '';
+        for (var i = 0; i < messages.length; i++) {
+            var m = messages[i];
+            var langTag = m.lang === 'ko' ? '韩' : m.lang === 'ja' ? '日' : 'EN';
+            var langColor = m.lang === 'ko' ? '#FF8FA3' : m.lang === 'ja' ? '#7EC8E3' : '#FFD700';
+            msgsHtml += '<div class="card">'
+                + '<div style="display:flex;justify-content:space-between;margin-bottom:8px;">'
+                + '<span style="font-weight:600;color:var(--color-primary);">' + m.from + ' <span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span></span>'
+                + '<span style="font-size:11px;color:var(--color-text-light);">' + m.time + '</span>'
+                + '</div>'
+                + '<p style="font-size:14px;margin-bottom:4px;">' + m.orig + '</p>'
+                + '<div style="display:flex;gap:8px;margin-top:10px;">'
+                + '<button class="btn btn-sm btn-secondary" data-from="'+m.from+'" onclick="window._replyTarget=this.dataset.from;replyTo泡泡()">回复</button>'
+                + '<button class="btn btn-sm btn-primary" data-from="'+m.from+'" onclick="bubbleChatTarget=this.dataset.from;render();">聊天</button>'
+                + '</div></div>';
+        }
+        contentEl.innerHTML = msgsHtml;
+    } else if (tab === 'sent') {
         var sentHtml = '';
         if (gameState.bubble已发送 && gameState.bubble已发送.length > 0) {
             for (var si = 0; si < gameState.bubble已发送.length; si++) {
@@ -3562,6 +3603,29 @@ function switch泡泡Tab(tab) {
             }
         }
         contentEl.innerHTML = sentHtml || '<p style="text-align: center; color: var(--color-text-light);">暂无已发送消息</p>';
+    } else if (tab === 'chats') {
+        var chatKeys = [];
+        for (var ck in gameState.bubbleChats) {
+            if (gameState.bubbleChats[ck] && gameState.bubbleChats[ck].length > 0) chatKeys.push(ck);
+        }
+        var chatHtml = '';
+        if (chatKeys.length === 0) {
+            chatHtml = '<p style="text-align:center;color:var(--color-text-light);padding:20px;">暂无聊天记录<br>去收件箱找爱豆聊天吧</p>';
+        } else {
+            for (var ki = 0; ki < chatKeys.length; ki++) {
+                var kName = chatKeys[ki];
+                var cMsgs = gameState.bubbleChats[kName];
+                var lastMsg = cMsgs[cMsgs.length - 1] ? cMsgs[cMsgs.length - 1].text : '';
+                chatHtml += '<div class="card" style="cursor:pointer;" onclick="bubbleChatTarget=\''+kName+'\';render();">'
+                    + '<div style="display:flex;align-items:center;">'
+                    + '<div class="avatar-sm" style="width:36px;height:36px;font-size:14px;background:var(--color-primary);color:white;">' + kName.charAt(0).toUpperCase() + '</div>'
+                    + '<div style="margin-left:10px;flex:1;">'
+                    + '<div style="font-weight:600;font-size:13px;">' + kName + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + lastMsg + '</div>'
+                    + '</div></div></div>';
+            }
+        }
+        contentEl.innerHTML = chatHtml;
     }
 }
 
@@ -3579,9 +3643,37 @@ function sendBubbleReply(from) {
     var text = input.value.trim();
     if (!gameState.bubble已发送) gameState.bubble已发送 = [];
     gameState.bubble已发送.push({ to: from, text: text, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
+    if (!gameState.bubbleChats) gameState.bubbleChats = {};
+    if (!gameState.bubbleChats[from]) gameState.bubbleChats[from] = [];
+    gameState.bubbleChats[from].push({ fromMe: true, text: text });
     closeModal();
     showToast('已回复 ' + from);
     render();
+}
+
+function send泡泡Chat() {
+    var input = document.getElementById('bubbleChatInput');
+    if (!input || !input.value.trim() || !bubbleChatTarget) return;
+    var msg = input.value.trim();
+    input.value = '';
+    if (!gameState.bubbleChats) gameState.bubbleChats = {};
+    if (!gameState.bubbleChats[bubbleChatTarget]) gameState.bubbleChats[bubbleChatTarget] = [];
+    gameState.bubbleChats[bubbleChatTarget].push({ fromMe: true, text: msg });
+    gameState.bubbleChats[bubbleChatTarget].push({ fromMe: false, text: '...' });
+    render();
+    var npcCtx = bubbleChatTarget + '在泡泡和粉丝聊天';
+    getAIReply('bubble', npcCtx, msg, function(reply) {
+        if (!gameState.bubbleChats || !gameState.bubbleChats[bubbleChatTarget]) return;
+        for (var ri = gameState.bubbleChats[bubbleChatTarget].length - 1; ri >= 0; ri--) {
+            if (!gameState.bubbleChats[bubbleChatTarget][ri].fromMe && gameState.bubbleChats[bubbleChatTarget][ri].text === '...') {
+                gameState.bubbleChats[bubbleChatTarget][ri].text = reply;
+                break;
+            }
+        }
+        if (!gameState.bubble已发送) gameState.bubble已发送 = [];
+        gameState.bubble已发送.push({ to: bubbleChatTarget, text: msg, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
+        render();
+    });
 }
 
 var weverseMultilangPosts = [
@@ -3591,6 +3683,7 @@ var weverseMultilangPosts = [
 ];
 
 function renderWeversePage(container) {
+    if (!gameState.bubbleChats) gameState.bubbleChats = {};
     if (!gameState.weverseMyPosts) gameState.weverseMyPosts = []; if (!gameState.weverseUnread) gameState.weverseUnread = 0;
     var postsHtml = '';
     for (var i = 0; i < weverseMultilangPosts.length; i++) {
@@ -3617,9 +3710,10 @@ function renderWeversePage(container) {
         + '</div>'
         + '<div class="page-content">'
         + '<button class="btn btn-primary btn-lg" onclick="postToWeverse()" style="margin-bottom:16px;">+ 发布动态</button>'
-        + postsHtml
-        + '<div class="section-title" style="margin-top:16px;">我的发布</div>'
+        + '<div class="section-title">我的发布</div>'
         + (gameState.weverseMyPosts.length === 0 ? '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有发过动态</div></div>' : (function(){ var myHtml = ''; for(var wi=0;wi<gameState.weverseMyPosts.length;wi++){ var wp=gameState.weverseMyPosts[wi]; myHtml += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="avatar-sm">' + (gameState.player.avatar||'') + '</div><div style="margin-left:8px;"><div style="font-weight:600;">' + (gameState.player.name||'') + '</div><div style="font-size:11px;color:var(--color-text-light);">' + wp.time + '</div></div></div><p style="font-size:14px;">' + wp.text + '</p></div>'; } return myHtml; })())
+        + '<div class="section-title" style="margin-top:16px;">爱豆动态</div>'
+        + postsHtml
         + '</div></div>';
 }
 
@@ -3647,7 +3741,9 @@ function postToWeverse() {
                 gameState.fans += Math.floor(Math.random() * 30) + 10;
                 gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 2) + 1);
                 gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 2) + 1);
-                showModal('发布成功', '你的动态已发布！');
+                closeModal();
+                showToast('动态已发布');
+                render();
             }
         }}
     ]);
@@ -3812,13 +3908,20 @@ function sendInsChat() {
     if (!gameState.npc好感度[insMsgChatUser]) gameState.npc好感度[insMsgChatUser] = 30;
     gameState.insMessages.push({ with: insMsgChatUser, fromMe: true, text: msg });
     render();
-    setTimeout(function() {
-        var reply = getSmartReply(insMsgChatUser, msg, 'ins');
+    gameState.insMessages.push({ with: insMsgChatUser, fromMe: false, text: '...' });
+    render();
+    var npcCtx = insMsgChatUser + '在INS上聊天';
+    getAIReply('ins', npcCtx, msg, function(reply) {
         gameState.npc好感度[insMsgChatUser] = Math.min(100, (gameState.npc好感度[insMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
-        gameState.insMessages.push({ with: insMsgChatUser, fromMe: false, text: reply });
+        for (var ri = gameState.insMessages.length - 1; ri >= 0; ri--) {
+            if (gameState.insMessages[ri].with === insMsgChatUser && !gameState.insMessages[ri].fromMe && gameState.insMessages[ri].text === '...') {
+                gameState.insMessages[ri].text = reply;
+                break;
+            }
+        }
         if (currentPage !== 'ins') gameState.insUnread = (gameState.insUnread || 0) + 1;
         render();
-    }, 1000 + Math.random() * 2000);
+    });
 }
 
 function postToIns() {
@@ -3977,13 +4080,20 @@ function sendTiktokChat() {
     if (!gameState.npc好感度[tiktokMsgChatUser]) gameState.npc好感度[tiktokMsgChatUser] = 30;
     gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: true, text: msg });
     render();
-    setTimeout(function() {
-        var reply = getSmartReply(tiktokMsgChatUser, msg, 'tiktok');
+    gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: false, text: '...' });
+    render();
+    var npcCtx = tiktokMsgChatUser + '在TikTok上聊天';
+    getAIReply('tiktok', npcCtx, msg, function(reply) {
         gameState.npc好感度[tiktokMsgChatUser] = Math.min(100, (gameState.npc好感度[tiktokMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
-        gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: false, text: reply });
+        for (var ri = gameState.tiktokMessages.length - 1; ri >= 0; ri--) {
+            if (gameState.tiktokMessages[ri].with === tiktokMsgChatUser && !gameState.tiktokMessages[ri].fromMe && gameState.tiktokMessages[ri].text === '...') {
+                gameState.tiktokMessages[ri].text = reply;
+                break;
+            }
+        }
         if (currentPage !== 'tiktok') gameState.tiktokUnread = (gameState.tiktokUnread || 0) + 1;
         render();
-    }, 1000 + Math.random() * 2000);
+    });
 }
 
 function simulateVideoPlay(el, index) {
