@@ -6659,7 +6659,7 @@ function renderComebackPage(container) {
                 }
             }
             if (doneCount >= 6) {
-                html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback.phase='done';_finishComeback();render();">查看回归总评</button>';
+                html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback.phase=\'done\';_finishComeback();render();">查看回归总评</button>';
             } else {
                 html += '<div class="section-title">选择节目 (25体力/场)</div>';
                 for (var mi = 0; mi < MUSIC_SHOWS.length; mi++) {
@@ -10068,7 +10068,7 @@ function showInterviewQuestion() {
     var prog = (st.current + 1) + ' / ' + st.questions.length;
     var optsHtml = '';
     for (var oi = 0; oi < q.opts.length; oi++) {
-        optsHtml += '<div onclick="_answerInterview(' + oi + ')" style="padding:12px 16px;margin:6px 0;background:var(--color-card);border-radius:12px;cursor:pointer;font-size:14px;transition:background 0.2s;" onmouseover="this.style.background='var(--color-primary-light)'" onmouseout="this.style.background='var(--color-card)'">'
+        optsHtml += '<div onclick="_answerInterview(' + oi + ')" style="padding:12px 16px;margin:6px 0;background:var(--color-card);border-radius:12px;cursor:pointer;font-size:14px;transition:background 0.2s;" onmouseover="this.style.background=\'var(--color-primary-light)\'" onmouseout="this.style.background=\'var(--color-card)\'">'
             + String.fromCharCode(65 + oi) + '. ' + q.opts[oi] + '</div>';
     }
     var overlay = document.getElementById('modal-overlay');
