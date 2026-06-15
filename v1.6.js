@@ -5,6 +5,27 @@ if (!Object.entries) { Object.entries = function(obj) { var ownProps = Object.ke
 if (!Array.prototype.includes) { Array.prototype.includes = function(searchElement, fromIndex) { if (this == null) throw new TypeError('"this" is null or not defined'); var o = Object(this), len = o.length >>> 0; if (len === 0) return false; var n = fromIndex | 0, k = Math.max(n >= 0 ? n : len - Math.abs(n), 0); while (k < len) { if (o[k] === searchElement) return true; k++; } return false; }; }
 if (!String.prototype.padStart) { String.prototype.padStart = function padStart(targetLength, padString) { targetLength = targetLength >> 0; padString = String(typeof padString !== 'undefined' ? padString : ' '); if (this.length >= targetLength) return String(this); var padLen = targetLength - this.length; while (padString.length < padLen) padString += padString; return padString.slice(0, padLen) + String(this); }; }
 
+// ==================== MAINTENANCE MODE ====================
+var MAINTENANCE_MODE = true;
+var ADMIN_EMAIL = 'linyangjie10152008@qq.com';
+
+function _showMaintenancePage() {
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (!phoneFrame) return;
+    phoneFrame.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 24px;text-align:center;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);">'
+        + '<div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:36px;color:white;font-weight:700;">M</div>'
+        + '<h1 style="font-size:22px;color:#333;font-weight:700;margin-bottom:8px;">My Idol V1.6 更新中</h1>'
+        + '<p style="font-size:15px;color:#8E8E93;margin-bottom:32px;line-height:1.6;">全新版本即将上线，敬请期待</p>'
+        + '<div style="background:white;border-radius:16px;padding:24px;width:100%;max-width:360px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">'
+        + '<p style="font-size:14px;color:#666;line-height:1.8;">预计上线时间</p>'
+        + '<p style="font-size:18px;color:#FF6B8A;font-weight:600;margin-top:8px;">2026年6月17日 12:00</p>'
+        + '</div>'
+        + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;">感谢你的耐心等待</div>'
+        + '</div>';
+}
+
+
+
 // Navigation helper - avoids quote nesting issues in inline handlers
 function navTo(page) { goToPage(page); }
 function setAndNav(stateExpr, page) { eval(stateExpr); goToPage(page); }
@@ -791,6 +812,10 @@ function render() {
 
 // ==================== WELCOME PAGE ====================
 function renderWelcomePage(container) {
+    if (MAINTENANCE_MODE && _isCloudLoggedIn() && _cloudEmail !== ADMIN_EMAIL) {
+        _showMaintenancePage();
+        return;
+    }
     var saves = loadAllSaves();
     var slotsHtml = '';
     for (var si = 0; si < 3; si++) {
@@ -10746,6 +10771,10 @@ function _doCloudLogin() {
                     localStorage.setItem('myIdolCurrentUser', nickname);
                     localStorage.setItem('myIdolLastUser', nickname);
                     _closeAccountOverlay();
+                    if (MAINTENANCE_MODE && email !== ADMIN_EMAIL) {
+                        _showMaintenancePage();
+                        return;
+                    }
                     showToast('登录成功');
                     currentPage = 'welcome';
                     render();
