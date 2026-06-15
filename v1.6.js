@@ -7429,56 +7429,353 @@ function startMusicShowFromApp(showIdx) {
     startMusicShow(idx);
 }
 
-function renderMVStudioPage(container) {
+// ==================== MV STUDIO - FULL INTERACTIVE PRODUCTION ====================
 
+var MV_CONCEPTS = [
+    { name: '梦幻', style: 'dreamy', bonus: 1.0, color: '#B388FF', desc: '浪漫唯美的视觉风格' },
+    { name: '暗黑', style: 'dark', bonus: 1.1, color: '#424242', desc: '深沉神秘的氛围' },
+    { name: '复古', style: 'retro', bonus: 1.05, color: '#FF8A65', desc: '怀旧经典的质感' },
+    { name: '赛博朋克', style: 'cyber', bonus: 1.15, color: '#00E5FF', desc: '未来科技感十足' },
+    { name: '自然', style: 'natural', bonus: 0.95, color: '#66BB6A', desc: '清新自然的画面' },
+    { name: '街舞', style: 'street', bonus: 1.1, color: '#FF6D00', desc: '动感十足的舞蹈风' },
+    { name: '剧情', style: 'story', bonus: 1.2, color: '#EC407A', desc: '叙事性强的故事MV' },
+    { name: '可爱', style: 'cute', bonus: 0.9, color: '#F48FB1', desc: '甜美活泼的少女风' }
+];
+
+var MV_STORY_EVENTS = [
+    { scene: '拍摄第一天，导演对镜头构图有不同想法', choices: [
+        { text: '按导演的来', quality: 5, fame: 2, desc: '导演经验丰富，尊重专业' },
+        { text: '坚持自己的想法', quality: -3, fame: 5, desc: '展现了独特的艺术品味' },
+        { text: '折中融合双方意见', quality: 8, fame: 1, desc: '两全其美，画面效果出色' }
+    ]},
+    { scene: '拍摄中途突然下起大雨，室外场景被迫中断', choices: [
+        { text: '改成雨景继续拍', quality: 10, fame: 3, desc: '意外效果反而更美' },
+        { text: '等雨停再继续', quality: 2, fame: 0, desc: '浪费时间但画面正常' },
+        { text: '转场拍室内镜头', quality: 5, fame: 1, desc: '灵活调整保证进度' }
+    ]},
+    { scene: '伴舞团队有人受伤了，舞蹈部分人手不足', choices: [
+        { text: '自己多跳一段补上', quality: 8, fame: 5, desc: '展现超强实力，粉丝疯狂' },
+        { text: '简化舞蹈编舞', quality: 3, fame: 0, desc: '稳妥但少了些亮点' },
+        { text: '暂停拍摄等替补', quality: 1, fame: -2, desc: '耽误进度，制作方不满' }
+    ]},
+    { scene: '造型师拿来的服装和预期完全不同', choices: [
+        { text: '穿新服装试试', quality: 6, fame: 4, desc: '意外惊喜，新造型超美' },
+        { text: '要求重新准备原方案', quality: 4, fame: -1, desc: '延迟了拍摄但效果符合预期' },
+        { text: '在原方案基础上改细节', quality: 7, fame: 2, desc: '融合了两套方案的优点' }
+    ]},
+    { scene: '拍摄到深夜，工作人员都很疲惫', choices: [
+        { text: '请大家吃夜宵打气', quality: 5, fame: 3, desc: '团队士气大振，效率提升' },
+        { text: '加把劲拍完', quality: -2, fame: -1, desc: '赶工完成，质量有所下降' },
+        { text: '提议明天再补拍', quality: 3, fame: 1, desc: '休息后状态更好' }
+    ]},
+    { scene: 'MV中需要一段即兴表演，导演让你自由发挥', choices: [
+        { text: '跳一段即兴舞蹈', quality: 8, fame: 5, desc: '舞蹈实力惊艳全场' },
+        { text: '对着镜头深情演绎', quality: 6, fame: 3, desc: '情感表达真挚动人' },
+        { text: '和伴舞互动即兴', quality: 10, fame: 2, desc: '团队配合默契，画面超赞' }
+    ]},
+    { scene: '后期制作时发现素材不够，需要补拍', choices: [
+        { text: '立刻回去补拍', quality: 7, fame: 2, desc: '完美主义，成品质量上乘' },
+        { text: '用现有素材剪辑', quality: 2, fame: 0, desc: '省时省力但略有遗憾' },
+        { text: '加入动画特效补足', quality: 5, fame: 4, desc: '创意十足，特效加分' }
+    ]},
+    { scene: '公司要求MV加入产品植入广告', choices: [
+        { text: '自然融入剧情', quality: 4, fame: 5, desc: '品牌方满意，不影响观感' },
+        { text: '拒绝植入', quality: 8, fame: -3, desc: '保持作品纯粹但得罪赞助商' },
+        { text: '只在片尾鸣谢', quality: 6, fame: 1, desc: '折中方案双方都接受' }
+    ]}
+];
+
+function renderMVStudioPage(container) {
     if (!gameState.mvCollection) gameState.mvCollection = [];
+
+    var ms = gameState.mvProd;
+    if (ms && ms.step > 0) {
+        renderMVProductionPage(container);
+        return;
+    }
+
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content">';
+
     if (gameState.player.role !== 'Idol') {
         html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">出道后解锁MV工作室</div></div>';
     } else {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;">'
             + '<div style="font-size:16px;font-weight:700;">MV工作室</div>'
-            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">创作和拍摄你的MV</div></div>';
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">创作、拍摄、制作你的MV</div></div>';
+
         html += '<div class="card" style="text-align:center;">'
-            + '<button class="btn btn-primary" style="margin-bottom:12px;" onclick="createMV()">创作MV</button>'
-            + '<div style="font-size:12px;color:var(--color-text-light);">创作MV需要30体力 + 3万金币</div></div>';
+            + '<button class="btn btn-primary" style="margin-bottom:8px;" onclick="startMVProduction()">开始制作MV</button>'
+            + '<div style="font-size:12px;color:var(--color-text-light);">需要30体力 + 3万金币</div></div>';
+
         if (gameState.mvCollection.length === 0) {
             html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有拍摄过MV</div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">点击上方按钮创作你的第一支MV</div></div>';
-        }
-        for (var i = 0; i < gameState.mvCollection.length; i++) {
-            var mv = gameState.mvCollection[i];
-            html += '<div class="card">'
-                + '<div style="font-weight:600;">' + mv.title + '</div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + mv.concept + ' | 品质: ' + mv.quality + '分</div>'
-                + '<div style="font-size:12px;color:var(--color-primary);margin-top:2px;">' + mv.views.toLocaleString() + ' 次播放</div></div>';
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">点击上方按钮制作你的第一支MV</div></div>';
+        } else {
+            html += '<div class="section-title">MV收藏 (' + gameState.mvCollection.length + ')</div>';
+            for (var i = gameState.mvCollection.length - 1; i >= 0; i--) {
+                var mv = gameState.mvCollection[i];
+                var qColor = mv.quality >= 80 ? '#4CD964' : mv.quality >= 60 ? '#FF9500' : '#FF3B30';
+                html += '<div class="card">'
+                    + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                    + '<div style="font-weight:600;">' + mv.title + '</div>'
+                    + '<div style="font-size:14px;font-weight:700;color:' + qColor + ';">' + mv.quality + '分</div></div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + mv.concept + ' | ' + mv.views.toLocaleString() + '播放</div></div>';
+            }
         }
     }
     html += '</div></div>';
     container.innerHTML = html;
 }
 
-function createMV() {
+function renderMVProductionPage(container) {
+    var ms = gameState.mvProd;
+    if (!ms) { renderMVStudioPage(container); return; }
+
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelMVProduction()">‹ 取消</div><div class="page-title">MV制作 (' + ms.step + '/5)</div><div style="width:32px;"></div></div><div class="page-content">';
+
+    if (ms.step === 1) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">Step 1: 选择MV概念</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定MV整体风格和品质加成</div></div>';
+        for (var ci = 0; ci < MV_CONCEPTS.length; ci++) {
+            var c = MV_CONCEPTS[ci];
+            var sel = ms.concept && ms.concept.name === c.name;
+            html += '<div class="card" onclick="selectMVProdConcept(' + ci + ')" style="cursor:pointer;' + (sel ? 'border:2px solid var(--color-primary);' : '') + '">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div style="font-weight:600;">' + c.name + '</div>'
+                + '<div style="font-size:12px;color:' + c.color + ';font-weight:600;">x' + c.bonus + '</div></div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + c.desc + '</div></div>';
+        }
+        if (ms.concept) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="mvProdNext(2)">下一步</button>';
+        }
+    } else if (ms.step === 2) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">Step 2: 选择歌曲</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">选择拍摄MV的歌曲</div></div>';
+        if (gameState.songs && gameState.songs.length > 0) {
+            for (var si = 0; si < gameState.songs.length; si++) {
+                var s = gameState.songs[si];
+                var sSel = ms.song && ms.song.name === s.name;
+                html += '<div class="card" onclick="selectMVProdSong(' + si + ')" style="cursor:pointer;' + (sSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+                    + '<div style="font-weight:600;">' + s.name + '</div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + s.genre + ' | 品质: ' + s.quality + '分</div></div>';
+            }
+        } else {
+            var defaultSongs = [
+                { name: 'Starlight', genre: '抒情', quality: 65 },
+                { name: 'Midnight Rush', genre: '舞曲', quality: 70 },
+                { name: 'Gravity', genre: 'R&B', quality: 60 },
+                { name: 'Eclipse', genre: '电子', quality: 75 },
+                { name: 'Phoenix', genre: '嘻哈', quality: 68 }
+            ];
+            for (var di = 0; di < defaultSongs.length; di++) {
+                var ds = defaultSongs[di];
+                var dSel = ms.song && ms.song.name === ds.name;
+                html += '<div class="card" onclick="selectMVProdDefaultSong(' + di + ')" style="cursor:pointer;' + (dSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+                    + '<div style="font-weight:600;">' + ds.name + '</div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ds.genre + ' | 品质: ' + ds.quality + '分</div></div>';
+            }
+        }
+        if (ms.song) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="mvProdNext(3)">下一步</button>';
+        }
+    } else if (ms.step === 3) {
+        var evt = ms.currentEvent;
+        if (!evt) {
+            var available = MV_STORY_EVENTS.slice();
+            for (var ei = available.length - 1; ei > 0; ei--) {
+                var ri = Math.floor(Math.random() * (ei + 1));
+                var tmp = available[ei]; available[ei] = available[ri]; available[ri] = tmp;
+            }
+            ms.eventQueue = available.slice(0, 3);
+            ms.currentEvent = ms.eventQueue[0];
+            ms.eventIndex = 0;
+            evt = ms.currentEvent;
+        }
+        var evtNum = ms.eventIndex + 1;
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF9500,#FF6B00);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">Step 3: 拍摄现场 (' + evtNum + '/3)</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">你的选择会影响MV品质</div></div>';
+        html += '<div class="card" style="background:rgba(0,0,0,0.03);border-left:4px solid var(--color-primary);">'
+            + '<div style="font-weight:600;margin-bottom:8px;">' + evt.scene + '</div></div>';
+        for (var oi = 0; oi < evt.choices.length; oi++) {
+            var opt = evt.choices[oi];
+            html += '<div class="card" onclick="chooseMVStoryOption(' + oi + ')" style="cursor:pointer;">'
+                + '<div style="font-weight:600;font-size:14px;">' + opt.text + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + opt.desc + '</div></div>';
+        }
+    } else if (ms.step === 4) {
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#4CD964,#34C759);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">Step 4: 后期制作</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">选择剪辑风格</div></div>';
+        var editStyles = [
+            { name: '唯美慢镜', quality: 8, fame: 3, desc: '慢动作特写，画面如梦似幻' },
+            { name: '动感快剪', quality: 6, fame: 5, desc: '快速切换节奏感强，适合舞曲' },
+            { name: '剧情叙事', quality: 10, fame: 2, desc: '完整故事线，沉浸感强' },
+            { name: '实验风格', quality: -2, fame: 8, desc: '大胆创新但可能有风险' }
+        ];
+        for (var es = 0; es < editStyles.length; es++) {
+            var esSel = ms.editStyle && ms.editStyle.name === editStyles[es].name;
+            html += '<div class="card" onclick="selectMVEditStyle(' + es + ')" style="cursor:pointer;' + (esSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+                + '<div style="font-weight:600;">' + editStyles[es].name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + editStyles[es].desc + '</div></div>';
+        }
+        if (ms.editStyle) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="mvProdNext(5)">发布MV</button>';
+        }
+    } else if (ms.step === 5) {
+        var result = ms.result;
+        var qColor = result.quality >= 80 ? '#4CD964' : result.quality >= 60 ? '#FF9500' : '#FF3B30';
+        var grade = result.quality >= 90 ? 'S' : result.quality >= 75 ? 'A' : result.quality >= 55 ? 'B' : 'C';
+        var gradeColor = grade === 'S' ? '#FFD700' : grade === 'A' ? '#4CD964' : grade === 'B' ? '#5BB8E8' : '#999';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + qColor + ',' + qColor + ');color:white;padding:24px;">'
+            + '<div style="font-size:48px;font-weight:700;">' + result.quality + '</div>'
+            + '<div style="font-size:14px;opacity:0.9;">MV品质</div>'
+            + '<div style="display:inline-block;margin-top:8px;padding:4px 16px;border-radius:12px;background:rgba(255,255,255,0.3);font-weight:700;">' + grade + '级</div></div>';
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">MV信息</div>'
+            + '<div style="font-size:13px;">歌曲: ' + result.title + '</div>'
+            + '<div style="font-size:13px;">概念: ' + result.concept + '</div>'
+            + '<div style="font-size:13px;">剪辑: ' + result.editStyle + '</div>'
+            + '<div style="font-size:13px;">播放量: ' + result.views.toLocaleString() + '</div></div>';
+        if (ms.choices && ms.choices.length > 0) {
+            html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">拍摄回忆</div>';
+            for (var ri = 0; ri < ms.choices.length; ri++) {
+                var ch = ms.choices[ri];
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">' + (ri + 1) + '. ' + ch.desc + '</div>';
+            }
+            html += '</div>';
+        }
+        html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="finishMVProduction()">完成</button>';
+    }
+
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function startMVProduction() {
     if (gameState.体力 < 30) { showToast('体力不足，需要30体力'); return; }
     if (gameState.money < 30000) { showToast('金币不足，需要3万金币'); return; }
-    var concepts = ['梦幻', '暗黑', '复古', '赛博朋克', '自然', '街舞', '抒情', '可爱'];
-    var concept = concepts[Math.floor(Math.random() * concepts.length)];
-    var titles = ['Starlight', 'Midnight', 'Dreamer', 'Gravity', 'Eclipse', 'Phoenix', 'Aurora', 'Velvet'];
-    var title = titles[Math.floor(Math.random() * titles.length)] + ' MV';
-    var quality = Math.floor(Math.random() * 40) + 40 + Math.floor((gameState.fame || 30) / 10);
-    quality = Math.min(100, quality);
-    gameState.体力 = Math.max(0, gameState.体力 - 30);
-    gameState.money -= 30000;
-    if (!gameState.mvCollection) gameState.mvCollection = [];
-    gameState.mvCollection.push({
-        title: title,
-        concept: concept,
-        quality: quality,
-        views: Math.floor(Math.random() * 500000) + 100000,
+    gameState.mvProd = { step: 1, concept: null, song: null, choices: [], qualityBonus: 0, fameBonus: 0, currentEvent: null, eventQueue: [], eventIndex: 0, editStyle: null, result: null };
+    render();
+}
+
+function cancelMVProduction() {
+    if (gameState.mvProd && gameState.mvProd.step >= 3) {
+        showModal('确认取消', '拍摄已开始，取消将损失30体力+3万金币，确定？', function() {
+            gameState.体力 = Math.max(0, gameState.体力 - 30);
+            gameState.money -= 30000;
+            gameState.mvProd = null;
+            render();
+        });
+    } else {
+        gameState.mvProd = null;
+        render();
+    }
+}
+
+function selectMVProdConcept(idx) {
+    gameState.mvProd.concept = MV_CONCEPTS[idx];
+    render();
+}
+
+function selectMVProdSong(idx) {
+    gameState.mvProd.song = gameState.songs[idx];
+    render();
+}
+
+function selectMVProdDefaultSong(idx) {
+    var defaultSongs = [
+        { name: 'Starlight', genre: '抒情', quality: 65, bestStat: 'vocal' },
+        { name: 'Midnight Rush', genre: '舞曲', quality: 70, bestStat: 'dance' },
+        { name: 'Gravity', genre: 'R&B', quality: 60, bestStat: 'vocal' },
+        { name: 'Eclipse', genre: '电子', quality: 75, bestStat: 'dance' },
+        { name: 'Phoenix', genre: '嘻哈', quality: 68, bestStat: 'rap' }
+    ];
+    gameState.mvProd.song = defaultSongs[idx];
+    render();
+}
+
+function mvProdNext(step) {
+    var ms = gameState.mvProd;
+    if (step === 2 && !ms.concept) { showToast('请先选择概念'); return; }
+    if (step === 3 && !ms.song) { showToast('请先选择歌曲'); return; }
+    if (step === 3) {
+        gameState.体力 -= 30;
+        gameState.money -= 30000;
+    }
+    ms.step = step;
+    render();
+}
+
+function chooseMVStoryOption(idx) {
+    var ms = gameState.mvProd;
+    var evt = ms.currentEvent;
+    var choice = evt.choices[idx];
+    ms.choices.push(choice);
+    ms.qualityBonus += choice.quality;
+    ms.fameBonus += choice.fame;
+    ms.eventIndex++;
+    if (ms.eventIndex < ms.eventQueue.length) {
+        ms.currentEvent = ms.eventQueue[ms.eventIndex];
+    } else {
+        ms.step = 4;
+        ms.currentEvent = null;
+    }
+    render();
+}
+
+function selectMVEditStyle(idx) {
+    var editStyles = [
+        { name: '唯美慢镜', quality: 8, fame: 3 },
+        { name: '动感快剪', quality: 6, fame: 5 },
+        { name: '剧情叙事', quality: 10, fame: 2 },
+        { name: '实验风格', quality: -2, fame: 8 }
+    ];
+    gameState.mvProd.editStyle = editStyles[idx];
+    render();
+}
+
+function finishMVProduction() {
+    var ms = gameState.mvProd;
+    var concept = ms.concept;
+    var song = ms.song;
+    var editStyle = ms.editStyle;
+
+    var statVal = gameState.stats[song.bestStat || 'dance'] || 50;
+    var baseQuality = Math.floor((statVal / 150) * 30 + (song.quality / 100) * 25);
+    var totalQuality = baseQuality + ms.qualityBonus + editStyle.quality;
+    totalQuality = Math.floor(totalQuality * concept.bonus);
+    totalQuality = Math.min(100, Math.max(15, totalQuality + Math.floor(Math.random() * 10)));
+
+    var views = Math.floor(totalQuality * 8000 + (gameState.fans || 0) * 5 + ms.fameBonus * 5000);
+    var totalFame = Math.max(3, Math.floor(totalQuality / 10) + ms.fameBonus + editStyle.fame);
+
+    var result = {
+        title: song.name,
+        concept: concept.name,
+        editStyle: editStyle.name,
+        quality: totalQuality,
+        views: views,
         date: new Date().toLocaleDateString()
-    });
-    gameState.fame = (gameState.fame || 30) + 5;
-    showToast('MV创作完成! 品质: ' + quality + '分');
+    };
+
+    if (!gameState.mvCollection) gameState.mvCollection = [];
+    gameState.mvCollection.push(result);
+
+    gameState.fame = (gameState.fame || 30) + totalFame;
+    gameState.fans = (gameState.fans || 0) + Math.floor(views / 50000);
+
+    if (ms.comebackMode && gameState.comeback) {
+        gameState.comeback.mvQuality = totalQuality;
+        gameState.comeback.mvViews = views;
+        gameState.comeback.mvTitle = song.name;
+    }
+
+    ms.result = result;
+    ms.step = 5;
+
+    notifySystem('MV发布', song.name + ' MV品质: ' + totalQuality + '分');
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
 }
@@ -9872,27 +10169,38 @@ function render赚钱中心Page(container) {
     var isGroup = isIdol && gameState.player.group && gameState.player.group !== '';
 
     var traineeJobs = [
-        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 5, cooldown: 30 },
-        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 15, cooldown: 45 },
-        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 8, cooldown: 60 },
-        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30 },
-        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30 },
-        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45 }
+        { id: 'magazine', name: '拍杂志', 体力: 15, money: 2000, fame: 3, influence: 0, fans: 5, cooldown: 30000 },
+        { id: 'busking', name: '路演', 体力: 20, money: 1500, fame: 5, influence: 0, fans: 15, cooldown: 45000 },
+        { id: 'backup', name: '伴舞', 体力: 25, money: 3000, fame: 0, influence: 2, fans: 8, cooldown: 60000 },
+        { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
+        { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
+        { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45000 }
+    ];
+    var traineeSoloJobs = [
+        { id: 't_solo_dance', name: '个人练舞', 体力: 15, money: 500, fame: 1, influence: 0, fans: 3, cooldown: 30000 },
+        { id: 't_solo_vocal', name: '个人练唱', 体力: 10, money: 300, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
+        { id: 't_solo_cover', name: '翻唱投稿', 体力: 15, money: 1000, fame: 3, influence: 0, fans: 8, cooldown: 45000 },
+        { id: 't_solo_street', name: '街头solo', 体力: 20, money: 1500, fame: 4, influence: 0, fans: 10, cooldown: 45000 }
+    ];
+    var traineeGroupJobs = [
+        { id: 't_group_harmony', name: '合声练习', 体力: 10, money: 400, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
+        { id: 't_group_choreo', name: '群舞练习', 体力: 20, money: 600, fame: 1, influence: 1, fans: 5, cooldown: 45000 },
+        { id: 't_group_eval', name: '小组考核', 体力: 25, money: 2000, fame: 2, influence: 2, fans: 5, cooldown: 60000 }
     ];
     var soloJobs = [
-        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 50, cooldown: 90, fansRequired: 50000 },
-        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 30, cooldown: 90, fansRequired: 10000 },
-        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 20, cooldown: 45 },
-        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 80, cooldown: 120 },
-        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 15, cooldown: 60 },
-        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 100, cooldown: 120, fansRequired: 100000 }
+        { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 50, cooldown: 90000, fansRequired: 50000, interview: true },
+        { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 30, cooldown: 90000, fansRequired: 10000, interview: true },
+        { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 20, cooldown: 45000 },
+        { id: 'solo_single', name: 'Solo单曲', 体力: 30, money: 40000, fame: 10, influence: 8, fans: 80, cooldown: 120000, interview: true },
+        { id: 'solo_pictorial', name: '个人写真', 体力: 15, money: 20000, fame: 5, influence: 0, fans: 15, cooldown: 60000 },
+        { id: 'brand_ambassador', name: '品牌大使', 体力: 20, money: 80000, fame: 15, influence: 10, fans: 100, cooldown: 120000, fansRequired: 100000, interview: true }
     ];
     var groupJobs = [
-        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 40, cooldown: 90 },
-        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 25, cooldown: 90 },
-        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 12, cooldown: 60 },
-        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 60, cooldown: 120 },
-        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 18, cooldown: 45 }
+        { id: 'group_cf', name: '团体代言', 体力: 20, money: 40000, fame: 8, influence: 5, fans: 40, cooldown: 90000, interview: true },
+        { id: 'group_variety', name: '团综录制', 体力: 25, money: 25000, fame: 6, influence: 4, fans: 25, cooldown: 90000 },
+        { id: 'group_pictorial', name: '团体写真', 体力: 15, money: 15000, fame: 5, influence: 0, fans: 12, cooldown: 60000 },
+        { id: 'group_album', name: '团体专辑', 体力: 30, money: 60000, fame: 12, influence: 10, fans: 60, cooldown: 120000, interview: true },
+        { id: 'group_live', name: '团体直播', 体力: 10, money: 10000, fame: 4, influence: 0, fans: 18, cooldown: 45000 }
     ];
 
     function buildJobsHtml(jobs) {
@@ -9928,17 +10236,12 @@ function render赚钱中心Page(container) {
     }
 
     var currentTab = gameState.earnTab || 'common';
-    var canSolo = isIdol;
-    var canGroup = isIdol && isGroup;
-
     var tabs = [
-        { id: 'common', name: '通用', locked: false },
-        { id: 'solo', name: '个人', locked: !canSolo },
-        { id: 'group', name: '团队', locked: !canGroup }
+        { id: 'common', name: '通用' },
+        { id: 'solo', name: '个人' },
+        { id: 'group', name: '团队' }
     ];
 
-    if (currentTab === 'solo' && !canSolo) currentTab = 'common';
-    if (currentTab === 'group' && !canGroup) currentTab = 'common';
     gameState.earnTab = currentTab;
 
     var tabsHtml = '<div class="earn-tab-bar">';
@@ -9946,27 +10249,26 @@ function render赚钱中心Page(container) {
         var t = tabs[ti];
         var cls = 'earn-tab';
         if (t.id === currentTab) cls += ' active';
-        if (t.locked) cls += ' locked';
-        var onclick = t.locked ? '' : ' onclick="gameState.earnTab=\'' + t.id + '\';goToPage(\'earn\')"';
-        tabsHtml += '<div class="' + cls + '"' + onclick + '>' + t.name + '</div>';
+        tabsHtml += '<div class="' + cls + '" onclick="gameState.earnTab=\'' + t.id + '\';goToPage(\'earn\')">' + t.name + '</div>';
     }
     tabsHtml += '</div>';
 
     var contentHtml = '';
-    var lockTip = '';
     if (currentTab === 'common') {
         contentHtml = buildJobsHtml(traineeJobs);
     } else if (currentTab === 'solo') {
-        if (canSolo) {
+        if (isIdol) {
             contentHtml = buildJobsHtml(soloJobs);
         } else {
-            lockTip = '<div style="text-align:center;padding:40px 0;color:var(--color-text-light);font-size:13px;">出道后解锁个人工作</div>';
+            contentHtml = buildJobsHtml(traineeSoloJobs);
         }
     } else if (currentTab === 'group') {
-        if (canGroup) {
+        if (isIdol && isGroup) {
             contentHtml = buildJobsHtml(groupJobs);
+        } else if (isIdol) {
+            contentHtml = '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);font-size:13px;">加入团体后解锁团队工作</div><div style="margin-top:12px;"><button class="btn btn-primary" onclick="goToPage(\'members\')">查看团体</button></div></div>';
         } else {
-            lockTip = '<div style="text-align:center;padding:40px 0;color:var(--color-text-light);font-size:13px;">加入团体后解锁团队工作</div>';
+            contentHtml = buildJobsHtml(traineeGroupJobs);
         }
     }
 
@@ -9983,7 +10285,6 @@ function render赚钱中心Page(container) {
         + '</div>'
         + tabsHtml
         + contentHtml
-        + lockTip
         + '</div></div>';
 }
 
@@ -9999,6 +10300,13 @@ function doEarnJob(jobId) {
         { id: 'convenience', name: '便利店打工', 体力: 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
         { id: 'cafe', name: '咖啡店兼职', 体力: 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
         { id: 'street', name: '街头表演', 体力: 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45000 },
+        { id: 't_solo_dance', name: '个人练舞', 体力: 15, money: 500, fame: 1, influence: 0, fans: 3, cooldown: 30000 },
+        { id: 't_solo_vocal', name: '个人练唱', 体力: 10, money: 300, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
+        { id: 't_solo_cover', name: '翻唱投稿', 体力: 15, money: 1000, fame: 3, influence: 0, fans: 8, cooldown: 45000 },
+        { id: 't_solo_street', name: '街头solo', 体力: 20, money: 1500, fame: 4, influence: 0, fans: 10, cooldown: 45000 },
+        { id: 't_group_harmony', name: '合声练习', 体力: 10, money: 400, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
+        { id: 't_group_choreo', name: '群舞练习', 体力: 20, money: 600, fame: 1, influence: 1, fans: 5, cooldown: 45000 },
+        { id: 't_group_eval', name: '小组考核', 体力: 25, money: 2000, fame: 2, influence: 2, fans: 5, cooldown: 60000 },
         { id: 'solo_cf', name: '品牌代言', 体力: 20, money: 50000, fame: 10, influence: 5, fans: 50, cooldown: 90000, fansRequired: 50000, interview: true },
         { id: 'solo_variety', name: '个人综艺', 体力: 25, money: 30000, fame: 8, influence: 3, fans: 30, cooldown: 90000, fansRequired: 10000, interview: true },
         { id: 'solo_live', name: '个人直播', 体力: 10, money: 15000, fame: 5, influence: 0, fans: 20, cooldown: 45000 },
