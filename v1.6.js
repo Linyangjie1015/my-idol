@@ -1251,6 +1251,143 @@ function initAsIdol() {
     });
 }
 
+// ==================== APP ECOSYSTEM LINKS ====================
+var APP_LINKS = {
+    'mvstudio': ['comeback', 'songprod', 'meeting'],
+    'comeback': ['music', 'mvstudio', 'songprod', 'meeting', 'management'],
+    'songprod': ['comeback', 'mvstudio', 'meeting'],
+    'music': ['hotsearch', 'ins', 'ranking', 'comeback', 'schedule'],
+    'meeting': ['comeback', 'mvstudio', 'music', 'songprod', 'members', 'management'],
+    'hotsearch': ['ins', 'tiktok', 'pr', 'antiblack', 'music', 'dating'],
+    'ins': ['tiktok', 'bubble', 'weverse', 'hotsearch', 'fanclub', 'live'],
+    'tiktok': ['ins', 'hotsearch', 'live'],
+    'bubble': ['ins', 'weverse', 'fanchat', 'fanclub', 'live'],
+    'weverse': ['ins', 'bubble', 'fanclub'],
+    'fanchat': ['bubble', 'weverse', 'fanclub'],
+    'live': ['ins', 'tiktok', 'bubble', 'fanclub', 'earn'],
+    'fanclub': ['bubble', 'weverse', 'fanchat', 'ranking', 'live', 'ins'],
+    'ranking': ['music', 'fanclub', 'training'],
+    'earn': ['loan', 'food', 'delivery', 'work', 'schedule'],
+    'loan': ['earn', 'contract'],
+    'food': ['earn', 'training'],
+    'delivery': ['earn', 'training'],
+    'work': ['earn', 'hotsearch', 'ins', 'schedule'],
+    'schedule': ['work', 'music', 'meeting', 'earn'],
+    'crisis': ['pr', 'hotsearch'],
+    'antiblack': ['pr', 'hotsearch'],
+    'pr': ['hotsearch', 'crisis', 'antiblack', 'dating', 'management'],
+    'dating': ['pr', 'hotsearch', 'bubble', 'weverse'],
+    'members': ['relation', 'meeting', 'kakaotalk', 'company'],
+    'relation': ['members', 'kakaotalk'],
+    'kakaotalk': ['relation', 'members', 'meeting'],
+    'management': ['meeting', 'work', 'pr', 'comeback', 'company'],
+    'mail': ['work', 'meeting', 'loan', 'contract'],
+    'contract': ['company', 'earn', 'mail'],
+    'company': ['contract', 'members', 'management', 'comeback'],
+    'debut': ['members', 'training', 'achievement'],
+    'training': ['earn', 'work', 'ranking', 'debut'],
+    'achievement': ['debut', 'ranking'],
+    'gacha': ['members', 'vip'],
+    'vip': ['gacha', 'live', 'training', 'food', 'delivery'],
+    'kpopwiki': [],
+    'updates': []
+};
+
+var APP_NAMES = {
+    'debut': '出道企划', 'earn': '赚钱中心', 'hotsearch': '热搜', 'ranking': '排行榜',
+    'schedule': '行程表', 'meeting': '会议', 'mail': '邮箱', 'work': '通告',
+    'ins': 'INS', 'tiktok': 'TikTok', 'food': '外卖', 'delivery': '快递',
+    'loan': '贷款', 'live': '直播', 'dating': '恋爱', 'bubble': '泡泡',
+    'fanchat': '粉丝私聊', 'weverse': 'Weverse', 'crisis': '私生危机',
+    'members': '成员信息', 'kakaotalk': 'KakaoTalk', 'updates': '更新通知',
+    'achievement': '成就', 'gacha': '抽卡', 'vip': '会员', 'company': '我的公司',
+    'comeback': '回归计划', 'songprod': '歌曲制作', 'music': '音乐放送',
+    'mvstudio': 'MV工作室', 'contract': '合约', 'relation': '队友关系',
+    'management': '经纪团队', 'antiblack': '反黑中心', 'fanclub': '后援会',
+    'pr': '公关室', 'kpopwiki': 'Kpop百科'
+};
+
+function getAppLinkHtml(currentAppId) {
+    var links = APP_LINKS[currentAppId];
+    if (!links || links.length === 0) return '';
+    var html = '<div style="margin-top:16px;padding:12px 0;border-top:1px solid var(--color-border);">'
+        + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:8px;">相关功能</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    for (var li = 0; li < links.length; li++) {
+        var appId = links[li];
+        var appName = APP_NAMES[appId] || appId;
+        html += '<div onclick="goToPage(\'' + appId + '\')" style="padding:6px 12px;background:var(--color-bg);border:1px solid var(--color-border);border-radius:16px;font-size:11px;color:var(--color-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;">' + appName + '</div>';
+    }
+    html += '</div></div>';
+    return html;
+}
+
+// ==================== SYNC TRIGGERS ====================
+function syncFromApp(sourceApp, data) {
+    if (sourceApp === 'mvstudio' && data && data.action === 'mv_complete') {
+        if (gameState.comeback) {
+            gameState.comeback.mvQuality = data.quality;
+            gameState.comeback.mvViews = data.views;
+            gameState.comeback.mvTitle = data.title;
+        }
+    }
+    if (sourceApp === 'music' && data && data.action === 'chart_win') {
+        if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
+        gameState.hotsearchTopics.unshift({ text: data.title + ' 打歌一位!', type: 'good', time: Date.now() });
+        if (gameState.insUnread !== undefined) gameState.insUnread = (gameState.insUnread || 0) + 3;
+    }
+    if (sourceApp === 'music' && data && data.action === 'chart_result') {
+        if (gameState.comeback && gameState.comeback.phase === 'musicshow') {
+            if (!gameState.comeback.musicResults) gameState.comeback.musicResults = [];
+            gameState.comeback.musicResults.push(data);
+        }
+    }
+    if (sourceApp === 'meeting' && data && data.action === 'concept_decided') {
+        if (gameState.comeback) {
+            gameState.comeback.concept = data.concept;
+            gameState.comeback.conceptFromMeeting = true;
+        }
+        if (gameState.mvProd) {
+            gameState.mvProd.meetingConcept = data.concept;
+        }
+    }
+    if (sourceApp === 'dating' && data && data.action === 'exposed') {
+        gameState.danger = Math.min(100, (gameState.danger || 0) + 30);
+        if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
+        gameState.hotsearchTopics.unshift({ text: '恋情曝光!', type: 'bad', time: Date.now() });
+    }
+    if (sourceApp === 'crisis' && data && data.action === 'incident') {
+        gameState.danger = Math.min(100, (gameState.danger || 0) + data.dangerGain);
+        if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
+        gameState.hotsearchTopics.unshift({ text: data.title, type: 'bad', time: Date.now() });
+    }
+    if (sourceApp === 'pr' && data && data.action === 'action_done') {
+        if (data.dangerChange && data.dangerChange < 0) {
+            if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
+            gameState.hotsearchTopics.unshift({ text: data.title, type: 'good', time: Date.now() });
+        }
+    }
+    if (sourceApp === 'work' && data && data.action === 'complete') {
+        if (data.fame > 0 && Math.random() < 0.3) {
+            if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
+            gameState.hotsearchTopics.unshift({ text: data.name + ' 表现出色', type: 'good', time: Date.now() });
+        }
+    }
+    if (sourceApp === 'songprod' && data && data.action === 'song_complete') {
+        if (gameState.comeback && gameState.comeback.phase === 'preparation') {
+            gameState.comeback.songName = data.name;
+            gameState.comeback.songQuality = data.quality;
+            gameState.comeback.songFromProd = true;
+        }
+        if (!gameState.songs) gameState.songs = [];
+        gameState.songs.push({ name: data.name, quality: data.quality, genre: data.genre || 'pop' });
+    }
+    if (sourceApp === 'live' && data && data.action === 'live_end') {
+        if (gameState.insUnread !== undefined) gameState.insUnread = (gameState.insUnread || 0) + 2;
+        if (gameState.fans) gameState.fans += Math.floor(data.viewers / 100);
+    }
+}
+
 // ==================== HOME PAGE (APP GRID) ====================
 function renderHomePage(container) {
     var apps = [
@@ -3033,7 +3170,7 @@ function renderHotsearchPage(container) {
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + t.posts + ' 讨论</div>'
                 + '</div></div></div>';
         }).join('')
-        + '</div></div>';
+        + getAppLinkHtml('hotsearch') + '</div></div>';
 }
 
 function renderHotsearchDetailPage(container) {
@@ -3160,7 +3297,7 @@ function renderRankingPage(container) {
             + '</div>'
             + '<div style="font-size:10px;color:var(--color-text-light);">详情 \u203A</div>'
             + '</div>'; }).join(''))
-        + '</div></div>';
+        + getAppLinkHtml('ranking') + '</div></div>';
 }
 
 function render行程表Page(container) {
@@ -3212,7 +3349,7 @@ function render行程表Page(container) {
         + '<div style="font-size:14px;margin-top:4px;">' + new Date().toLocaleDateString('zh-CN') + '</div>'
         + '</div>'
         + itemsHtml
-        + '</div></div>';
+        + getAppLinkHtml('schedule') + '</div></div>';
 }
 
 function initScheduleItems() {
@@ -3307,7 +3444,7 @@ function render会议Page(container) {
             + '</div>'
             + '<div class="page-content">'
             + meetingsHtml
-            + '</div></div>';
+            + getAppLinkHtml('meeting') + '</div></div>';
     } catch(e) {
         console.error('render会议Page error:', e);
         container.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:var(--color-text-light);">会议页面加载出错</div><button class="btn btn-primary" onclick="goToPage(\'home\')" style="margin-top:16px;">返回首页</button></div></div>';
@@ -3402,7 +3539,7 @@ function render工作Page(container) {
         + '<div style="font-size:14px;margin-top:4px;">' + new Date().toLocaleDateString('zh-CN') + '</div>'
         + '</div>'
         + itemsHtml
-        + '</div></div>';
+        + getAppLinkHtml('work') + '</div></div>';
 }
 
 function _generateNoticeList() {
@@ -3562,6 +3699,7 @@ function acceptNotice() {
 
     var fanComments = ['今天的表现太棒了！', '好期待下次活动！', '永远支持你！', '舞台太震撼了！', '今天状态超好！', '比心！', '太专业了，佩服！', '这就是实力！'];
     var comments = [];
+    syncFromApp('work', { action: 'complete', name: n.name, fame: fameGain });
     for (var ci = 0; ci < 3; ci++) { comments.push(fanComments[Math.floor(Math.random() * fanComments.length)]); }
 
     var summaryHtml = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'work\')">‹ 通告</div><div class="page-title">活动总结</div><div style="width:32px;"></div></div><div class="page-content">'
@@ -4033,7 +4171,7 @@ function renderWeversePage(container) {
         + (gameState.weverseMyPosts.length === 0 ? '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有发过动态</div></div>' : (function(){ var myHtml = ''; for(var wi=0;wi<gameState.weverseMyPosts.length;wi++){ var wp=gameState.weverseMyPosts[wi]; myHtml += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:8px;"><div class="avatar-sm">' + (gameState.player.avatar||'') + '</div><div style="margin-left:8px;"><div style="font-weight:600;">' + (gameState.player.name||'') + '</div><div style="font-size:11px;color:var(--color-text-light);">' + wp.time + '</div></div></div><p style="font-size:14px;">' + wp.text + '</p></div>'; } return myHtml; })())
         + '<div class="section-title" style="margin-top:16px;">爱豆动态</div>'
         + postsHtml
-        + '</div></div>';
+        + getAppLinkHtml('weverse') + '</div></div>';
 }
 
 function translateWeverseMsg(idx) {
@@ -4601,7 +4739,7 @@ function renderFoodPage(container) {
         + '<div style="font-size:22px;font-weight:700;">' + gameState.money.toLocaleString() + '</div>'
         + '</div>'
         + foodCardsHtml
-        + '</div></div>';
+        + getAppLinkHtml('food') + '</div></div>';
 }
 
 function orderFood(name, price, 体力) {
@@ -4693,7 +4831,7 @@ function render快递服务Page(container) {
         + '<div style="font-size:22px;font-weight:700;">' + gameState.money.toLocaleString() + '</div>'
         + '</div>'
         + delCardsHtml
-        + '</div></div>';
+        + getAppLinkHtml('delivery') + '</div></div>';
 }
 
 function order快递服务(name, price, value, effect) {
@@ -4845,7 +4983,7 @@ function renderCrisisPage(container) {
         + '</div>'
         + '<div class="section-title" style="margin-top:16px;">活跃事件</div>'
         + eventsHtml
-        + '</div></div>';
+        + getAppLinkHtml('crisis') + '</div></div>';
 }
 
 function handleCrisis(eventIdx, actionIdx) {
@@ -4917,7 +5055,7 @@ function renderLivePage(container) {
         + '<input type="text" id="liveChatInput" placeholder="输入消息回复观众..." style="flex:1;margin-bottom:0;font-size:13px;padding:10px 14px;">'
         + '<button class="btn btn-sm btn-primary" onclick="sendLiveChat()" style="padding:10px 16px;">发送</button>'
         + '</div>'
-        + '</div></div>';
+        + getAppLinkHtml('live') + '</div></div>';
 }
 
 function chooseLiveMode() {
@@ -5100,6 +5238,7 @@ function stopLive() {
     gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 5) + 2;
     
     gameState.livePendingReward = true;
+    syncFromApp('live', { action: 'live_end', viewers: viewers, revenue: revenue });
     showModal('直播结束', '做得好！\n+' + fansGain + ' 粉丝\n+' + revenue.toLocaleString() + ' 金币\n+' + (Math.floor(Math.random()*5)+2) + ' 名气');
     render();
 }
@@ -5194,7 +5333,8 @@ function render成员信息Page(container) {
             html += '<div class="card" onclick="gameState.membersViewLevel=1;gameState.membersViewCompany=\'\' + key + \'\';render();" style="cursor:pointer;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-weight:600;">' + c.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + (c.tags ? c.tags.join(' / ') : '') + '</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:700;color:var(--color-primary);">' + groupCount + '</div><div style="font-size:10px;color:var(--color-text-light);">团体</div></div></div></div>';
         }
         html += '</div></div>';
-        container.innerHTML = html;
+        html += getAppLinkHtml('members');
+    container.innerHTML = html;
     } else if (level === 1) {
         var company = COMPANIES[comp];
         if (!company) { gameState.membersViewLevel = 0; render(); return; }
@@ -6086,6 +6226,7 @@ function renderAchievementsPage(container) {
     }
     
     html += '</div></div>';
+    html += getAppLinkHtml('achievement');
     container.innerHTML = html;
 }
 
@@ -6197,7 +6338,7 @@ function renderFanChatPage(container) {
         + '<div style="flex:1;overflow-y:auto;padding:0 16px;">'
         + '<div style="font-size:12px;color:var(--color-text-light);padding:8px 0;margin-bottom:4px;">来自世界各地的粉丝消息，支持四语翻译</div>'
         + fanListHtml
-        + '</div></div>';
+        + getAppLinkHtml('fanchat') + '</div></div>';
 }
 
 function sendFanChatReply(fanId) {
@@ -6506,7 +6647,7 @@ function renderComebackPage(container) {
             + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">准备新回归</div>'
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">需要: 50体力 + 50,000金币</div>'
             + '<button class="btn btn-primary btn-lg" onclick="startComeback()">开始回归</button>'
-            + '</div></div>';
+            + getAppLinkHtml('comeback') + '</div></div>';
         return;
     }
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归计划</div><div style="width:32px;"></div></div><div class="page-content">';
@@ -6667,6 +6808,7 @@ function renderComebackPage(container) {
         html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback=null;render();">完成回归</button>';
     }
     html += '</div></div>';
+    html += getAppLinkHtml('comeback');
     container.innerHTML = html;
 }
 
@@ -6711,7 +6853,7 @@ function renderSongProdPage(container) {
             + '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">歌曲制作工作室</div>'
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">创作属于你的音乐作品</div>'
             + '<button class="btn btn-primary btn-lg" onclick="startSongProduction()">开始制作</button>'
-            + '</div></div>';
+            + getAppLinkHtml('songprod') + '</div></div>';
         return;
     }
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content">';
@@ -6838,6 +6980,7 @@ function mixSong() {
     sp.result = song;
     sp.step = 5;
     notifySystem('歌曲制作完成', song.name + ' 品质: ' + quality + '分');
+    syncFromApp('songprod', { action: 'song_complete', name: song.name, quality: quality, genre: song.genre });
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
 }
@@ -7021,6 +7164,7 @@ function renderContractPage(container) {
             + '<button class="btn btn-secondary btn-lg" style="flex:1;" onclick="leaveCompany()">离开</button></div>';
     }
     html += '</div></div>';
+    html += getAppLinkHtml('contract');
     container.innerHTML = html;
 }
 
@@ -7078,6 +7222,7 @@ function renderRelationPage(container) {
             + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'practice\')">合练</button></div></div>';
     }
     html += '</div></div>';
+    html += getAppLinkHtml('relation');
     container.innerHTML = html;
 }
 
@@ -7178,6 +7323,7 @@ function renderManagementPage(container) {
             + '<button class="btn btn-sm" style="margin-top:8px;font-size:11px;" data-role="' + role + '" onclick="upgradeStaff(this.dataset.role)">培训提升 (5千金币)</button></div>';
     }
     html += '</div></div>';
+    html += getAppLinkHtml('management');
     container.innerHTML = html;
 }
 
@@ -7224,6 +7370,7 @@ function renderAntiBlackPage(container) {
             + '<button class=\"btn btn-sm\" style=\"flex:1;font-size:11px;\" data-i=\"' + i + '\" data-action=\"ignore\" onclick=\"handleAnti(parseInt(this.dataset.i),this.dataset.action)\">忽略</button></div></div>';
     }
     html += '</div></div>';
+    html += getAppLinkHtml('antiblack');
     container.innerHTML = html;
 }
 
@@ -7234,6 +7381,7 @@ function triggerAntiEvent() {
     gameState.antiEvents.push(event);
     gameState.danger = gameState.danger + event.dangerAdd;
     gameState.fans = Math.max(0, gameState.fans - event.fanLoss);
+    syncFromApp('crisis', { action: 'incident', title: event.title, dangerGain: event.dangerAdd });
     notifySystem('反黑警告', event.title);
     triggerSilentSave();
 }
@@ -7305,6 +7453,7 @@ function renderFanClubPage(container) {
             + '<button class="btn btn-sm" style="font-size:11px;" data-i="' + i + '" onclick="launchFanProject(this.dataset.i)">启动 (' + (p.cost / 10000) + '万)</button></div>';
     }
     html += '</div></div></div>';
+    html += getAppLinkHtml('fanclub');
     container.innerHTML = html;
 }
 
@@ -7421,6 +7570,7 @@ function renderMusicPage(container) {
         }
     }
     html += '</div></div>';
+    html += getAppLinkHtml('music');
     container.innerHTML = html;
 }
 
@@ -7538,6 +7688,7 @@ function renderMVStudioPage(container) {
         }
     }
     html += '</div></div>';
+    html += getAppLinkHtml('mvstudio');
     container.innerHTML = html;
 }
 
@@ -7790,6 +7941,7 @@ function finishMVProduction() {
     ms.step = 5;
 
     notifySystem('MV发布', song.name + ' MV品质: ' + totalQuality + '分');
+    syncFromApp('mvstudio', { action: 'mv_complete', quality: totalQuality, views: views, title: song.name });
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
 }
@@ -7815,6 +7967,7 @@ function renderPROfficePage(container) {
         + '<div class="card" onclick="prAction(\'apology\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">道歉声明</div><div style="font-size:11px;color:var(--color-text-light);">-20危险/免费</div></div>'
         + '<div class="card" onclick="prAction(\'solo\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">Solo企划</div><div style="font-size:11px;color:var(--color-text-light);">+10名声/5万金币</div></div>'
         + '</div></div></div></div>';
+    html += getAppLinkHtml('pr');
     container.innerHTML = html;
 }
 
@@ -7826,17 +7979,21 @@ function prAction(type) {
     if (type === 'charity') {
         if (gameState.money < 30000) { showToast('金币不足'); return; }
         gameState.money -= 30000; gameState.danger = Math.max(0, gameState.danger - 10);
+        syncFromApp('pr', { action: 'action_done', title: '慈善活动', dangerChange: -10 });
         showToast('慈善活动完成，危险值-10');
     } else if (type === 'interview') {
         if (gameState.money < 10000) { showToast('金币不足'); return; }
         gameState.money -= 10000; gameState.fame = (gameState.fame || 30) + 5;
+        syncFromApp('pr', { action: 'action_done', title: '专访报道', dangerChange: 0 });
         showToast('专访完成，名声+5');
     } else if (type === 'apology') {
         gameState.danger = Math.max(0, gameState.danger - 20); gameState.fans = Math.max(0, gameState.fans - 100);
+        syncFromApp('pr', { action: 'action_done', title: '道歉声明', dangerChange: -20 });
         showToast('已发布道歉声明');
     } else if (type === 'solo') {
         if (gameState.money < 50000) { showToast('金币不足'); return; }
         gameState.money -= 50000; gameState.fame = (gameState.fame || 30) + 10; gameState.fans += 500;
+        syncFromApp('pr', { action: 'action_done', title: 'Solo企划', dangerChange: 0 });
         showToast('Solo企划启动，名声+10');
     }
     triggerSilentSave();
@@ -7972,6 +8129,7 @@ function renderKpopWikiPage(container) {
             + '</div></div>';
     }
 html += '</div></div>';
+    html += getAppLinkHtml('kpopwiki');
     container.innerHTML = html;
 }
 function toggleWikiCompany(el) {
@@ -8047,6 +8205,7 @@ function renderCompanyDetailPage(container) {
         + '<div style="text-align:center;padding:12px;border-radius:12px;background:rgba(92,216,100,0.08);"><div style="font-size:18px;font-weight:700;color:#4CD964;">' + (gameState.fame || 30) + '</div><div style="font-size:11px;color:var(--color-text-light);">公司声望</div></div></div></div>';
     
     html += '</div></div>';
+    html += getAppLinkHtml('company');
     container.innerHTML = html;
 }
 
@@ -8557,6 +8716,7 @@ function renderVipPage(container) {
         + '</div></div>';
 
     html += '</div></div>';
+    html += getAppLinkHtml('vip');
     container.innerHTML = html;
 }
 
@@ -8662,6 +8822,7 @@ function renderGachaPage(container) {
     }
 
     html += '</div></div>';
+    html += getAppLinkHtml('gacha');
     container.innerHTML = html;
 }
 
@@ -9176,7 +9337,7 @@ function renderKakaoTalkPage(container) {
         + tabHtml
         + '<div class="page-content" style="padding:0;">'
         + contentHtml
-        + '</div></div>';
+        + getAppLinkHtml('kakaotalk') + '</div></div>';
 }
 
 function _renderKakaoChatList() {
@@ -9867,7 +10028,7 @@ function render出道企划Page(container) {
         + '</div>'
         + '<div class="card">' + reqHtml + '</div>'
         + actionHtml
-        + '</div></div>';
+        + getAppLinkHtml('debut') + '</div></div>';
 }
 
 function startDebutFlow() {
@@ -10304,7 +10465,7 @@ function render赚钱中心Page(container) {
         + '</div>'
         + tabsHtml
         + contentHtml
-        + '</div></div>';
+        + getAppLinkHtml('earn') + '</div></div>';
 }
 
 function switchEarnTab(tabId) {
