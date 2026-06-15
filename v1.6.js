@@ -4173,35 +4173,205 @@ function npcDate(name) {
     render();
 }
 
+// ==================== 约会剧情系统 ====================
+var _dateLocations = [
+    { name: '咖啡厅', cost: 8000, stamina: 10, 好感Base: 3, desc: '安静的午后时光' },
+    { name: '汉江公园', cost: 5000, stamina: 15, 好感Base: 4, desc: '散步看夜景' },
+    { name: '电影院', cost: 12000, stamina: 10, 好感Base: 5, desc: '一起看最新上映' },
+    { name: '高级餐厅', cost: 30000, stamina: 10, 好感Base: 7, desc: '烛光与美食' },
+    { name: '游乐园', cost: 25000, stamina: 25, 好感Base: 8, desc: '刺激又浪漫' },
+    { name: '购物街', cost: 20000, stamina: 15, 好感Base: 6, desc: '买买买' },
+    { name: '海边', cost: 15000, stamina: 20, 好感Base: 9, desc: '听浪声看日落' },
+    { name: '家中', cost: 3000, stamina: 5, 好感Base: 4, desc: '简单温馨' }
+];
+
+var _dateEvents = [
+    { text: '突然下起暴雨，两人共撑一把伞', 好感: 6, 危险: 0, type: 'romantic' },
+    { text: '对方偷偷牵了你的手', 好感: 8, 危险: 0, type: 'romantic' },
+    { text: '有粉丝认出了你们，赶紧撤离', 好感: -3, 危险: 10, type: 'danger' },
+    { text: '碰到了公司前辈，气氛有点尴尬', 好感: -2, 危险: 5, type: 'awkward' },
+    { text: '两人聊到了深夜，发现很多共同话题', 好感: 7, 危险: 0, type: 'romantic' },
+    { text: '对方送了你一个小惊喜', 好感: 10, 危险: 0, type: 'romantic' },
+    { text: '因为吃什么吵了一小架，但很快和好了', 好感: 2, 危险: 0, type: 'funny' },
+    { text: '被狗仔偷拍了！', 好感: -5, 危险: 30, type: 'danger' },
+    { text: '对方拍了合照发了ins story', 好感: 3, 危险: 15, type: 'risky' },
+    { text: '偶遇路人帮你们拍了张合照', 好感: 5, 危险: 0, type: 'sweet' },
+    { text: '对方说了句很暖的话让你感动', 好感: 9, 危险: 0, type: 'romantic' },
+    { text: '约会途中接到工作电话，气氛被打断', 好感: -1, 危险: 0, type: 'awkward' },
+    { text: '两人玩了个游戏，输的人请客', 好感: 4, 危险: 0, type: 'funny' },
+    { text: '对方为你唱了一首歌', 好感: 7, 危险: 0, type: 'romantic' },
+    { text: '被私生饭跟踪了！赶紧换路线', 好感: -4, 危险: 20, type: 'danger' }
+];
+
+var _dateActions = [
+    { text: '主动牵手', 好感: 5, 危险: 5 },
+    { text: '偷偷亲一下', 好感: 8, 危险: 10 },
+    { text: '送对方一个小礼物', 好感: 6, 危险: 0 },
+    { text: '拍张合照留念', 好感: 3, 危险: 8 },
+    { text: '说句情话', 好感: 4, 危险: 0 },
+    { text: '安静陪伴就好', 好感: 2, 危险: 0 }
+];
+
 function loveDate() {
     if (!gameState.dating) return;
-    if (gameState.体力 < 20) { showModal('体力不足', '约会需要20体力'); return; }
-    if (gameState.money < 10000) { showModal('金币不足', '约会需要10,000金币'); return; }
-    gameState.体力 = Math.max(0, gameState.体力 - 20);
-    gameState.money -= 10000;
+    if (gameState.体力 < 20) { showModal('体力不足', '约会需要至少20体力'); return; }
+    if (gameState.money < 5000) { showModal('金币不足', '约会需要至少5,000金币'); return; }
+    // step 1: 选地点
+    var locHtml = '<div style="margin-bottom:8px;font-size:13px;color:var(--color-text-light);">和 ' + gameState.dating + ' 去哪里约会？</div>';
+    for (var i = 0; i < _dateLocations.length; i++) {
+        var loc = _dateLocations[i];
+        var canAfford = gameState.money >= loc.cost && gameState.体力 >= loc.stamina;
+        locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (canAfford ? '' : 'opacity:0.5;') + '"'
+            + (canAfford ? ' onclick="loveDateStep2(' + i + ')"' : '') + '>'
+            + '<div><div style="font-weight:600;font-size:13px;">' + loc.name + '</div>'
+            + '<div style="font-size:11px;color:var(--color-text-light);">' + loc.desc + '</div></div>'
+            + '<div style="text-align:right;font-size:11px;">'
+            + '<div style="color:var(--color-primary);">' + loc.cost.toLocaleString() + ' 金币</div>'
+            + '<div style="color:var(--color-text-light);">' + loc.stamina + ' 体力</div>'
+            + '</div></div>';
+    }
+    showModal('选择约会地点', locHtml, [{ text: '算了', action: closeModal }]);
+}
+
+function loveDateStep2(locIdx) {
+    var loc = _dateLocations[locIdx];
+    gameState.体力 = Math.max(0, gameState.体力 - loc.stamina);
+    gameState.money -= loc.cost;
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.npc好感度[gameState.dating]) gameState.npc好感度[gameState.dating] = 0;
-    var 好感Gain = Math.floor(Math.random() * 10) + 5;
-    gameState.npc好感度[gameState.dating] = Math.min(100, gameState.npc好感度[gameState.dating] + 好感Gain);
-    var exposedChance = Math.random();
-    if (exposedChance < 0.15) {
-        syncFromApp('dating', { action: 'exposed' });
-        showModal('约会愉快', '和 ' + gameState.dating + ' 度过了美好时光\n-20 体力 -10,000 金币\n好感度 +' + 好感Gain + '\n\n...但被狗仔拍到了！危险值上升！');
-    } else {
-        showModal('约会愉快', '和 ' + gameState.dating + ' 度过了美好时光\n-20 体力 -10,000 金币\n好感度 +' + 好感Gain);
+    gameState.npc好感度[gameState.dating] = Math.min(100, gameState.npc好感度[gameState.dating] + loc.好感Base);
+    window._dateLocIdx = locIdx;
+    // step 2: 选行动
+    var actHtml = '<div style="margin-bottom:8px;font-size:13px;color:var(--color-text-light);">在' + loc.name + '，你想做什么？</div>';
+    for (var i = 0; i < _dateActions.length; i++) {
+        var act = _dateActions[i];
+        actHtml += '<div style="padding:10px;margin-bottom:6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="loveDateStep3(' + locIdx + ',' + i + ')">'
+            + '<div style="font-weight:600;font-size:13px;">' + act.text + '</div>'
+            + '<div style="font-size:11px;color:var(--color-text-light);">好感度 +' + act.好感 + (act.危险 > 0 ? ' | 危险值 +' + act.危险 : '') + '</div></div>';
     }
+    showModal('选择行动', actHtml, [{ text: '什么都不做', action: function() { closeModal(); loveDateStep3(locIdx, -1); } }]);
+}
+
+function loveDateStep3(locIdx, actIdx) {
+    var loc = _dateLocations[locIdx];
+    var act = actIdx >= 0 ? _dateActions[actIdx] : { text: '安静陪伴', 好感: 1, 危险: 0 };
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    gameState.npc好感度[gameState.dating] = Math.min(100, (gameState.npc好感度[gameState.dating] || 0) + act.好感);
+    if (act.危险 > 0) {
+        if (!gameState.危险值) gameState.危险值 = 0;
+        gameState.危险值 += act.危险;
+    }
+    // step 3: 随机事件
+    var evt = _dateEvents[Math.floor(Math.random() * _dateEvents.length)];
+    gameState.npc好感度[gameState.dating] = Math.min(100, Math.max(0, (gameState.npc好感度[gameState.dating] || 0) + evt.好感));
+    if (evt.危险 > 0) {
+        if (!gameState.危险值) gameState.危险值 = 0;
+        gameState.危险值 += evt.危险;
+        if (evt.type === 'danger') {
+            syncFromApp('dating', { action: 'exposed' });
+        }
+    }
+    var evtIcon = evt.type === 'romantic' || evt.type === 'sweet' ? 'F' : evt.type === 'danger' ? '!' : evt.type === 'funny' ? '~' : '?';
+    var total好感 = loc.好感Base + act.好感 + evt.好感;
+    var total危险 = act.危险 + evt.危险;
+    var resultHtml = '<div style="text-align:center;margin-bottom:12px;">'
+        + '<div style="font-size:15px;font-weight:700;">' + loc.name + '约会</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">你' + act.text + '</div></div>'
+        + '<div style="padding:12px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;margin-bottom:10px;">'
+        + '<div style="font-size:12px;font-weight:600;margin-bottom:4px;">[' + evtIcon + '] ' + evt.text + '</div>'
+        + '<div style="font-size:11px;color:' + (evt.好感 >= 0 ? 'var(--color-success)' : '#FF3B30') + ';">好感度 ' + (evt.好感 >= 0 ? '+' : '') + evt.好感 + '</div>'
+        + (evt.危险 > 0 ? '<div style="font-size:11px;color:#FF9500;">危险值 +' + evt.危险 + '</div>' : '')
+        + '</div>'
+        + '<div style="font-size:12px;border-top:1px solid var(--color-border);padding-top:8px;">'
+        + '<div>好感度: <span style="font-weight:600;color:var(--color-primary);">' + (total好感 >= 0 ? '+' : '') + total好感 + '</span></div>'
+        + (total危险 > 0 ? '<div>危险值: <span style="color:#FF9500;font-weight:600;">+' + total危险 + '</span></div>' : '')
+        + '<div style="color:var(--color-text-light);">-' + loc.stamina + ' 体力  -' + loc.cost.toLocaleString() + ' 金币</div></div>';
+    showModal('约会结果', resultHtml, [{ text: '回家', action: function() { closeModal(); render(); } }]);
     render();
 }
 
-function showInterest(name) {
-    if (!gameState.npc好感度) gameState.npc好感度 = {};
-    if (!gameState.npc好感度[name]) gameState.npc好感度[name] = 0;
-    if (gameState.npc好感度[name] >= 60) {
-        gameState.dating = name;
-        showModal('在一起了', '你和 ' + name + ' 正式在一起了！');
+// ==================== 分手系统 ====================
+function breakup() {
+    if (!gameState.dating) return;
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[gameState.dating]) || 0;
+    showModal('确认分手', '你确定要和 ' + gameState.dating + ' 分手吗？\n\n当前好感度: ' + 好感 + '/100\n好感度越高，分手越可能出问题', [
+        { text: '再想想', action: closeModal },
+        { text: '坚决分手', action: function() { closeModal(); doBreakup(); } }
+    ]);
+}
+
+function doBreakup() {
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[gameState.dating]) || 0;
+    var name = gameState.dating;
+    // 好感度越高，分手越不顺利
+    var roll = Math.random() * 100;
+    var result;
+    if (好感 >= 80) {
+        // 好感很高，70%对方不愿分手
+        if (roll < 40) result = 'beg';       // 对方苦苦挽留
+        else if (roll < 70) result = 'messy'; // 闹大了
+        else result = 'clean';                // 平静分手
+    } else if (好感 >= 50) {
+        if (roll < 25) result = 'beg';
+        else if (roll < 45) result = 'messy';
+        else result = 'clean';
     } else {
-        showModal('好感度不足', name + ' 的好感度为 ' + gameState.npc好感度[name] + '，需要60才能在一起');
+        if (roll < 10) result = 'messy';
+        else if (roll < 30) result = 'beg';
+        else result = 'clean';
     }
+
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var title, desc, effects;
+    if (result === 'clean') {
+        gameState.npc好感度[name] = Math.max(0, 好感 - 15);
+        gameState.dating = null;
+        gameState.credit = Math.max(0, (gameState.credit || 150) - 10);
+        title = '和平分手';
+        desc = '你们平静地谈完了，虽然有些难过，但彼此尊重对方的选择。'
+            + '\n\n好感度 -15 | 信誉 -10';
+    } else if (result === 'beg') {
+        // 对方挽留，玩家选择
+        showModal(name + ' 不愿分手', name + ' 紧紧抓住你的手："不要走...我们再试一次好不好？"\n\n好感度还有 ' + 好感 + '，' + name + ' 不想放手', [
+            { text: '心软留下', action: function() {
+                closeModal();
+                gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + 5);
+                showModal('和好了', '你选择了留下。\n' + name + ' 紧紧抱住了你。\n\n好感度 +5');
+                render();
+            }},
+            { text: '还是分手', action: function() {
+                closeModal();
+                gameState.npc好感度[name] = Math.max(0, 好感 - 30);
+                gameState.dating = null;
+                gameState.credit = Math.max(0, (gameState.credit || 150) - 15);
+                if (!gameState.危险值) gameState.危险值 = 0;
+                gameState.危险值 += 5;
+                if (gameState.fame) gameState.fame = Math.max(0, gameState.fame - 50);
+                showModal('决意分手', name + ' 哭着跑开了...\n\n你听到了身后传来压抑的哭声，但你还是走了。\n\n好感度 -30 | 信誉 -15 | 危险值 +5 | 名气 -50');
+                render();
+            }}
+        ]);
+        return;
+    } else {
+        // messy: 闹大了
+        gameState.npc好感度[name] = Math.max(0, 好感 - 40);
+        gameState.dating = null;
+        gameState.credit = Math.max(0, (gameState.credit || 150) - 25);
+        if (!gameState.危险值) gameState.危险值 = 0;
+        gameState.危险值 += 15;
+        if (gameState.fame) gameState.fame = Math.max(0, gameState.fame - 200);
+        var messyEvents = [
+            name + ' 在社交媒体上发了一条意味深长的动态，粉丝们炸了',
+            name + ' 的朋友公开指责你，公司也出面回应',
+            '分手的消息被媒体曝光，你的形象受损严重',
+            name + ' 在直播中情绪崩溃，舆论一片哗然'
+        ];
+        var messyEvt = messyEvents[Math.floor(Math.random() * messyEvents.length)];
+        title = '分手风波';
+        desc = messyEvt + '\n\n这次分手闹得很大...'
+            + '\n\n好感度 -40 | 信誉 -25 | 危险值 +15 | 名气 -200';
+    }
+    showModal(title, desc, [{ text: '我知道了', action: function() { closeModal(); render(); } }]);
     render();
 }
 
