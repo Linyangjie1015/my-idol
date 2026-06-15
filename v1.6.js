@@ -3822,36 +3822,44 @@ function render泡泡Page(container) {
     var contentHtml = '';
     if (currentTab === 'inbox') {
         var messages = bubbleMultilangMessages;
+        var allMsgs = [];
         for (var i = 0; i < messages.length; i++) {
             var m = messages[i];
             var langTag = m.lang === 'ko' ? 'KO' : m.lang === 'ja' ? 'JP' : m.lang === 'zh' ? 'CN' : 'EN';
             var langColor = m.lang === 'ko' ? '#FF8FA3' : m.lang === 'ja' ? '#7EC8E3' : m.lang === 'zh' ? '#4CD964' : '#FFD700';
-            var replyArea = '';
-            if (gameState.bubble已发送) {
-                for (var ri = 0; ri < gameState.bubble已发送.length; ri++) {
-                    if (gameState.bubble已发送[ri].to === m.from) {
-                        replyArea = '<div style="margin-top:8px;padding:8px 10px;background:rgba(255,143,163,0.1);border-radius:8px;font-size:12px;color:var(--color-primary);">你: ' + gameState.bubble已发送[ri].text + '</div>';
-                        break;
-                    }
-                }
-            }
-            var isSelected = gameState._bubbleReplyTo === i;
-            contentHtml += '<div class="card" style="padding:12px;' + (isSelected ? 'border:2px solid var(--color-primary);' : '') + '" onclick="gameState._bubbleReplyTo=' + i + ';render();" id="bubbleCard' + i + '">'
-                + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-                + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,' + langColor + ',rgba(255,255,255,0.3));display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:700;">' + m.from.charAt(0).toUpperCase() + '</div>'
-                + '<div style="flex:1;">'
-                + '<div style="display:flex;align-items:center;gap:4px;">'
-                + '<span style="font-weight:600;font-size:13px;">' + m.from + '</span>'
-                + '<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:' + langColor + ';color:white;font-weight:500;">' + langTag + '</span>'
-                + '</div>'
-                + '<div style="font-size:10px;color:var(--color-text-light);">' + m.time + '</div>'
-                + '</div>'
-                + '</div>'
-                + '<p style="font-size:14px;line-height:1.5;margin-bottom:4px;" id="bubbleMsg' + i + '">' + m.orig + ' <span class="translate-btn" onclick="event.stopPropagation();translateBubbleMsg(' + i + ')">翻译</span></p>'
-                + replyArea
-                + '</div>';
+            allMsgs.push({ type: 'fan', idx: i, from: m.from, text: m.orig, zhText: m.zh, langTag: langTag, langColor: langColor, time: m.time });
         }
-    } else if (currentTab === 'sent') {
+        if (gameState.bubble已发送) {
+            for (var si = 0; si < gameState.bubble已发送.length; si++) {
+                var sm = gameState.bubble已发送[si];
+                allMsgs.push({ type: 'me', text: sm.text, time: sm.time, to: sm.to || '' });
+            }
+        }
+        for (var i = 0; i < allMsgs.length; i++) {
+            var msg = allMsgs[i];
+            if (msg.type === 'fan') {
+                var isSelected = gameState._bubbleReplyTo === msg.idx;
+                contentHtml += '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:8px;padding:2px 0;cursor:pointer;' + (isSelected ? 'background:rgba(255,143,163,0.08);border-radius:8px;' : '') + '" onclick="gameState._bubbleReplyTo=' + msg.idx + ';render();">'
+                    + '<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,' + msg.langColor + ',rgba(255,255,255,0.3));display:flex;align-items:center;justify-content:center;font-size:9px;color:white;font-weight:700;flex-shrink:0;">' + msg.from.charAt(0).toUpperCase() + '</div>'
+                    + '<div style="flex:1;max-width:72%;">'
+                    + '<div style="display:flex;align-items:center;gap:3px;margin-bottom:2px;">'
+                    + '<span style="font-weight:600;font-size:10px;">' + msg.from + '</span>'
+                    + '<span style="font-size:7px;padding:1px 3px;border-radius:2px;background:' + msg.langColor + ';color:white;font-weight:500;">' + msg.langTag + '</span>'
+                    + '<span style="font-size:8px;color:var(--color-text-light);">' + msg.time + '</span></div>'
+                    + '<div style="background:var(--bg-card);padding:7px 10px;border-radius:2px 12px 12px 12px;font-size:12px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,0.04);" id="bubbleMsg' + msg.idx + '">' + msg.text + ' <span class="translate-btn" onclick="event.stopPropagation();translateBubbleMsg(' + msg.idx + ')">翻译</span></div>'
+                    + '</div></div>';
+            } else {
+                contentHtml += '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;padding:2px 0;">'
+                    + '<div style="max-width:72%;">'
+                    + '<div style="text-align:right;font-size:8px;color:var(--color-text-light);margin-bottom:2px;">' + (msg.to ? '回复 ' + msg.to + ' ' : '') + msg.time + '</div>'
+                    + '<div style="background:var(--color-primary);color:white;padding:7px 10px;border-radius:12px 2px 12px 12px;font-size:12px;line-height:1.5;">' + msg.text + '</div>'
+                    + '</div></div>';
+            }
+        }
+        if (allMsgs.length === 0) {
+            contentHtml = '<div style="text-align:center;color:var(--color-text-light);padding:40px 20px;">暂无消息</div>';
+        }
+        } else if (currentTab === 'sent') {
         if (gameState.bubble已发送 && gameState.bubble已发送.length > 0) {
             for (var si = 0; si < gameState.bubble已发送.length; si++) {
                 var sm = gameState.bubble已发送[si];
@@ -3894,11 +3902,10 @@ function render泡泡Page(container) {
         if (replyTarget !== undefined && replyTarget !== null && bubbleMultilangMessages[replyTarget]) {
             replyLabel = '<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,143,163,0.1);border-radius:8px 8px 0 0;font-size:11px;color:var(--color-primary);"><span>回复 ' + bubbleMultilangMessages[replyTarget].from + '</span><span onclick="gameState._bubbleReplyTo=null;render();" style="margin-left:auto;cursor:pointer;color:var(--color-text-light);font-size:14px;">X</span></div>';
         }
-        var canType = (replyTarget !== undefined && replyTarget !== null);
         replyBar = '<div style="flex-shrink:0;padding:8px 12px;background:var(--color-bg);border-top:1px solid var(--color-border);">'
             + replyLabel
             + '<div style="display:flex;gap:8px;">'
-            + '<input type="text" id="bubbleFixedInput" placeholder="' + (canType ? '输入回复...' : '点击消息回复') + '" style="flex:1;font-size:13px;padding:10px 14px;border:1px solid var(--color-border);border-radius:20px;background:var(--bg-main);' + (canType ? '' : 'opacity:0.5;') + '" onkeydown="if(event.key===\'Enter\')sendBubbleFixedReply()" ' + (canType ? '' : 'readonly') + '>'
+            + '<input type="text" id="bubbleFixedInput" placeholder="输入消息..." style="flex:1;font-size:13px;padding:10px 14px;border:1px solid var(--color-border);border-radius:20px;background:var(--bg-main);" onkeydown="if(event.key===\'Enter\')sendBubbleFixedReply()">'
             + '<button class="btn btn-sm btn-primary" onclick="sendBubbleFixedReply()" style="padding:10px 16px;border-radius:20px;font-size:13px;">发送</button>'
             + '</div></div>';
     }
@@ -3919,20 +3926,21 @@ function render泡泡Page(container) {
 }
 
 function sendBubbleFixedReply() {
-    var replyTarget = gameState._bubbleReplyTo;
-    if (replyTarget === undefined || replyTarget === null) { showToast('请先点击一条消息'); return; }
     var input = document.getElementById('bubbleFixedInput');
     if (!input || !input.value.trim()) return;
     var text = input.value.trim();
-    if (!bubbleMultilangMessages[replyTarget]) return;
-    var to = bubbleMultilangMessages[replyTarget].from;
+    var replyTarget = gameState._bubbleReplyTo;
+    var to = '';
+    if (replyTarget !== undefined && replyTarget !== null && bubbleMultilangMessages[replyTarget]) {
+        to = bubbleMultilangMessages[replyTarget].from;
+    }
     input.value = '';
     if (!gameState.bubble已发送) gameState.bubble已发送 = [];
     gameState.bubble已发送.unshift({ to: to, text: text, time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) });
     gameState.fans += Math.floor(Math.random() * 5) + 1;
     gameState.fame = (gameState.fame || 30) + 1;
     gameState._bubbleReplyTo = null;
-    showToast('已回复 ' + to);
+    showToast(to ? '已回复 ' + to : '已发送');
     triggerSilentSave();
     render();
 }
@@ -6342,7 +6350,7 @@ var MUSIC_SHOW_STEPS = [
 ];
 
 function startMusicShow(showIdx) {
-    if (!gameState.comeback || gameState.comeback.phase !== 'musicshow') return;
+    if (!gameState.comeback || (gameState.comeback.phase !== 'musicshow' && gameState.comeback.phase !== 'musicShow')) return;
     if (gameState.体力 < 25) { showToast('体力不足，打歌需要25体力'); return; }
     var show = MUSIC_SHOWS[showIdx];
     if (!show) return;
@@ -6581,108 +6589,40 @@ function renderComebackPage(container) {
         if (daysLeft <= 0) {
             html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback.phase=\'musicshow\';render();">进入打歌期</button>';
         }
-    } else if (cb.phase === 'musicshow') {
+    } else if (cb.phase === 'musicshow' || cb.phase === 'musicShow') {
         var doneShows = cb.musicShowResults || [];
-        var doneCount = doneShows.length;
         var totalAlbumSales = 0;
         for (var asi = 0; asi < doneShows.length; asi++) {
             if (doneShows[asi].albumSales) totalAlbumSales += doneShows[asi].albumSales;
         }
-        var estimatedAlbumSales = Math.floor((gameState.fans || 0) * 0.6 + (gameState.groupPopularity || 0) * 30);
-        if (totalAlbumSales > estimatedAlbumSales) estimatedAlbumSales = totalAlbumSales;
-
-        if (cb._currentShow !== undefined && cb._currentShow !== null) {
-            var curShow = MUSIC_SHOWS[cb._currentShow];
-            var curStep = cb._showStep || 0;
-            html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + curShow.color + ',rgba(255,255,255,0.2));color:white;">'
-                + '<div style="font-size:18px;font-weight:700;">' + curShow.name + '</div>'
-                + '<div style="font-size:11px;opacity:0.85;margin-top:2px;">' + curShow.channel + ' | ' + curShow.day + ' ' + curShow.time + '</div>'
-                + '<div style="font-size:10px;opacity:0.7;margin-top:2px;">' + curShow.venue + '</div></div>';
-            html += '<div class="card" style="background:rgba(0,0,0,0.02);">'
-                + '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:4px;">' + curShow.feature + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);">氛围: ' + curShow.atmosphere + '</div></div>';
-            html += '<div class="card"><div style="font-weight:600;margin-bottom:10px;">打歌流程</div>';
-            for (var si = 0; si < MUSIC_SHOW_STEPS.length; si++) {
-                var step = MUSIC_SHOW_STEPS[si];
-                var isDone = si < curStep;
-                var isCur = si === curStep;
-                var stCol = isDone ? 'var(--color-success)' : isCur ? 'var(--color-primary)' : 'var(--color-border)';
-                var icon = isDone ? 'V' : isCur ? '>' : '';
-                html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;' + (isCur ? 'background:rgba(255,143,163,0.05);border-radius:8px;' : '') + '">'
-                    + '<div style="width:22px;height:22px;border-radius:50%;border:2px solid ' + stCol + ';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:' + stCol + ';flex-shrink:0;">' + icon + '</div>'
-                    + '<div style="flex:1;"><div style="font-size:13px;font-weight:' + (isCur ? '700' : '400') + ';color:' + (isDone ? 'var(--color-text-light)' : 'var(--color-text)') + ';">' + step.name + (isDone ? ' - 完成' : '') + '</div>'
-                    + '<div style="font-size:11px;color:var(--color-text-light);">' + step.desc + '</div></div></div>';
+        var estimatedAlbumSales = Math.max(totalAlbumSales, Math.floor((gameState.fans || 0) * 0.6 + (gameState.groupPopularity || 0) * 30));
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5BB8E8,#7C4DFF);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">打歌期</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">已完成 ' + doneShows.length + '/6 个节目</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FFD5DE);color:white;">'
+            + '<div style="font-size:14px;font-weight:600;">预计专辑销量</div>'
+            + '<div style="font-size:22px;font-weight:700;margin-top:4px;">' + estimatedAlbumSales.toLocaleString() + ' 张</div>'
+            + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">基于粉丝量 + 团体人气</div></div>';
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:4px;">MV品质: ' + (cb.mvQuality || 0) + '分</div>'
+            + '<div style="font-weight:600;margin-bottom:4px;">宣传度: ' + (cb.promotion || 0) + '</div>'
+            + '<div style="font-weight:600;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div></div>';
+        if (doneShows.length > 0) {
+            html += '<div class="section-title">打歌成绩</div>';
+            for (var di = 0; di < doneShows.length; di++) {
+                var dr = doneShows[di];
+                var rCol = dr.rank === 1 ? '#FFD700' : dr.rank === 2 ? '#C0C0C0' : dr.rank === 3 ? '#CD7F32' : 'var(--color-text-light)';
+                html += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;">'
+                    + '<div><div style="font-weight:600;font-size:13px;">' + (dr.showName || '节目') + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);">' + (dr.channel || '') + ' | 得分: ' + dr.score + '</div></div>'
+                    + '<div style="text-align:right;"><div style="color:' + rCol + ';font-weight:700;font-size:16px;">' + dr.label + '</div>'
+                    + (dr.albumSales ? '<div style="font-size:10px;color:var(--color-text-light);">' + dr.albumSales.toLocaleString() + '张</div>' : '') + '</div></div></div>';
             }
-            html += '</div>';
-            if (curStep > 3 && cb._showScoreParts) {
-                var sp = cb._showScoreParts;
-                var scHtml = '';
-                var scItems = [
-                    { label: '音源', val: sp.digital, pct: curShow.scoring.digital },
-                    { label: '销量', val: sp.album, pct: curShow.scoring.album },
-                    { label: 'MV', val: sp.mv, pct: curShow.scoring.mv },
-                    { label: '事前投票', val: sp.prevote, pct: curShow.scoring.prevote },
-                    { label: '实时投票', val: sp.livevote, pct: curShow.scoring.livevote }
-                ];
-                for (var sci = 0; sci < scItems.length; sci++) {
-                    if (scItems[sci].pct > 0) {
-                        scHtml += '<div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;"><span>' + scItems[sci].label + ' (' + Math.floor(scItems[sci].pct * 100) + '%)</span><span>' + scItems[sci].val + '分</span></div>';
-                    }
-                }
-                html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">得分明细</div>' + scHtml + '</div>';
-            }
-            if (curStep < MUSIC_SHOW_STEPS.length) {
-                var nextStep = MUSIC_SHOW_STEPS[curStep];
-                html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="_advanceShowStep()">' + nextStep.name + '</button>';
-            }
-        } else {
-            html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;">'
-                + '<div style="font-size:16px;font-weight:700;">打歌期</div>'
-                + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">选择节目打歌 | 已完成' + doneCount + '/6</div></div>';
-            html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5BB8E8,#7C4DFF);color:white;">'
-                + '<div style="font-size:14px;font-weight:600;">预计专辑销量</div>'
-                + '<div style="font-size:24px;font-weight:700;margin-top:4px;">' + estimatedAlbumSales.toLocaleString() + ' 张</div>'
-                + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">基于粉丝量 + 团体人气</div></div>';
-            html += '<div class="card"><div style="font-weight:600;margin-bottom:4px;">MV品质: ' + (cb.mvQuality || 0) + '分</div>'
-                + '<div style="font-weight:600;margin-bottom:4px;">宣传度: ' + (cb.promotion || 0) + '</div>'
-                + '<div style="font-weight:600;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div></div>';
-            if (doneCount > 0) {
-                html += '<div class="section-title">已完成 (' + doneCount + '/6)</div>';
-                for (var di = 0; di < doneShows.length; di++) {
-                    var dr = doneShows[di];
-                    var rCol = dr.rank === 1 ? '#FFD700' : dr.rank === 2 ? '#C0C0C0' : dr.rank === 3 ? '#CD7F32' : 'var(--color-text-light)';
-                    html += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;">'
-                        + '<div><div style="font-weight:600;">' + (dr.showName || '节目') + '</div>'
-                        + '<div style="font-size:11px;color:var(--color-text-light);">' + (dr.channel || '') + ' | ' + (dr.albumSales ? dr.albumSales.toLocaleString() + '张' : '') + '</div></div>'
-                        + '<div style="text-align:right;"><div style="color:' + rCol + ';font-weight:700;font-size:18px;">' + dr.label + '</div>'
-                        + '<div style="font-size:11px;color:var(--color-text-light);">' + dr.score + '分</div></div></div></div>';
-                }
-            }
-            if (doneCount >= 6) {
-                html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback.phase=\'done\';_finishComeback();render();">查看回归总评</button>';
-            } else {
-                html += '<div class="section-title">选择节目 (25体力/场)</div>';
-                for (var mi = 0; mi < MUSIC_SHOWS.length; mi++) {
-                    var ms = MUSIC_SHOWS[mi];
-                    var alreadyDone = false;
-                    for (var adi = 0; adi < doneShows.length; adi++) {
-                        if (doneShows[adi].showId === ms.id) { alreadyDone = true; break; }
-                    }
-                    var scInfo = '音源' + Math.floor(ms.scoring.digital * 100) + '%';
-                    if (ms.scoring.album > 0) scInfo += ' 销量' + Math.floor(ms.scoring.album * 100) + '%';
-                    if (ms.scoring.livevote > 0) scInfo += ' 实时' + Math.floor(ms.scoring.livevote * 100) + '%';
-                    else scInfo += ' 无实时投票';
-                    html += '<div class="card" style="' + (alreadyDone ? 'opacity:0.35;pointer-events:none;' : 'cursor:pointer;') + '" onclick="startMusicShow(' + mi + ')">'
-                        + '<div style="display:flex;align-items:center;gap:10px;">'
-                        + '<div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,' + ms.color + ',rgba(255,255,255,0.2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:13px;">' + ms.name.charAt(0) + '</div>'
-                        + '<div style="flex:1;">'
-                        + '<div style="font-weight:600;font-size:14px;">' + ms.name + (alreadyDone ? ' - 已完成' : '') + '</div>'
-                        + '<div style="font-size:11px;color:var(--color-text-light);">' + ms.channel + ' | ' + ms.day + ' ' + ms.time + '</div>'
-                        + '<div style="font-size:10px;color:var(--color-primary);margin-top:2px;">' + ms.feature + '</div>'
-                        + '<div style="font-size:10px;color:var(--color-text-light);">' + scInfo + '</div>'
-                        + '</div></div></div>';
-                }
-            }
+        }
+        html += '<div class="card" style="text-align:center;">'
+            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">前往音乐放送进行打歌</div>'
+            + '<button class="btn btn-primary" style="width:100%;" onclick="goToPage(\'music\')">前往音乐放送</button></div>';
+        if (doneShows.length >= 6) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:12px;" onclick="gameState.comeback.phase=\'done\';_finishComeback();render();">查看回归总评</button>';
         }
     } else if (cb.phase === 'done') {
         var totalFirsts = cb.totalFirsts || 0;
@@ -7379,63 +7319,118 @@ function launchFanProject(idx) {
 
 // ==================== MUSIC BROADCAST APP (音乐放送) ====================
 function renderMusicPage(container) {
-    var shows = [
-        { name: 'M Countdown', channel: 'Mnet', day: '周四', time: '18:00' },
-        { name: 'Music Bank', channel: 'KBS', day: '周五', time: '17:00' },
-        { name: '音乐中心', channel: 'MBC', day: '周六', time: '15:30' },
-        { name: '人气歌谣', channel: 'SBS', day: '周日', time: '15:40' },
-        { name: 'THE SHOW', channel: 'SBS MTV', day: '周二', time: '18:00' },
-        { name: 'Show Champion', channel: 'MBC Music', day: '周三', time: '18:00' }
-    ];
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">音乐放送</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">音乐放送</div><div style="width:32px;"></div></div><div class="page-content">';
     if (gameState.player.role !== 'Idol') {
         html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">出道后解锁音乐放送</div></div>';
+    } else if (gameState.comeback && gameState.comeback._currentShow !== undefined) {
+        var cb = gameState.comeback;
+        var show = MUSIC_SHOWS[cb._currentShow];
+        var stepIdx = cb._showStep || 0;
+        var step = MUSIC_SHOW_STEPS[stepIdx];
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + show.color + ',' + show.color + 'cc);color:white;">'
+            + '<div style="font-size:18px;font-weight:700;">' + show.name + '</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">' + show.channel + ' | ' + show.day + ' ' + show.time + '</div>'
+            + '<div style="font-size:11px;opacity:0.7;margin-top:2px;">' + show.feature + '</div></div>';
+        var progressPct = Math.floor((stepIdx / MUSIC_SHOW_STEPS.length) * 100);
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">打歌进度</div>'
+            + '<div style="background:var(--color-border);border-radius:8px;height:8px;overflow:hidden;">'
+            + '<div style="background:' + show.color + ';height:100%;width:' + progressPct + '%;border-radius:8px;transition:width 0.3s;"></div></div>'
+            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + stepIdx + '/' + MUSIC_SHOW_STEPS.length + ' 步</div></div>';
+        html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">流程详情</div>';
+        for (var si = 0; si < MUSIC_SHOW_STEPS.length; si++) {
+            var st = MUSIC_SHOW_STEPS[si];
+            var isDone = si < stepIdx;
+            var isCurrent = si === stepIdx;
+            var stepColor = isDone ? 'var(--color-success)' : isCurrent ? show.color : 'var(--color-text-light)';
+            html += '<div style="display:flex;align-items:center;padding:6px 0;' + (isCurrent ? 'background:rgba(255,143,163,0.08);border-radius:8px;padding:6px 8px;' : '') + '">'
+                + '<div style="width:20px;height:20px;border-radius:50%;background:' + stepColor + ';color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;">'
+                + (isDone ? '\u2713' : (si + 1)) + '</div>'
+                + '<div style="margin-left:8px;flex:1;"><div style="font-size:12px;font-weight:' + (isCurrent ? '600' : '400') + ';color:' + (isDone || isCurrent ? 'var(--color-text)' : 'var(--color-text-light)') + ';">' + st.name + '</div>'
+                + '<div style="font-size:10px;color:var(--color-text-light);">' + st.desc + '</div></div></div>';
+        }
+        html += '</div>';
+        if (stepIdx >= 4 && cb._showScoreParts) {
+            var sp = cb._showScoreParts;
+            var scoreLabels = { digital: '音源', album: '专辑销量', mv: 'MV', prevote: '事前投票', livevote: '实时投票' };
+            html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">得分明细</div>';
+            var scoreKeys = ['digital', 'album', 'mv', 'prevote', 'livevote'];
+            for (var ki = 0; ki < scoreKeys.length; ki++) {
+                var k = scoreKeys[ki];
+                if (show.scoring[k] > 0) {
+                    var weighted = Math.floor(sp[k] * show.scoring[k]);
+                    html += '<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;">'
+                        + '<span>' + scoreLabels[k] + ' (' + Math.floor(show.scoring[k] * 100) + '%)</span>'
+                        + '<span>' + sp[k] + ' x ' + Math.floor(show.scoring[k] * 100) + '% = ' + weighted + '</span></div>';
+                }
+            }
+            html += '</div>';
+        }
+        html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:12px;" onclick="_advanceShowStep()">' + step.name + '</button>';
     } else {
-        for (var i = 0; i < shows.length; i++) {
-            var s = shows[i];
-            html += '<div class="card">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-                + '<div><div style="font-weight:600;">' + s.name + '</div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);">' + s.channel + ' | ' + s.day + ' ' + s.time + '</div></div>'
-                + '<button class="btn btn-sm btn-primary" style="font-size:11px;padding:4px 12px;" data-si="' + i + '" onclick="performOnMusicShow(this.dataset.si)">出演</button></div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;">'
+            + '<div style="font-size:16px;font-weight:700;">音乐放送</div>'
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">选择节目出演打歌</div></div>';
+        var inComeback = gameState.comeback && (gameState.comeback.phase === 'musicshow' || gameState.comeback.phase === 'musicShow');
+        var doneIds = [];
+        if (gameState.comeback && gameState.comeback.musicShowResults) {
+            for (var di = 0; di < gameState.comeback.musicShowResults.length; di++) {
+                doneIds.push(gameState.comeback.musicShowResults[di].showId);
+            }
+        }
+        for (var mi = 0; mi < MUSIC_SHOWS.length; mi++) {
+            var sh = MUSIC_SHOWS[mi];
+            var alreadyDone = doneIds.indexOf(sh.id) > -1;
+            var canPerform = inComeback && !alreadyDone;
+            html += '<div class="card" style="' + (alreadyDone ? 'opacity:0.5;' : '') + '">'
+                + '<div style="display:flex;align-items:center;gap:10px;">'
+                + '<div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,' + sh.color + ',rgba(255,255,255,0.2));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0;">' + sh.name.charAt(0) + '</div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-weight:600;font-size:13px;">' + sh.name + (alreadyDone ? ' - 已完成' : '') + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);">' + sh.channel + ' | ' + sh.day + ' ' + sh.time + '</div>'
+                + '<div style="font-size:10px;color:var(--color-primary);margin-top:1px;">' + sh.feature + '</div></div>'
+                + (alreadyDone ? '<div style="font-size:11px;color:var(--color-success);font-weight:600;">已完成</div>'
+                    : (canPerform ? '<button class="btn btn-sm btn-primary" style="font-size:11px;padding:4px 12px;" data-si="' + mi + '" onclick="startMusicShowFromApp(this.dataset.si)">出演</button>'
+                        : '<div style="font-size:10px;color:var(--color-text-light);">需回归打歌期</div>'))
+                + '</div></div>';
+        }
+        if (gameState.comeback && gameState.comeback.musicShowResults && gameState.comeback.musicShowResults.length > 0) {
+            html += '<div class="section-title" style="margin-top:12px;">打歌记录</div>';
+            var results = gameState.comeback.musicShowResults;
+            for (var ri = 0; ri < results.length; ri++) {
+                var rr = results[ri];
+                var rankColor = rr.rank === 1 ? '#FFD700' : rr.rank === 2 ? '#C0C0C0' : rr.rank === 3 ? '#CD7F32' : 'var(--color-text-light)';
+                html += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;">'
+                    + '<div><div style="font-weight:600;font-size:13px;">' + rr.showName + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);">' + (rr.channel || '') + ' | 得分: ' + rr.score + '</div></div>'
+                    + '<div style="font-size:15px;font-weight:700;color:' + rankColor + ';">' + rr.label + '</div></div></div>';
+            }
         }
     }
     html += '</div></div>';
     container.innerHTML = html;
 }
 
-function performOnMusicShow(idx) {
-    var shows = [
-        { name: 'M Countdown', channel: 'Mnet', day: '周四', time: '18:00' },
-        { name: 'Music Bank', channel: 'KBS', day: '周五', time: '17:00' },
-        { name: '音乐中心', channel: 'MBC', day: '周六', time: '15:30' },
-        { name: '人气歌谣', channel: 'SBS', day: '周日', time: '15:40' },
-        { name: 'THE SHOW', channel: 'SBS MTV', day: '周二', time: '18:00' },
-        { name: 'Show Champion', channel: 'MBC Music', day: '周三', time: '18:00' }
-    ];
-    var show = shows[parseInt(idx)];
-    if (!show) return;
-    if (gameState.体力 < 20) { showToast('体力不足，需要20体力'); return; }
-    // Allow Idol to perform on music shows with or without active comeback
-    if (!gameState.comeback) {
-        gameState.comeback = { phase: 'musicshow', musicShowResults: [], concept: null, titleTrack: null, mvQuality: 0, promotion: 0, daysLeft: 0, totalFirsts: 0 };
+function startMusicShowFromApp(showIdx) {
+    var idx = parseInt(showIdx);
+    if (!gameState.comeback || (gameState.comeback.phase !== 'musicshow' && gameState.comeback.phase !== 'musicShow')) {
+        showToast('需要在回归企划打歌期内');
+        return;
     }
-    if (!gameState.comeback.phase) gameState.comeback.phase = 'musicshow';
-    if (!gameState.comeback.musicShowResults) gameState.comeback.musicShowResults = [];
-    var isMusicShowPhase = gameState.comeback.phase === 'musicshow' || gameState.comeback.phase === 'musicShow';
-    gameState.体力 = Math.max(0, gameState.体力 - 20);
-    var baseScore = isMusicShowPhase ? 50 : 25; var score = Math.floor(Math.random() * 30) + baseScore + Math.floor((gameState.fame || 30) / 5);
-    var rank = score >= 90 ? 1 : score >= 75 ? 2 : score >= 60 ? 3 : Math.floor(Math.random() * 3) + 4;
-    var result = { show: show.name, score: score, rank: rank, label: (rank === 1 ? '1位' : rank + '位') };
-    gameState.comeback.musicShowResults.push(result);
-    var rankText = rank === 1 ? '1位! 恭喜一位!' : rank + '位';
-    showModal(show.name + ' 出演结果', '得分: ' + score + '分\n排名: ' + rankText);
-    if (typeof triggerSilentSave === 'function') triggerSilentSave();
-    render();
+    if (gameState.体力 < 25) { showToast('体力不足，打歌需要25体力'); return; }
+    var show = MUSIC_SHOWS[idx];
+    if (!show) return;
+    var alreadyDone = false;
+    if (gameState.comeback.musicShowResults) {
+        for (var di = 0; di < gameState.comeback.musicShowResults.length; di++) {
+            if (gameState.comeback.musicShowResults[di].showId === show.id) { alreadyDone = true; break; }
+        }
+    }
+    if (alreadyDone) { showToast('已经在这个节目打歌了'); return; }
+    startMusicShow(idx);
 }
 
-// ==================== MV STUDIO APP (MV工作室) ====================
 function renderMVStudioPage(container) {
+
     if (!gameState.mvCollection) gameState.mvCollection = [];
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content">';
     if (gameState.player.role !== 'Idol') {
@@ -8341,8 +8336,9 @@ function renderGachaPage(container) {
                 + (function(){ var _iu = _getCardImgUrl(c.name); if (_iu) return '<div style="position:absolute;top:0;left:0;width:100%;height:100%;"><img src="' + _iu + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:8px;" onerror="this.parentNode.style.display=\'none\'"></div><div style="font-weight:700;font-size:14px;position:relative;z-index:1;">' + c.name.charAt(0) + '</div>'; return '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'; })()
                 + '<div style="font-size:8px;opacity:0.8;position:relative;z-index:1;">' + t + '</div>'
                 + (isHid ? '<div style="position:absolute;top:1px;right:2px;font-size:7px;color:#FFD700;">*</div>' : '')
-                + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
-                + '<div style="position:absolute;top:1px;left:2px;font-size:6px;color:#FFD700;">' + _starStr + '</div>'
+                + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;right:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
+                + '<div style="position:absolute;bottom:1px;left:50%;transform:translateX(-50%);font-size:6px;color:#FFD700;">' + _starStr + '</div>'
+                + '<div style="position:absolute;top:1px;left:2px;font-size:8px;font-weight:700;text-shadow:0 0 3px rgba(0,0,0,0.5);color:' + ({S:'#FFD700',A:'#4CD964',B:'#5BB8E8',C:'#999'}[t] || '#999') + ';">' + t + '</div>'
                 + '</div>';
         }
         if (allCards.length > 30) html += '<div style="display:flex;align-items:center;font-size:12px;color:var(--color-text-light);padding:8px;">+' + (allCards.length - 30) + '</div>';
@@ -8385,7 +8381,8 @@ function showCardDetail(pool, cardId) {
         + '<div style="width:120px;height:160px;border-radius:16px;background:linear-gradient(135deg,' + color + ',' + color + '66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;margin:0 auto 16px;position:relative;' + (card.isHidden ? 'border:2px solid #FFD700;box-shadow:0 0 12px rgba(255,215,0,0.5);' : '') + '">'
         + _detailCardInner
         + (card.isHidden ? '<div style="position:absolute;top:4px;right:6px;font-size:9px;color:#FFD700;">HIDDEN</div>' : '')
-        + '<div style="position:absolute;bottom:6px;font-size:12px;color:#FFD700;">' + _starStr + '</div>'
+        + '<div style="position:absolute;top:4px;left:6px;font-size:11px;font-weight:700;text-shadow:0 0 4px rgba(0,0,0,0.5);color:' + color + ';">' + t + '</div>'
+        + '<div style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:12px;color:#FFD700;">' + _starStr + '</div>'
         + '</div>'
         + '<div style="font-size:18px;font-weight:700;">' + card.name + '</div>'
         + '<div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">' + card.company + ' / ' + card.group + '</div>'
