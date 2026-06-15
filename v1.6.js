@@ -7460,6 +7460,15 @@ var SONG_CONCEPTS = [
 var SONG_NAME_PARTS_A = ['Star', 'Moon', 'Dream', 'Night', 'Heart', 'Fire', 'Ice', 'Light', 'Rain', 'Rose', 'Blue', 'Silver', 'Golden', 'Crystal', 'Velvet'];
 var SONG_NAME_PARTS_B = ['light', 'shine', 'fall', 'rise', 'wave', 'dust', 'glow', 'storm', 'dance', 'song', 'sigh', 'kiss', 'call', 'dream', 'flight'];
 
+function _shuffleArr(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+}
+
 function renderSongProdPage(container) {
     var sp = gameState.songProd;
     if (!sp) {
@@ -7470,42 +7479,130 @@ function renderSongProdPage(container) {
             + getAppLinkHtml('songprod') + '</div></div>';
         return;
     }
+    var stepLabels = ['选择曲风', '选择概念', '作曲写词', '录音', '混音制作', '制作完成'];
+    var stepLabel = (sp.step >= 0 && sp.step <= 5) ? stepLabels[sp.step] : '歌曲制作';
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelSongProduction()">‹ 取消</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content">';
 
     if (sp.step === 0) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择曲风</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">不同曲风影响歌曲品质和最佳属性</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">Step 1: 选择曲风</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">不同曲风影响歌曲品质和最佳属性</div></div>';
         for (var gi = 0; gi < SONG_GENRES.length; gi++) {
             var g = SONG_GENRES[gi];
             var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
-            html += '<div class="card" data-gi="' + gi + '" onclick="selectSongGenre(this.dataset.gi)" style="cursor:pointer;">'
+            var gSel = sp.selectedGenre && sp.selectedGenre.name === g.name;
+            html += '<div class="card" onclick="selectSongGenre(' + gi + ')" style="cursor:pointer;' + (gSel ? 'border:2px solid var(--color-primary);' : '') + '">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div><div style="font-weight:600;">' + g.name + ' (' + g.genre + ')</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">加成: ' + statNames[g.bestStat] + ' | ' + g.energy + '体力 + ' + g.cost + '金币</div></div>'
                 + '</div></div>';
         }
+        if (sp.selectedGenre) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="gameState.songProd.step=1;render();">下一步</button>';
+        }
     } else if (sp.step === 1) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择歌曲概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + '</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">Step 2: 选择歌曲概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + '</div></div>';
         for (var ci = 0; ci < SONG_CONCEPTS.length; ci++) {
             var co = SONG_CONCEPTS[ci];
-            html += '<div class="card" data-ci="' + ci + '" onclick="selectSongConcept(this.dataset.ci)" style="cursor:pointer;">'
+            var cSel = sp.selectedConcept && sp.selectedConcept.name === co.name;
+            html += '<div class="card" onclick="selectSongConcept(' + ci + ')" style="cursor:pointer;' + (cSel ? 'border:2px solid var(--color-primary);' : '') + '">'
                 + '<div style="font-weight:600;">' + co.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">品质倍率: x' + co.qualityBonus + '</div></div>';
         }
+        if (sp.selectedConcept) {
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="composeSong()">开始作曲写词</button>';
+        }
     } else if (sp.step === 2) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#4CD964,#34C759);color:white;"><div style="font-size:16px;font-weight:700;">作曲写词</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + ' | 概念: ' + sp.selectedConcept.name + '</div></div>';
-        html += '<div class="card" style="text-align:center;">'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要' + sp.selectedGenre.energy + '体力 + ' + sp.selectedGenre.cost + '金币</div>'
-            + '<button class="btn btn-primary btn-lg" onclick="composeSong()">开始作曲写词</button></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#4CD964,#34C759);color:white;"><div style="font-size:16px;font-weight:700;">Step 3: 作曲写词</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + ' | 概念: ' + sp.selectedConcept.name + '</div></div>';
+        var evt = sp.currentEvent;
+        if (!evt && SONG_COMPOSE_EVENTS.length > 0) {
+            var shuffled = _shuffleArr(SONG_COMPOSE_EVENTS);
+            sp.eventQueue = shuffled.slice(0, 2);
+            sp.eventIndex = 0;
+            sp.currentEvent = sp.eventQueue[0];
+            sp.choices = sp.choices || [];
+            evt = sp.currentEvent;
+        }
+        if (evt) {
+            html += '<div class="card" style="background:var(--color-surface);border-left:4px solid #4CD964;">'
+                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:8px;">事件 ' + (sp.eventIndex + 1) + '/' + sp.eventQueue.length + '</div>'
+                + '<div style="font-weight:600;margin-bottom:12px;">' + evt.scene + '</div>';
+            for (var oi = 0; oi < evt.choices.length; oi++) {
+                var opt = evt.choices[oi];
+                html += '<div class="card" onclick="chooseSongStoryOption(' + oi + ')" style="cursor:pointer;margin-bottom:6px;padding:10px 12px;">'
+                    + '<div style="font-weight:600;font-size:13px;">' + opt.text + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">品质 ' + (opt.quality >= 0 ? '+' : '') + opt.quality + '</div></div>';
+            }
+            html += '</div>';
+        }
+        if (sp.choices && sp.choices.length > 0) {
+            html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;font-size:13px;">已作出的选择</div>';
+            for (var chi = 0; chi < sp.choices.length; chi++) {
+                var ch = sp.choices[chi];
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:4px;">' + ch.text + ' — ' + ch.desc + ' (' + (ch.quality >= 0 ? '+' : '') + ch.quality + ')</div>';
+            }
+            html += '</div>';
+        }
     } else if (sp.step === 3) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF9500,#FF6B00);color:white;"><div style="font-size:16px;font-weight:700;">录音</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌名: ' + sp.songName + '</div></div>';
-        html += '<div class="card" style="text-align:center;">'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要15体力 + 20,000金币</div>'
-            + '<button class="btn btn-primary btn-lg" onclick="recordSong()">开始录音</button></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF9500,#FF6B00);color:white;"><div style="font-size:16px;font-weight:700;">Step 4: 录音</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌名: ' + sp.songName + '</div></div>';
+        var revt = sp.currentEvent;
+        if (!revt && SONG_RECORD_EVENTS.length > 0) {
+            var rshuffled = _shuffleArr(SONG_RECORD_EVENTS);
+            sp.eventQueue = rshuffled.slice(0, 2);
+            sp.eventIndex = 0;
+            sp.currentEvent = sp.eventQueue[0];
+            sp.recordChoices = sp.recordChoices || [];
+            revt = sp.currentEvent;
+        }
+        if (revt) {
+            html += '<div class="card" style="background:var(--color-surface);border-left:4px solid #FF9500;">'
+                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:8px;">事件 ' + (sp.eventIndex + 1) + '/' + sp.eventQueue.length + '</div>'
+                + '<div style="font-weight:600;margin-bottom:12px;">' + revt.scene + '</div>';
+            for (var roi = 0; roi < revt.choices.length; roi++) {
+                var ropt = revt.choices[roi];
+                html += '<div class="card" onclick="chooseSongStoryOption(' + roi + ')" style="cursor:pointer;margin-bottom:6px;padding:10px 12px;">'
+                    + '<div style="font-weight:600;font-size:13px;">' + ropt.text + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">品质 ' + (ropt.quality >= 0 ? '+' : '') + ropt.quality + '</div></div>';
+            }
+            html += '</div>';
+        }
+        if (sp.recordChoices && sp.recordChoices.length > 0) {
+            html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;font-size:13px;">已作出的选择</div>';
+            for (var rci = 0; rci < sp.recordChoices.length; rci++) {
+                var rch = sp.recordChoices[rci];
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:4px;">' + rch.text + ' — ' + rch.desc + ' (' + (rch.quality >= 0 ? '+' : '') + rch.quality + ')</div>';
+            }
+            html += '</div>';
+        }
     } else if (sp.step === 4) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5856D6,#3634A3);color:white;"><div style="font-size:16px;font-weight:700;">混音制作</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌名: ' + sp.songName + '</div></div>';
-        html += '<div class="card" style="text-align:center;">'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">需要10体力 + 15,000金币</div>'
-            + '<button class="btn btn-primary btn-lg" onclick="mixSong()">开始混音</button></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5856D6,#3634A3);color:white;"><div style="font-size:16px;font-weight:700;">Step 5: 混音制作</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌名: ' + sp.songName + '</div></div>';
+        var mevt = sp.currentEvent;
+        if (!mevt && SONG_MIX_EVENTS.length > 0) {
+            var mshuffled = _shuffleArr(SONG_MIX_EVENTS);
+            sp.eventQueue = mshuffled.slice(0, 2);
+            sp.eventIndex = 0;
+            sp.currentEvent = sp.eventQueue[0];
+            sp.mixChoices = sp.mixChoices || [];
+            mevt = sp.currentEvent;
+        }
+        if (mevt) {
+            html += '<div class="card" style="background:var(--color-surface);border-left:4px solid #5856D6;">'
+                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:8px;">事件 ' + (sp.eventIndex + 1) + '/' + sp.eventQueue.length + '</div>'
+                + '<div style="font-weight:600;margin-bottom:12px;">' + mevt.scene + '</div>';
+            for (var moi = 0; moi < mevt.choices.length; moi++) {
+                var mopt = mevt.choices[moi];
+                html += '<div class="card" onclick="chooseSongStoryOption(' + moi + ')" style="cursor:pointer;margin-bottom:6px;padding:10px 12px;">'
+                    + '<div style="font-weight:600;font-size:13px;">' + mopt.text + '</div>'
+                    + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">品质 ' + (mopt.quality >= 0 ? '+' : '') + mopt.quality + '</div></div>';
+            }
+            html += '</div>';
+        }
+        if (sp.mixChoices && sp.mixChoices.length > 0) {
+            html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;font-size:13px;">已作出的选择</div>';
+            for (var mci = 0; mci < sp.mixChoices.length; mci++) {
+                var mch = sp.mixChoices[mci];
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:4px;">' + mch.text + ' — ' + mch.desc + ' (' + (mch.quality >= 0 ? '+' : '') + mch.quality + ')</div>';
+            }
+            html += '</div>';
+        }
     } else if (sp.step === 5) {
         var song = sp.result;
         var qualityColor = song.quality >= 80 ? '#4CD964' : song.quality >= 60 ? '#FF9500' : '#FF3B30';
@@ -7517,13 +7614,15 @@ function renderSongProdPage(container) {
             + '<div style="font-size:13px;">曲风: ' + song.genre + '</div>'
             + '<div style="font-size:13px;">概念: ' + song.concept + '</div>'
             + '<div style="font-size:13px;">品质: ' + song.quality + '分</div></div>';
-        if (sp.recordEvent || sp.mixEvent) {
+        var allChoices = [];
+        if (sp.choices && sp.choices.length > 0) { allChoices = allChoices.concat(sp.choices); }
+        if (sp.recordChoices && sp.recordChoices.length > 0) { allChoices = allChoices.concat(sp.recordChoices); }
+        if (sp.mixChoices && sp.mixChoices.length > 0) { allChoices = allChoices.concat(sp.mixChoices); }
+        if (allChoices.length > 0) {
             html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">制作花絮</div>';
-            if (sp.recordEvent) {
-                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">录音: ' + sp.recordEvent.text + ' (品质' + (sp.recordEvent.quality >= 0 ? '+' : '') + sp.recordEvent.quality + ')</div>';
-            }
-            if (sp.mixEvent) {
-                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">混音: ' + sp.mixEvent.text + ' (品质' + (sp.mixEvent.quality >= 0 ? '+' : '') + sp.mixEvent.quality + ')</div>';
+            for (var ai = 0; ai < allChoices.length; ai++) {
+                var ac = allChoices[ai];
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:4px;">' + ac.text + ' — ' + ac.desc + ' (' + (ac.quality >= 0 ? '+' : '') + ac.quality + ')</div>';
             }
             html += '</div>';
         }
@@ -7540,7 +7639,7 @@ function renderSongProdPage(container) {
 
 function startSongProduction() {
     if (gameState.player.role !== 'Idol') { showToast('只有出道爱豆才能制作歌曲'); return; }
-    gameState.songProd = { step: 0, comebackMode: false };
+    gameState.songProd = { step: 0, comebackMode: false, qualityBonus: 0, choices: [], recordChoices: [], mixChoices: [], eventQueue: [], eventIndex: 0, currentEvent: null };
     render();
 }
 
@@ -7576,14 +7675,12 @@ function cancelSongProduction() {
 function selectSongGenre(idx) {
     var i = parseInt(idx);
     gameState.songProd.selectedGenre = SONG_GENRES[i];
-    gameState.songProd.step = 1;
     render();
 }
 
 function selectSongConcept(idx) {
     var i = parseInt(idx);
     gameState.songProd.selectedConcept = SONG_CONCEPTS[i];
-    gameState.songProd.step = 2;
     render();
 }
 
@@ -7597,8 +7694,11 @@ function composeSong() {
     var a = SONG_NAME_PARTS_A[Math.floor(Math.random() * SONG_NAME_PARTS_A.length)];
     var b = SONG_NAME_PARTS_B[Math.floor(Math.random() * SONG_NAME_PARTS_B.length)];
     sp.songName = a + b;
-    sp.step = 3;
-    notifySystem('作曲完成', '歌名: ' + sp.songName);
+    sp.step = 2;
+    sp.eventQueue = [];
+    sp.eventIndex = 0;
+    sp.currentEvent = null;
+    sp.choices = [];
     render();
 }
 
@@ -7608,23 +7708,12 @@ function recordSong() {
     gameState.体力 -= 15;
     gameState.money -= 20000;
     var sp = gameState.songProd;
-    var recordEvents = [
-        { text: '主唱突然失声，你顶上了高音部分', quality: 5, desc: '临场救急' },
-        { text: '录音室设备故障，耽误了两小时', quality: -3, desc: '设备故障' },
-        { text: '和成员的合唱意外地和谐', quality: 4, desc: '默契配合' },
-        { text: '制作人要求重录三遍，但效果越来越好', quality: 3, desc: '精益求精' },
-        { text: '录音时窗外下起大雨，氛围感拉满', quality: 2, desc: '天降氛围' },
-        { text: 'Rap部分一直卡壳，反复录了十遍', quality: -2, desc: '反复打磨' },
-        { text: '队友带了宵夜来探班，状态大好', quality: 3, desc: '温暖探班' },
-        { text: '录音师夸你今天状态极佳', quality: 5, desc: '状态爆棚' }
-    ];
-    var evt = recordEvents[Math.floor(Math.random() * recordEvents.length)];
-    sp.recordEvent = evt;
-    sp.qualityBonus = (sp.qualityBonus || 0) + evt.quality;
-    gameState.songProd.step = 4;
-    showModal('录音花絮 - ' + evt.desc, evt.text + '\n\n品质 ' + (evt.quality >= 0 ? '+' : '') + evt.quality, [
-        { text: '继续', action: function() { closeModal(); render(); } }
-    ]);
+    sp.step = 3;
+    sp.eventQueue = [];
+    sp.eventIndex = 0;
+    sp.currentEvent = null;
+    sp.recordChoices = [];
+    render();
 }
 
 function mixSong() {
@@ -7633,17 +7722,66 @@ function mixSong() {
     gameState.体力 -= 10;
     gameState.money -= 15000;
     var sp = gameState.songProd;
-    var mixEvents = [
-        { text: '混音师做出了绝佳的层次感', quality: 4, desc: '专业混音' },
-        { text: '低频部分有点糊，反复调了好久', quality: -2, desc: '低频调整' },
-        { text: '加入了一段环境音效，瞬间高级了', quality: 5, desc: '氛围音效' },
-        { text: '混音时不小心删了一段，重新来过', quality: -3, desc: '操作失误' },
-        { text: '和成员一起试听，大家都很满意', quality: 3, desc: '集体认可' },
-        { text: '混音到凌晨三点，终于调出理想效果', quality: 4, desc: '深夜打磨' }
-    ];
-    var evt = mixEvents[Math.floor(Math.random() * mixEvents.length)];
-    sp.mixEvent = evt;
-    sp.qualityBonus = (sp.qualityBonus || 0) + evt.quality;
+    sp.step = 4;
+    sp.eventQueue = [];
+    sp.eventIndex = 0;
+    sp.currentEvent = null;
+    sp.mixChoices = [];
+    render();
+}
+
+function chooseSongStoryOption(idx) {
+    var sp = gameState.songProd;
+    if (!sp || !sp.currentEvent) return;
+    var evt = sp.currentEvent;
+    var choice = evt.choices[idx];
+    sp.qualityBonus = (sp.qualityBonus || 0) + choice.quality;
+    if (sp.step === 2) {
+        sp.choices = sp.choices || [];
+        sp.choices.push(choice);
+    } else if (sp.step === 3) {
+        sp.recordChoices = sp.recordChoices || [];
+        sp.recordChoices.push(choice);
+    } else if (sp.step === 4) {
+        sp.mixChoices = sp.mixChoices || [];
+        sp.mixChoices.push(choice);
+    }
+    sp.eventIndex++;
+    if (sp.eventIndex < sp.eventQueue.length) {
+        sp.currentEvent = sp.eventQueue[sp.eventIndex];
+    } else {
+        sp.currentEvent = null;
+        if (sp.step === 2) {
+            notifySystem('作曲完成', '歌名: ' + sp.songName);
+            sp.step = 3;
+            if (gameState.体力 < 15 || gameState.money < 20000) {
+                showModal('作曲完成', '歌名: ' + sp.songName + '\n\n录音需要15体力 + 20,000金币，当前资源不足，请补充后再继续。', [
+                    { text: '知道了', action: function() { closeModal(); render(); } }
+                ]);
+                return;
+            }
+            recordSong();
+            return;
+        } else if (sp.step === 3) {
+            sp.step = 4;
+            if (gameState.体力 < 10 || gameState.money < 15000) {
+                showModal('录音完成', '混音需要10体力 + 15,000金币，当前资源不足，请补充后再继续。', [
+                    { text: '知道了', action: function() { closeModal(); render(); } }
+                ]);
+                return;
+            }
+            mixSong();
+            return;
+        } else if (sp.step === 4) {
+            finishSongProduction();
+            return;
+        }
+    }
+    render();
+}
+
+function finishSongProduction() {
+    var sp = gameState.songProd;
     var statVal = gameState.stats[sp.selectedGenre.bestStat] || 50;
     var quality = Math.floor((statVal / 150) * 60 + Math.random() * 30 * sp.selectedConcept.qualityBonus + 10 + (sp.qualityBonus || 0));
     quality = Math.min(100, Math.max(20, quality));
@@ -7658,12 +7796,7 @@ function mixSong() {
     gameState.songs.push(song);
     sp.result = song;
     sp.step = 5;
-    var eventMsg = '';
-    if (sp.recordEvent) eventMsg += ' | 录音: ' + sp.recordEvent.desc;
-    if (sp.mixEvent) eventMsg += ' | 混音: ' + sp.mixEvent.desc;
-    showModal('混音花絮 - ' + evt.desc, evt.text + '\n\n品质 ' + (evt.quality >= 0 ? '+' : '') + evt.quality + '\n\n歌曲「' + song.name + '」制作完成！品质: ' + quality + '分', [
-        { text: '查看结果', action: function() { closeModal(); render(); } }
-    ]);
+    sp.currentEvent = null;
     syncFromApp('songprod', { action: 'song_complete', name: song.name, quality: quality, genre: song.genre });
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
@@ -8289,6 +8422,135 @@ var MV_CONCEPTS = [
     { name: '街舞', style: 'street', bonus: 1.1, color: '#FF6D00', desc: '动感十足的舞蹈风' },
     { name: '剧情', style: 'story', bonus: 1.2, color: '#EC407A', desc: '叙事性强的故事MV' },
     { name: '可爱', style: 'cute', bonus: 0.9, color: '#F48FB1', desc: '甜美活泼的少女风' }
+];
+
+var SONG_COMPOSE_EVENTS = [
+    { scene: '写到副歌时灵感枯竭，怎么都写不出满意的旋律', choices: [
+        { text: '出去散步找灵感', quality: 6, desc: '街头的一段旋律启发了你' },
+        { text: '硬着头皮继续写', quality: -2, desc: '写出来但自己都不满意' },
+        { text: '找队友一起brainstorming', quality: 4, desc: '集思广益，碰撞出好点子' }
+    ]},
+    { scene: '制作人觉得歌词太普通，要求重写', choices: [
+        { text: '加入个人真实经历', quality: 8, desc: '真挚的歌词打动了所有人' },
+        { text: '参考热门歌词风格', quality: 3, desc: '稳妥但缺乏个人特色' },
+        { text: '用诗意化表达替代直白', quality: 5, desc: '文艺感十足，制作人认可' }
+    ]},
+    { scene: '你突然有了一个跟原曲风完全不同的灵感', choices: [
+        { text: '大胆尝试新方向', quality: 7, desc: '意外融合出独特风格' },
+        { text: '记下来以后用，先按原计划', quality: 2, desc: '安全稳妥但少了惊喜' },
+        { text: '把新灵感融入现有框架', quality: 6, desc: '新旧融合，层次更丰富' }
+    ]},
+    { scene: '作曲到深夜，室友抱怨你太吵了', choices: [
+        { text: '戴上耳机继续', quality: 5, desc: '专注产出，但差点吵到邻居' },
+        { text: '改用纸笔默写旋律', quality: 3, desc: '慢但更细腻' },
+        { text: '去公司练习室写', quality: 4, desc: '专业环境效率更高' }
+    ]},
+    { scene: '你写了一段超满意的旋律，但发现跟某热门歌撞了', choices: [
+        { text: '微调几个音避免相似', quality: 5, desc: '改了之后反而更有特色' },
+        { text: '整段推翻重写', quality: -1, desc: '花了很多时间但重写的不如原来' },
+        { text: '保留并做差异化编曲', quality: 7, desc: '编曲让整首歌完全不同了' }
+    ]},
+    { scene: '歌词写到一半发现和概念方向跑偏了', choices: [
+        { text: '回到概念重新梳理', quality: 6, desc: '方向对了，后面的词很顺' },
+        { text: '顺其自然写下去', quality: -3, desc: '偏离主题，制作人不满意' },
+        { text: '保留好句子，改框架', quality: 5, desc: '好句子+新框架=意外惊喜' }
+    ]},
+    { scene: '公司高层来探班，听了你的demo后建议改曲风', choices: [
+        { text: '听取建议调整', quality: 4, desc: '高层经验丰富，调整后更市场向' },
+        { text: '坚持自己的风格', quality: 6, desc: '最终证明你的判断是对的' },
+        { text: '折中，保留核心加市场元素', quality: 8, desc: '两全其美，高层和市场都满意' }
+    ]},
+    { scene: '队友提出想在歌里加一段feat', choices: [
+        { text: '欣然同意，加一段对唱', quality: 7, desc: '合唱部分成为全曲亮点' },
+        { text: '礼貌拒绝，保持solo', quality: 3, desc: '完整性保持但少了亮点' },
+        { text: '同意加一小段和声', quality: 5, desc: '点缀恰到好处' }
+    ]}
+];
+
+var SONG_RECORD_EVENTS = [
+    { scene: '主唱突然失声，高音部分空缺', choices: [
+        { text: '自己顶上高音', quality: 7, desc: '临场发挥超常，惊艳全场' },
+        { text: '降低音高重新编排', quality: 2, desc: '安全但少了冲击力' },
+        { text: '换成员补唱高音', quality: 4, desc: '配合默契，效果不错' }
+    ]},
+    { scene: '录音室设备突然故障，只能换到小录音间', choices: [
+        { text: '将就着录', quality: -2, desc: '隔音差，混入环境噪音' },
+        { text: '等技术修好', quality: 3, desc: '等了两小时但录音条件完美' },
+        { text: '去别的录音棚', quality: 5, desc: '更好的设备反而效果更佳' }
+    ]},
+    { scene: 'Rap部分怎么录都不满意，已经录了十遍', choices: [
+        { text: '换个flow重新来', quality: 6, desc: '新flow比原来还带感' },
+        { text: '先录别的部分，回来再录', quality: 4, desc: '状态调整后一次过' },
+        { text: '直接用第一遍的', quality: -1, desc: '制作人皱了皱眉但接受了' }
+    ]},
+    { scene: '制作人突然要求改一段旋律', choices: [
+        { text: '按制作人说的改', quality: 5, desc: '制作人经验丰富，改后更流畅' },
+        { text: '坚持原版不变', quality: 3, desc: '你对自己作品有信心' },
+        { text: '提出折中方案', quality: 8, desc: '双方都满意，效果超预期' }
+    ]},
+    { scene: '录音时窗外突然下起暴雨，雷声混了进来', choices: [
+        { text: '重新录一遍', quality: 3, desc: '干净但少了点氛围' },
+        { text: '保留雷声当采样', quality: 9, desc: '意外效果成为歌曲标志' },
+        { text: '等雨停再继续', quality: 2, desc: '浪费时间但录音正常' }
+    ]},
+    { scene: '队友带了宵夜来探班', choices: [
+        { text: '吃完继续录', quality: 5, desc: '吃饱了状态超好' },
+        { text: '边吃边录试试', quality: -1, desc: '嘴含食物录的效果...不行' },
+        { text: '谢过队友，先专注录音', quality: 4, desc: '专业态度，录完再吃' }
+    ]},
+    { scene: '录音到凌晨，你发现自己的声音开始沙哑', choices: [
+        { text: '休息明天再录', quality: 5, desc: '第二天状态恢复完美' },
+        { text: '坚持录完', quality: -3, desc: '沙哑声线毁了几个段落' },
+        { text: '用沙哑声线录一段特别版', quality: 7, desc: '独特的质感成为全曲灵魂' }
+    ]},
+    { scene: '录音师说你的节奏不太稳，建议用节拍器', choices: [
+        { text: '跟着节拍器录', quality: 4, desc: '节奏稳了但少了自由感' },
+        { text: '相信自己不用节拍器', quality: 2, desc: '凭感觉录，有瑕疵但真实' },
+        { text: '先跟节拍器练几遍再录', quality: 6, desc: '练过后节奏又稳又有感觉' }
+    ]}
+];
+
+var SONG_MIX_EVENTS = [
+    { scene: '混音师做出了两个版本，你更喜欢跟制作人意见不同的那个', choices: [
+        { text: '选自己喜欢的', quality: 6, desc: '你的品味最终被证明是对的' },
+        { text: '听制作人的', quality: 4, desc: '专业判断不会太差' },
+        { text: '让两个版本各取所长重新混', quality: 8, desc: '融合版超出所有人预期' }
+    ]},
+    { scene: '混音时发现人声被伴奏盖住了', choices: [
+        { text: '调高人声音量', quality: 4, desc: '人声清晰了但有点突兀' },
+        { text: '降低伴奏音量', quality: 3, desc: '平衡了但整体偏弱' },
+        { text: '重新EQ调整频率', quality: 7, desc: '专业调校，人声伴奏完美融合' }
+    ]},
+    { scene: '混音师建议加一段环境音效', choices: [
+        { text: '加海浪声', quality: 5, desc: '海浪声让歌曲更有画面感' },
+        { text: '加城市环境音', quality: 4, desc: '城市音效增添了都市感' },
+        { text: '不加，保持纯粹', quality: 3, desc: '干净就是美' }
+    ]},
+    { scene: '混音到凌晨三点，你发现一个声部忘了调', choices: [
+        { text: '立刻修改', quality: 7, desc: '完美主义，成品质量上乘' },
+        { text: '明天再改', quality: 2, desc: '休息后思路更清晰' },
+        { text: '听听觉得也还行不改了', quality: -2, desc: '小瑕疵被粉丝发现了' }
+    ]},
+    { scene: '公司要求加一个特别的音效作为记忆点', choices: [
+        { text: '加一段独特的电子音', quality: 6, desc: '洗脑音效让歌曲辨识度拉满' },
+        { text: '加一段人声哼唱', quality: 5, desc: '哼唱成为全曲最温柔的瞬间' },
+        { text: '用乐器独奏当记忆点', quality: 7, desc: '独奏段落成为歌曲灵魂' }
+    ]},
+    { scene: '最终试听时，低频太重高频太弱', choices: [
+        { text: '削减低频提升高频', quality: 6, desc: '调整后层次分明' },
+        { text: '保持原样，低频有力量感', quality: 2, desc: '风格强烈但部分人觉得闷' },
+        { text: '重新混这一段', quality: 5, desc: '花时间重混效果更好' }
+    ]},
+    { scene: '混音时不小心删了一段重要音轨', choices: [
+        { text: '从备份恢复', quality: 4, desc: '有备份真是万幸' },
+        { text: '重新录制那段', quality: 6, desc: '重录的效果反而比原来好' },
+        { text: '用其他素材补上', quality: 2, desc: '勉强补上但有点违和' }
+    ]},
+    { scene: '成员们对混音效果各有不同意见', choices: [
+        { text: '投票决定', quality: 4, desc: '民主决策大家都能接受' },
+        { text: '你来拍板', quality: 5, desc: '果断决策，最终效果统一' },
+        { text: '挨个试听每个人建议再综合', quality: 7, desc: '耗时但集众人之长的版本最好' }
+    ]}
 ];
 
 var MV_STORY_EVENTS = [
