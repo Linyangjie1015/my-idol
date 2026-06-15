@@ -7452,8 +7452,9 @@ function recordSong() {
     sp.recordEvent = evt;
     sp.qualityBonus = (sp.qualityBonus || 0) + evt.quality;
     gameState.songProd.step = 4;
-    notifySystem('录音完成', evt.text + ' (品质' + (evt.quality >= 0 ? '+' : '') + evt.quality + ')');
-    render();
+    showModal('录音花絮 - ' + evt.desc, evt.text + '\n\n品质 ' + (evt.quality >= 0 ? '+' : '') + evt.quality, [
+        { text: '继续', action: function() { closeModal(); render(); } }
+    ]);
 }
 
 function mixSong() {
@@ -7490,7 +7491,9 @@ function mixSong() {
     var eventMsg = '';
     if (sp.recordEvent) eventMsg += ' | 录音: ' + sp.recordEvent.desc;
     if (sp.mixEvent) eventMsg += ' | 混音: ' + sp.mixEvent.desc;
-    notifySystem('歌曲制作完成', song.name + ' 品质: ' + quality + '分' + eventMsg);
+    showModal('混音花絮 - ' + evt.desc, evt.text + '\n\n品质 ' + (evt.quality >= 0 ? '+' : '') + evt.quality + '\n\n歌曲「' + song.name + '」制作完成！品质: ' + quality + '分', [
+        { text: '查看结果', action: function() { closeModal(); render(); } }
+    ]);
     syncFromApp('songprod', { action: 'song_complete', name: song.name, quality: quality, genre: song.genre });
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
