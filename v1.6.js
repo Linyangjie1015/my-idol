@@ -3773,16 +3773,354 @@ function _triggerKakaoComfort() {
     gameState.kakaoChats[friend].push({ from: friend, text: '没关系，下次一定行的！加油！', time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) });
 }
 
+// ==================== 恋爱APP (KakaoTalk风格) ====================
+var _loveChatReplies_low = [
+    '嗯，好的', '谢谢', '了解了', '哦，这样啊', '好的好的', '收到', '嗯...', '哈哈', '还行吧', '加油！', '嗯嗯', '我知道了'
+];
+var _loveChatReplies_mid = [
+    '嗯嗯，我知道啦', '你说的对呢', '哈哈，你真有趣', '我也是这么想的', '好期待下次见面',
+    '你也要注意休息哦', '今天辛苦了', '收到！', '嗯...让我想想', '说的有道理',
+    '真的吗？', '我也觉得', '下次一起练习吧', '你最近怎么样？', '加油加油！'
+];
+var _loveChatReplies_high = [
+    '想见你了...', '你今天有没有想我？', '晚安，梦里有我哦', '早安~今天也要开心',
+    '和你聊天总是很愉快', '你是我最重要的人', '今天也喜欢你', '想牵你的手',
+    '什么时候见面呀', '你今天穿的那件衣服特别好看', '我来给你做饭吧',
+    '好想一直这样聊下去', '你辛苦了，心疼你', '有你在就很安心'
+];
+var _loveGiftReplies = [
+    '哇，谢谢！好喜欢！', '你太好了，感动...', '这个我一直想要！', '好开心，谢谢你！',
+    '你怎么知道我想要这个的！', '好感动...我会好好珍惜的', '真的吗？太棒了！',
+    '最喜欢你了！', '呜呜太感动了', '我现在好幸福', '我会一直带着的！'
+];
+
 function render恋爱Page(container) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveUnread) gameState.loveUnread = {};
     var sameCompanyNPCs = getSameCompanyNPCs();
-    
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">恋爱</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                ' + (gameState.dating ? '\n                    <div class="card" style="text-align: center; padding: 24px; background: linear-gradient(135deg, #FFF5F7, #FFE4EC);">\n                        <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.dating.charAt(0)) + '</div>\n                        <div style="font-weight: 700; font-size: 18px; color: var(--color-primary);">恋爱中</div>\n                        <div style="font-weight: 600; font-size: 16px; margin-top: 4px;">与 ' + (gameState.dating) + '</div>\n                        <div style="font-size: 12px; color: var(--color-text-light); margin-top: 4px;">好感度: ' + ((gameState.npc好感度[gameState.dating] || 0)) + '/100</div>\n                        <button class="btn btn-sm btn-secondary" onclick="breakup()" style="margin-top: 12px;">分手</button>\n                    </div>\n                    <div class="section-title" style="margin-top: 16px;">交流</div>\n                    <div class="card" onclick="loveChat()" style="cursor:pointer;">\n                        <div style="font-weight: 600;">发消息</div>\n                        <div style="font-size: 12px; color: var(--color-text-light);">和 ' + (gameState.dating) + ' 聊天</div>\n                    </div>\n                    <div class="card" onclick="loveDate()" style="cursor:pointer;">\n                        <div style="font-weight: 600;">约会</div>\n                        <div style="font-size: 12px; color: var(--color-text-light);">消耗金币和体力</div>\n                    </div>\n                ' : '\n                    <div class="section-title">同公司成员</div>\n                    ' + (sameCompanyNPCs.map(function(npc) {
-                        var 好感 = gameState.npc好感度[npc.name] || 0;
-                        var canDate = 好感 >= 60;
-                        return '\n                            <div class="card">\n                                <div style="display: flex; align-items: center;">\n                                    <div class="avatar-sm">' + (npc.name.charAt(0)) + '</div>\n                                    <div style="margin-left: 12px; flex: 1;">\n                                        <div style="font-weight: 600;">' + (npc.name) + '</div>\n                                        <div style="font-size: 12px; color: var(--color-text-light);">' + (npc.position) + '</div>\n                                        <div style="margin-top: 4px;">\n                                            <div style="display: flex; align-items: center; gap: 6px;">\n                                                <span style="font-size: 11px; color: var(--color-text-light);">好感</span>\n                                                <div style="flex:1;height:6px;background:var(--color-border);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + (好感) + '%;background:linear-gradient(90deg,#FF8FA3,#FFB3C1);border-radius:2px;"></div></div>\n                                                <span style="font-size: 11px; font-weight: 600; color: ' + (好感 >= 60 ? 'var(--color-primary)' : 'var(--color-text-light)') + ';">' + (好感) + '</span>\n                                            </div>\n                                        </div>\n                                    </div>\n                                    <div style="display: flex; flex-direction: column; gap: 4px;">\n                                        <button class="btn btn-sm btn-primary" onclick="npcChat(\'' + (npc.name) + '\')" style="font-size:10px;padding:4px 8px;">聊天</button>\n                                        ' + (canDate ? '<button class="btn btn-sm btn-primary" data-npc_name="' + npc.name + '" onclick="npcDate(this.dataset.npc_name)" style="font-size:10px;padding:4px 8px;">在一起</button>' : '<div style="font-size:10px;color:var(--color-text-light);text-align:center;">好感60解锁</div>') + '\n                                    </div>\n                                </div>\n                            </div>\n                        ';
-                    }).join('')) + '\n                ') + '\n            </div>\n        </div>\n    ';
-    var _dEl = container.querySelector('.page-content'); if (_dEl) _dEl.innerHTML += getAppLinkHtml('dating');
+    var view = window._loveView || 'list';
+    if (view === 'chat' && window._loveChatTarget) {
+        _renderLoveChatView(container, window._loveChatTarget, sameCompanyNPCs);
+    } else {
+        _renderLoveListView(container, sameCompanyNPCs);
+    }
+}
+
+function _renderLoveListView(container, npcs) {
+    var tab = window._loveTab || 'chat';
+    var tabHtml = '<div style="display:flex;border-bottom:2px solid var(--color-border);">'
+        + '<div style="flex:1;text-align:center;padding:10px 0;font-weight:600;font-size:14px;cursor:pointer;touch-action:manipulation;'
+        + (tab === 'chat' ? 'color:var(--color-primary);border-bottom:2px solid var(--color-primary);margin-bottom:-2px;' : 'color:var(--color-text-light);')
+        + '" onclick="window._loveTab=\'chat\';render();">聊天</div>'
+        + '<div style="flex:1;text-align:center;padding:10px 0;font-weight:600;font-size:14px;cursor:pointer;touch-action:manipulation;'
+        + (tab === 'contacts' ? 'color:var(--color-primary);border-bottom:2px solid var(--color-primary);margin-bottom:-2px;' : 'color:var(--color-text-light);')
+        + '" onclick="window._loveTab=\'contacts\';render();">联系人</div>'
+        + '</div>';
+
+    var bodyHtml = '';
+    if (tab === 'chat') {
+        var chatList = [];
+        for (var ci = 0; ci < npcs.length; ci++) {
+            var n = npcs[ci];
+            var chats = gameState.loveChats[n.name] || [];
+            var lastMsg = chats.length > 0 ? chats[chats.length - 1].text : '';
+            var unread = gameState.loveUnread[n.name] || 0;
+            if (chats.length > 0 || gameState.dating === n.name) {
+                chatList.push({ name: n.name, lastMsg: lastMsg, unread: unread, isDating: gameState.dating === n.name });
+            }
+        }
+        if (chatList.length === 0) {
+            bodyHtml = '<div style="text-align:center;color:var(--color-text-light);padding:40px 20px;font-size:13px;">还没有聊天记录<br>去联系人页面开始聊天吧</div>';
+        }
+        for (var li = 0; li < chatList.length; li++) {
+            var c = chatList[li];
+            var unreadBadge = c.unread > 0 ? '<div style="min-width:16px;height:16px;border-radius:8px;background:var(--color-primary);color:white;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;">' + c.unread + '</div>' : '';
+            var datingTag = c.isDating ? '<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:var(--color-primary);color:white;margin-left:4px;">恋人</span>' : '';
+            bodyHtml += '<div class="card" style="cursor:pointer;touch-action:manipulation;display:flex;align-items:center;gap:10px;" onclick="openLoveChat(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+                + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + c.name.charAt(0) + '</div>'
+                + '<div style="flex:1;overflow:hidden;">'
+                + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+                + '<div style="display:flex;align-items:center;"><span style="font-weight:600;font-size:14px;">' + c.name + '</span>' + datingTag + '</div>'
+                + unreadBadge
+                + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;">' + (c.lastMsg || '点击开始聊天') + '</div>'
+                + '</div></div>';
+        }
+        if (gameState.dating) {
+            bodyHtml += '<div style="margin-top:12px;"><div class="section-title">快捷操作</div>'
+                + '<div class="card" style="cursor:pointer;touch-action:manipulation;" onclick="loveDate()">'
+                + '<div style="font-weight:600;">约会</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">和 ' + gameState.dating + ' 约会 - 20体力/10,000金币</div></div>'
+                + '<div class="card" style="cursor:pointer;touch-action:manipulation;" onclick="breakup()">'
+                + '<div style="font-weight:600;color:#FF3B30;">分手</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">结束恋爱关系</div></div></div>';
+        }
+    } else {
+        if (gameState.dating) {
+            var p好感 = gameState.npc好感度[gameState.dating] || 0;
+            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);cursor:pointer;touch-action:manipulation;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\'") + '\')">'
+                + '<div style="display:flex;align-items:center;gap:12px;">'
+                + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
+                + '<div style="flex:1;">'
+                + '<div style="display:flex;align-items:center;"><span style="font-weight:700;font-size:15px;color:var(--color-primary);">' + gameState.dating + '</span><span style="font-size:9px;padding:1px 4px;border-radius:3px;background:var(--color-primary);color:white;margin-left:6px;">恋人</span></div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">好感度: ' + p好感 + '/100</div>'
+                + '<div style="margin-top:4px;height:4px;background:var(--color-border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:' + p好感 + '%;background:linear-gradient(90deg,#FF8FA3,#FFB3C1);border-radius:2px;"></div></div>'
+                + '</div></div></div>';
+        }
+        bodyHtml += '<div class="section-title">' + (gameState.dating ? '同公司成员' : '同公司成员') + '</div>';
+        for (var ni = 0; ni < npcs.length; ni++) {
+            var npc = npcs[ni];
+            if (npc.name === gameState.dating) continue;
+            var 好感 = gameState.npc好感度[npc.name] || 0;
+            var canDate = 好感 >= 60;
+            bodyHtml += '<div class="card" style="display:flex;align-items:center;gap:10px;">'
+                + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7C4DFF,#B388FF);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">' + npc.name.charAt(0) + '</div>'
+                + '<div style="flex:1;">'
+                + '<div style="font-weight:600;font-size:13px;">' + npc.name + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);">' + npc.position + '</div>'
+                + '<div style="display:flex;align-items:center;gap:4px;margin-top:3px;">'
+                + '<span style="font-size:10px;color:var(--color-text-light);">好感</span>'
+                + '<div style="flex:1;height:4px;background:var(--color-border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:' + 好感 + '%;background:linear-gradient(90deg,#FF8FA3,#FFB3C1);border-radius:2px;"></div></div>'
+                + '<span style="font-size:10px;font-weight:600;color:' + (canDate ? 'var(--color-primary)' : 'var(--color-text-light)') + ';">' + 好感 + '</span>'
+                + '</div></div>'
+                + '<div style="display:flex;flex-direction:column;gap:4px;">'
+                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;" onclick="openLoveChat(\'' + npc.name.replace(/'/g, "\\'") + '\')">聊天</button>'
+                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;" onclick="npcDate(\'' + npc.name.replace(/'/g, "\\'") + '\')">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
+                + '</div></div>';
+        }
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
+        + '<div class="page-title">恋爱</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + tabHtml
+        + '<div class="page-content">' + bodyHtml + '</div>'
+        + '</div>';
+    var _dEl = container.querySelector('.page-content');
+    if (_dEl) _dEl.innerHTML += getAppLinkHtml('dating');
+}
+
+function openLoveChat(name) {
+    window._loveView = 'chat';
+    window._loveChatTarget = name;
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[name]) gameState.loveChats[name] = [];
+    if (gameState.loveUnread) gameState.loveUnread[name] = 0;
+    render();
+}
+
+function _renderLoveChatView(container, targetName, npcs) {
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[targetName]) gameState.loveChats[targetName] = [];
+    var chats = gameState.loveChats[targetName];
+    var 好感 = gameState.npc好感度[targetName] || 0;
+    var isDating = gameState.dating === targetName;
+
+    var bubbles = '';
+    for (var i = 0; i < chats.length; i++) {
+        var msg = chats[i];
+        if (msg.fromMe) {
+            bubbles += '<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">'
+                + '<div style="max-width:70%;">'
+                + '<div style="background:var(--color-primary);color:white;padding:8px 12px;border-radius:12px 2px 12px 12px;font-size:13px;line-height:1.5;word-break:break-all;">' + msg.text + '</div>'
+                + '<div style="text-align:right;font-size:9px;color:var(--color-text-light);margin-top:1px;">' + (msg.time || '') + '</div>'
+                + '</div></div>';
+        } else {
+            bubbles += '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:8px;">'
+                + '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;flex-shrink:0;">' + targetName.charAt(0) + '</div>'
+                + '<div style="max-width:70%;">'
+                + '<div style="background:var(--bg-card);padding:8px 12px;border-radius:2px 12px 12px 12px;font-size:13px;line-height:1.5;word-break:break-all;box-shadow:0 1px 2px rgba(0,0,0,0.04);">' + msg.text + '</div>'
+                + '<div style="font-size:9px;color:var(--color-text-light);margin-top:1px;">' + (msg.time || '') + '</div>'
+                + '</div></div>';
+        }
+    }
+    if (chats.length === 0) {
+        bubbles = '<div style="text-align:center;color:var(--color-text-light);padding:20px;font-size:13px;">开始和 ' + targetName + ' 聊天吧</div>';
+    }
+
+    var headerSub = '<div style="display:flex;align-items:center;gap:4px;">'
+        + '<span style="font-size:9px;color:var(--color-text-light);">好感 ' + 好感 + '</span>'
+        + '<div style="width:50px;height:3px;background:var(--color-border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:' + 好感 + '%;background:#FF8FA3;border-radius:2px;"></div></div>'
+        + (isDating ? '<span style="font-size:8px;padding:1px 3px;border-radius:2px;background:var(--color-primary);color:white;">恋人</span>' : '')
+        + '</div>';
+
+    container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+        + '<div class="page-header" style="flex-shrink:0;">'
+        + '<div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;">‹ 返回</div>'
+        + '<div class="page-title"><div style="font-weight:600;font-size:15px;">' + targetName + '</div>' + headerSub + '</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div id="loveChatMsgs" style="flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;">' + bubbles + '</div>'
+        + '<div id="loveChatBar" style="flex-shrink:0;padding:6px 10px;border-top:1px solid var(--color-border);background:var(--bg-card);display:flex;align-items:center;gap:6px;">'
+        + '<button id="loveEmojiBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveStickerPanel()">E</button>'
+        + '<button id="loveGiftBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveGiftPanel()">G</button>'
+        + '<input type="text" id="loveChatInput" placeholder="说点什么..." style="flex:1;border:1px solid var(--color-border);border-radius:18px;padding:6px 12px;font-size:13px;outline:none;background:var(--bg-main);" onkeypress="if(event.key===\'Enter\')sendLoveChat()">'
+        + '<button style="width:30px;height:30px;border-radius:50%;background:var(--color-primary);border:none;color:white;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;" onclick="sendLoveChat()">></button>'
+        + '</div>'
+        + '<div id="loveStickerPanel" style="display:none;max-height:100px;overflow-y:auto;border-top:1px solid var(--color-border);background:var(--bg-card);padding:6px;"></div>'
+        + '<div id="loveGiftPanel" style="display:none;max-height:160px;overflow-y:auto;border-top:1px solid var(--color-border);background:var(--bg-card);padding:6px;"></div>'
+        + '</div>';
+
+    var msgEl = document.getElementById('loveChatMsgs');
+    if (msgEl) msgEl.scrollTop = msgEl.scrollHeight;
+}
+
+function closeLoveChat() {
+    window._loveView = 'list';
+    window._loveChatTarget = '';
+    render();
+}
+
+function sendLoveChat() {
+    var input = document.getElementById('loveChatInput');
+    var text = input ? input.value.trim() : '';
+    if (!text) return;
+    var target = window._loveChatTarget;
+    if (!target) return;
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[target]) gameState.loveChats[target] = [];
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    gameState.loveChats[target].push({ fromMe: true, text: text, time: ts });
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    if (!gameState.npc好感度[target]) gameState.npc好感度[target] = 0;
+    gameState.npc好感度[target] = Math.min(100, gameState.npc好感度[target] + Math.floor(Math.random() * 3) + 1);
+    input.value = '';
+    var npcName = target;
+    var delay = 800 + Math.floor(Math.random() * 1500);
+    setTimeout(function() { npcLoveReply(npcName); }, delay);
+    render();
+}
+
+function npcLoveReply(name) {
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[name]) gameState.loveChats[name] = [];
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var 好感 = gameState.npc好感度[name] || 0;
+    var pool;
+    if (好感 >= 70) { pool = _loveChatReplies_high; }
+    else if (好感 >= 30) { pool = _loveChatReplies_mid; }
+    else { pool = _loveChatReplies_low; }
+    var reply = pool[Math.floor(Math.random() * pool.length)];
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
+    gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+    if (window._loveChatTarget !== name || window._loveView !== 'chat') {
+        if (!gameState.loveUnread) gameState.loveUnread = {};
+        gameState.loveUnread[name] = (gameState.loveUnread[name] || 0) + 1;
+    }
+    render();
+}
+
+function toggleLoveStickerPanel() {
+    var panel = document.getElementById('loveStickerPanel');
+    var giftPanel = document.getElementById('loveGiftPanel');
+    if (!panel) return;
+    if (giftPanel) giftPanel.style.display = 'none';
+    if (panel.style.display === 'none' || !panel.style.display) {
+        var html = '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+        if (gameState.bubbleStickers && gameState.bubbleStickers.length > 0) {
+            for (var i = 0; i < gameState.bubbleStickers.length; i++) {
+                var sn = gameState.bubbleStickers[i];
+                html += '<div style="padding:4px 8px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:6px;cursor:pointer;touch-action:manipulation;font-size:11px;" onclick="sendLoveSticker(\'' + sn.replace(/'/g, "\\'") + '\')">' + sn + '</div>';
+            }
+        } else {
+            html += '<div style="color:var(--color-text-light);font-size:11px;padding:6px;">暂无表情包，去泡泡商店购买</div>';
+        }
+        html += '</div>';
+        panel.innerHTML = html;
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function sendLoveSticker(stickerName) {
+    var target = window._loveChatTarget;
+    if (!target) return;
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[target]) gameState.loveChats[target] = [];
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    gameState.loveChats[target].push({ fromMe: true, text: '[' + stickerName + ']', time: ts });
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    gameState.npc好感度[target] = Math.min(100, (gameState.npc好感度[target] || 0) + 2);
+    var panel = document.getElementById('loveStickerPanel');
+    if (panel) panel.style.display = 'none';
+    var npcName = target;
+    setTimeout(function() { npcLoveReply(npcName); }, 1200);
+    render();
+}
+
+function toggleLoveGiftPanel() {
+    var panel = document.getElementById('loveGiftPanel');
+    var stickerPanel = document.getElementById('loveStickerPanel');
+    if (!panel) return;
+    if (stickerPanel) stickerPanel.style.display = 'none';
+    if (panel.style.display === 'none' || !panel.style.display) {
+        var html = '<div style="font-size:10px;font-weight:600;color:var(--color-text-light);margin-bottom:4px;">快递礼物</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;">';
+        var gifts = [
+            { n: '玫瑰花束', p: 15000, v: 8 }, { n: '巧克力礼盒', p: 12000, v: 6 },
+            { n: '毛绒玩偶', p: 10000, v: 5 }, { n: '情侣手链', p: 30000, v: 12 },
+            { n: '香薰蜡烛', p: 18000, v: 7 }, { n: '手工相册', p: 8000, v: 10 },
+            { n: '惊喜蛋糕', p: 20000, v: 9 }, { n: '定制首饰', p: 50000, v: 15 },
+            { n: '永生花', p: 25000, v: 11 }, { n: '情侣卫衣', p: 22000, v: 8 }
+        ];
+        for (var i = 0; i < gifts.length; i++) {
+            html += '<div style="padding:3px 6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:4px;cursor:pointer;touch-action:manipulation;font-size:10px;" onclick="sendLoveGift(\'' + gifts[i].n.replace(/'/g, "\\'") + '\',' + gifts[i].p + ',' + gifts[i].v + ')">'
+                + gifts[i].n + ' <span style="color:var(--color-primary);">' + gifts[i].p.toLocaleString() + '</span></div>';
+        }
+        html += '</div><div style="font-size:10px;font-weight:600;color:var(--color-text-light);margin-bottom:4px;">外卖美食</div><div style="display:flex;flex-wrap:wrap;gap:4px;">';
+        var foods = [
+            { n: '情侣套餐', p: 20000, v: 5 }, { n: '爱心便当', p: 15000, v: 8 },
+            { n: '草莓蛋糕', p: 10000, v: 4 }, { n: '红酒巧克力', p: 25000, v: 10 },
+            { n: '烛光晚餐', p: 40000, v: 12 }
+        ];
+        for (var j = 0; j < foods.length; j++) {
+            html += '<div style="padding:3px 6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:4px;cursor:pointer;touch-action:manipulation;font-size:10px;" onclick="sendLoveGift(\'' + foods[j].n.replace(/'/g, "\\'") + '\',' + foods[j].p + ',' + foods[j].v + ')">'
+                + foods[j].n + ' <span style="color:var(--color-primary);">' + foods[j].p.toLocaleString() + '</span></div>';
+        }
+        html += '</div>';
+        panel.innerHTML = html;
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function sendLoveGift(giftName, price, loveVal) {
+    var target = window._loveChatTarget;
+    if (!target) return;
+    if (gameState.money < price) { showToast('金币不足'); return; }
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[target]) gameState.loveChats[target] = [];
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    gameState.money -= price;
+    gameState.npc好感度[target] = Math.min(100, (gameState.npc好感度[target] || 0) + loveVal);
+    gameState.loveChats[target].push({ fromMe: true, text: '[送出 ' + giftName + ']', time: ts });
+    var panel = document.getElementById('loveGiftPanel');
+    if (panel) panel.style.display = 'none';
+    var reply = _loveGiftReplies[Math.floor(Math.random() * _loveGiftReplies.length)];
+    var npcName = target;
+    var replyTs = ts;
+    setTimeout(function() {
+        if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
+        gameState.loveChats[npcName].push({ fromMe: false, text: reply, time: replyTs });
+        render();
+    }, 1200);
+    showToast('送出 ' + giftName + ' +' + loveVal + ' 好感度');
+    render();
 }
 
 function getSameCompanyNPCs() {
@@ -3801,27 +4139,6 @@ function getSameCompanyNPCs() {
     return npcs;
 }
 
-function npcChat(name) {
-    if (!gameState.npc好感度) gameState.npc好感度 = {};
-    var conversations = [
-        { npc: '最近训练辛苦吗？', options: ['还行，加油！', '有点累但值得', '你也是，一起加油'] },
-        { npc: '周末有什么安排吗？', options: ['想去看电影', '可能要加班训练', '想和你一起出去玩'] },
-        { npc: '你觉得今天的表演怎么样？', options: ['非常棒！', '还有进步空间', '你表现得最好'] }
-    ];
-    var conv = conversations[Math.floor(Math.random() * conversations.length)];
-    var _chatOpts = conv.options.map(function(o, oi) { return '<button class="btn btn-sm btn-secondary" data-name="'+name+'" data-reply="'+o.replace(/"/g, '&quot;')+'" onclick="npcChatReply(this.dataset.name,this.dataset.reply)" style="font-size:12px;">' + o + '</button>'; }).join('');
-    showModal(name + ' 发来消息', conv.npc + '<div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;">' + _chatOpts + '</div>');
-}
-
-function npcChatReply(name, reply) {
-    if (!gameState.npc好感度) gameState.npc好感度 = {};
-    if (!gameState.npc好感度[name]) gameState.npc好感度[name] = 0;
-    gameState.npc好感度[name] = Math.min(100, gameState.npc好感度[name] + Math.floor(Math.random() * 10) + 3);
-    closeModal();
-    showModal('已回复', '你: ' + reply + '\n好感度 +' + (Math.floor(Math.random() * 10) + 3));
-    render();
-}
-
 function npcDate(name) {
     if (!gameState.npc好感度 || (gameState.npc好感度[name] || 0) < 60) {
         showModal('好感度不足', '需要好感度达到60才能在一起');
@@ -3830,29 +4147,6 @@ function npcDate(name) {
     gameState.dating = name;
     showModal('在一起了！', '你和 ' + name + ' 正式在一起了！');
     render();
-}
-
-function loveChat() {
-    if (!gameState.dating) return;
-    if (!gameState.npc好感度) gameState.npc好感度 = {};
-    if (!gameState.npc好感度[gameState.dating]) gameState.npc好感度[gameState.dating] = 0;
-    var datingName = gameState.dating;
-    showModal('和 ' + datingName + ' 聊天', '<input type="text" id="datingMsgInput" placeholder="说点什么..." style="margin-bottom: 0;">', [
-        { text: '取消', action: closeModal },
-        { text: '发送', action: function() {
-            var input = document.getElementById('datingMsgInput');
-            var text = input ? input.value.trim() : '';
-            if (text) {
-                gameState.npc好感度[datingName] = Math.min(100, (gameState.npc好感度[datingName] || 0) + Math.floor(Math.random() * 5) + 2);
-                getAIReply('dating', datingName + '恋爱对话', text, function(reply) {
-                    closeModal();
-                    showModal(datingName, reply);
-                    render();
-                });
-            }
-        }}
-    ]);
-    gameState.datingUnread = 0;
 }
 
 function loveDate() {
