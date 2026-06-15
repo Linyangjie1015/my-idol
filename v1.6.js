@@ -3991,9 +3991,17 @@ function sendLoveChat() {
     if (!gameState.npc好感度[target]) gameState.npc好感度[target] = 0;
     gameState.npc好感度[target] = Math.min(100, gameState.npc好感度[target] + Math.floor(Math.random() * 3) + 1);
     input.value = '';
+    if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
+    if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
+    gameState._loveReplyQueue[target]++;
     var npcName = target;
+    var queueId = gameState._loveReplyQueue[target];
     var delay = 800 + Math.floor(Math.random() * 1500);
-    setTimeout(function() { npcLoveReply(npcName); }, delay);
+    setTimeout(function() {
+        if (gameState._loveReplyQueue[npcName] === queueId) {
+            npcLoveReply(npcName);
+        }
+    }, delay);
     render();
 }
 
@@ -4055,8 +4063,16 @@ function sendLoveSticker(stickerName) {
     gameState.npc好感度[target] = Math.min(100, (gameState.npc好感度[target] || 0) + 2);
     var panel = document.getElementById('loveStickerPanel');
     if (panel) panel.style.display = 'none';
+    if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
+    if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
+    gameState._loveReplyQueue[target]++;
     var npcName = target;
-    setTimeout(function() { npcLoveReply(npcName); }, 1200);
+    var stkQueueId = gameState._loveReplyQueue[target];
+    setTimeout(function() {
+        if (gameState._loveReplyQueue[npcName] === stkQueueId) {
+            npcLoveReply(npcName);
+        }
+    }, 1200);
     render();
 }
 
@@ -4111,13 +4127,21 @@ function sendLoveGift(giftName, price, loveVal) {
     gameState.loveChats[target].push({ fromMe: true, text: '[送出 ' + giftName + ']', time: ts });
     var panel = document.getElementById('loveGiftPanel');
     if (panel) panel.style.display = 'none';
+    if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
+    if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
+    gameState._loveReplyQueue[target]++;
+    var giftQueueId = gameState._loveReplyQueue[target];
     var reply = _loveGiftReplies[Math.floor(Math.random() * _loveGiftReplies.length)];
     var npcName = target;
-    var replyTs = ts;
     setTimeout(function() {
-        if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
-        gameState.loveChats[npcName].push({ fromMe: false, text: reply, time: replyTs });
-        render();
+        if (gameState._loveReplyQueue[npcName] === giftQueueId) {
+            if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
+            var now2 = new Date();
+            var h2 = now2.getHours(); var m2 = now2.getMinutes();
+            var ts2 = (h2 < 10 ? '0' : '') + h2 + ':' + (m2 < 10 ? '0' : '') + m2;
+            gameState.loveChats[npcName].push({ fromMe: false, text: reply, time: ts2 });
+            render();
+        }
     }, 1200);
     showToast('送出 ' + giftName + ' +' + loveVal + ' 好感度');
     render();
