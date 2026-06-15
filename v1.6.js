@@ -1493,6 +1493,7 @@ function render训练Page(container) {
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
                     }).join('')) + '\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">选择训练项目</div>\n                ' + (trainOptions.map(function(opt) { return '\n                    <div class="card" onclick="do训练项目(\'' + (opt.stat) + '\', ' + (opt.cost) + ', ' + (opt.moneyCost) + ', \'' + (opt.name) + '\')">\n                        <div style="display: flex; justify-content: space-between; align-items: center;">\n                            <div>\n                                <div style="font-weight: 600;">' + (opt.name) + '</div>\n                                <div style="font-size: 12px; color: var(--color-text-light);">体力 -' + (opt.cost) + ' | 金币 -' + (opt.moneyCost.toLocaleString()) + '</div>\n                            </div>\n                        </div>\n                    </div>\n                '}).join('')) + '\n                <div style="margin-top: 16px;">\n                    <button class="btn btn-outline btn-lg" onclick="goToPage(\'exam\')" style="width:100%;">去考核</button>\n                </div>\n                <div class="section-title" style="margin-top: 16px;">体力恢复</div>\n                <div class="card" id="restBtnCard" onclick="startRestRecovery()" style="text-align:center;cursor:pointer;">\n                    <div style="font-weight:600;">Rest 30s</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">30秒不可操作，体力恢复至200</div>\n                </div>\n            </div>\n        </div>\n    ';
+    var _tEl = container.querySelector('.page-content'); if (_tEl) _tEl.innerHTML += getAppLinkHtml('training');
 }
 
 var _isTraining = false;
@@ -3781,6 +3782,7 @@ function render恋爱Page(container) {
                         var canDate = 好感 >= 60;
                         return '\n                            <div class="card">\n                                <div style="display: flex; align-items: center;">\n                                    <div class="avatar-sm">' + (npc.name.charAt(0)) + '</div>\n                                    <div style="margin-left: 12px; flex: 1;">\n                                        <div style="font-weight: 600;">' + (npc.name) + '</div>\n                                        <div style="font-size: 12px; color: var(--color-text-light);">' + (npc.position) + '</div>\n                                        <div style="margin-top: 4px;">\n                                            <div style="display: flex; align-items: center; gap: 6px;">\n                                                <span style="font-size: 11px; color: var(--color-text-light);">好感</span>\n                                                <div style="flex:1;height:6px;background:var(--color-border);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + (好感) + '%;background:linear-gradient(90deg,#FF8FA3,#FFB3C1);border-radius:2px;"></div></div>\n                                                <span style="font-size: 11px; font-weight: 600; color: ' + (好感 >= 60 ? 'var(--color-primary)' : 'var(--color-text-light)') + ';">' + (好感) + '</span>\n                                            </div>\n                                        </div>\n                                    </div>\n                                    <div style="display: flex; flex-direction: column; gap: 4px;">\n                                        <button class="btn btn-sm btn-primary" onclick="npcChat(\'' + (npc.name) + '\')" style="font-size:10px;padding:4px 8px;">聊天</button>\n                                        ' + (canDate ? '<button class="btn btn-sm btn-primary" data-npc_name="' + npc.name + '" onclick="npcDate(this.dataset.npc_name)" style="font-size:10px;padding:4px 8px;">在一起</button>' : '<div style="font-size:10px;color:var(--color-text-light);text-align:center;">好感60解锁</div>') + '\n                                    </div>\n                                </div>\n                            </div>\n                        ';
                     }).join('')) + '\n                ') + '\n            </div>\n        </div>\n    ';
+    var _dEl = container.querySelector('.page-content'); if (_dEl) _dEl.innerHTML += getAppLinkHtml('dating');
 }
 
 function getSameCompanyNPCs() {
@@ -3861,8 +3863,15 @@ function loveDate() {
     gameState.money -= 10000;
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.npc好感度[gameState.dating]) gameState.npc好感度[gameState.dating] = 0;
-    gameState.npc好感度[gameState.dating] = Math.min(100, gameState.npc好感度[gameState.dating] + Math.floor(Math.random() * 10) + 5);
-    showModal('约会愉快', '和 ' + gameState.dating + ' 度过了美好时光\n-20 体力 -10,000 金币\n好感度 +8');
+    var 好感Gain = Math.floor(Math.random() * 10) + 5;
+    gameState.npc好感度[gameState.dating] = Math.min(100, gameState.npc好感度[gameState.dating] + 好感Gain);
+    var exposedChance = Math.random();
+    if (exposedChance < 0.15) {
+        syncFromApp('dating', { action: 'exposed' });
+        showModal('约会愉快', '和 ' + gameState.dating + ' 度过了美好时光\n-20 体力 -10,000 金币\n好感度 +' + 好感Gain + '\n\n...但被狗仔拍到了！危险值上升！');
+    } else {
+        showModal('约会愉快', '和 ' + gameState.dating + ' 度过了美好时光\n-20 体力 -10,000 金币\n好感度 +' + 好感Gain);
+    }
     render();
 }
 
@@ -4086,6 +4095,7 @@ function render泡泡Page(container) {
         + '</div>'
         + '</div>'
         + replyBar
+        + getAppLinkHtml('bubble')
         + '</div>';
 }
 
@@ -4439,7 +4449,7 @@ function renderInsPage(container) {
         + '<div class="ins-top-tab-item ' + (insTab === 'profile' ? 'active' : '') + '" onclick="insTab=\'profile\';render();"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><div style="font-size:10px;margin-top:2px;">我的</div></div>'
         + '</div>';
     
-    container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">INS</div><div style="width:32px;"></div></div>' + tabBar + tabContent + '</div>';
+    container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">INS</div><div style="width:32px;"></div></div>' + tabBar + tabContent + getAppLinkHtml('ins') + '</div>';
 }
 
 function sendInsChat() {
@@ -4611,7 +4621,7 @@ function renderTiktokPage(container) {
         + '<div class="ins-top-tab-item ' + (tiktokTab === 'profile' ? 'active' : '') + '" onclick="tiktokTab=\'profile\';render();"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><div style="font-size:10px;margin-top:2px;">我的</div></div>'
         + '</div>';
     
-    container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">TikTok</div><div style="width:32px;"></div></div>' + tabBar + tabContent + '</div>';
+    container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">TikTok</div><div style="width:32px;"></div></div>' + tabBar + tabContent + getAppLinkHtml('tiktok') + '</div>';
 }
 
 function sendTiktokChat() {
@@ -4729,10 +4739,16 @@ function renderFoodPage(container) {
         // 奢华料理
         { name: '牛排', price: 25000, 体力: 80, category: '奢华料理' },
         { name: '韩牛烤肉', price: 35000, 体力: 100, category: '奢华料理' },
-        { name: '米其林套餐', price: 50000, 体力: 120, category: '奢华料理' }
+        { name: '米其林套餐', price: 50000, 体力: 120, category: '奢华料理' },
+        // 情侣美食
+        { name: '情侣套餐', price: 20000, 体力: 50, loveVal: 5, category: '情侣美食' },
+        { name: '爱心便当', price: 15000, 体力: 30, loveVal: 8, category: '情侣美食' },
+        { name: '草莓蛋糕', price: 10000, 体力: 15, loveVal: 4, category: '情侣美食' },
+        { name: '红酒巧克力', price: 25000, 体力: 20, loveVal: 10, category: '情侣美食' },
+        { name: '烛光晚餐', price: 40000, 体力: 60, loveVal: 12, category: '情侣美食' }
     ];
     
-    var cats = ['快餐', '甜点', '营养餐', '奢华料理'];
+    var cats = ['快餐', '甜点', '营养餐', '奢华料理', '情侣美食'];
     var foodCardsHtml = '';
     for (var ci = 0; ci < cats.length; ci++) {
         var cat = cats[ci];
@@ -4740,11 +4756,13 @@ function renderFoodPage(container) {
         for (var fi = 0; fi < foods.length; fi++) {
             var f = foods[fi];
             if (f.category !== cat) continue;
-            foodCardsHtml += '<div class="card" data-fname="' + f.name + '" data-fprice="' + f.price + '" data-fstamina="' + f.体力 + '" onclick="orderFood(this.dataset.fname,Number(this.dataset.fprice),Number(this.dataset.fstamina))">'
+            var effectText = '+' + f.体力 + ' 体力';
+            if (f.loveVal) effectText += ' +' + f.loveVal + ' 好感度';
+            foodCardsHtml += '<div class="card" data-fname="' + f.name + '" data-fprice="' + f.price + '" data-fstamina="' + f.体力 + '" data-flove="' + (f.loveVal || 0) + '" onclick="orderFood(this.dataset.fname,Number(this.dataset.fprice),Number(this.dataset.fstamina),Number(this.dataset.flove))">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
                 + '<div style="font-weight:600;">' + f.name + '</div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);">+' + f.体力 + ' 体力（存入背包）</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + effectText + '（存入背包）</div>'
                 + '</div>'
                 + '<div style="text-align:right;">'
                 + '<div style="font-weight:600;color:var(--color-primary);">' + (f.price || 0).toLocaleString() + '</div>'
@@ -4768,16 +4786,21 @@ function renderFoodPage(container) {
         + getAppLinkHtml('food') + '</div></div>';
 }
 
-function orderFood(name, price, 体力) {
+function orderFood(name, price, 体力, loveVal) {
     if (gameState.money < price) {
         showModal('金币不足', '你的金币不够支付');
         return;
     }
-    showModal('确认购买', '商品：' + name + '\n价格：' + (price || 0).toLocaleString() + ' 金币\n效果：+' + 体力 + ' 体力', [
+    var effectDesc = '+' + 体力 + ' 体力';
+    if (loveVal && loveVal > 0) effectDesc += ' +' + loveVal + ' 好感度';
+    showModal('确认购买', '商品：' + name + '\n价格：' + (price || 0).toLocaleString() + ' 金币\n效果：' + effectDesc, [
         { text: '取消', action: closeModal },
         { text: '确认购买', action: function() {
             gameState.money -= price;
             gameState.体力 = Math.min(gameState.max体力, gameState.体力 + 体力);
+            if (loveVal && loveVal > 0 && gameState.dating && gameState.npc好感度) {
+                gameState.npc好感度[gameState.dating] = Math.min(100, (gameState.npc好感度[gameState.dating] || 0) + loveVal);
+            }
             if (!gameState.inventory) gameState.inventory = [];
             gameState.inventory.push({ name: name, effect: '体力', value: 体力 });
             closeModal();
@@ -4817,10 +4840,21 @@ function render快递服务Page(container) {
         { name: '营养补充剂', price: 10000, lifeVal: 25, category: '医药品', effect: '生命' },
         { name: '止痛贴', price: 8000, lifeVal: 12, category: '医药品', effect: '生命' },
         { name: '急救包', price: 15000, lifeVal: 35, category: '医药品', effect: '生命' },
-        { name: '维生素套装', price: 12000, lifeVal: 20, category: '医药品', effect: '生命' }
+        { name: '维生素套装', price: 12000, lifeVal: 20, category: '医药品', effect: '生命' },
+        // 情侣礼物 - 送恋人/表达爱意
+        { name: '玫瑰花束', price: 15000, loveVal: 8, category: '情侣礼物', effect: '好感' },
+        { name: '巧克力礼盒', price: 12000, loveVal: 6, category: '情侣礼物', effect: '好感' },
+        { name: '毛绒玩偶', price: 10000, loveVal: 5, category: '情侣礼物', effect: '好感' },
+        { name: '情侣手链', price: 30000, loveVal: 12, category: '情侣礼物', effect: '好感' },
+        { name: '香薰蜡烛', price: 18000, loveVal: 7, category: '情侣礼物', effect: '好感' },
+        { name: '手工相册', price: 8000, loveVal: 10, category: '情侣礼物', effect: '好感' },
+        { name: '惊喜蛋糕', price: 20000, loveVal: 9, category: '情侣礼物', effect: '好感' },
+        { name: '定制首饰', price: 50000, loveVal: 15, category: '情侣礼物', effect: '好感' },
+        { name: '永生花', price: 25000, loveVal: 11, category: '情侣礼物', effect: '好感' },
+        { name: '情侣卫衣', price: 22000, loveVal: 8, category: '情侣礼物', effect: '好感' }
     ];
     
-    var delCats = ['护肤', '化妆品', '衣服', '粉丝礼物', '私生防护', '医药品'];
+    var delCats = ['护肤', '化妆品', '衣服', '粉丝礼物', '私生防护', '医药品', '情侣礼物'];
     var delCardsHtml = '';
     for (var dci = 0; dci < delCats.length; dci++) {
         var delCat = delCats[dci];
@@ -4833,7 +4867,8 @@ function render快递服务Page(container) {
             else if (item.effect === '颜值') effectText = '+' + (item.looksVal || 0) + ' 颜值';
             else if (item.effect === '名气') effectText = '+' + item.fameVal + ' 名气';
             else if (item.effect === '危险') effectText = '-' + Math.abs(item.dangerVal) + ' 危险值';
-            var itemVal = item.looksVal || item.lifeVal || item.fameVal || Math.abs(item.dangerVal);
+            else if (item.effect === '好感') effectText = '+' + item.loveVal + ' 好感度';
+            var itemVal = item.looksVal || item.lifeVal || item.fameVal || item.loveVal || Math.abs(item.dangerVal);
             delCardsHtml += '<div class="card" data-name="'+item.name+'" data-price="'+item.price+'" data-val="'+itemVal+'" data-effect="'+item.effect+'" onclick="order快递服务(this.dataset.name,Number(this.dataset.price),Number(this.dataset.val),this.dataset.effect)">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div>'
@@ -4870,6 +4905,7 @@ function order快递服务(name, price, value, effect) {
     else if (effect === '颜值') effectDesc = '+' + value + ' 颜值';
     else if (effect === '名气') effectDesc = '+' + value + ' 名气';
     else if (effect === '危险') effectDesc = '-' + value + ' 危险值';
+    else if (effect === '好感') effectDesc = '+' + value + ' 好感度';
     showModal('确认购买', '商品：' + name + '\n价格：' + (price || 0).toLocaleString() + ' 金币\n效果：' + effectDesc, [
         { text: '取消', action: closeModal },
         { text: '确认购买', action: function() {
@@ -4884,6 +4920,10 @@ function order快递服务(name, price, value, effect) {
             } else if (effect === '危险') {
                 gameState.danger = Math.max(0, gameState.danger - value);
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
+            } else if (effect === '好感') {
+                if (gameState.dating && gameState.npc好感度) {
+                    gameState.npc好感度[gameState.dating] = Math.min(100, (gameState.npc好感度[gameState.dating] || 0) + value);
+                }
             }
             if (!gameState.inventory) gameState.inventory = [];
             gameState.inventory.push({ name: name, effect: effect, value: value });
@@ -5411,6 +5451,7 @@ function render更新通知Page(container) {
     var sysNotices = [];
     
     container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">更新通知</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="section-title">版本更新</div>\n                ' + (versionLogs.map(function(v) { return '\n                    <div class="card">\n                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">\n                            <div style="font-weight: 600;">' + (v.title) + '</div>\n                            <span class="badge badge-primary">' + (v.ver) + '</span>\n                        </div>\n                        <div style="font-size: 11px; color: var(--color-text-light); margin-bottom: 8px;">' + (v.date) + '</div>\n                        <div style="font-size: 13px; color: var(--color-text-light); line-height: 1.6; white-space: pre-line;">' + (v.content) + '</div>\n                    </div>\n                '}).join('')) + '\n                \n                <div class="section-title" style="margin-top: 16px;">系统通知</div>\n                ' + (sysNotices.map(function(n) { return '\n                    <div class="card" onclick="showModal(\'' + (n.title) + '\',\'' + (n.content) + '\')">\n                        <div style="font-weight: 600; margin-bottom: 4px;">' + (n.title) + '</div>\n                        <div style="font-size: 12px; color: var(--color-text-light);">' + (n.time) + '</div>\n                    </div>\n                '}).join('')) + '\n            </div>\n        </div>\n    ';
+    var _uEl = container.querySelector('.page-content'); if (_uEl) _uEl.innerHTML += getAppLinkHtml('updates');
 }
 
 // ==================== MEETING DIALOG PAGE ====================
@@ -6486,6 +6527,20 @@ function startComeback() {
     render();
 }
 
+function cancelComeback() {
+    var cb = gameState.comeback;
+    if (!cb || cb.phase === 'done') { goToPage('home'); return; }
+    showModal('确认取消', '取消回归将扣除20信誉，已投入的资源无法退还，确定？', [
+        { text: '确定取消', action: function() {
+            gameState.credit = Math.max(0, (gameState.credit || 150) - 20);
+            gameState.comeback = null;
+            notifySystem('回归取消', '信誉-20');
+            render();
+        }},
+        { text: '继续回归', action: closeModal }
+    ]);
+}
+
 function selectComebackConcept(idx) {
     gameState.comeback.concept = COMEBACK_CONCEPTS[idx];
     gameState.comeback.phase = 'titletrack';
@@ -6721,7 +6776,7 @@ function renderComebackPage(container) {
             + getAppLinkHtml('comeback') + '</div></div>';
         return;
     }
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">回归计划</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelComeback()">‹ 取消</div><div class="page-title">回归计划</div><div style="width:32px;"></div></div><div class="page-content">';
     
     if (cb.phase === 'concept') {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
@@ -6927,7 +6982,7 @@ function renderSongProdPage(container) {
             + getAppLinkHtml('songprod') + '</div></div>';
         return;
     }
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelSongProduction()">‹ 取消</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content">';
 
     if (sp.step === 0) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">选择曲风</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">不同曲风影响歌曲品质和最佳属性</div></div>';
@@ -6974,6 +7029,16 @@ function renderSongProdPage(container) {
             + '<div style="font-size:13px;">曲风: ' + song.genre + '</div>'
             + '<div style="font-size:13px;">概念: ' + song.concept + '</div>'
             + '<div style="font-size:13px;">品质: ' + song.quality + '分</div></div>';
+        if (sp.recordEvent || sp.mixEvent) {
+            html += '<div class="card"><div style="font-weight:600;margin-bottom:8px;">制作花絮</div>';
+            if (sp.recordEvent) {
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">录音: ' + sp.recordEvent.text + ' (品质' + (sp.recordEvent.quality >= 0 ? '+' : '') + sp.recordEvent.quality + ')</div>';
+            }
+            if (sp.mixEvent) {
+                html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">混音: ' + sp.mixEvent.text + ' (品质' + (sp.mixEvent.quality >= 0 ? '+' : '') + sp.mixEvent.quality + ')</div>';
+            }
+            html += '</div>';
+        }
         if (sp.comebackMode) {
             html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="finishSongProdComeback()">返回回归计划</button>';
         } else {
@@ -6989,6 +7054,35 @@ function startSongProduction() {
     if (gameState.player.role !== 'Idol') { showToast('只有出道爱豆才能制作歌曲'); return; }
     gameState.songProd = { step: 0, comebackMode: false };
     render();
+}
+
+function cancelSongProduction() {
+    var sp = gameState.songProd;
+    if (!sp) { goToPage('home'); return; }
+    if (sp.step >= 2) {
+        showModal('确认取消', '制作已开始，取消将扣除10信誉，确定？', [
+            { text: '确定取消', action: function() {
+                gameState.credit = Math.max(0, (gameState.credit || 150) - 10);
+                gameState.songProd = null;
+                notifySystem('歌曲制作取消', '信誉-10');
+                render();
+            }},
+            { text: '继续制作', action: closeModal }
+        ]);
+    } else if (sp.step >= 1) {
+        showModal('确认取消', '取消制作将扣除3信誉，确定？', [
+            { text: '确定取消', action: function() {
+                gameState.credit = Math.max(0, (gameState.credit || 150) - 3);
+                gameState.songProd = null;
+                notifySystem('歌曲制作取消', '信誉-3');
+                render();
+            }},
+            { text: '继续制作', action: closeModal }
+        ]);
+    } else {
+        gameState.songProd = null;
+        render();
+    }
 }
 
 function selectSongGenre(idx) {
@@ -7025,8 +7119,22 @@ function recordSong() {
     if (gameState.money < 20000) { showModal('资金不足', '录音需要20,000金币'); return; }
     gameState.体力 -= 15;
     gameState.money -= 20000;
+    var sp = gameState.songProd;
+    var recordEvents = [
+        { text: '主唱突然失声，你顶上了高音部分', quality: 5, desc: '临场救急' },
+        { text: '录音室设备故障，耽误了两小时', quality: -3, desc: '设备故障' },
+        { text: '和成员的合唱意外地和谐', quality: 4, desc: '默契配合' },
+        { text: '制作人要求重录三遍，但效果越来越好', quality: 3, desc: '精益求精' },
+        { text: '录音时窗外下起大雨，氛围感拉满', quality: 2, desc: '天降氛围' },
+        { text: 'Rap部分一直卡壳，反复录了十遍', quality: -2, desc: '反复打磨' },
+        { text: '队友带了宵夜来探班，状态大好', quality: 3, desc: '温暖探班' },
+        { text: '录音师夸你今天状态极佳', quality: 5, desc: '状态爆棚' }
+    ];
+    var evt = recordEvents[Math.floor(Math.random() * recordEvents.length)];
+    sp.recordEvent = evt;
+    sp.qualityBonus = (sp.qualityBonus || 0) + evt.quality;
     gameState.songProd.step = 4;
-    notifySystem('录音完成', '进入混音阶段');
+    notifySystem('录音完成', evt.text + ' (品质' + (evt.quality >= 0 ? '+' : '') + evt.quality + ')');
     render();
 }
 
@@ -7036,8 +7144,19 @@ function mixSong() {
     gameState.体力 -= 10;
     gameState.money -= 15000;
     var sp = gameState.songProd;
+    var mixEvents = [
+        { text: '混音师做出了绝佳的层次感', quality: 4, desc: '专业混音' },
+        { text: '低频部分有点糊，反复调了好久', quality: -2, desc: '低频调整' },
+        { text: '加入了一段环境音效，瞬间高级了', quality: 5, desc: '氛围音效' },
+        { text: '混音时不小心删了一段，重新来过', quality: -3, desc: '操作失误' },
+        { text: '和成员一起试听，大家都很满意', quality: 3, desc: '集体认可' },
+        { text: '混音到凌晨三点，终于调出理想效果', quality: 4, desc: '深夜打磨' }
+    ];
+    var evt = mixEvents[Math.floor(Math.random() * mixEvents.length)];
+    sp.mixEvent = evt;
+    sp.qualityBonus = (sp.qualityBonus || 0) + evt.quality;
     var statVal = gameState.stats[sp.selectedGenre.bestStat] || 50;
-    var quality = Math.floor((statVal / 150) * 60 + Math.random() * 30 * sp.selectedConcept.qualityBonus + 10);
+    var quality = Math.floor((statVal / 150) * 60 + Math.random() * 30 * sp.selectedConcept.qualityBonus + 10 + (sp.qualityBonus || 0));
     quality = Math.min(100, Math.max(20, quality));
     var song = {
         name: sp.songName,
@@ -7050,7 +7169,10 @@ function mixSong() {
     gameState.songs.push(song);
     sp.result = song;
     sp.step = 5;
-    notifySystem('歌曲制作完成', song.name + ' 品质: ' + quality + '分');
+    var eventMsg = '';
+    if (sp.recordEvent) eventMsg += ' | 录音: ' + sp.recordEvent.desc;
+    if (sp.mixEvent) eventMsg += ' | 混音: ' + sp.mixEvent.desc;
+    notifySystem('歌曲制作完成', song.name + ' 品质: ' + quality + '分' + eventMsg);
     syncFromApp('songprod', { action: 'song_complete', name: song.name, quality: quality, genre: song.genre });
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
@@ -7900,12 +8022,27 @@ function startMVProduction() {
 
 function cancelMVProduction() {
     if (gameState.mvProd && gameState.mvProd.step >= 3) {
-        showModal('确认取消', '拍摄已开始，取消将损失30体力+3万金币，确定？', function() {
-            gameState.体力 = Math.max(0, gameState.体力 - 30);
-            gameState.money -= 30000;
-            gameState.mvProd = null;
-            render();
-        });
+        showModal('确认取消', '拍摄已开始，取消将损失30体力+3万金币，并扣除15信誉，确定？', [
+            { text: '确定取消', action: function() {
+                gameState.体力 = Math.max(0, gameState.体力 - 30);
+                gameState.money -= 30000;
+                gameState.credit = Math.max(0, (gameState.credit || 150) - 15);
+                gameState.mvProd = null;
+                notifySystem('MV制作取消', '信誉-15');
+                render();
+            }},
+            { text: '继续制作', action: closeModal }
+        ]);
+    } else if (gameState.mvProd && gameState.mvProd.step >= 1) {
+        showModal('确认取消', '取消制作将扣除5信誉，确定？', [
+            { text: '确定取消', action: function() {
+                gameState.credit = Math.max(0, (gameState.credit || 150) - 5);
+                gameState.mvProd = null;
+                notifySystem('MV制作取消', '信誉-5');
+                render();
+            }},
+            { text: '继续制作', action: closeModal }
+        ]);
     } else {
         gameState.mvProd = null;
         render();
