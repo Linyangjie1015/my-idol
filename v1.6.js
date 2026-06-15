@@ -4070,6 +4070,42 @@ function getSmartReply(userName, userMsg, platform) {
 }
 
 var _translateContentCache = null;
+function _simpleTranslate(text) {
+    var _dict = {
+        'Practice makes perfect!': '熟能生巧！',
+        'Behind the scenes of our new MV shoot!': '我们新MV拍摄的幕后花絮！',
+        'Late night practice session. No pain no gain!': '深夜练习。没有付出就没有收获！',
+        'Beautiful sunset after rehearsal today.': '今天排练后看到了美丽的日落。',
+        'New concept photos dropping soon! Stay tuned!': '新概念照即将发布！敬请期待！',
+        'Just dropped a new cover on my YouTube channel!': '刚刚在我的YouTube频道发布了新翻唱！',
+        'Dance practice video is finally out!': '舞蹈练习视频终于出了！',
+        'Thank you for always being there for us!': '谢谢你们一直陪伴着我们！',
+        'Studio vibes today. Working on something special.': '今天在录音室。正在准备一些特别的。',
+        'My fans are the best! Love you all!': '我的粉丝们是最棒的！爱你们！',
+        'Backstage ready! Show time!': '后台准备完毕！演出开始！',
+        'Morning workout done! Starting the day right.': '晨练完成！美好的一天开始了。',
+        'New hairstyle, new me! What do you think?': '新发型，新的我！觉得怎么样？',
+        'Late night snack after practice. Chef special!': '练习后的夜宵。大厨特供！',
+        'Airport fashion today!': '今日机场穿搭！',
+        'Fan meeting was amazing! Your energy was incredible!': '粉丝见面会太棒了！你们的能量太强了！',
+        'Selfie time!': '自拍时间！',
+        'On our way to the music show!': '在去音乐节目的路上！',
+        'Rehearsal for the upcoming concert!': '为即将到来的演唱会排练！',
+        'New album coming soon! Are you ready?': '新专辑即将发布！你们准备好了吗？',
+        'Thank you for the birthday wishes!': '谢谢你们的生日祝福！',
+        'Magazine shoot today! Can\'t wait for you to see it!': '今天拍摄杂志！等不及让你们看到了！',
+        'Vlive tonight at 9PM KST! Don\'t miss it!': '今晚9点韩国时间直播！不要错过！',
+        'New choreography practice! #kpop #fyp': '新编舞练习！#kpop #fyp',
+        'Vocal cover of our new song! #vocal #cover': '我们新歌的翻唱！#vocal #cover',
+        'Dance challenge with members! #challenge': '和成员们的舞蹈挑战！#challenge',
+        'Backstage moments before the show #bts': '演出前的后台瞬间 #bts',
+        'Official MV teaser! #comingsoon': '官方MV预告！#comingsoon',
+        'Rap verse practice #hiphop #yg': 'Rap段落练习 #hiphop #yg'
+    };
+    if (_dict[text]) return _dict[text];
+    return '[翻译] ' + text;
+}
+
 function translateContent(text, idx, prefix) {
     var el = document.getElementById(prefix + idx);
     if (!el) return;
