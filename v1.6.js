@@ -5819,7 +5819,18 @@ function _applyAdminMode() {
 // ==================== MODAL ====================
 var _modalActions = [];
 function showModal(title, message, buttons) {
-    document.getElementById('modalTitle').textContent = title;
+    var modal = document.getElementById('modal');
+    if (!modal) return;
+    var modalTitle = document.getElementById('modalTitle');
+    if (!modalTitle) {
+        modal.innerHTML = '<div class="modal-box">'
+            + '<div class="modal-title" id="modalTitle"></div>'
+            + '<div class="modal-message" id="modalMessage"></div>'
+            + '<div id="modalButtons"></div>'
+            + '</div>';
+        modalTitle = document.getElementById('modalTitle');
+    }
+    modalTitle.textContent = title;
     document.getElementById('modalMessage').innerHTML = message;
     
     _modalActions = [];
@@ -5836,11 +5847,12 @@ function showModal(title, message, buttons) {
     }
     document.getElementById('modalButtons').innerHTML = btnHtml;
     
-    document.getElementById('modal').classList.add('active');
+    modal.classList.add('active');
 }
 
 function closeModal() {
-    document.getElementById('modal').classList.remove('active');
+    var modal = document.getElementById('modal');
+    if (modal) modal.classList.remove('active');
 }
 
 // ==================== SAVE/LOAD ====================
