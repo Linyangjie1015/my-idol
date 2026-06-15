@@ -10558,6 +10558,8 @@ function sendKakaoMessage() {
 
 // ==================== CLOUD ACCOUNT SYSTEM ====================
 var CLOUD_API = 'https://my-idol-api.vercel.app';
+var SUPABASE_URL = 'https://yivdnocibzayqoifptfm.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpdmRub2NpYnpheXFvaWZwdGZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTQ2MjIsImV4cCI6MjA5NzA5MDYyMn0.B4B6MhQe2xRtdrbPMRtlcFx26nWDfGgtM7GOl9sPKFw';
 var _cloudToken = localStorage.getItem('myIdolCloudToken') || '';
 var _cloudEmail = localStorage.getItem('myIdolCloudEmail') || '';
 
@@ -10641,8 +10643,9 @@ function _doCloudRegister() {
     }
     if (btnEl) btnEl.textContent = '注册中...';
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', CLOUD_API + '/api/register', true);
+    xhr.open('POST', SUPABASE_URL + '/auth/v1/signup', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
     xhr.timeout = 15000;
     xhr.ontimeout = function() {
         if (errEl) { errEl.textContent = '请求超时，请检查网络后重试'; errEl.style.display = 'block'; }
@@ -10656,19 +10659,20 @@ function _doCloudRegister() {
         if (xhr.readyState === 4) {
             try {
                 var res = JSON.parse(xhr.responseText);
-                if (xhr.status === 200) {
-                    var token = res.token || (res.session && res.session.access_token) || null;
+                if (xhr.status === 200 && !res.error) {
+                    var token = (res.session && res.session.access_token) ? res.session.access_token : null;
+                    var userId = (res.user && res.user.id) ? res.user.id : null;
                     if (token) {
                         _cloudToken = token;
                         _cloudEmail = email;
                         localStorage.setItem('myIdolCloudToken', token);
                         localStorage.setItem('myIdolCloudEmail', email);
                     }
+                    if (userId) {
+                        localStorage.setItem('myIdolCloudUserId', userId);
+                    }
                     localStorage.setItem('myIdolCurrentUser', nickname);
                     localStorage.setItem('myIdolLastUser', nickname);
-                    if (res.user && res.user.id) {
-                        localStorage.setItem('myIdolCloudUserId', res.user.id);
-                    }
                     _closeAccountOverlay();
                     if (token) {
                         showToast('注册成功，云端已连接');
@@ -10679,7 +10683,9 @@ function _doCloudRegister() {
                     render();
                     _checkAdmin(nickname);
                 } else {
-                    var msg = (res && res.error) ? res.error : '注册失败，请重试';
+                    var msg = res.msg || (res.error && res.error.message) || res.error_description || '注册失败';
+                    if (msg.indexOf('already') >= 0 || msg.indexOf('registered') >= 0) msg = '该邮箱已注册';
+                    if (msg.indexOf('Database error') >= 0) msg = '服务器内部错误，请联系管理员';
                     if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
                     if (btnEl) btnEl.textContent = '注册';
                 }
@@ -10689,7 +10695,7 @@ function _doCloudRegister() {
             }
         }
     };
-    xhr.send(JSON.stringify({ email: email, password: password, nickname: nickname }));
+    xhr.send(JSON.stringify({ email: email, password: password, data: { nickname: nickname } }));
 }
 
 function _doCloudLogin() {
@@ -10710,8 +10716,9 @@ function _doCloudLogin() {
     }
     if (btnEl) btnEl.textContent = '登录中...';
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', CLOUD_API + '/api/login', true);
+    xhr.open('POST', SUPABASE_URL + '/auth/v1/token?grant_type=password', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
     xhr.timeout = 15000;
     xhr.ontimeout = function() {
         if (errEl) { errEl.textContent = '请求超时，请检查网络后重试'; errEl.style.display = 'block'; }
@@ -10725,14 +10732,14 @@ function _doCloudLogin() {
         if (xhr.readyState === 4) {
             try {
                 var res = JSON.parse(xhr.responseText);
-                if (xhr.status === 200 && res.token) {
-                    _cloudToken = res.token;
+                if (xhr.status === 200 && res.access_token) {
+                    _cloudToken = res.access_token;
                     _cloudEmail = email;
-                    localStorage.setItem('myIdolCloudToken', res.token);
+                    localStorage.setItem('myIdolCloudToken', res.access_token);
                     localStorage.setItem('myIdolCloudEmail', email);
                     var nickname = email.split('@')[0];
                     if (res.user) {
-                        if (res.user.nickname) nickname = res.user.nickname;
+                        if (res.user.user_metadata && res.user.user_metadata.nickname) nickname = res.user.user_metadata.nickname;
                         if (res.user.email) localStorage.setItem('myIdolCloudEmail', res.user.email);
                         if (res.user.id) localStorage.setItem('myIdolCloudUserId', res.user.id);
                     }
@@ -10744,7 +10751,9 @@ function _doCloudLogin() {
                     render();
                     _doCloudSyncDown();
                 } else {
-                    var msg = (res && res.error) ? res.error : '登录失败，请重试';
+                    var msg = res.error_description || (res.error && res.error.message) || res.msg || '登录失败';
+                    if (msg.indexOf('Invalid') >= 0 || msg.indexOf('invalid') >= 0) msg = '邮箱或密码错误';
+                    if (msg.indexOf('Email not confirmed') >= 0) msg = '邮箱未验证，请查收确认邮件';
                     if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
                     if (btnEl) btnEl.textContent = '登录';
                 }
