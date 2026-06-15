@@ -7622,7 +7622,7 @@ function renderMVProductionPage(container) {
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + editStyles[es].desc + '</div></div>';
         }
         if (ms.editStyle) {
-            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="mvProdNext(5)">发布MV</button>';
+            html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="finishMVProduction()">发布MV</button>';
         }
     } else if (ms.step === 5) {
         var result = ms.result;
@@ -7646,7 +7646,7 @@ function renderMVProductionPage(container) {
             }
             html += '</div>';
         }
-        html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="finishMVProduction()">完成</button>';
+        html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="closeMVProduction()">完成</button>';
     }
 
     html += '</div></div>';
@@ -7777,6 +7777,11 @@ function finishMVProduction() {
 
     notifySystem('MV发布', song.name + ' MV品质: ' + totalQuality + '分');
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
+    render();
+}
+
+function closeMVProduction() {
+    gameState.mvProd = null;
     render();
 }
 
