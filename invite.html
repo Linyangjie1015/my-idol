@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>My Idol - 内测抽取</title>
+<title>My Idol - 内测摇号</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -29,35 +29,38 @@ h1{font-size:22px;color:#2D2D2D;font-weight:700;margin-bottom:6px}
 .draw-text{font-size:16px;color:#8E8E93}
 .result{display:none}
 .success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:white;box-shadow:0 4px 20px rgba(255,107,138,0.3)}
-.result h2{font-size:20px;color:#2D2D2D;font-weight:700;margin-bottom:4px}
-.result .sub{font-size:14px;color:#8E8E93;margin-bottom:20px}
-.code-box{padding:20px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:14px;margin-bottom:16px}
-.code-label{font-size:12px;color:#8E8E93;margin-bottom:8px}
-.code-value{font-size:28px;font-weight:800;letter-spacing:3px;color:#FF6B8A}
-.email-to{font-size:13px;color:#8E8E93;margin-bottom:16px}
+.result h2{font-size:20px;color:#2D2D2D;font-weight:700;margin-bottom:8px}
+.result .sub{font-size:14px;color:#8E8E93;margin-bottom:16px;line-height:1.6}
+.wechat-box{background:#E8F5E9;border-radius:12px;padding:16px;margin-bottom:16px}
+.wechat-box p{font-size:14px;color:#2E7D32;line-height:1.7}
+.wechat-box .wechat-id{font-size:20px;font-weight:700;color:#1B5E20;letter-spacing:1px;margin-top:4px}
 .warn-box{background:#FFF8F0;border-radius:10px;padding:12px 14px;text-align:left;margin-bottom:16px}
 .warn-box p{font-size:12px;color:#CC7700;line-height:1.7}
-.link-btn{display:inline-block;padding:12px 32px;border-radius:50px;font-size:15px;font-weight:600;border:none;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;text-decoration:none;box-shadow:0 4px 16px rgba(255,107,138,0.3)}
+.social-links{margin-top:16px}
+.social-links p{font-size:13px;color:#8E8E93;margin-bottom:6px}
+.link-btn{display:inline-block;padding:12px 32px;border-radius:50px;font-size:15px;font-weight:600;border:none;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;text-decoration:none;box-shadow:0 4px 16px rgba(255,107,138,0.3);margin-top:8px}
 .footer{margin-top:24px;font-size:12px;color:#C7C7CC}
-.copy-tip{font-size:12px;color:#4CD964;margin-top:8px;display:none}
+.full-box{background:#F5F5F5;border-radius:12px;padding:20px}
+.full-box h2{font-size:18px;color:#8E8E93;margin-bottom:8px}
+.full-box p{font-size:14px;color:#C7C7CC;line-height:1.7}
 </style>
 </head>
 <body>
 
 <div class="logo">M</div>
-<h1>My Idol V1.6 内测抽取</h1>
-<p class="desc">输入邮箱参与抽取，中签即可获得内测资格<br>6月17日 12:00 正式上线</p>
+<h1>My Idol V1.6 内测摇号</h1>
+<p class="desc">输入邮箱参与摇号，中签即可获得内测资格<br>名额有限，先到先得</p>
 
 <div class="card" id="formCard">
 <input class="input" id="emailInput" type="email" placeholder="请输入邮箱地址" maxlength="50" />
-<button class="btn btn-primary" id="drawBtn" onclick="startDraw()">参与抽取</button>
+<button class="btn btn-primary" id="drawBtn" onclick="startDraw()">参与摇号</button>
 <div class="err" id="errMsg"></div>
 </div>
 
 <div class="card" id="drawAnim" style="display:none">
 <div class="draw-anim">
 <div class="spinner"></div>
-<p class="draw-text">抽取中，请稍候...</p>
+<p class="draw-text">摇号中，请稍候...</p>
 </div>
 </div>
 
@@ -65,28 +68,45 @@ h1{font-size:22px;color:#2D2D2D;font-weight:700;margin-bottom:6px}
 <div class="success-icon">&#10003;</div>
 <h2>恭喜中签</h2>
 <p class="sub" id="successEmail"></p>
-<div class="code-box">
-<p class="code-label">您的内测邀请码</p>
-<p class="code-value" id="codeValue"></p>
-<p class="copy-tip" id="copyTip">已复制到剪贴板</p>
+<p class="sub" style="color:#FF6B8A;font-weight:600">邀请函已发送至您的邮箱，请注意查收</p>
+<div class="wechat-box">
+<p>请添加开发者微信</p>
+<p>用于内测拉群及问题反馈</p>
+<p class="wechat-id">LYJ10152008</p>
 </div>
-<p class="email-to">请截图保存您的邀请码</p>
 <div class="warn-box">
-<p>本邀请码为内测专属，请勿外传或公开发布</p>
+<p>邀请码与您的邮箱绑定，请勿外传或公开发布</p>
 <p>违规传播将取消内测资格并追究相关责任</p>
 </div>
-<a class="link-btn" href="https://linyangjie1015.github.io/my-idol/v1.6.html" target="_blank">前往注册</a>
 </div>
 
 <div class="card result" id="failCard" style="display:none">
 <div style="width:64px;height:64px;border-radius:50%;background:#F5F5F5;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:#8E8E93">!</div>
-<h2 style="font-size:18px;color:#8E8E93;font-weight:600;margin-bottom:8px">很遗憾，未中签</h2>
-<p style="font-size:14px;color:#C7C7CC">请关注后续内测开放通知</p>
+<div class="full-box">
+<h2>很遗憾，未中签</h2>
+<p>本次内测名额已满，请期待下一次内测开放</p>
+<p style="margin-top:12px">请留意官方动态获取最新消息</p>
+</div>
+<div class="social-links">
+<p>官方抖音 / 官方微信群 / 官方微博</p>
+</div>
+</div>
+
+<div class="card result" id="fullCard" style="display:none">
+<div class="full-box">
+<h2>名额已满</h2>
+<p>本次内测名额已全部发放</p>
+<p style="margin-top:12px">请留意官方动态，期待下一次开放</p>
+</div>
+<div class="social-links">
+<p>官方抖音 / 官方微信群 / 官方微博</p>
+</div>
 </div>
 
 <div class="footer">My Idol Team</div>
 
 <script>
+var API_URL = 'https://my-idol-api.vercel.app/api/send-invite';
 var CODES = ['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
 
 function hashCode(s) {
@@ -110,60 +130,56 @@ function startDraw() {
     }
 
     document.getElementById('drawBtn').disabled = true;
-
-    var savedEmail = localStorage.getItem('myIdolDrawEmail');
-    var savedCode = localStorage.getItem('myIdolDrawCode');
-    if (savedEmail === email && savedCode) {
-        document.getElementById('formCard').style.display = 'none';
-        showSuccess(email, savedCode);
-        return;
-    }
-
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('drawAnim').style.display = 'block';
 
-    setTimeout(function() {
-        var hash = hashCode(email);
-        var isWinner = (Math.abs(hash) % 10) < 7;
+    var hash = hashCode(email);
+    var isWinner = (Math.abs(hash) % 10) < 7;
 
-        if (!isWinner) {
+    if (!isWinner) {
+        setTimeout(function() {
             document.getElementById('drawAnim').style.display = 'none';
             document.getElementById('failCard').style.display = 'block';
-            return;
+        }, 1500);
+        return;
+    }
+
+    var codeIndex = Math.abs(hash) % CODES.length;
+    var code = CODES[codeIndex];
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', API_URL, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 15000;
+    xhr.ontimeout = function() {
+        document.getElementById('drawAnim').style.display = 'none';
+        showSuccess(email);
+    };
+    xhr.onload = function() {
+        document.getElementById('drawAnim').style.display = 'none';
+        try {
+            var res = JSON.parse(xhr.responseText);
+            if (res.success) {
+                showSuccess(email);
+            } else if (res.reason === 'full') {
+                document.getElementById('fullCard').style.display = 'block';
+            } else {
+                showSuccess(email);
+            }
+        } catch(e) {
+            showSuccess(email);
         }
-
-        var codeIndex = Math.abs(hash) % CODES.length;
-        var code = CODES[codeIndex];
-
-        localStorage.setItem('myIdolDrawEmail', email);
-        localStorage.setItem('myIdolDrawCode', code);
-
-        showSuccess(email, code);
-    }, 2000);
+    };
+    xhr.onerror = function() {
+        document.getElementById('drawAnim').style.display = 'none';
+        showSuccess(email);
+    };
+    xhr.send(JSON.stringify({ email: email, code: code }));
 }
 
-function showSuccess(email, code) {
-    document.getElementById('drawAnim').style.display = 'none';
+function showSuccess(email) {
     document.getElementById('successCard').style.display = 'block';
     document.getElementById('successEmail').textContent = email;
-    document.getElementById('codeValue').textContent = code;
-
-    document.getElementById('codeValue').onclick = function() {
-        try {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(code);
-            } else {
-                var ta = document.createElement('textarea');
-                ta.value = code;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-            }
-            document.getElementById('copyTip').style.display = 'block';
-            setTimeout(function(){ document.getElementById('copyTip').style.display = 'none'; }, 2000);
-        } catch(e) {}
-    };
 }
 </script>
 </body>
