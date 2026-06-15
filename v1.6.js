@@ -1316,7 +1316,7 @@ function getAppLinkHtml(currentAppId) {
     for (var li = 0; li < links.length; li++) {
         var appId = links[li];
         var appName = APP_NAMES[appId] || appId;
-        html += '<div onclick="goToPage(\'' + appId + '\')" style="padding:6px 12px;background:var(--color-bg);border:1px solid var(--color-border);border-radius:16px;font-size:11px;color:var(--color-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;">' + appName + '</div>';
+        html += '<div onclick="goToPage(\'' + appId + '\')" style="padding:6px 12px;background:var(--color-bg);border:1px solid var(--color-border);border-radius:16px;font-size:11px;color:var(--color-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + appName + '</div>';
     }
     html += '</div></div>';
     return html;
@@ -3810,10 +3810,10 @@ function render恋爱Page(container) {
 function _renderLoveListView(container, npcs) {
     var tab = window._loveTab || 'chat';
     var tabHtml = '<div style="display:flex;border-bottom:2px solid var(--color-border);">'
-        + '<div style="flex:1;text-align:center;padding:10px 0;font-weight:600;font-size:14px;cursor:pointer;touch-action:manipulation;'
+        + '<div style="flex:1;text-align:center;padding:10px 0;font-weight:600;font-size:14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;'
         + (tab === 'chat' ? 'color:var(--color-primary);border-bottom:2px solid var(--color-primary);margin-bottom:-2px;' : 'color:var(--color-text-light);')
         + '" onclick="window._loveTab=\'chat\';render();">聊天</div>'
-        + '<div style="flex:1;text-align:center;padding:10px 0;font-weight:600;font-size:14px;cursor:pointer;touch-action:manipulation;'
+        + '<div style="flex:1;text-align:center;padding:10px 0;font-weight:600;font-size:14px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;'
         + (tab === 'contacts' ? 'color:var(--color-primary);border-bottom:2px solid var(--color-primary);margin-bottom:-2px;' : 'color:var(--color-text-light);')
         + '" onclick="window._loveTab=\'contacts\';render();">联系人</div>'
         + '</div>';
@@ -3837,7 +3837,7 @@ function _renderLoveListView(container, npcs) {
             var c = chatList[li];
             var unreadBadge = c.unread > 0 ? '<div style="min-width:16px;height:16px;border-radius:8px;background:var(--color-primary);color:white;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;">' + c.unread + '</div>' : '';
             var datingTag = c.isDating ? '<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:var(--color-primary);color:white;margin-left:4px;">恋人</span>' : '';
-            bodyHtml += '<div class="card" style="cursor:pointer;touch-action:manipulation;display:flex;align-items:center;gap:10px;" onclick="openLoveChat(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+            bodyHtml += '<div class="card" style="cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:10px;" onclick="openLoveChat(\'' + c.name.replace(/'/g, "\\'") + '\')">'
                 + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + c.name.charAt(0) + '</div>'
                 + '<div style="flex:1;overflow:hidden;">'
                 + '<div style="display:flex;align-items:center;justify-content:space-between;">'
@@ -3849,17 +3849,17 @@ function _renderLoveListView(container, npcs) {
         }
         if (gameState.dating) {
             bodyHtml += '<div style="margin-top:12px;"><div class="section-title">快捷操作</div>'
-                + '<div class="card" style="cursor:pointer;touch-action:manipulation;" onclick="loveDate()">'
+                + '<div class="card" style="cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="loveDate()">'
                 + '<div style="font-weight:600;">约会</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">和 ' + gameState.dating + ' 约会 - 20体力/10,000金币</div></div>'
-                + '<div class="card" style="cursor:pointer;touch-action:manipulation;" onclick="breakup()">'
+                + '<div class="card" style="cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="breakup()">'
                 + '<div style="font-weight:600;color:#FF3B30;">分手</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">结束恋爱关系</div></div></div>';
         }
     } else {
         if (gameState.dating) {
             var p好感 = gameState.npc好感度[gameState.dating] || 0;
-            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);cursor:pointer;touch-action:manipulation;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\'") + '\')">'
+            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\'") + '\')">'
                 + '<div style="display:flex;align-items:center;gap:12px;">'
                 + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
@@ -3885,8 +3885,8 @@ function _renderLoveListView(container, npcs) {
                 + '<span style="font-size:10px;font-weight:600;color:' + (canDate ? 'var(--color-primary)' : 'var(--color-text-light)') + ';">' + 好感 + '</span>'
                 + '</div></div>'
                 + '<div style="display:flex;flex-direction:column;gap:4px;">'
-                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;" onclick="openLoveChat(\'' + npc.name.replace(/'/g, "\\'") + '\')">聊天</button>'
-                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;" onclick="npcDate(\'' + npc.name.replace(/'/g, "\\'") + '\')">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
+                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + npc.name.replace(/'/g, "\\'") + '\')">聊天</button>'
+                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(\'' + npc.name.replace(/'/g, "\\'") + '\')">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
                 + '</div></div>';
         }
     }
@@ -3950,16 +3950,16 @@ function _renderLoveChatView(container, targetName, npcs) {
 
     container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
         + '<div class="page-header" style="flex-shrink:0;">'
-        + '<div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;">‹ 返回</div>'
+        + '<div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">‹ 返回</div>'
         + '<div class="page-title"><div style="font-weight:600;font-size:15px;">' + targetName + '</div>' + headerSub + '</div>'
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div id="loveChatMsgs" style="flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;">' + bubbles + '</div>'
         + '<div id="loveChatBar" style="flex-shrink:0;padding:6px 10px;border-top:1px solid var(--color-border);background:var(--bg-card);display:flex;align-items:center;gap:6px;">'
-        + '<button id="loveEmojiBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveStickerPanel()">E</button>'
-        + '<button id="loveGiftBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveGiftPanel()">G</button>'
+        + '<button id="loveEmojiBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveStickerPanel()">E</button>'
+        + '<button id="loveGiftBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveGiftPanel()">G</button>'
         + '<input type="text" id="loveChatInput" placeholder="说点什么..." style="flex:1;border:1px solid var(--color-border);border-radius:18px;padding:6px 12px;font-size:13px;outline:none;background:var(--bg-main);" onkeypress="if(event.key===\'Enter\')sendLoveChat()">'
-        + '<button style="width:30px;height:30px;border-radius:50%;background:var(--color-primary);border:none;color:white;cursor:pointer;touch-action:manipulation;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;" onclick="sendLoveChat()">></button>'
+        + '<button style="width:30px;height:30px;border-radius:50%;background:var(--color-primary);border:none;color:white;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;" onclick="sendLoveChat()">></button>'
         + '</div>'
         + '<div id="loveStickerPanel" style="display:none;max-height:100px;overflow-y:auto;border-top:1px solid var(--color-border);background:var(--bg-card);padding:6px;"></div>'
         + '<div id="loveGiftPanel" style="display:none;max-height:160px;overflow-y:auto;border-top:1px solid var(--color-border);background:var(--bg-card);padding:6px;"></div>'
@@ -4029,10 +4029,10 @@ function toggleLoveStickerPanel() {
         if (gameState.bubbleStickers && gameState.bubbleStickers.length > 0) {
             for (var i = 0; i < gameState.bubbleStickers.length; i++) {
                 var sn = gameState.bubbleStickers[i];
-                html += '<div style="padding:4px 8px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:6px;cursor:pointer;touch-action:manipulation;font-size:11px;" onclick="sendLoveSticker(\'' + sn.replace(/'/g, "\\'") + '\')">' + sn + '</div>';
+                html += '<div style="padding:4px 8px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:6px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-size:11px;" onclick="sendLoveSticker(\'' + sn.replace(/'/g, "\\'") + '\')">' + sn + '</div>';
             }
         } else {
-            html += '<div style="color:var(--color-text-light);font-size:11px;padding:6px;">暂无表情包，去泡泡商店购买</div>';
+            html += '<div style="color:var(--color-text-light);font-size:11px;padding:6px;">暂无表情包，<span style="color:var(--color-primary);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-tap-highlight-color:transparent;" onclick="closeLoveChat();goToPage(\'bubble\');">去泡泡商店购买</span></div>';
         }
         html += '</div>';
         panel.innerHTML = html;
@@ -4075,7 +4075,7 @@ function toggleLoveGiftPanel() {
             { n: '永生花', p: 25000, v: 11 }, { n: '情侣卫衣', p: 22000, v: 8 }
         ];
         for (var i = 0; i < gifts.length; i++) {
-            html += '<div style="padding:3px 6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:4px;cursor:pointer;touch-action:manipulation;font-size:10px;" onclick="sendLoveGift(\'' + gifts[i].n.replace(/'/g, "\\'") + '\',' + gifts[i].p + ',' + gifts[i].v + ')">'
+            html += '<div style="padding:3px 6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:4px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-size:10px;" onclick="sendLoveGift(\'' + gifts[i].n.replace(/'/g, "\\'") + '\',' + gifts[i].p + ',' + gifts[i].v + ')">'
                 + gifts[i].n + ' <span style="color:var(--color-primary);">' + gifts[i].p.toLocaleString() + '</span></div>';
         }
         html += '</div><div style="font-size:10px;font-weight:600;color:var(--color-text-light);margin-bottom:4px;">外卖美食</div><div style="display:flex;flex-wrap:wrap;gap:4px;">';
@@ -4085,7 +4085,7 @@ function toggleLoveGiftPanel() {
             { n: '烛光晚餐', p: 40000, v: 12 }
         ];
         for (var j = 0; j < foods.length; j++) {
-            html += '<div style="padding:3px 6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:4px;cursor:pointer;touch-action:manipulation;font-size:10px;" onclick="sendLoveGift(\'' + foods[j].n.replace(/'/g, "\\'") + '\',' + foods[j].p + ',' + foods[j].v + ')">'
+            html += '<div style="padding:3px 6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:4px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;font-size:10px;" onclick="sendLoveGift(\'' + foods[j].n.replace(/'/g, "\\'") + '\',' + foods[j].p + ',' + foods[j].v + ')">'
                 + foods[j].n + ' <span style="color:var(--color-primary);">' + foods[j].p.toLocaleString() + '</span></div>';
         }
         html += '</div>';
@@ -11063,7 +11063,7 @@ function showInterviewQuestion() {
     var prog = (st.current + 1) + ' / ' + st.questions.length;
     var optsHtml = '';
     for (var oi = 0; oi < q.opts.length; oi++) {
-        optsHtml += '<div onclick="_answerInterview(' + oi + ')" style="padding:10px 14px;margin:5px 0;background:var(--color-bg);border:1px solid var(--color-border);border-radius:10px;cursor:pointer;font-size:13px;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;">'
+        optsHtml += '<div onclick="_answerInterview(' + oi + ')" style="padding:10px 14px;margin:5px 0;background:var(--color-bg);border:1px solid var(--color-border);border-radius:10px;cursor:pointer;font-size:13px;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">'
             + String.fromCharCode(65 + oi) + '. ' + q.opts[oi] + '</div>';
     }
     showModal('工作面试 - ' + st.job.name,
