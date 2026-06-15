@@ -564,7 +564,7 @@ var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 // ==================== NAVIGATION ====================
 var currentPage = 'welcome';
 var creationStep = 1;
-var INVITE_CODES = ['IDOL0486', 'STAR9255', 'KPOP8739', 'FAME2676', 'DEBUT4769', 'DANCE7939', 'VOCAL0569', 'STAGE5332', 'SHINE2250', 'CROWN1985'];
+var INVITE_CODES = ['LOVE7286', 'DREAM4886', 'DREAM5305', 'DREAM6461', 'DEBUT3677', 'V162877', 'MYIDOL5203', 'V165678', 'V164720', 'FAN3082'];
 
 function renderInviteCodePage(app) {
     app.innerHTML = '<div class="page active"><div class="page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 30px;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);">'
