@@ -1386,7 +1386,7 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     
     var gain = Math.floor(Math.random() * 16) + 5;
     gameState.stats[stat] = Math.min(150, gameState.stats[stat] + gain);
-    gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1);
+    gameState.influence = (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1;
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]);
@@ -3124,8 +3124,8 @@ function joinSchedule(index) {
     } else if (item.tagType === 'interview') {
         var fameGain = Math.floor(Math.random() * 5) + 2;
         var influenceGain = Math.floor(Math.random() * 3) + 1;
-        gameState.fame = Math.min(200, (gameState.fame || 30) + fameGain);
-        gameState.influence = Math.min(200, (gameState.influence || 50) + influenceGain);
+        gameState.fame = (gameState.fame || 30) + fameGain;
+        gameState.influence = (gameState.influence || 50) + influenceGain;
         gainMsg = '\n+' + fameGain + ' 名气\n+' + influenceGain + ' 影响力';
     }
     item._completed = true;
@@ -3342,9 +3342,9 @@ function acceptNotice() {
     var moneyGain = n.reward + Math.floor(Math.random() * 5000);
     gameState.money += moneyGain;
     var fameGain = n.fame + Math.floor(Math.random() * 3);
-    gameState.fame = Math.min(200, (gameState.fame || 30) + fameGain);
+    gameState.fame = (gameState.fame || 30) + fameGain;
     var influenceGain = n.influence + Math.floor(Math.random() * 3);
-    gameState.influence = Math.min(200, (gameState.influence || 50) + influenceGain);
+    gameState.influence = (gameState.influence || 50) + influenceGain;
     var fansGain = n.fans + Math.floor(Math.random() * 100);
     gameState.fans += fansGain;
     var dangerGain = Math.floor(Math.random() * 3);
@@ -4013,8 +4013,8 @@ function postToWeverse() {
                 if (!gameState.weverseMyPosts) gameState.weverseMyPosts = [];
                 gameState.weverseMyPosts.push({ text: ta.value, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
                 gameState.fans += Math.floor(Math.random() * 30) + 10;
-                gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 2) + 1);
-                gameState.influence = Math.min(200, (gameState.influence || 50) + Math.floor(Math.random() * 2) + 1);
+                gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 2) + 1;
+                gameState.influence = (gameState.influence || 50) + Math.floor(Math.random() * 2) + 1;
                 closeModal();
                 showToast('动态已发布');
                 render();
@@ -4244,7 +4244,7 @@ function postToIns() {
                 if (!gameState.insPosts) gameState.insPosts = [];
                 gameState.insPosts.unshift({ user: gameState.player.name, avatar: gameState.player.avatar, time: '刚刚', content: ta.value, img: insSelectedImage, likes: likes });
                 gameState.fans += Math.floor(Math.random() * 25) + 5;
-                gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 3) + 1);
+                gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 3) + 1;
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
                 insSelectedImage = '';
             }
@@ -4436,7 +4436,7 @@ function postToTiktok() {
                 if (!gameState.tiktokPosts) gameState.tiktokPosts = [];
                 gameState.tiktokPosts.unshift({ desc: descEl.value, video: tiktokSelectedVideo, likes: likes });
                 gameState.fans += Math.floor(Math.random() * 40) + 10;
-                gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 4) + 2);
+                gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 4) + 2;
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
                 tiktokSelectedVideo = '';
             }
@@ -4644,9 +4644,9 @@ function order快递服务(name, price, value, effect) {
                 gameState.life = Math.min(150, (gameState.life || 150) + value);
             } else if (effect === '颜值') {
                 if (!gameState.looks) gameState.looks = 50;
-                gameState.looks = Math.min(200, gameState.looks + value);
+                gameState.looks = gameState.looks + value;
             } else if (effect === '名气') {
-                gameState.fame = Math.min(200, (gameState.fame || 30) + value);
+                gameState.fame = (gameState.fame || 30) + value;
             } else if (effect === '危险') {
                 gameState.danger = Math.max(0, gameState.danger - value);
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
@@ -4992,7 +4992,7 @@ function stopLive() {
     var fansGain = Math.floor(viewers / 50) + 5;
     gameState.fans += fansGain;
     gameState.money += revenue;
-    gameState.fame = Math.min(200, (gameState.fame || 30) + Math.floor(Math.random() * 5) + 2);
+    gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 5) + 2;
     
     gameState.livePendingReward = true;
     showModal('直播结束', '做得好！\n+' + fansGain + ' 粉丝\n+' + revenue.toLocaleString() + ' 金币\n+' + (Math.floor(Math.random()*5)+2) + ' 名气');
@@ -5335,8 +5335,8 @@ function choose会议Option(optionIndex) {
             if (opt.effect.credit) gameState.credit = Math.max(0, Math.min(200, gameState.credit + opt.effect.credit));
             if (opt.effect.fans) gameState.fans += opt.effect.fans;
             if (opt.effect['体力']) gameState.体力 = Math.max(0, gameState.体力 + opt.effect['体力']);
-            if (opt.effect.influence) gameState.influence = Math.min(200, (gameState.influence || 50) + opt.effect.influence);
-            if (opt.effect.fame) gameState.fame = Math.min(200, (gameState.fame || 30) + opt.effect.fame);
+            if (opt.effect.influence) gameState.influence = (gameState.influence || 50) + opt.effect.influence;
+            if (opt.effect.fame) gameState.fame = (gameState.fame || 30) + opt.effect.fame;
             if (opt.effect.danger) gameState.danger = Math.max(0, gameState.danger + opt.effect.danger);
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
         }
@@ -6606,7 +6606,7 @@ function renewContract() {
 
 function leaveCompany() {
     showModal('确认离开', '离开公司将失去所有公司资源，确定吗？', function() {
-        gameState.danger = Math.min(100, gameState.danger + 20);
+        gameState.danger = gameState.danger + 20;
         showToast('已离开公司，成为自由艺人');
         gameState.contract = null;
         render();
@@ -6803,7 +6803,7 @@ function triggerAntiEvent() {
     var event = ANTI_EVENTS[Math.floor(Math.random() * ANTI_EVENTS.length)];
     if (!gameState.antiEvents) gameState.antiEvents = [];
     gameState.antiEvents.push(event);
-    gameState.danger = Math.min(100, gameState.danger + event.dangerAdd);
+    gameState.danger = gameState.danger + event.dangerAdd;
     gameState.fans = Math.max(0, gameState.fans - event.fanLoss);
     notifySystem('反黑警告', event.title);
     triggerSilentSave();
@@ -6824,7 +6824,7 @@ function handleAnti(idx, action) {
         gameState.danger = Math.max(0, gameState.danger - 25);
         showToast('已启动法律程序');
     } else {
-        gameState.danger = Math.min(100, gameState.danger + 5);
+        gameState.danger = gameState.danger + 5;
         showToast('选择了忽略');
     }
     gameState.antiEvents.splice(idx, 1);
@@ -6889,7 +6889,7 @@ function launchFanProject(idx) {
     if (gameState.money < p.cost) { showToast('金币不足'); return; }
     gameState.money -= p.cost;
     gameState.fans += p.fansGain;
-    gameState.fame = Math.min(200, (gameState.fame || 30) + 5);
+    gameState.fame = (gameState.fame || 30) + 5;
     gameState.fanClub.funds += Math.floor(p.cost * 0.3);
     if (gameState.fans >= gameState.fanClub.level * 10000) {
         gameState.fanClub.level = Math.min(6, gameState.fanClub.level + 1);
@@ -7007,7 +7007,7 @@ function createMV() {
         views: Math.floor(Math.random() * 500000) + 100000,
         date: new Date().toLocaleDateString()
     });
-    gameState.fame = Math.min(200, (gameState.fame || 30) + 5);
+    gameState.fame = (gameState.fame || 30) + 5;
     showToast('MV创作完成! 品质: ' + quality + '分');
     if (typeof triggerSilentSave === 'function') triggerSilentSave();
     render();
@@ -7043,14 +7043,14 @@ function prAction(type) {
         showToast('慈善活动完成，危险值-10');
     } else if (type === 'interview') {
         if (gameState.money < 10000) { showToast('金币不足'); return; }
-        gameState.money -= 10000; gameState.fame = Math.min(200, (gameState.fame || 30) + 5);
+        gameState.money -= 10000; gameState.fame = (gameState.fame || 30) + 5;
         showToast('专访完成，名声+5');
     } else if (type === 'apology') {
         gameState.danger = Math.max(0, gameState.danger - 20); gameState.fans = Math.max(0, gameState.fans - 100);
         showToast('已发布道歉声明');
     } else if (type === 'solo') {
         if (gameState.money < 50000) { showToast('金币不足'); return; }
-        gameState.money -= 50000; gameState.fame = Math.min(200, (gameState.fame || 30) + 10); gameState.fans += 500;
+        gameState.money -= 50000; gameState.fame = (gameState.fame || 30) + 10; gameState.fans += 500;
         showToast('Solo企划启动，名声+10');
     }
     triggerSilentSave();
@@ -9556,8 +9556,8 @@ function doEarnJob(jobId) {
 
     gameState.体力 = Math.max(0, gameState.体力 - job.体力);
     gameState.money += job.money;
-    if (job.fame > 0) gameState.fame = Math.min(200, (gameState.fame || 30) + job.fame);
-    if (job.influence > 0) gameState.influence = Math.min(200, (gameState.influence || 50) + job.influence);
+    if (job.fame > 0) gameState.fame = (gameState.fame || 30) + job.fame;
+    if (job.influence > 0) gameState.influence = (gameState.influence || 50) + job.influence;
     if (job.fans > 0) gameState.fans += job.fans;
     if (gameState.player && gameState.player.role === 'Idol' && gameState.groupPopularity !== undefined) {
         var gpGain2 = Math.floor(Math.random() * 2) + 1;
