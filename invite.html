@@ -3,69 +3,167 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>My Idol - 内测邀请码</title>
+<title>My Idol - 内测抽取</title>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#FF8FA3">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
-.logo{width:100px;height:100px;border-radius:24px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:28px;font-size:44px;color:white;font-weight:800;box-shadow:0 8px 32px rgba(255,143,163,0.3)}
-h1{font-size:24px;color:#2D2D2D;font-weight:700;margin-bottom:8px}
-.desc{font-size:15px;color:#8E8E93;margin-bottom:36px;line-height:1.6}
-.card{background:white;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:20px}
-.btn{display:inline-block;padding:14px 40px;border-radius:50px;font-size:17px;font-weight:600;border:none;cursor:pointer;transition:transform 0.15s,opacity 0.15s}
-.btn:active{transform:scale(0.96);opacity:0.85}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center}
+.logo{width:90px;height:90px;border-radius:22px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:40px;color:white;font-weight:800;box-shadow:0 8px 32px rgba(255,143,163,0.3)}
+h1{font-size:22px;color:#2D2D2D;font-weight:700;margin-bottom:6px}
+.desc{font-size:14px;color:#8E8E93;margin-bottom:28px;line-height:1.6}
+.card{background:white;border-radius:20px;padding:28px 22px;width:100%;max-width:380px;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:16px}
+.input{width:100%;padding:14px 16px;border:2px solid #FFD5DE;border-radius:12px;font-size:16px;outline:none;transition:border-color 0.2s;background:#FAFAFA;margin-bottom:12px;-webkit-appearance:none}
+.input:focus{border-color:#FF8FA3;background:white}
+.input::placeholder{color:#C7C7CC}
+.btn{display:block;width:100%;padding:14px;border-radius:50px;font-size:17px;font-weight:600;border:none;cursor:pointer;transition:transform 0.15s,opacity 0.15s}
+.btn:active{transform:scale(0.97);opacity:0.85}
 .btn-primary{background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;box-shadow:0 4px 16px rgba(255,107,138,0.3)}
-.result-box{display:none;margin-top:24px}
-.code-display{font-size:32px;font-weight:800;letter-spacing:4px;color:#FF6B8A;padding:20px;background:#FFF5F7;border-radius:12px;margin:16px 0;border:2px dashed #FFCCD8}
-.tip{font-size:13px;color:#8E8E93;line-height:1.7;margin-top:16px}
-.steps{text-align:left;margin-top:16px}
-.steps p{font-size:14px;color:#666;line-height:2;padding-left:20px;position:relative}
-.steps p:before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:#FF8FA3}
-.link-btn{display:inline-block;margin-top:12px;padding:10px 28px;border-radius:50px;font-size:15px;font-weight:600;border:2px solid #FF8FA3;color:#FF6B8A;background:white;text-decoration:none;transition:all 0.15s}
-.link-btn:active{background:#FF8FA3;color:white}
-.footer{margin-top:32px;font-size:12px;color:#C7C7CC}
-.anim-bounce{animation:bounce 0.6s ease}
-@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.err{font-size:12px;color:#FF3B30;text-align:center;margin-top:8px;display:none}
+.draw-anim{display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px 0}
+.spinner{width:60px;height:60px;border:4px solid #FFE4EC;border-top:4px solid #FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.draw-text{font-size:16px;color:#8E8E93}
+.result{display:none}
+.success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:white;box-shadow:0 4px 20px rgba(255,107,138,0.3)}
+.result h2{font-size:20px;color:#2D2D2D;font-weight:700;margin-bottom:4px}
+.result .sub{font-size:14px;color:#8E8E93;margin-bottom:20px}
+.code-box{padding:20px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:14px;margin-bottom:16px}
+.code-label{font-size:12px;color:#8E8E93;margin-bottom:8px}
+.code-value{font-size:28px;font-weight:800;letter-spacing:3px;color:#FF6B8A}
+.email-to{font-size:13px;color:#8E8E93;margin-bottom:16px}
+.warn-box{background:#FFF8F0;border-radius:10px;padding:12px 14px;text-align:left;margin-bottom:16px}
+.warn-box p{font-size:12px;color:#CC7700;line-height:1.7}
+.link-btn{display:inline-block;padding:12px 32px;border-radius:50px;font-size:15px;font-weight:600;border:none;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;text-decoration:none;box-shadow:0 4px 16px rgba(255,107,138,0.3)}
+.footer{margin-top:24px;font-size:12px;color:#C7C7CC}
+.copy-tip{font-size:12px;color:#4CD964;margin-top:8px;display:none}
 </style>
 </head>
 <body>
 
 <div class="logo">M</div>
-<h1>My Idol 内测邀请码</h1>
-<p class="desc">抽取你的专属邀请码，提前注册账号<br>6月17日 12:00 正式上线</p>
+<h1>My Idol V1.6 内测抽取</h1>
+<p class="desc">输入邮箱参与抽取，中签即可获得内测资格<br>6月17日 12:00 正式上线</p>
 
-<div class="card">
-<div id="drawArea">
-<button class="btn btn-primary" onclick="drawCode()">抽取邀请码</button>
+<div class="card" id="formCard">
+<input class="input" id="emailInput" type="email" placeholder="请输入邮箱地址" maxlength="50" />
+<button class="btn btn-primary" id="drawBtn" onclick="startDraw()">参与抽取</button>
+<div class="err" id="errMsg"></div>
 </div>
-<div class="result-box" id="resultBox">
-<p style="font-size:14px;color:#8E8E93;">你的内测邀请码</p>
-<div class="code-display" id="codeDisplay"></div>
+
+<div class="card" id="drawAnim" style="display:none">
+<div class="draw-anim">
+<div class="spinner"></div>
+<p class="draw-text">抽取中，请稍候...</p>
+</div>
+</div>
+
+<div class="card result" id="successCard">
+<div class="success-icon">&#10003;</div>
+<h2>恭喜中签</h2>
+<p class="sub" id="successEmail"></p>
+<div class="code-box">
+<p class="code-label">您的内测邀请码</p>
+<p class="code-value" id="codeValue"></p>
+<p class="copy-tip" id="copyTip">已复制到剪贴板</p>
+</div>
+<p class="email-to">请截图保存您的邀请码</p>
+<div class="warn-box">
+<p>本邀请码为内测专属，请勿外传或公开发布</p>
+<p>违规传播将取消内测资格并追究相关责任</p>
+</div>
 <a class="link-btn" href="https://linyangjie1015.github.io/my-idol/v1.6.html" target="_blank">前往注册</a>
-<div class="steps">
-<p>输入邀请码进入游戏</p>
-<p>注册邮箱账号</p>
-<p>去邮箱点击确认链接</p>
-<p>6月17日上线直接登录游玩</p>
-</div>
-</div>
-<p class="tip">邀请码仅限内测期间使用，请妥善保存</p>
 </div>
 
-<div class="footer">My Idol Team / V1.6 即将上线</div>
+<div class="card result" id="failCard" style="display:none">
+<div style="width:64px;height:64px;border-radius:50%;background:#F5F5F5;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px;color:#8E8E93">!</div>
+<h2 style="font-size:18px;color:#8E8E93;font-weight:600;margin-bottom:8px">很遗憾，未中签</h2>
+<p style="font-size:14px;color:#C7C7CC">请关注后续内测开放通知</p>
+</div>
+
+<div class="footer">My Idol Team</div>
 
 <script>
-var CODES=['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
-function drawCode(){
-var code=CODES[Math.floor(Math.random()*CODES.length)];
-document.getElementById('drawArea').style.display='none';
-var box=document.getElementById('resultBox');
-box.style.display='block';
-document.getElementById('codeDisplay').textContent=code;
-box.classList.add('anim-bounce');
+var CODES = ['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
+
+function hashCode(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) {
+        h = ((h << 5) - h) + s.charCodeAt(i);
+        h = h & h;
+    }
+    return h;
+}
+
+function startDraw() {
+    var email = document.getElementById('emailInput').value.trim().toLowerCase();
+    var errEl = document.getElementById('errMsg');
+    errEl.style.display = 'none';
+
+    if (!email || email.indexOf('@') < 1) {
+        errEl.textContent = '请输入有效的邮箱地址';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    document.getElementById('drawBtn').disabled = true;
+
+    var savedEmail = localStorage.getItem('myIdolDrawEmail');
+    var savedCode = localStorage.getItem('myIdolDrawCode');
+    if (savedEmail === email && savedCode) {
+        document.getElementById('formCard').style.display = 'none';
+        showSuccess(email, savedCode);
+        return;
+    }
+
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('drawAnim').style.display = 'block';
+
+    setTimeout(function() {
+        var hash = hashCode(email);
+        var isWinner = (Math.abs(hash) % 10) < 7;
+
+        if (!isWinner) {
+            document.getElementById('drawAnim').style.display = 'none';
+            document.getElementById('failCard').style.display = 'block';
+            return;
+        }
+
+        var codeIndex = Math.abs(hash) % CODES.length;
+        var code = CODES[codeIndex];
+
+        localStorage.setItem('myIdolDrawEmail', email);
+        localStorage.setItem('myIdolDrawCode', code);
+
+        showSuccess(email, code);
+    }, 2000);
+}
+
+function showSuccess(email, code) {
+    document.getElementById('drawAnim').style.display = 'none';
+    document.getElementById('successCard').style.display = 'block';
+    document.getElementById('successEmail').textContent = email;
+    document.getElementById('codeValue').textContent = code;
+
+    document.getElementById('codeValue').onclick = function() {
+        try {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(code);
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = code;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+            document.getElementById('copyTip').style.display = 'block';
+            setTimeout(function(){ document.getElementById('copyTip').style.display = 'none'; }, 2000);
+        } catch(e) {}
+    };
 }
 </script>
 </body>
