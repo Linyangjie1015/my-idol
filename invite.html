@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>My Idol - 内测邀请码</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FF8FA3">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.logo{width:100px;height:100px;border-radius:24px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:28px;font-size:44px;color:white;font-weight:800;box-shadow:0 8px 32px rgba(255,143,163,0.3)}
+h1{font-size:24px;color:#2D2D2D;font-weight:700;margin-bottom:8px}
+.desc{font-size:15px;color:#8E8E93;margin-bottom:36px;line-height:1.6}
+.card{background:white;border-radius:20px;padding:32px 24px;width:100%;max-width:380px;box-shadow:0 2px 16px rgba(0,0,0,0.06);margin-bottom:20px}
+.btn{display:inline-block;padding:14px 40px;border-radius:50px;font-size:17px;font-weight:600;border:none;cursor:pointer;transition:transform 0.15s,opacity 0.15s}
+.btn:active{transform:scale(0.96);opacity:0.85}
+.btn-primary{background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;box-shadow:0 4px 16px rgba(255,107,138,0.3)}
+.result-box{display:none;margin-top:24px}
+.code-display{font-size:32px;font-weight:800;letter-spacing:4px;color:#FF6B8A;padding:20px;background:#FFF5F7;border-radius:12px;margin:16px 0;border:2px dashed #FFCCD8}
+.tip{font-size:13px;color:#8E8E93;line-height:1.7;margin-top:16px}
+.steps{text-align:left;margin-top:16px}
+.steps p{font-size:14px;color:#666;line-height:2;padding-left:20px;position:relative}
+.steps p:before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:8px;height:8px;border-radius:50%;background:#FF8FA3}
+.link-btn{display:inline-block;margin-top:12px;padding:10px 28px;border-radius:50px;font-size:15px;font-weight:600;border:2px solid #FF8FA3;color:#FF6B8A;background:white;text-decoration:none;transition:all 0.15s}
+.link-btn:active{background:#FF8FA3;color:white}
+.footer{margin-top:32px;font-size:12px;color:#C7C7CC}
+.anim-bounce{animation:bounce 0.6s ease}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+</style>
+</head>
+<body>
+
+<div class="logo">M</div>
+<h1>My Idol 内测邀请码</h1>
+<p class="desc">抽取你的专属邀请码，提前注册账号<br>6月17日 12:00 正式上线</p>
+
+<div class="card">
+<div id="drawArea">
+<button class="btn btn-primary" onclick="drawCode()">抽取邀请码</button>
+</div>
+<div class="result-box" id="resultBox">
+<p style="font-size:14px;color:#8E8E93;">你的内测邀请码</p>
+<div class="code-display" id="codeDisplay"></div>
+<a class="link-btn" href="https://linyangjie1015.github.io/my-idol/v1.6.html" target="_blank">前往注册</a>
+<div class="steps">
+<p>输入邀请码进入游戏</p>
+<p>注册邮箱账号</p>
+<p>去邮箱点击确认链接</p>
+<p>6月17日上线直接登录游玩</p>
+</div>
+</div>
+<p class="tip">邀请码仅限内测期间使用，请妥善保存</p>
+</div>
+
+<div class="footer">My Idol Team / V1.6 即将上线</div>
+
+<script>
+var CODES=['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
+function drawCode(){
+var code=CODES[Math.floor(Math.random()*CODES.length)];
+document.getElementById('drawArea').style.display='none';
+var box=document.getElementById('resultBox');
+box.style.display='block';
+document.getElementById('codeDisplay').textContent=code;
+box.classList.add('anim-bounce');
+}
+</script>
+</body>
+</html>
