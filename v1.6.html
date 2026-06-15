@@ -1236,5 +1236,6 @@
 </div>
 
 <script src="v1.6.js"></script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(reg){console.log("SW registered:",reg.scope)}).catch(function(err){console.log("SW failed:",err)})}</script>
 </body>
 </html>
