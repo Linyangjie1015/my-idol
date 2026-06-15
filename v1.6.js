@@ -6394,7 +6394,8 @@ function _doSwitchSlot(slot) {
 
 
 function render设置Page(container) {
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">设置</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" onclick="saveGame(current存档)" style="cursor: pointer;">\n                    <div style="font-weight: 600;">保存游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">保存到存档 ' + (current存档 + 1) + '</div>\n                </div>\n                <div class="card" onclick="_switchSaveSlot()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">切换存档</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换到存档2或3，当前进度不会丢失</div>\n                </div>\n                \n\n                <div class="card" onclick="_resetSave()">\n                    <div style="font-weight: 600; color: var(--color-danger);">重新开始</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">删除当前存档，重新创建角色</div>\n                </div>\n                <div class="card" onclick="_doLogout()">\n                    <div style="font-weight: 600; color: var(--color-danger);">退出登录</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换账号或注册新账号</div>\n                </div>\n                <div class="card" onclick="confirmExit()">\n                    <div style="font-weight: 600;">退出游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">返回标题画面</div>\n                \n            </div>\n        </div>\n    ';
+    var cloudStatus = _isCloudLoggedIn() ? '<span style="color:var(--color-success);">已连接</span>' : '<span style="color:var(--color-text-light);">未连接</span>';
+    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div>\n                <div class="page-title">设置</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" onclick="saveGame(current存档)" style="cursor: pointer;">\n                    <div style="font-weight: 600;">保存游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">保存到存档 ' + (current存档 + 1) + '</div>\n                </div>\n                <div class="card" onclick="_switchSaveSlot()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">切换存档</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换到存档2或3，当前进度不会丢失</div>\n                </div>\n                <div class="card" onclick="_doCloudSyncDown()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">云端同步</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">从云端拉取最新存档 ' + cloudStatus + '</div>\n                </div>\n                <div class="card" onclick="_resetSave()">\n                    <div style="font-weight: 600; color: var(--color-danger);">重新开始</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">删除当前存档，重新创建角色</div>\n                </div>\n                <div class="card" onclick="_doLogout()">\n                    <div style="font-weight: 600; color: var(--color-danger);">退出登录</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换账号或注册新账号</div>\n                </div>\n                <div class="card" onclick="confirmExit()">\n                    <div style="font-weight: 600;">退出游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">返回标题画面</div>\n                </div>\n            </div>\n        </div>\n    ';
 }
 
 var _exitCooldown = false;
@@ -6604,6 +6605,7 @@ function saveGame(slot) {
     for (var si = 0; si < keys.length; si++) {
         if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
     }
+    saveData._saveTime = Date.now();
     
     try {
         var jsonStr = JSON.stringify(saveData);
@@ -6614,6 +6616,11 @@ function saveGame(slot) {
         var key = _getSaveKey(slot);
         localStorage.setItem(key, jsonStr);
         showToast('已保存 - 存档 ' + (slot + 1));
+        _doCloudSave(slot, saveData, function(ok) {
+            if (ok) {
+                showToast('云端同步完成');
+            }
+        });
     } catch (e) {
         showModal('保存失败', '无法保存游戏。');
     }
@@ -10549,6 +10556,268 @@ function sendKakaoMessage() {
     if (area) area.scrollTop = area.scrollHeight;
 }
 
+// ==================== CLOUD ACCOUNT SYSTEM ====================
+var CLOUD_API = 'https://my-idol-api.vercel.app';
+var _cloudToken = localStorage.getItem('myIdolCloudToken') || '';
+var _cloudEmail = localStorage.getItem('myIdolCloudEmail') || '';
+
+function _isCloudLoggedIn() {
+    return _cloudToken && _cloudEmail;
+}
+
+function _clearCloudAuth() {
+    _cloudToken = '';
+    _cloudEmail = '';
+    localStorage.removeItem('myIdolCloudToken');
+    localStorage.removeItem('myIdolCloudEmail');
+}
+
+function _showCloudRegisterOverlay() {
+    var overlay = document.createElement('div');
+    overlay.className = 'account-overlay';
+    overlay.id = 'accountOverlay';
+    overlay.innerHTML = '<div class="account-form-card">'
+        + '<h3>邮箱注册</h3>'
+        + '<input class="account-input" id="regEmail" type="email" placeholder="邮箱地址" maxlength="50" />'
+        + '<input class="account-input" id="regNickname" placeholder="昵称" maxlength="12" />'
+        + '<input class="account-input" id="regPassword" type="password" placeholder="密码(至少6位)" maxlength="30" />'
+        + '<input class="account-input" id="regPassword2" type="password" placeholder="确认密码" maxlength="30" />'
+        + '<div id="cloudRegError" style="font-size:12px;color:#FF3B30;text-align:center;margin-bottom:8px;display:none;"></div>'
+        + '<button class="btn btn-primary" id="cloudRegBtn" onclick="_doCloudRegister()">注册</button>'
+        + '<button class="btn btn-secondary" onclick="_closeAccountOverlay()" style="margin-top:8px;">取消</button>'
+        + '</div>';
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (phoneFrame) phoneFrame.appendChild(overlay);
+}
+
+function _showCloudLoginOverlay() {
+    var overlay = document.createElement('div');
+    overlay.className = 'account-overlay';
+    overlay.id = 'accountOverlay';
+    overlay.innerHTML = '<div class="account-form-card">'
+        + '<h3>邮箱登录</h3>'
+        + '<input class="account-input" id="loginEmail" type="email" placeholder="邮箱地址" maxlength="50" />'
+        + '<input class="account-input" id="loginPassword" type="password" placeholder="密码" maxlength="30" />'
+        + '<div id="cloudLoginError" style="font-size:12px;color:#FF3B30;text-align:center;margin-bottom:8px;display:none;"></div>'
+        + '<button class="btn btn-primary" id="cloudLoginBtn" onclick="_doCloudLogin()">登录</button>'
+        + '<button class="btn btn-secondary" onclick="_closeAccountOverlay()" style="margin-top:8px;">取消</button>'
+        + '</div>';
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (phoneFrame) phoneFrame.appendChild(overlay);
+}
+
+function _closeAccountOverlay() {
+    var overlay = document.getElementById('accountOverlay');
+    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+}
+
+function _doCloudRegister() {
+    var emailEl = document.getElementById('regEmail');
+    var nickEl = document.getElementById('regNickname');
+    var pwdEl = document.getElementById('regPassword');
+    var pwd2El = document.getElementById('regPassword2');
+    var errEl = document.getElementById('cloudRegError');
+    var btnEl = document.getElementById('cloudRegBtn');
+    var email = emailEl ? emailEl.value.trim() : '';
+    var nickname = nickEl ? nickEl.value.trim() : '';
+    var password = pwdEl ? pwdEl.value : '';
+    var password2 = pwd2El ? pwd2El.value : '';
+    if (errEl) { errEl.style.display = 'none'; }
+    if (!email || email.indexOf('@') === -1) {
+        if (errEl) { errEl.textContent = '请输入有效的邮箱地址'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (!nickname) {
+        if (errEl) { errEl.textContent = '请输入昵称'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (password.length < 6) {
+        if (errEl) { errEl.textContent = '密码至少6位'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (password !== password2) {
+        if (errEl) { errEl.textContent = '两次密码不一致'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (btnEl) btnEl.textContent = '注册中...';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', CLOUD_API + '/api/register', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && res.token) {
+                    _cloudToken = res.token;
+                    _cloudEmail = email;
+                    localStorage.setItem('myIdolCloudToken', res.token);
+                    localStorage.setItem('myIdolCloudEmail', email);
+                    localStorage.setItem('myIdolCurrentUser', nickname);
+                    localStorage.setItem('myIdolLastUser', nickname);
+                    if (res.user && res.user.id) {
+                        localStorage.setItem('myIdolCloudUserId', res.user.id);
+                    }
+                    _closeAccountOverlay();
+                    showToast('注册成功');
+                    currentPage = 'welcome';
+                    render();
+                    _checkAdmin(nickname);
+                } else {
+                    var msg = (res && res.error) ? res.error : '注册失败，请重试';
+                    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+                    if (btnEl) btnEl.textContent = '注册';
+                }
+            } catch(e) {
+                if (errEl) { errEl.textContent = '网络错误，请重试'; errEl.style.display = 'block'; }
+                if (btnEl) btnEl.textContent = '注册';
+            }
+        }
+    };
+    xhr.send(JSON.stringify({ email: email, password: password }));
+}
+
+function _doCloudLogin() {
+    var emailEl = document.getElementById('loginEmail');
+    var pwdEl = document.getElementById('loginPassword');
+    var errEl = document.getElementById('cloudLoginError');
+    var btnEl = document.getElementById('cloudLoginBtn');
+    var email = emailEl ? emailEl.value.trim() : '';
+    var password = pwdEl ? pwdEl.value : '';
+    if (errEl) { errEl.style.display = 'none'; }
+    if (!email || email.indexOf('@') === -1) {
+        if (errEl) { errEl.textContent = '请输入有效的邮箱地址'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (!password) {
+        if (errEl) { errEl.textContent = '请输入密码'; errEl.style.display = 'block'; }
+        return;
+    }
+    if (btnEl) btnEl.textContent = '登录中...';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', CLOUD_API + '/api/login', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && res.token) {
+                    _cloudToken = res.token;
+                    _cloudEmail = email;
+                    localStorage.setItem('myIdolCloudToken', res.token);
+                    localStorage.setItem('myIdolCloudEmail', email);
+                    var nickname = email.split('@')[0];
+                    if (res.user) {
+                        if (res.user.nickname) nickname = res.user.nickname;
+                        if (res.user.email) localStorage.setItem('myIdolCloudEmail', res.user.email);
+                        if (res.user.id) localStorage.setItem('myIdolCloudUserId', res.user.id);
+                    }
+                    localStorage.setItem('myIdolCurrentUser', nickname);
+                    localStorage.setItem('myIdolLastUser', nickname);
+                    _closeAccountOverlay();
+                    showToast('登录成功');
+                    currentPage = 'welcome';
+                    render();
+                    _doCloudSyncDown();
+                } else {
+                    var msg = (res && res.error) ? res.error : '登录失败，请重试';
+                    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+                    if (btnEl) btnEl.textContent = '登录';
+                }
+            } catch(e) {
+                if (errEl) { errEl.textContent = '网络错误，请重试'; errEl.style.display = 'block'; }
+                if (btnEl) btnEl.textContent = '登录';
+            }
+        }
+    };
+    xhr.send(JSON.stringify({ email: email, password: password }));
+}
+
+function _doCloudSave(slot, saveData, callback) {
+    if (!_cloudToken) { if (callback) callback(false); return; }
+    var s = (typeof slot === 'number') ? slot : parseInt(slot, 10);
+    if (isNaN(s)) s = current存档;
+    var saveName = (saveData && saveData.player && saveData.player.name) ? saveData.player.name : ('存档' + (s + 1));
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', CLOUD_API + '/api/save', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('Authorization', 'Bearer ' + _cloudToken);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                if (callback) callback(true);
+            } else {
+                if (callback) callback(false);
+            }
+        }
+    };
+    xhr.send(JSON.stringify({ slot: s, save_name: saveName, save_data: saveData }));
+}
+
+function _doCloudLoad(slot, callback) {
+    if (!_cloudToken) { if (callback) callback(null); return; }
+    var s = (typeof slot === 'number') ? slot : parseInt(slot, 10);
+    if (isNaN(s)) s = 0;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', CLOUD_API + '/api/save?slot=' + s, true);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + _cloudToken);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && res.save_data) {
+                    if (callback) callback(res.save_data);
+                } else {
+                    if (callback) callback(null);
+                }
+            } catch(e) {
+                if (callback) callback(null);
+            }
+        }
+    };
+    xhr.send();
+}
+
+function _doCloudSyncDown() {
+    if (!_cloudToken) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', CLOUD_API + '/api/saves-list', true);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + _cloudToken);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && res.saves) {
+                    for (var i = 0; i < res.saves.length; i++) {
+                        var cloudSave = res.saves[i];
+                        if (cloudSave && cloudSave.slot !== undefined && cloudSave.save_data) {
+                            var localKey = _getSaveKey(cloudSave.slot);
+                            var localData = localStorage.getItem(localKey);
+                            var shouldSync = false;
+                            if (!localData) {
+                                shouldSync = true;
+                            } else {
+                                try {
+                                    var localParsed = JSON.parse(localData);
+                                    var localTime = localParsed._saveTime || 0;
+                                    var cloudTime = cloudSave.save_data._saveTime || cloudSave.updated_at || 0;
+                                    if (cloudTime > localTime) shouldSync = true;
+                                } catch(e) {
+                                    shouldSync = true;
+                                }
+                            }
+                            if (shouldSync) {
+                                localStorage.setItem(localKey, JSON.stringify(cloudSave.save_data));
+                            }
+                        }
+                    }
+                    if (currentPage === 'welcome') render();
+                }
+            } catch(e) {}
+        }
+    };
+    xhr.send();
+}
+
 // ==================== ACCOUNT SYSTEM ====================
 function _getSaveKey(slot) {
     var user = localStorage.getItem('myIdolCurrentUser');
@@ -10620,90 +10889,17 @@ function renderSaveSlotPage(container) {
     container.innerHTML = html;
 }
 
-function _showRegisterOverlay() {
-    var overlay = document.createElement('div');
-    overlay.className = 'account-overlay';
-    overlay.id = 'accountOverlay';
-    overlay.innerHTML = '<div class="account-form-card">'
-        + '<h3>注册账号</h3>'
-        + '<input class="account-input" id="regNickname" placeholder="昵称" maxlength="12" />'
-        + '<input class="account-input" id="regPassword" type="password" placeholder="密码(至少4位)" maxlength="20" />'
-        + '<input class="account-input" id="regPassword2" type="password" placeholder="确认密码" maxlength="20" />'
-        + '<button class="btn btn-primary" onclick="_doRegister()">注册</button>'
-        + '<button class="btn btn-secondary" onclick="_closeAccountOverlay()" style="margin-top:8px;">取消</button>'
-        + '</div>';
-    var phoneFrame = document.querySelector('.phone-frame');
-    if (phoneFrame) phoneFrame.appendChild(overlay);
-}
-
-function _showLoginOverlay() {
-    var overlay = document.createElement('div');
-    overlay.className = 'account-overlay';
-    overlay.id = 'accountOverlay';
-    overlay.innerHTML = '<div class="account-form-card">'
-        + '<h3>登录账号</h3>'
-        + '<input class="account-input" id="loginNickname" placeholder="昵称" maxlength="12" />'
-        + '<input class="account-input" id="loginPassword" type="password" placeholder="密码" maxlength="20" />'
-        + '<button class="btn btn-primary" onclick="_doLogin()">登录</button>'
-        + '<button class="btn btn-secondary" onclick="_closeAccountOverlay()" style="margin-top:8px;">取消</button>'
-        + '</div>';
-    var phoneFrame = document.querySelector('.phone-frame');
-    if (phoneFrame) phoneFrame.appendChild(overlay);
-}
-
-function _closeAccountOverlay() {
-    var overlay = document.getElementById('accountOverlay');
-    if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-}
-
-function _doRegister() {
-    var nick = document.getElementById('regNickname');
-    var pwd = document.getElementById('regPassword');
-    var pwd2 = document.getElementById('regPassword2');
-    var nickname = nick ? nick.value.trim() : '';
-    var password = pwd ? pwd.value : '';
-    var password2 = pwd2 ? pwd2.value : '';
-    if (!nickname) { showToast('请输入昵称'); return; }
-    if (password.length < 4) { showToast('密码至少4位'); return; }
-    if (password !== password2) { showToast('两次密码不一致'); return; }
-    var existing = localStorage.getItem('myIdolAccount_' + nickname);
-    if (existing) { showToast('该昵称已注册'); return; }
-    localStorage.setItem('myIdolAccount_' + nickname, JSON.stringify({ nickname: nickname, password: password, created: new Date().toISOString() }));
-    localStorage.setItem('myIdolCurrentUser', nickname);
-    localStorage.setItem('myIdolLastUser', nickname);
-    _closeAccountOverlay();
-    showToast('注册成功');
-    currentPage = 'welcome';
-    render();
-    _checkAdmin(nickname);
-}
-
-function _doLogin() {
-    var nick = document.getElementById('loginNickname');
-    var pwd = document.getElementById('loginPassword');
-    var nickname = nick ? nick.value.trim() : '';
-    var password = pwd ? pwd.value : '';
-    if (!nickname || !password) { showToast('请输入昵称和密码'); return; }
-    var data = localStorage.getItem('myIdolAccount_' + nickname);
-    if (!data) { showToast('账号不存在'); return; }
-    var account = JSON.parse(data);
-    if (account.password !== password) { showToast('密码错误'); return; }
-    localStorage.setItem('myIdolCurrentUser', nickname);
-    localStorage.setItem('myIdolLastUser', nickname);
-    _closeAccountOverlay();
-    showToast('登录成功');
-    currentPage = 'welcome';
-    render();
-}
+/* Legacy local account functions removed - now using cloud account system */
 
 function _doLogout() {
-    showModal('退出登录', '确定要退出当前账号吗？存档会自动保存。', [
+    showModal('退出登录', '确定要退出当前账号吗？存档会自动保存到云端。', [
         { text: '取消', action: closeModal },
         { text: '退出', action: function() {
             closeModal();
             saveGame(current存档);
             if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
             localStorage.removeItem('myIdolCurrentUser');
+            _clearCloudAuth();
             Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             gameState.player = {
                 name: '', gender: '', birthDate: '', age: 0,
@@ -10723,15 +10919,21 @@ function _doLogout() {
 
 function renderLoggedInPage(container) {
     var currentUser = localStorage.getItem('myIdolCurrentUser');
+    var cloudEmail = localStorage.getItem('myIdolCloudEmail') || '';
     var saves = _loadAllSavesForUser();
     var hasAnySave = false;
     for (var i = 0; i < 3; i++) {
         if (saves[i] && saves[i].player && saves[i].player.name) { hasAnySave = true; break; }
     }
+    var displayInfo = currentUser;
+    if (cloudEmail) displayInfo = currentUser + ' (' + cloudEmail + ')';
     var html = '<div class="welcome-container">'
         + '<div class="welcome-logo">My Idol</div>'
-        + '<div class="welcome-subtitle">' + currentUser + '</div>'
-        + '<div style="width:100%;max-width:280px;margin-top:32px;">';
+        + '<div class="welcome-subtitle">' + displayInfo + '</div>';
+    if (_isCloudLoggedIn()) {
+        html += '<div style="font-size:11px;color:var(--color-success);text-align:center;margin-top:4px;">云端已连接</div>';
+    }
+    html += '<div style="width:100%;max-width:280px;margin-top:32px;">';
     if (hasAnySave) {
         html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-bottom:12px;" onclick="renderSaveSlotPage(document.getElementById(\'app\'))">继续游戏</button>';
     }
@@ -10828,36 +11030,38 @@ function _startNewSlot(slot) {
 
 function renderWelcomeAccountPage(container) {
     var lastUser = localStorage.getItem('myIdolLastUser');
-    var hasLastSave = false;
-    if (lastUser) {
-        var saveKey = 'myIdolSave_' + lastUser;
-        if (localStorage.getItem(saveKey)) hasLastSave = true;
-    }
+    var lastEmail = localStorage.getItem('myIdolCloudEmail') || '';
+    var hasCloudToken = !!localStorage.getItem('myIdolCloudToken');
     var html = '<div class="welcome-account">'
         + '<div class="welcome-account-title">My Idol</div>'
         + '<div class="welcome-account-sub">韩娱爱豆模拟器</div>';
-    if (hasLastSave) {
-        html += '<div class="card" style="margin:16px 0;padding:16px;text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;cursor:pointer;" onclick="_quickLogin()">'
+    if (hasCloudToken && lastEmail) {
+        html += '<div class="card" style="margin:16px 0;padding:16px;text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;cursor:pointer;" onclick="_quickCloudLogin()">'
             + '<div style="font-size:12px;opacity:0.8;">上次登录</div>'
-            + '<div style="font-size:18px;font-weight:700;margin:4px 0;">' + lastUser + '</div>'
+            + '<div style="font-size:16px;font-weight:700;margin:4px 0;word-break:break-all;">' + lastEmail + '</div>'
             + '<div style="font-size:12px;opacity:0.7;">点击继续游戏</div>'
             + '</div>';
     }
     html += '<div class="account-btn-group">'
-        + '<button class="btn btn-primary btn-lg" onclick="_showRegisterOverlay()">注册新账号</button>'
-        + '<button class="btn btn-outline btn-lg" onclick="_showLoginOverlay()">登录已有账号</button>'
+        + '<button class="btn btn-primary btn-lg" onclick="_showCloudRegisterOverlay()">邮箱注册</button>'
+        + '<button class="btn btn-outline btn-lg" onclick="_showCloudLoginOverlay()">邮箱登录</button>'
         + '</div>'
-        + '<div class="account-footer">每个账号3个存档，注册新号即可开新局</div>'
+        + '<div class="account-footer">注册后存档自动云端同步，换设备不丢进度</div>'
         + '</div>';
     container.innerHTML = html;
 }
 
-function _quickLogin() {
-    var lastUser = localStorage.getItem('myIdolLastUser');
-    if (!lastUser) return;
-    localStorage.setItem('myIdolCurrentUser', lastUser);
+function _quickCloudLogin() {
+    var savedToken = localStorage.getItem('myIdolCloudToken');
+    var savedEmail = localStorage.getItem('myIdolCloudEmail');
+    if (!savedToken || !savedEmail) return;
+    _cloudToken = savedToken;
+    _cloudEmail = savedEmail;
+    var nickname = localStorage.getItem('myIdolLastUser') || savedEmail.split('@')[0];
+    localStorage.setItem('myIdolCurrentUser', nickname);
     currentPage = 'welcome';
     render();
+    _doCloudSyncDown();
 }
 
 // ==================== AUTO SAVE ====================
@@ -10871,7 +11075,9 @@ function _doAutoSave(silent) {
             for (var i = 0; i < keys.length; i++) {
                 if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
             }
+            saveData._saveTime = Date.now();
             localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
+            _doCloudSave(current存档, saveData);
             if (!silent) showToast('已自动存档');
         } catch(e) {}
     }
