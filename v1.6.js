@@ -5828,9 +5828,11 @@ function showModal(title, message, buttons) {
     }
     
     var btnHtml = '';
-    for (var bi = 0; bi < buttons.length; bi++) {
-        _modalActions.push(buttons[bi].action);
-        btnHtml += '<button class="btn ' + (buttons[bi].text === '取消' ? 'btn-secondary' : 'btn-primary') + '" onclick="_modalActions[' + bi + ']()" style="margin: 0 4px;">' + buttons[bi].text + '</button>';
+    if (buttons.length > 0) {
+        for (var bi = 0; bi < buttons.length; bi++) {
+            _modalActions.push(buttons[bi].action);
+            btnHtml += '<button class="btn ' + (buttons[bi].text === '取消' ? 'btn-secondary' : 'btn-primary') + '" onclick="_modalActions[' + bi + ']()" style="margin: 0 4px;">' + buttons[bi].text + '</button>';
+        }
     }
     document.getElementById('modalButtons').innerHTML = btnHtml;
     
@@ -10384,20 +10386,14 @@ function showInterviewQuestion() {
     var prog = (st.current + 1) + ' / ' + st.questions.length;
     var optsHtml = '';
     for (var oi = 0; oi < q.opts.length; oi++) {
-        optsHtml += '<div onclick="_answerInterview(' + oi + ')" style="padding:12px 16px;margin:6px 0;background:var(--color-card);border-radius:12px;cursor:pointer;font-size:14px;transition:background 0.2s;" onmouseover="this.style.background=\'var(--color-primary-light)\'" onmouseout="this.style.background=\'var(--color-card)\'">'
+        optsHtml += '<div onclick="_answerInterview(' + oi + ')" style="padding:10px 14px;margin:5px 0;background:var(--color-bg);border:1px solid var(--color-border);border-radius:10px;cursor:pointer;font-size:13px;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;">'
             + String.fromCharCode(65 + oi) + '. ' + q.opts[oi] + '</div>';
     }
-    var overlay = document.getElementById('modal');
-    if (!overlay) return;
-    overlay.style.display = 'flex';
-    overlay.innerHTML = '<div style="background:var(--color-bg);border-radius:20px;padding:24px;margin:20px;max-width:340px;width:100%;max-height:80vh;overflow-y:auto;">'
-        + '<div style="text-align:center;margin-bottom:16px;">'
-        + '<div style="font-size:16px;font-weight:700;color:var(--color-text);">工作面试</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + st.job.name + ' - 第' + prog + '题</div>'
-        + '</div>'
-        + '<div style="font-size:15px;color:var(--color-text);margin-bottom:16px;line-height:1.5;">' + q.q + '</div>'
-        + optsHtml
-        + '</div>';
+    showModal('工作面试 - ' + st.job.name,
+        '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:10px;text-align:center;">第 ' + prog + ' 题</div>'
+        + '<div style="font-size:14px;color:var(--color-text);margin-bottom:14px;line-height:1.5;text-align:left;">' + q.q + '</div>'
+        + optsHtml,
+        []);
 }
 
 function _answerInterview(idx) {
@@ -10410,8 +10406,7 @@ function _answerInterview(idx) {
         var total = st.questions.length;
         var needed = Math.ceil(total / 2);
         if (st.correct >= needed) {
-            var overlay = document.getElementById('modal');
-            if (overlay) overlay.style.display = 'none';
+            closeModal();
             showToast('面试通过！准备开始工作');
             _completeEarnJob(st.job);
         } else {
