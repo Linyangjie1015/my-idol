@@ -7102,6 +7102,7 @@ function renderMVShootPage(container) {
             + '<button class="btn btn-primary btn-lg" onclick="executeMVShoot()">开始拍摄</button></div>';
     } else if (ms.step === 2) {
         var result = ms.result;
+        if (!result) { ms.step = 0; render(); return; }
         var qualityColor = result.quality >= 80 ? '#4CD964' : result.quality >= 60 ? '#FF9500' : '#FF3B30';
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + qualityColor + ',' + qualityColor + ');color:white;padding:24px;">'
             + '<div style="font-size:32px;font-weight:700;">' + result.quality + '</div>'
@@ -7862,6 +7863,7 @@ function renderMVProductionPage(container) {
         }
     } else if (ms.step === 5) {
         var result = ms.result;
+        if (!result) { gameState.mvProd = null; render(); return; }
         var qColor = result.quality >= 80 ? '#4CD964' : result.quality >= 60 ? '#FF9500' : '#FF3B30';
         var grade = result.quality >= 90 ? 'S' : result.quality >= 75 ? 'A' : result.quality >= 55 ? 'B' : 'C';
         var gradeColor = grade === 'S' ? '#FFD700' : grade === 'A' ? '#4CD964' : grade === 'B' ? '#5BB8E8' : '#999';
