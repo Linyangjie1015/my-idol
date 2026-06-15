@@ -3444,6 +3444,9 @@ function render会议Page(container) {
             + '</div>'
             + '<div class="page-content">'
             + meetingsHtml
+            + '<div style="margin-top:12px;">'
+            + '<button class="btn btn-primary" style="width:100%;" onclick="show会议Minutes()">会议纲要</button>'
+            + '</div>'
             + getAppLinkHtml('meeting') + '</div></div>';
     } catch(e) {
         console.error('render会议Page error:', e);
@@ -3475,6 +3478,29 @@ function readMeeting(index) {
     } catch(e) {
         console.error('readMeeting error:', e);
         goToPage('meeting');
+    }
+}
+
+function show会议Minutes() {
+    try {
+        if (!gameState.meetingMinutes || gameState.meetingMinutes.length === 0) {
+            showModal('会议纲要', '暂无会议记录\n完成会议后会自动记录');
+            return;
+        }
+        var html = '';
+        for (var i = gameState.meetingMinutes.length - 1; i >= 0; i--) {
+            var m = gameState.meetingMinutes[i];
+            html += '[' + m.type + '] ' + m.date + ' ' + m.time + '\n';
+            for (var j = 0; j < m.decisions.length; j++) {
+                html += '  - ' + m.decisions[j] + '\n';
+            }
+            html += '  参会: ' + m.attendees + '\n';
+            if (i > 0) html += '\n';
+        }
+        showModal('会议纲要 (' + gameState.meetingMinutes.length + '条)', html.trim());
+    } catch(e) {
+        console.error('show会议Minutes error:', e);
+        showModal('会议纲要', '加载出错');
     }
 }
 
@@ -5576,6 +5602,21 @@ function choose会议Option(optionIndex) {
         if (!ds) return;
         
         var opt = ds.options[optionIndex];
+        
+        // Track all chosen option texts for meeting minutes
+        if (!ds.chosenOptions) ds.chosenOptions = [];
+        ds.chosenOptions.push(opt.text);
+        
+        // Track concept choice for concept/album meetings (round 1)
+        if (ds.round === 1 && (ds.title.indexOf('专辑') > -1 || ds.title.indexOf('概念') > -1)) {
+            var conceptChoices = [
+                { name: 'Fierce', style: '凶猛', stat: 'dance', mvQuality: 1.2, desc: '激烈强势概念，舞台炸裂' },
+                { name: 'Innocent', style: '清纯', stat: 'vocal', mvQuality: 1.0, desc: '清新甜美的概念，充满青春气息' },
+                { name: 'Fantasy', style: '奇幻', stat: 'acting', mvQuality: 1.3, desc: '奇幻冒险概念，充满想象力' }
+            ];
+            ds.chosenConcept = conceptChoices[optionIndex] || null;
+        }
+        
         if (opt.effect) {
             if (opt.effect.credit) gameState.credit = Math.max(0, Math.min(200, gameState.credit + opt.effect.credit));
             if (opt.effect.fans) gameState.fans += opt.effect.fans;
@@ -5587,7 +5628,37 @@ function choose会议Option(optionIndex) {
         }
         
         if (ds.round >= ds.totalRounds) {
+            // Sync concept decision to comeback & MV system
+            if (ds.chosenConcept) {
+                syncFromApp('meeting', { action: 'concept_decided', concept: ds.chosenConcept });
+            }
+            
+            // Record meeting minutes
+            if (!gameState.meetingMinutes) gameState.meetingMinutes = [];
+            var meetingType = '团队会议';
+            if (ds.title.indexOf('专辑') > -1 || ds.title.indexOf('概念') > -1) meetingType = '概念会议';
+            else if (ds.title.indexOf('粉丝') > -1 || ds.title.indexOf('见面') > -1) meetingType = '回归会议';
+            else if (ds.title.indexOf('练习') > -1 || ds.title.indexOf('训练') > -1 || ds.title.indexOf('集合') > -1) meetingType = '团队会议';
+            else if (ds.title.indexOf('健康') > -1 || ds.title.indexOf('检查') > -1) meetingType = '健康会议';
+            else if (ds.title.indexOf('考核') > -1 || ds.title.indexOf('评估') > -1) meetingType = '考核会议';
+            
+            var decisions = [];
+            if (ds.chosenConcept) decisions.push('确定概念: ' + ds.chosenConcept.name + '(' + ds.chosenConcept.style + ')');
+            for (var di = 0; di < ds.chosenOptions.length; di++) {
+                decisions.push('第' + (di + 1) + '轮: ' + ds.chosenOptions[di]);
+            }
+            
+            gameState.meetingMinutes.push({
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString(),
+                type: meetingType,
+                decisions: decisions,
+                attendees: '全员'
+            });
+            triggerSilentSave();
+            
             var summary = '会议圆满结束！\n';
+            if (ds.chosenConcept) summary += '概念已同步至回归企划: ' + ds.chosenConcept.name + '\n';
             if (opt.effect) {
                 if (opt.effect.credit) summary += '信誉 +' + opt.effect.credit + '\n';
                 if (opt.effect.fans) summary += '粉丝 +' + opt.effect.fans + '\n';
