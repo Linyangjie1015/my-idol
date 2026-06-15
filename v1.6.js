@@ -10643,22 +10643,38 @@ function _doCloudRegister() {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', CLOUD_API + '/api/register', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 15000;
+    xhr.ontimeout = function() {
+        if (errEl) { errEl.textContent = '请求超时，请检查网络后重试'; errEl.style.display = 'block'; }
+        if (btnEl) btnEl.textContent = '注册';
+    };
+    xhr.onerror = function() {
+        if (errEl) { errEl.textContent = '网络错误，请检查网络连接'; errEl.style.display = 'block'; }
+        if (btnEl) btnEl.textContent = '注册';
+    };
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             try {
                 var res = JSON.parse(xhr.responseText);
-                if (xhr.status === 200 && res.token) {
-                    _cloudToken = res.token;
-                    _cloudEmail = email;
-                    localStorage.setItem('myIdolCloudToken', res.token);
-                    localStorage.setItem('myIdolCloudEmail', email);
+                if (xhr.status === 200) {
+                    var token = res.token || (res.session && res.session.access_token) || null;
+                    if (token) {
+                        _cloudToken = token;
+                        _cloudEmail = email;
+                        localStorage.setItem('myIdolCloudToken', token);
+                        localStorage.setItem('myIdolCloudEmail', email);
+                    }
                     localStorage.setItem('myIdolCurrentUser', nickname);
                     localStorage.setItem('myIdolLastUser', nickname);
                     if (res.user && res.user.id) {
                         localStorage.setItem('myIdolCloudUserId', res.user.id);
                     }
                     _closeAccountOverlay();
-                    showToast('注册成功');
+                    if (token) {
+                        showToast('注册成功，云端已连接');
+                    } else {
+                        showToast('注册成功，请查收邮箱验证后登录');
+                    }
                     currentPage = 'welcome';
                     render();
                     _checkAdmin(nickname);
@@ -10673,7 +10689,7 @@ function _doCloudRegister() {
             }
         }
     };
-    xhr.send(JSON.stringify({ email: email, password: password }));
+    xhr.send(JSON.stringify({ email: email, password: password, nickname: nickname }));
 }
 
 function _doCloudLogin() {
@@ -10696,6 +10712,15 @@ function _doCloudLogin() {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', CLOUD_API + '/api/login', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 15000;
+    xhr.ontimeout = function() {
+        if (errEl) { errEl.textContent = '请求超时，请检查网络后重试'; errEl.style.display = 'block'; }
+        if (btnEl) btnEl.textContent = '登录';
+    };
+    xhr.onerror = function() {
+        if (errEl) { errEl.textContent = '网络错误，请检查网络连接'; errEl.style.display = 'block'; }
+        if (btnEl) btnEl.textContent = '登录';
+    };
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             try {
@@ -10741,6 +10766,9 @@ function _doCloudSave(slot, saveData, callback) {
     xhr.open('POST', CLOUD_API + '/api/save', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.setRequestHeader('Authorization', 'Bearer ' + _cloudToken);
+    xhr.timeout = 10000;
+    xhr.ontimeout = function() { if (callback) callback(false); };
+    xhr.onerror = function() { if (callback) callback(false); };
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             if (xhr.status === 200) {
@@ -10760,6 +10788,9 @@ function _doCloudLoad(slot, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', CLOUD_API + '/api/save?slot=' + s, true);
     xhr.setRequestHeader('Authorization', 'Bearer ' + _cloudToken);
+    xhr.timeout = 10000;
+    xhr.ontimeout = function() { if (callback) callback(null); };
+    xhr.onerror = function() { if (callback) callback(null); };
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             try {
@@ -10778,15 +10809,20 @@ function _doCloudLoad(slot, callback) {
 }
 
 function _doCloudSyncDown() {
-    if (!_cloudToken) return;
+    if (!_cloudToken) { showToast('未连接云端'); return; }
+    showToast('正在同步...');
     var xhr = new XMLHttpRequest();
     xhr.open('GET', CLOUD_API + '/api/saves-list', true);
     xhr.setRequestHeader('Authorization', 'Bearer ' + _cloudToken);
+    xhr.timeout = 10000;
+    xhr.ontimeout = function() { showToast('云端同步超时'); };
+    xhr.onerror = function() { showToast('云端同步失败'); };
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
             try {
                 var res = JSON.parse(xhr.responseText);
                 if (xhr.status === 200 && res.saves) {
+                    var synced = 0;
                     for (var i = 0; i < res.saves.length; i++) {
                         var cloudSave = res.saves[i];
                         if (cloudSave && cloudSave.slot !== undefined && cloudSave.save_data) {
@@ -10807,12 +10843,16 @@ function _doCloudSyncDown() {
                             }
                             if (shouldSync) {
                                 localStorage.setItem(localKey, JSON.stringify(cloudSave.save_data));
+                                synced++;
                             }
                         }
                     }
+                    showToast('云端同步完成，更新' + synced + '个存档');
                     if (currentPage === 'welcome') render();
+                } else {
+                    showToast('云端同步失败');
                 }
-            } catch(e) {}
+            } catch(e) { showToast('云端同步失败'); }
         }
     };
     xhr.send();
