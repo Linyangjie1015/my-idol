@@ -57,6 +57,17 @@ h1{font-size:22px;color:#2D2D2D;font-weight:700;margin-bottom:6px}
 <div class="err" id="errMsg"></div>
 </div>
 
+<div style="text-align:center;margin:16px 0;width:100%;max-width:380px">
+  <a href="javascript:void(0)" onclick="toggleVIP()" style="font-size:13px;color:#8E8E93;text-decoration:underline">有专属邀请码？点这里</a>
+</div>
+
+<div class="card" id="vipCard" style="display:none">
+  <input class="input" id="vipCodeInput" type="text" placeholder="请输入您的专属邀请码" maxlength="20" style="text-transform:uppercase" />
+  <input class="input" id="vipEmailInput" type="email" placeholder="绑定邮箱" maxlength="50" />
+  <button class="btn btn-primary" id="vipBtn" onclick="startVIP()">立即验证</button>
+  <div class="err" id="vipErrMsg"></div>
+</div>
+
 <div class="card" id="drawAnim" style="display:none">
 <div class="draw-anim">
 <div class="spinner"></div>
@@ -106,8 +117,8 @@ h1{font-size:22px;color:#2D2D2D;font-weight:700;margin-bottom:6px}
 <div class="footer">My Idol Team</div>
 
 <script>
-var API_URL = 'https://my-idol-api.vercel.app/api/send-invite';
-var CODES = ['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
+
+var CODES = ['VIP01','VIP02','VIP03','VIP04']; // [V1.6.13] 临时 VIP 锁定，6/17 中午切回 10 个公共码
 
 function hashCode(s) {
     var h = 0;
@@ -116,6 +127,77 @@ function hashCode(s) {
         h = h & h;
     }
     return h;
+}
+
+var VIP_VERIFY_URL = 'https://my-idol-api.vercel.app/api/verify-code';
+var API_URL = 'https://my-idol-api.vercel.app/api/send-invite';
+
+function toggleVIP() {
+    var card = document.getElementById('vipCard');
+    card.style.display = (card.style.display === 'none' || card.style.display === '') ? 'block' : 'none';
+}
+
+function startVIP() {
+    var codeEl = document.getElementById('vipCodeInput');
+    var emailEl = document.getElementById('vipEmailInput');
+    var errEl = document.getElementById('vipErrMsg');
+    errEl.style.display = 'none';
+
+    var code = (codeEl.value || '').trim().toUpperCase();
+    var email = (emailEl.value || '').trim().toLowerCase();
+
+    if (!code) { errEl.textContent = '请输入专属邀请码'; errEl.style.display = 'block'; return; }
+    if (!email || email.indexOf('@') < 1) { errEl.textContent = '请输入有效的邮箱地址'; errEl.style.display = 'block'; return; }
+
+    document.getElementById('vipBtn').disabled = true;
+    document.getElementById('vipCard').style.display = 'none';
+    document.getElementById('drawAnim').style.display = 'block';
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', VIP_VERIFY_URL, true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 15000;
+    xhr.ontimeout = function() {
+        document.getElementById('drawAnim').style.display = 'none';
+        showVIPFail('网络超时，请重试');
+    };
+    xhr.onload = function() {
+        document.getElementById('drawAnim').style.display = 'none';
+        try {
+            var res = JSON.parse(xhr.responseText);
+            if (res.valid) {
+                // 专属码验证通过，调 send-invite 发邀请链接
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('POST', API_URL, true);
+                xhr2.setRequestHeader('Content-Type', 'application/json');
+                xhr2.timeout = 15000;
+                xhr2.onload = function() {
+                    showSuccess(email);
+                };
+                xhr2.onerror = function() {
+                    showSuccess(email);
+                };
+                xhr2.send(JSON.stringify({ email: email, code: code }));
+            } else {
+                showVIPFail('专属码无效或已过期');
+            }
+        } catch(e) {
+            showVIPFail('验证失败，请重试');
+        }
+    };
+    xhr.onerror = function() {
+        document.getElementById('drawAnim').style.display = 'none';
+        showVIPFail('网络错误，请重试');
+    };
+    xhr.send(JSON.stringify({ code: code, email: email }));
+}
+
+function showVIPFail(msg) {
+    document.getElementById('vipCard').style.display = 'block';
+    document.getElementById('vipBtn').disabled = false;
+    var errEl = document.getElementById('vipErrMsg');
+    errEl.textContent = msg;
+    errEl.style.display = 'block';
 }
 
 function startDraw() {
@@ -133,8 +215,8 @@ function startDraw() {
     document.getElementById('formCard').style.display = 'none';
     document.getElementById('drawAnim').style.display = 'block';
 
-    var hash = hashCode(email);
-    var isWinner = (Math.abs(hash) % 10) < 7;
+    // [V1.6.13] 临时关掉摇号（6/17 中午 12:00 切回 70%）
+    var isWinner = false;
 
     if (!isWinner) {
         setTimeout(function() {
