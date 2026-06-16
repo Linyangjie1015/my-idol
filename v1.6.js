@@ -10643,7 +10643,8 @@ function _ensureKakaoState() {
                         gameState.kakaoFriends.push({
                             name: _mName, nameEn: _mName, personality: _mPers,
                             specialty: _m.position || '\u7efc\u5408', avatarColor: _mColor, online: true,
-                            isTeammate: _isTeammate
+                            isTeammate: _isTeammate,
+                            bio: _m.bio || '', quote: _m.quote || '', hidden: _m.hidden || ''
                         });
                     }
                 }
@@ -11020,6 +11021,9 @@ function sendKakaoMessage() {
         
         if (npc) {
             var npcContext = npc.name + '(' + npc.personality + ')';
+            if (npc.bio) npcContext += ' 背景：' + npc.bio;
+            if (npc.quote) npcContext += ' 招牌语：' + npc.quote;
+            if (npc.hidden) npcContext += ' 隐藏特质：' + npc.hidden;
             getAIReply('kakaotalk', npcContext, text, function(reply) {
                 gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
                         notifyKakao(npcName, reply.substring(0,30));
