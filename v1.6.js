@@ -97,8 +97,8 @@ function _getCardImgUrl(cardName) {
 
 // ==================== GAME DATA ====================
 var COMPANIES = {
-    "SM Entertainment": {
-        name: "SM Entertainment",
+    "SN Entertainment": {
+        name: "SN Entertainment",
         desc: "韩国最大型经纪公司，以精致标准化著称。旗下艺人以出众的颜值、完美的舞台展现和强大的综合实力闻名。",
         tags: ["精致标准化", "颜值担当", "综合实力"],
         groups: {
@@ -169,8 +169,8 @@ var COMPANIES = {
             }
         }
     },
-    "YG Entertainment": {
-        name: "YG Entertainment",
+    "YK Entertainment": {
+        name: "YK Entertainment",
         desc: "以嘻哈和Swag风格闻名，打造了多个现象级团体。注重艺人的个性与舞台感染力。",
         tags: ["嘻哈Swag", "个性鲜明", "舞台感染力"],
         groups: {
@@ -241,8 +241,8 @@ var COMPANIES = {
             }
         }
     },
-    "JYP Entertainment": {
-        name: "JYP Entertainment",
+    "JYP+ Entertainment": {
+        name: "JYP+ Entertainment",
         desc: "以亲和力和国民度见长，旗下团体以整齐划一的刀群舞和洗脑旋律著称。",
         tags: ["国民亲和", "刀群舞", "洗脑旋律"],
         groups: {
@@ -313,9 +313,9 @@ var COMPANIES = {
             }
         }
     },
-    "HYBE": {
-        name: "HYBE",
-        desc: "多厂牌运营的新生代巨头，从BTS到NewJeans持续引领全球K-pop浪潮。",
+    "HYBE+": {
+        name: "HYBE+",
+        desc: "多厂牌运营的新生代巨头，以全球化视野和多元厂牌体系持续引领行业浪潮。",
         tags: ["全球影响力", "多厂牌", "现象级"],
         groups: {
             "Myth Echo": {
@@ -1202,9 +1202,9 @@ function initAsTrainee() {
     gameState.money = 70000;
     
     var company = gameState.player.company;
-    if (company === 'SM Entertainment' || company === 'YG Entertainment' || company === 'HYBE') {
+    if (company === 'SN Entertainment' || company === 'YK Entertainment' || company === 'HYBE+') {
         gameState.fans = 500 + Math.floor(Math.random() * 201);
-    } else if (company === 'JYP Entertainment') {
+    } else if (company === 'JYP+ Entertainment') {
         gameState.fans = 300 + Math.floor(Math.random() * 201);
     } else {
         gameState.fans = 100 + Math.floor(Math.random() * 101);
@@ -1241,11 +1241,11 @@ function initAsTrainee() {
 
 function initAsIdol() {
     var company = gameState.player.company;
-    var gpBase3 = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
+    var gpBase3 = { 'SN Entertainment': 80, 'YK Entertainment': 70, 'JYP+ Entertainment': 60, 'HYBE+': 90, 'SEONGWOO ENT': 40 };
     gameState.groupPopularity = gpBase3[company] || 50;
-    if (company === 'SM Entertainment' || company === 'YG Entertainment' || company === 'HYBE') {
+    if (company === 'SN Entertainment' || company === 'YK Entertainment' || company === 'HYBE+') {
         gameState.money = 150000 + Math.floor(Math.random() * 50001);
-    } else if (company === 'JYP Entertainment') {
+    } else if (company === 'JYP+ Entertainment') {
         gameState.money = 120000 + Math.floor(Math.random() * 60001);
     } else {
         gameState.money = 80000 + Math.floor(Math.random() * 40001);
@@ -3229,42 +3229,42 @@ function renderRankingPage(container) {
     var selectedGroup = window._rankingGroup || null;
 
     var GROUP_DETAILS = {
-        'EXO': { members: ['Suho','Xiumin','Lay','Baekhyun','Chen','Chanyeol','D.O.','Kai','Sehun'], avgAbility: 92, fans: 100000, revenue: 2500000, concept: '实力派' },
-        'Black Luna': { members: ['Jisoo','Jennie','Rose','Lisa','Mina','Yeri'], avgAbility: 88, fans: 85000, revenue: 1800000, concept: 'Girl Crush' },
-        'Myth': { members: ['Taehyung','Jungkook','Jimin','Yoongi','Namjoon','Hoseok','Jin'], avgAbility: 85, fans: 70000, revenue: 1500000, concept: '全能偶像' },
-        'Red Velvet': { members: ['Irene','Seulgi','Wendy','Joy','Yeri'], avgAbility: 79, fans: 55000, revenue: 900000, concept: 'Red Flavor' },
-        'Wave': { members: ['Daniel','Seongwoo','Jaehwan','Sewoon','Woojin'], avgAbility: 75, fans: 40000, revenue: 700000, concept: '清新' },
-        'Taegi Flow': { members: ['Minho','Taeyang','Kibum','Jisung','Haneul','Donghyuk'], avgAbility: 70, fans: 25000, revenue: 500000, concept: '嘻哈' },
-        'Nova': { members: ['Sora','Hana','Miku','Riku','Yuna'], avgAbility: 65, fans: 10000, revenue: 300000, concept: '新人' }
+        'Star Apex': { members: ['Lee Seungwoo','Kim Soojin','Park Hyunho','Choi Yoonsung','Kang Saeha'], avgAbility: 92, fans: 100000, revenue: 2500000, concept: '实力派' },
+        'Black Luna': { members: ['Kim Nari','Yoon Sejin','Hong Jiyeon','Lim Soeun','Chae Yujin'], avgAbility: 88, fans: 85000, revenue: 1800000, concept: 'Girl Crush' },
+        'Myth Echo': { members: ['Jeon Seokjin','Kim Jihoon','Park Heeyoung','Jung Taekyun','Kang Yuna'], avgAbility: 85, fans: 70000, revenue: 1500000, concept: '全能偶像' },
+        'Gaeulvibe': { members: ['Jeong Dabin','Song Hanbyul','Nam Jiho','Go Eunji','Hwang Chawon'], avgAbility: 79, fans: 55000, revenue: 900000, concept: '复古清新' },
+        'Wave Bright': { members: ['Kim Heesun','Park Dohyun','Yoo Kwangmin','Shin Yeonwoo','Han Seungah'], avgAbility: 75, fans: 40000, revenue: 700000, concept: '元气' },
+        'Taegiflow': { members: ['Jang Taewoo','Ryu Hajun','Seo Junho','Won Wooyoung','Jeon Daehyun'], avgAbility: 70, fans: 25000, revenue: 500000, concept: '嘻哈' },
+        'Dream Loop': { members: ['Moon Soojin','Park Jihae','Kim Daeun','Jung Seokyung','Han Chaewon'], avgAbility: 65, fans: 10000, revenue: 300000, concept: '新人' }
     };
 
     var idolRanking = [
-        { name: 'EXO', val: 100000, unit: '粉丝' },
+        { name: 'Star Apex', val: 100000, unit: '粉丝' },
         { name: 'Black Luna', val: 85000, unit: '粉丝' },
-        { name: 'Myth', val: 70000, unit: '粉丝' },
-        { name: 'Red Velvet', val: 55000, unit: '粉丝' },
-        { name: 'Wave', val: 40000, unit: '粉丝' },
-        { name: 'Taegi Flow', val: 25000, unit: '粉丝' },
-        { name: 'Nova', val: 10000, unit: '粉丝' }
+        { name: 'Myth Echo', val: 70000, unit: '粉丝' },
+        { name: 'Gaeulvibe', val: 55000, unit: '粉丝' },
+        { name: 'Wave Bright', val: 40000, unit: '粉丝' },
+        { name: 'Taegiflow', val: 25000, unit: '粉丝' },
+        { name: 'Dream Loop', val: 10000, unit: '粉丝' }
     ];
     var powerRanking = [
-        { name: 'EXO', val: 92, unit: '综合能力' },
+        { name: 'Star Apex', val: 92, unit: '综合能力' },
         { name: 'Black Luna', val: 88, unit: '综合能力' },
-        { name: 'Myth', val: 85, unit: '综合能力' },
-        { name: 'Red Velvet', val: 79, unit: '综合能力' },
-        { name: 'Wave', val: 75, unit: '综合能力' },
-        { name: 'Taegi Flow', val: 70, unit: '综合能力' },
-        { name: 'Nova', val: 65, unit: '综合能力' }
+        { name: 'Myth Echo', val: 85, unit: '综合能力' },
+        { name: 'Gaeulvibe', val: 79, unit: '综合能力' },
+        { name: 'Wave Bright', val: 75, unit: '综合能力' },
+        { name: 'Taegiflow', val: 70, unit: '综合能力' },
+        { name: 'Dream Loop', val: 65, unit: '综合能力' }
     ];
     var fanRanking = idolRanking.slice();
     var wealthRanking = [
-        { name: 'EXO', val: 2500000, unit: '金币' },
+        { name: 'Star Apex', val: 2500000, unit: '金币' },
         { name: 'Black Luna', val: 1800000, unit: '金币' },
-        { name: 'Myth', val: 1500000, unit: '金币' },
-        { name: 'Red Velvet', val: 900000, unit: '金币' },
-        { name: 'Wave', val: 700000, unit: '金币' },
-        { name: 'Taegi Flow', val: 500000, unit: '金币' },
-        { name: 'Nova', val: 300000, unit: '金币' }
+        { name: 'Myth Echo', val: 1500000, unit: '金币' },
+        { name: 'Gaeulvibe', val: 900000, unit: '金币' },
+        { name: 'Wave Bright', val: 700000, unit: '金币' },
+        { name: 'Taegiflow', val: 500000, unit: '金币' },
+        { name: 'Dream Loop', val: 300000, unit: '金币' }
     ];
 
     // Show group detail page if selected
@@ -9000,84 +9000,84 @@ function prAction(type) {
 // ==================== REAL KPOP GROUPS DATA (真实韩团数据) ====================
 var REAL_KPOP_GROUPS = [
     {
-        name: 'BTS',
-        company: 'HYBE (Big Hit)',
-        debutYear: 2013,
-        members: ['RM', 'Jin', 'SUGA', 'j-hope', 'Jimin', 'V', 'Jung Kook'],
-        songs: ['Dynamite', 'Butter', 'Spring Day', 'Boy With Luv', 'DNA'],
-        desc: '\u9632\u5f39\u5c11\u5e74\u56e2\uff0c\u5168\u7403\u6700\u5177\u5f71\u54cd\u529b\u7684Kpop\u56e2\u4f53\u4e4b\u4e00'
+        name: 'Nova Prime',
+        company: 'SN Entertainment',
+        debutYear: 2014,
+        members: ['Kang Donghyun', 'Yoon Seojun', 'Park Minjae', 'Choi Haemin', 'Lee Jaewon', 'Shin Yool', 'Han Taeoh'],
+        songs: ['星光列车', 'Dream Sky', 'Moonlight Run', '永恒星光', 'Top Floor'],
+        desc: '顶级全能男团，全球最具影响力的现象级团体之一'
     },
     {
-        name: 'BLACKPINK',
-        company: 'YG Entertainment',
+        name: 'Luna Eclipse',
+        company: 'YK Entertainment',
         debutYear: 2016,
-        members: ['Jisoo', 'Jennie', 'Ros\u00e9', 'Lisa'],
-        songs: ['DDU-DU DDU-DU', 'Kill This Love', 'How You Like That', 'Pink Venom', 'Shut Down'],
-        desc: '\u4eba\u6c14\u5973\u56e2\uff0cGirl Crush\u98ce\u683c\u4ee3\u8868\uff0c\u5168\u7403\u7c89\u4e1d\u6570\u4ee5\u4ebf\u8ba1'
+        members: ['Choi Somin', 'Yoon Harin', 'Jang Eunjin', 'Lee Dabin', 'Kim Chaewon'],
+        songs: ['Black Venom', 'Kill The Beat', 'Pink Storm', 'Shut The Door', 'See You Again'],
+        desc: '人气女团，Girl Crush风格代表，全球粉丝数亿计'
     },
     {
-        name: 'TWICE',
-        company: 'JYP Entertainment',
+        name: 'Melo Nine',
+        company: 'JYP+ Entertainment',
         debutYear: 2015,
-        members: ['Nayeon', 'Jeongyeon', 'Momo', 'Sana', 'Jihyo', 'Mina', 'Dahyun', 'Chaeyoung', 'Tzuyu'],
-        songs: ['TT', 'Cheer Up', 'Fancy', 'Feel Special', 'The Feels'],
-        desc: '\u56fd\u6c11\u5973\u56e2\uff0c\u6d3b\u6cfc\u53ef\u7231\u98ce\u683c\u4ee3\u8868\uff0c\u65e5\u97e9\u53cc\u6599\u738b\u56e2'
+        members: ['Han Rina', 'Jung Yerim', 'Song Moa', 'Park Sarang', 'Kim Jihu', 'Lee Minju', 'Han Dahm', 'Son Chaeeun', 'Jo Tzuyu'],
+        songs: ['Sweet TT', 'Cheer Up Stage', 'Fancy Day', 'Special Feel', 'The Feels'],
+        desc: '国民女团，活泼可爱风格代表，日韩双料王团'
     },
     {
-        name: 'EXO',
-        company: 'SM Entertainment',
+        name: 'Star Apex',
+        company: 'SN Entertainment',
         debutYear: 2012,
-        members: ['Xiumin', 'Suho', 'Lay', 'Baekhyun', 'Chen', 'Chanyeol', 'D.O.', 'Kai', 'Sehun'],
-        songs: ['Growl', 'Monster', 'Call Me Baby', 'Love Shot', 'Overdose'],
-        desc: '\u6781\u5149\u7537\u56e2\uff0cSM\u65d7\u4e0b\u9876\u7ea7\u7537\u56e2\uff0c\u5f00\u521b\u5206\u961f\u4f53\u7cfb\u5148\u6cb3'
+        members: ['Kim Xiumin', 'Park Sihu', 'Zhang Lei', 'Lee Baekho', 'Chen Dong', 'Park Chanyong', 'Do Kyungsoo', 'Kim Jongin', 'Oh Sehun'],
+        songs: ['Growl Night', 'Monster Beat', 'Call My Name', 'Love Shot', 'Overdose'],
+        desc: '极光男团，SN旗下顶级男团，开创分队体系先河'
     },
     {
-        name: 'SEVENTEEN',
-        company: 'HYBE (Pledis)',
+        name: 'Crush Aura',
+        company: 'HYBE+ Entertainment',
         debutYear: 2015,
-        members: ['S.Coups', 'Jeonghan', 'Joshua', 'Jun', 'Hoshi', 'Wonwoo', 'Woozi', 'DK', 'Mingyu', 'The8', 'Seungkwan', 'Vernon', 'Dino'],
-        songs: ['Don\'t Wanna Cry', 'Very Nice', 'Super', 'God of Music', 'HOT'],
-        desc: '\u81ea\u4f5c\u7231\u8c46\u56e2\uff0c13\u4eba\u5927\u56e2\u4f53\uff0c\u4e09\u4e2a\u5c0f\u5206\u961f\u5404\u5177\u7279\u8272'
+        members: ['Choi Seungcheol', 'Yoon Jeonghan', 'Kim Joshua', 'Wen Junhui', 'Kwon Soonyoung', 'Jeon Wonwoo', 'Lee Jihoon', 'Lee Dokyeom', 'Kim Mingyu', 'Xu Minghao', 'Boo Seungkwan', 'Hansol Vernon', 'Lee Chan'],
+        songs: ['Don\'t Cry', 'Very Nice One', 'Super Star', 'Music God', 'HOT Now'],
+        desc: '自作曲爱豆团，13人大团体，三个小分队各具特色'
     },
     {
-        name: 'Stray Kids',
-        company: 'HYBE (JYP)',
+        name: 'Myth Echo',
+        company: 'HYBE+ Entertainment',
         debutYear: 2018,
-        members: ['Bang Chan', 'Lee Know', 'Changbin', 'Hyunjin', 'Han', 'Felix', 'Seungmin', 'I.N'],
-        songs: ['God\'s Menu', 'Back Door', 'MANIAC', 'CASE 143', 'LALALALA'],
-        desc: '\u81ea\u4f5c\u5b9e\u529b\u6d3e\u7537\u56e2\uff0c\u97f3\u4e50\u98ce\u683c\u72ec\u7279\u524d\u536b'
+        members: ['Bang Chan', 'Lee Minho', 'Seo Changbin', 'Hwang Hyunjin', 'Han Jisung', 'Lee Felix', 'Kim Seungmin', 'Yang Jeongin'],
+        songs: ['God Menu', 'Back Door', 'Maniac', 'CASE 143', 'La La La'],
+        desc: '自作曲实力派男团，音乐风格独特前卫'
     },
     {
-        name: 'aespa',
-        company: 'SM Entertainment',
+        name: 'Cloud Echo',
+        company: 'SN Entertainment',
         debutYear: 2020,
-        members: ['Karina', 'Giselle', 'Winter', 'Ningning'],
-        songs: ['Next Level', 'Savage', 'Girls', 'Supernova', 'Whip lash'],
-        desc: '\u5143\u5b87\u5b99\u6982\u5ff5\u5973\u56e2\uff0cSM\u65b0\u4e00\u4ee3\u9876\u7ea7\u5973\u56e2'
+        members: ['Ka Rin', 'Uchinaga Jisel', 'Kim Yeseo', 'Ning Yizhou'],
+        songs: ['Next Level Up', 'Savage Mode', 'My Girls', 'Supernova', 'Whiplash'],
+        desc: '元宇宙概念女团，SN新一代顶级女团'
     },
     {
-        name: '(G)I-DLE',
-        company: 'Cube Entertainment',
+        name: 'Crush Mode',
+        company: 'SN Entertainment',
         debutYear: 2018,
-        members: ['Miyeon', 'Minnie', 'Soyeon', 'Yuqi', 'Shuhua'],
-        songs: ['TOMBOY', 'Nxde', 'Queencard', 'Super Lady', 'Fate'],
-        desc: '\u81ea\u4f5c\u5973\u56e2\uff0c\u8bd7\u7433\u9886\u8854\u5236\u4f5c\uff0c\u6982\u5ff5\u5148\u950b\u98ce\u683c\u72ec\u7279'
+        members: ['Cho Miyeon', 'Nicha Yontararak', 'Jeon Soyeon', 'Song Yuqi', 'Yeh Shuhua'],
+        songs: ['TOM BOY', 'Nxde Night', 'Queen Card', 'Super Lady', 'My Fate'],
+        desc: '自作曲女团，诗琳领衔制作，概念先锋风格独特'
     },
     {
-        name: 'IVE',
-        company: 'Starship Entertainment',
+        name: 'Odd Muse',
+        company: 'YK Entertainment',
         debutYear: 2021,
-        members: ['Yujin', 'Gaeul', 'Rei', 'Wonyoung', 'Liz', 'Leeseo'],
-        songs: ['ELEVEN', 'LOVE DIVE', 'After LIKE', 'Kitsch', 'Either Way'],
-        desc: '\u65b0\u4e16\u4ee3\u4eba\u6c14\u5973\u56e2\uff0c\u51fa\u9053\u5373\u5dc5\u5cf0\u7684\u5947\u8ff9\u56e2\u4f53'
+        members: ['An Yujin', 'Kim Gaeul', 'Saito Rei', 'Jang Wonyoung', 'Kim Liz', 'Lee Leeseo'],
+        songs: ['ELEVEN', 'LOVE DIVE', 'After LIKE', 'Kitsch Magic', 'Either Way'],
+        desc: '新生代人氣女团，出道即巅峰的奇迹团体'
     },
     {
-        name: 'NewJeans',
-        company: 'HYBE (ADOR)',
+        name: 'Wave Bright',
+        company: 'JYP+ Entertainment',
         debutYear: 2022,
-        members: ['Minji', 'Hanni', 'Danielle', 'Haerin', 'Hyein'],
-        songs: ['Attention', 'Hype Boy', 'Ditto', 'Super Shy', 'OMG'],
-        desc: '\u5168\u7403\u73b0\u8c61\u7ea7\u65b0\u4eba\u5973\u56e2\uff0cY2K\u590d\u53e4\u98ce\u683c\u4ee3\u8868'
+        members: ['Kim Minji', 'Pham Hanni', 'Danielle Marsh', 'Haerin Kang', 'Lee Hyein'],
+        songs: ['Attention Now', 'Hype Boyz', 'Ditto Love', 'Super Shy', 'OMG Baby'],
+        desc: '全球现象级新人女团，Y2K复古风格代表'
     }
 ];
 
@@ -9164,10 +9164,10 @@ function renderCompanyDetailPage(container) {
     if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content"><div class="card">公司数据加载中</div></div></div>'; return; }
     
     var companyColors = {
-        'SM Entertainment': '#FF6B6B',
-        'YG Entertainment': '#333333',
-        'JYP Entertainment': '#4A90D9',
-        'HYBE': '#7C4DFF',
+        'SN Entertainment': '#FF6B6B',
+        'YK Entertainment': '#333333',
+        'JYP+ Entertainment': '#4A90D9',
+        'HYBE+': '#7C4DFF',
         'SEONGWOO ENT': '#FF8FA3'
     };
     var color = companyColors[companyKey] || '#FF8FA3';
@@ -11413,7 +11413,7 @@ function _completeDebut() {
     if (!gameState.player.group) gameState.player.group = gameState.player.name + '的团体';
     gameState.player.originalGroup = true;
 
-    var gpBase = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
+    var gpBase = { 'SN Entertainment': 80, 'YK Entertainment': 70, 'JYP+ Entertainment': 60, 'HYBE+': 90, 'SEONGWOO ENT': 40 };
     gameState.groupPopularity = gpBase[gameState.player.company] || 50;
 
     gameState.emails.unshift({
@@ -11572,7 +11572,7 @@ function confirmKick() {
     newMembers.push(gameState.player.name);
     gameState.teamMembers = newMembers;
     gameState.debutStep = 4;
-    var gpBase2 = { 'SM Entertainment': 80, 'YG Entertainment': 70, 'JYP Entertainment': 60, 'HYBE': 90, 'SEONGWOO ENT': 40 };
+    var gpBase2 = { 'SN Entertainment': 80, 'YK Entertainment': 70, 'JYP+ Entertainment': 60, 'HYBE+': 90, 'SEONGWOO ENT': 40 };
     gameState.groupPopularity = gpBase2[gameState.player.company] || 50;
 
     gameState.emails.unshift({
