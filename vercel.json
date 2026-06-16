@@ -1,13 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" }
-  ],
   "rewrites": [
-    { "source": "/api/verify-code", "destination": "/api/verify-code.js" },
-    { "source": "/api/chat", "destination": "/api/chat.js" },
-    { "source": "/api/send-invite", "destination": "/api/send-invite.js" },
-    { "source": "/api/verify-order", "destination": "/api/verify-order.js" },
+    { "source": "/api/:path", "destination": "/api/:path.js" },
+    { "source": "/(.+\\.html)", "destination": "/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
