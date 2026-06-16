@@ -1195,9 +1195,60 @@
         vertical-align: middle;
     }
     
+
+    /* ===== INVITE CODE GATE ===== */
+    #inviteGate {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(180deg, #FFF5F7, #FFE4EC);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 999999; padding: 32px 20px; text-align: center;
+    }
+    #inviteGate.hidden { display: none; }
+    .gate-logo {
+        width: 80px; height: 80px; border-radius: 20px;
+        background: linear-gradient(135deg, #FF8FA3, #FF6B8A);
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 20px; font-size: 36px; color: white; font-weight: 800;
+        box-shadow: 0 8px 32px rgba(255,143,163,0.3);
+    }
+    .gate-title { font-size: 20px; color: #2D2D2D; font-weight: 700; margin-bottom: 6px; }
+    .gate-desc { font-size: 14px; color: #8E8E93; margin-bottom: 24px; line-height: 1.6; }
+    .gate-card {
+        background: white; border-radius: 20px; padding: 24px 20px;
+        width: 100%; max-width: 360px; box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    }
+    .gate-input {
+        width: 100%; padding: 14px 16px; border: 2px solid #FFD5DE; border-radius: 12px;
+        font-size: 16px; outline: none; background: #FAFAFA; margin-bottom: 12px;
+        -webkit-appearance: none; text-transform: uppercase; letter-spacing: 2px;
+        text-align: center;
+    }
+    .gate-input:focus { border-color: #FF8FA3; background: white; }
+    .gate-input::placeholder { color: #C7C7CC; text-transform: none; letter-spacing: 0; }
+    .gate-btn {
+        display: block; width: 100%; padding: 14px; border-radius: 50px;
+        font-size: 17px; font-weight: 600; border: none; cursor: pointer;
+        background: linear-gradient(135deg, #FF8FA3, #FF6B8A); color: white;
+        box-shadow: 0 4px 16px rgba(255,107,138,0.3);
+    }
+    .gate-btn:active { transform: scale(0.97); opacity: 0.85; }
+    .gate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .gate-err { font-size: 12px; color: #FF3B30; margin-top: 10px; display: none; }
+    .gate-footer { margin-top: 24px; font-size: 12px; color: #C7C7CC; }
 </style>
 </head>
-<body>
+<body><div id="inviteGate">
+<div class="gate-logo">M</div>
+<div class="gate-title">My Idol V1.6</div>
+<div class="gate-desc">内测专用，请输入邀请码进入</div>
+<div class="gate-card">
+<input class="gate-input" id="gateCodeInput" type="text" placeholder="请输入邀请码" maxlength="20" />
+<button class="gate-btn" id="gateBtn" onclick="verifyGate()">验证进入</button>
+<div class="gate-err" id="gateErr"></div>
+</div>
+<div class="gate-footer">没有邀请码？参与摇号获取</div>
+</div>
+
 <div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div></div>
 
 <div class="phone-frame">
@@ -1237,5 +1288,55 @@
 
 <script src="v1.6.js"></script>
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(reg){console.log("SW registered:",reg.scope)}).catch(function(err){console.log("SW failed:",err)})}</script>
+
+<script>
+(function(){
+    var VERIFIED_KEY = 'myidol_verified';
+    var CODE_KEY = 'myidol_code';
+    if (localStorage.getItem(VERIFIED_KEY) === '1') {
+        document.getElementById('inviteGate').className = 'hidden';
+        return;
+    }
+    window.verifyGate = function() {
+        var code = document.getElementById('gateCodeInput').value.trim().toUpperCase();
+        var errEl = document.getElementById('gateErr');
+        var btn = document.getElementById('gateBtn');
+        errEl.style.display = 'none';
+        if (!code) { errEl.textContent = '请输入邀请码'; errEl.style.display = 'block'; return; }
+        btn.disabled = true; btn.textContent = '验证中...';
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://my-idol-api.vercel.app/api/verify-code', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.timeout = 10000;
+        xhr.ontimeout = function() {
+            btn.disabled = false; btn.textContent = '验证进入';
+            errEl.textContent = '网络超时，请重试'; errEl.style.display = 'block';
+        };
+        xhr.onload = function() {
+            btn.disabled = false; btn.textContent = '验证进入';
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (res.valid) {
+                    localStorage.setItem(VERIFIED_KEY, '1');
+                    localStorage.setItem(CODE_KEY, code);
+                    document.getElementById('inviteGate').className = 'hidden';
+                } else {
+                    errEl.textContent = '邀请码无效，请检查后重试'; errEl.style.display = 'block';
+                }
+            } catch(e) {
+                errEl.textContent = '验证失败，请重试'; errEl.style.display = 'block';
+            }
+        };
+        xhr.onerror = function() {
+            btn.disabled = false; btn.textContent = '验证进入';
+            errEl.textContent = '网络错误，请重试'; errEl.style.display = 'block';
+        };
+        xhr.send(JSON.stringify({ code: code }));
+    };
+    document.getElementById('gateCodeInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') verifyGate();
+    });
+})();
+</script>
 </body>
 </html>
