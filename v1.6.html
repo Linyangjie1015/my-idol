@@ -1235,9 +1235,70 @@
     .gate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     .gate-err { font-size: 12px; color: #FF3B30; margin-top: 10px; display: none; }
     .gate-footer { margin-top: 24px; font-size: 12px; color: #C7C7CC; }
+    /* NPC 详情卡 */
+    .npc-card-overlay {
+        position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        z-index: 9999; display: none; align-items: center; justify-content: center;
+        padding: 20px; animation: npcFadeIn 0.2s ease;
+    }
+    .npc-card-overlay.show { display: flex; }
+    @keyframes npcFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .npc-card {
+        background: white; border-radius: 20px; width: 100%; max-width: 360px;
+        max-height: 80vh; overflow-y: auto; position: relative;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.25); animation: npcSlideUp 0.25s ease;
+    }
+    @keyframes npcSlideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .npc-card-close {
+        position: absolute; top: 12px; right: 12px; width: 30px; height: 30px;
+        border-radius: 50%; background: rgba(0,0,0,0.06); border: none;
+        font-size: 16px; color: #666; cursor: pointer; display: flex;
+        align-items: center; justify-content: center; z-index: 2;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .npc-card-close:active { background: rgba(0,0,0,0.12); }
+    .npc-card-header {
+        padding: 28px 24px 20px; text-align: center; position: relative;
+    }
+    .npc-card-avatar {
+        width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 32px; font-weight: 700; color: white;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .npc-card-name { font-size: 19px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+    .npc-card-name-en { font-size: 12px; color: #999; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .npc-card-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+    .npc-card-tag {
+        font-size: 11px; padding: 3px 10px; border-radius: 12px;
+        background: #FFF0F3; color: #FF6B8A; font-weight: 500;
+    }
+    .npc-card-tag.position { background: #E8F0FE; color: #4A90D9; }
+    .npc-card-section { padding: 16px 24px; border-top: 1px solid #F0F0F0; }
+    .npc-card-label {
+        font-size: 10px; font-weight: 700; color: #999; letter-spacing: 1px;
+        margin-bottom: 8px; text-transform: uppercase;
+    }
+    .npc-card-quote {
+        font-size: 14px; line-height: 1.6; color: #1a1a1a; font-style: italic;
+        text-align: center; padding: 8px 0;
+    }
+    .npc-card-bio { font-size: 13px; line-height: 1.7; color: #333; }
+    .npc-card-hidden {
+        font-size: 13px; line-height: 1.7; color: #666;
+        background: #FAFAFA; padding: 12px 14px; border-radius: 10px;
+        border-left: 3px solid #FF6B8A;
+    }
+    .npc-card-empty { color: #999; font-size: 12px; text-align: center; padding: 20px 0; }
+    .kakao-avatar.clickable { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .kakao-avatar.clickable:active { transform: scale(0.92); }
 </style>
 </head>
-<body><div id="inviteGate">
+<body><div id="npcCardOverlay" class="npc-card-overlay" onclick="if(event.target===this)closeNpcCard()">
+  <div class="npc-card" id="npcCardContent"></div>
+</div>
+<div id="inviteGate">
 <div class="gate-logo">M</div>
 <div class="gate-title">My Idol V1.6</div>
 <div class="gate-desc">内测专用，请输入邀请码进入</div>
@@ -1287,6 +1348,66 @@
 </div>
 
 <script src="v1.6.js"></script>
+<script>
+function showNpcCard(npcName) {
+  var npc = null;
+  for (var ci = 0; ci < COMPANIES.length; ci++) {
+    var c = COMPANIES[ci];
+    if (!c.members) continue;
+    for (var mi = 0; mi < c.members.length; mi++) {
+      var m = c.members[mi];
+      if (m.name === npcName || (m.name && m.name.indexOf(npcName) === 0)) { npc = m; break; }
+    }
+    if (npc) break;
+  }
+  if (!npc && gameState.kakaoFriends) {
+    for (var ki = 0; ki < gameState.kakaoFriends.length; ki++) {
+      var kf = gameState.kakaoFriends[ki];
+      if (kf.name === npcName) { npc = kf; break; }
+    }
+  }
+  if (!npc) { return; }
+  var html2 = '<button class="npc-card-close" onclick="closeNpcCard()">×</button>';
+  html2 += '<div class="npc-card-header">';
+  var cn = npc.name || npcName;
+  var parenIdx = cn.indexOf('(');
+  var cnOnly = parenIdx > 0 ? cn.substring(0, parenIdx).trim() : cn;
+  var enOnly = parenIdx > 0 ? cn.substring(parenIdx + 1, cn.length - 1).trim() : (npc.nameEn || '');
+  var firstChar = cnOnly.charAt(0) || '?';
+  html2 += '<div class="npc-card-avatar" style="background:' + (npc.avatarColor || '#FF6B8A') + ';">' + firstChar + '</div>';
+  html2 += '<div class="npc-card-name">' + cnOnly + '</div>';
+  if (enOnly) html2 += '<div class="npc-card-name-en">' + enOnly + '</div>';
+  html2 += '<div class="npc-card-tags">';
+  if (npc.position) html2 += '<span class="npc-card-tag position">' + npc.position + '</span>';
+  if (npc.personality && npc.personality.length > 0) {
+    for (var pi = 0; pi < npc.personality.length; pi++) {
+      html2 += '<span class="npc-card-tag">' + npc.personality[pi] + '</span>';
+    }
+  }
+  html2 += '</div></div>';
+  if (npc.quote) {
+    html2 += '<div class="npc-card-section"><div class="npc-card-label">征牌语</div>';
+    html2 += '<div class="npc-card-quote">“' + npc.quote + '”</div></div>';
+  }
+  if (npc.bio) {
+    html2 += '<div class="npc-card-section"><div class="npc-card-label">背景</div>';
+    html2 += '<div class="npc-card-bio">' + npc.bio + '</div></div>';
+  }
+  if (npc.hidden) {
+    html2 += '<div class="npc-card-section"><div class="npc-card-label">隐藏特质</div>';
+    html2 += '<div class="npc-card-hidden">' + npc.hidden + '</div></div>';
+  }
+  if (!npc.quote && !npc.bio && !npc.hidden) {
+    html2 += '<div class="npc-card-section"><div class="npc-card-empty">这位队友还没有个人介绍</div></div>';
+  }
+  document.getElementById('npcCardContent').innerHTML = html2;
+  document.getElementById('npcCardOverlay').classList.add('show');
+}
+function closeNpcCard() {
+  document.getElementById('npcCardOverlay').classList.remove('show');
+}
+</script>
+
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(reg){console.log("SW registered:",reg.scope)}).catch(function(err){console.log("SW failed:",err)})}</script>
 
 <script>

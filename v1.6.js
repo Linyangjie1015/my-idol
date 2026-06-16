@@ -10809,7 +10809,7 @@ function _renderKakaoChatList() {
             lastTime = chats[chats.length - 1].time;
         }
         html += '<div class="kakao-friend-item" data-fname="' + f.name + '" onclick="gameState.kakaoCurrentChat=this.dataset.fname;goToPage(\'kakaochat\');">'
-            + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
+            + '<div class="kakao-avatar clickable" data-npc='+f.name+'" onclick="event.stopPropagation();showNpcCard(this.dataset.npc);" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
             + '<div class="kakao-friend-info">'
@@ -10839,7 +10839,7 @@ function _renderKakaoFriendList() {
     for (var i = 0; i < friends.length; i++) {
         var f = friends[i];
         html += '<div class="kakao-friend-item" data-fname="' + f.name + '" onclick="gameState.kakaoCurrentChat=this.dataset.fname;goToPage(\'kakaochat\');">'
-            + '<div class="kakao-avatar" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
+            + '<div class="kakao-avatar clickable" data-npc='+f.name+'" onclick="event.stopPropagation();showNpcCard(this.dataset.npc);" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
             + '<div class="kakao-friend-info">'
