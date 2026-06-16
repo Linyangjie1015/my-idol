@@ -12,10 +12,8 @@ export default async function handler(req, res) {
 
     if (!code) return res.status(200).json({ valid: false, reason: 'empty' });
 
-    // [V1.6.13] 临时 VIP 锁定（6/17 中午 12:00 切回 10 个公共码）
-    // 6/17 中午切回命令：把下面一行 uncomment，把 var VALID_CODES 这一行注释掉
-    // var VALID_CODES = ['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
-    var VALID_CODES = ['VIP01','VIP02','VIP03','VIP04'];
+    // Check against valid invite codes (same list as invite.html)
+    var VALID_CODES = ['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
 
     var found = false;
     for (var i = 0; i < VALID_CODES.length; i++) {
@@ -63,4 +61,3 @@ export default async function handler(req, res) {
     return res.status(200).json({ valid: false, reason: 'error', detail: e.message });
   }
 }
-
