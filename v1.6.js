@@ -1865,6 +1865,39 @@ function syncFromApp(sourceApp, data) {
 
 // ==================== HOME PAGE (APP GRID) ====================
 function renderHomePage(container) {
+    // 危险值/信誉警告邮件（每天只触发一次）
+    var today = new Date().toDateString();
+    if (gameState.danger >= 30 && (!gameState._lastDangerMailDate || gameState._lastDangerMailDate !== today)) {
+        gameState._lastDangerMailDate = today;
+        var dangerMsgs = [
+            '公司高层对你最近的风评表示担忧，再这样下去可能会被暂停活动。请务必注意个人形象管理。',
+            '经纪部紧急通知：你的危险值已经偏高，已有媒体开始关注你的负面消息。立即采取措施！',
+            '经纪人私下提醒：最近关于你的负面传言越来越多，公司可能会考虑限制你的公开活动。'
+        ];
+        gameState.emails.unshift({
+            title: '公司警告：风评危机',
+            from: '公司经纪部',
+            content: dangerMsgs[Math.floor(Math.random() * dangerMsgs.length)],
+            time: new Date().toLocaleDateString('zh-CN'),
+            read: false
+        });
+    }
+    if (gameState.credit < 50 && gameState.credit > 0 && (!gameState._lastCreditMailDate || gameState._lastCreditMailDate !== today)) {
+        gameState._lastCreditMailDate = today;
+        var creditMsgs = [
+            '经纪人私下提醒你：再取消通告，公司可能会考虑换人。信誉是你在这个行业的生命线。',
+            '公司人事部发来通知：你的信誉评分已低于安全线，请立即改善工作态度，否则将面临合约调整。',
+            '经纪团队内部邮件：你的信誉已亮红灯，如果继续下去，可能会失去这次回归的机会。'
+        ];
+        gameState.emails.unshift({
+            title: '信誉警告',
+            from: '经纪团队',
+            content: creditMsgs[Math.floor(Math.random() * creditMsgs.length)],
+            time: new Date().toLocaleDateString('zh-CN'),
+            read: false
+        });
+    }
+
     var apps = [
         { id: 'debut', icon: 'debut', name: '出道企划', unlock: 0 },
         { id: 'earn', icon: 'earn', name: '赚钱中心', unlock: 0 },
@@ -1919,6 +1952,20 @@ function renderHomePage(container) {
     }
     
     container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + (function() {
+    var ci = getCheckInInfo();
+    if (ci.checkedIn) {
+        return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
+            + '<div><div style="font-size:13px;font-weight:600;color:var(--color-primary);">今日已签到</div>'
+            + '<div style="font-size:11px;color:var(--color-text-light);">连续' + ci.streak + '天</div></div>'
+            + '<div style="font-size:11px;color:var(--color-text-light);">明天继续加油</div></div>';
+    }
+    return '<div onclick="doDailyCheckIn()" style="background:linear-gradient(135deg,#FF8FA3,#FF6B8A);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">'
+        + '<div><div style="font-size:13px;font-weight:600;color:white;">签到领金币</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.8);">连续签到奖励更多</div></div>'
+        + '<div style="font-size:13px;font-weight:600;color:white;">签到 ></div></div>';
+}())
++ ' '
++ (function() {
                     var appMap = {};
                     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
                     var homePageNum = gameState.homePageNum || 1;
@@ -3186,9 +3233,9 @@ function verifyVipOrder() {
                 msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！激活中...';
                 setTimeout(function() { closeModal(); render(); notifySystem('会员', '会员权益已激活'); showToast('会员权益已激活！'); }, 800);
             } else {
-                msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '验证失败';
+                msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '请检查订单号是否复制完整，或稍后重试';
             }
-        } catch(e) { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '验证失败'; }
+        } catch(e) { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '网络异常，请稍后重试'; }
     };
     xhr.onerror = function() { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '网络错误'; };
     xhr.send(JSON.stringify({ order_no: orderNo.value.trim(), account: account }));
@@ -3434,6 +3481,7 @@ function getAppRedDot(appId) {
             break;
         case 'kakaotalk':
             if (gameState.kakaoChats) { var _kkeys = Object.keys(gameState.kakaoChats); for (var ki = 0; ki < _kkeys.length; ki++) { var _kmsgs = gameState.kakaoChats[_kkeys[ki]]; for (var kj = 0; kj < _kmsgs.length; kj++) { if (_kmsgs[kj].from !== 'me' && !_kmsgs[kj].read) count++; } } }
+            if (count === 0 && !canUseAIToday()) count = 1;
             break;
         case 'ins':
             if (gameState.insUnread) count += gameState.insUnread;
@@ -12353,3 +12401,48 @@ window.onerror = function(msg, url, line) {
 };
 
 render();
+
+// ==================== DAILY CHECK-IN ====================
+function doDailyCheckIn() {
+    var today = new Date().toDateString();
+    if (gameState._lastCheckIn === today) {
+        showToast('今天已签到');
+        return;
+    }
+    var yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (gameState._lastCheckIn === yesterday) {
+        gameState._checkInStreak = (gameState._checkInStreak || 0) + 1;
+    } else {
+        gameState._checkInStreak = 1;
+    }
+    gameState._lastCheckIn = today;
+    var streak = gameState._checkInStreak;
+    var coinBonus = 2000 + (streak - 1) * 500;
+    if (streak >= 7) coinBonus += 5000;
+    var aiBonus = 0;
+    if (streak === 3) aiBonus = 1;
+    if (streak === 7) aiBonus = 3;
+    gameState.money = (gameState.money || 0) + coinBonus;
+    if (aiBonus > 0) {
+        gameState._bonusAiToday = (gameState._bonusAiToday || 0) + aiBonus;
+    }
+    var msg = '签到成功！+' + coinBonus + ' 金币';
+    if (streak > 1) msg += ' (连续' + streak + '天)';
+    if (aiBonus > 0) msg += ' +' + aiBonus + ' AI额度';
+    showToast(msg);
+    triggerSilentSave();
+    render();
+}
+
+function getCheckInInfo() {
+    var today = new Date().toDateString();
+    var yesterday = new Date(Date.now() - 86400000).toDateString();
+    var streak = 0;
+    if (gameState._lastCheckIn === today) {
+        streak = gameState._checkInStreak || 0;
+    } else if (gameState._lastCheckIn === yesterday) {
+        streak = gameState._checkInStreak || 0;
+    }
+    var checkedIn = gameState._lastCheckIn === today;
+    return { streak: streak, checkedIn: checkedIn };
+}

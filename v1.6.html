@@ -1394,8 +1394,14 @@ function showNpcCard(npcName) {
     html2 += '<div class="npc-card-bio">' + npc.bio + '</div></div>';
   }
   if (npc.hidden) {
-    html2 += '<div class="npc-card-section"><div class="npc-card-label">隐藏特质</div>';
-    html2 += '<div class="npc-card-hidden">' + npc.hidden + '</div></div>';
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[npc.name]) || 0;
+    if (好感 >= 30) {
+        html2 += '<div class="npc-card-section"><div class="npc-card-label">秘密</div>';
+        html2 += '<div class="npc-card-hidden">' + npc.hidden + '</div></div>';
+    } else {
+        html2 += '<div class="npc-card-section"><div class="npc-card-label">秘密</div>';
+        html2 += '<div class="npc-card-hidden" style="color:var(--color-text-light);font-style:italic;">好像有什么秘密…好感度达到30或许能发现？</div></div>';
+    }
   }
   if (!npc.quote && !npc.bio && !npc.hidden) {
     html2 += '<div class="npc-card-section"><div class="npc-card-empty">这位队友还没有个人介绍</div></div>';
