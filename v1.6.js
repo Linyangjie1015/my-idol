@@ -3172,7 +3172,17 @@ var AFDIAN_URL = 'https://afdian.com/a/myidol';
 var WORKER_URL = 'https://myidol.asia';
 
 function getVipTier() {
-    try { return JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier || null; } catch(e) { return null; }
+    try {
+        var saves = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}');
+        if (!saves.vipTier) return null;
+        var VIP_DURATION = 30 * 24 * 60 * 60 * 1000;
+        if (saves.vipVerifiedAt && (Date.now() - saves.vipVerifiedAt) > VIP_DURATION) {
+            saves.vipTier = null;
+            localStorage.setItem('myidol_saves_' + localStorage.getItem('myidol_current_account'), JSON.stringify(saves));
+            return null;
+        }
+        return saves.vipTier;
+    } catch(e) { return null; }
 }
 
 function isVipUser(minTier) {
@@ -3196,12 +3206,21 @@ function showVipPage() {
     var html = '<div style="padding:8px 0;"><div style="text-align:center;margin-bottom:16px;">'
         + '<div style="font-size:18px;font-weight:700;margin-bottom:4px;">开通会员</div>'
         + '<div style="font-size:13px;color:var(--color-text-light);">解锁完整游戏体验</div>' + '<div style="font-size:12px;color:#FF6B6B;margin-top:6px;font-weight:600;">按月订阅，自动续费，随时可取消</div></div>'
+        + (function() {
+            if (!currentTier) return '';
+            var saves = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}');
+            if (saves.vipExpireAt) {
+                var d = new Date(saves.vipExpireAt);
+                return '\u003cdiv style="text-align:center;font-size:12px;color:var(--color-text-light);margin-bottom:12px;"\u003e当前会员有效期至 ' + d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate() + '\u003c/div\u003e';
+            }
+            return '';
+        })())
         + tierCard('premium', VIP_TIERS.premium, currentTier === 'premium')
         + tierCard('advanced', VIP_TIERS.advanced, currentTier === 'advanced')
         + tierCard('basic', VIP_TIERS.basic, currentTier === 'basic')
         + '<button onclick="window.open(\'https://afdian.com/a/myidol\',\'_blank\')" style="width:100%;padding:14px;background:var(--color-primary);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">前往爱发电开通</button>'
         + '<button onclick="showVerifyOrder()" style="width:100%;padding:14px;background:transparent;color:var(--color-primary);border:1px solid var(--color-primary);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">已付费？输入订单号验证</button>'
-        + '<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--color-text-light);">付款后在爱发电订单页复制订单号</div></div>';
+        + '<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--color-text-light);">每月续费后需重新验证订单号以续期</div></div>';
     showModal('开通会员', html);
 }
 
@@ -3235,9 +3254,9 @@ function verifyVipOrder() {
             var data = JSON.parse(xhr.responseText);
             if (data.success) {
                 var saves = JSON.parse(localStorage.getItem('myidol_saves_' + account) || '{}');
-                saves.vipTier = data.tier; saves.vipOrderNo = data.orderNo; saves.vipVerifiedAt = Date.now();
+                saves.vipTier = data.tier; saves.vipOrderNo = data.orderNo; saves.vipVerifiedAt = Date.now(); saves.vipExpireAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
                 localStorage.setItem('myidol_saves_' + account, JSON.stringify(saves));
-                msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！激活中...';
+                var expireDate = new Date(saves.vipExpireAt); var expireStr = expireDate.getFullYear() + '/' + (expireDate.getMonth()+1) + '/' + expireDate.getDate(); msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！有效期至' + expireStr + '，每月续费后需重新验证';
                 setTimeout(function() { closeModal(); render(); notifySystem('会员', '会员权益已激活'); showToast('会员权益已激活！'); }, 800);
             } else {
                 msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '请检查订单号是否复制完整，或稍后重试';
