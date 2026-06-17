@@ -5193,7 +5193,17 @@ function translateBubbleMsg(idx) {
     }
 }
 
+var weverseMultilangPosts = [
+    { user: 'park_jiwoo', avatar: 'P', orig: '\uc624\ub298 \uc5f0\uc2b5 \uc9c4\uc9dc \ud798\ub4e4\uc5c8\uc5b4\uc694~', zh: '\u4eca\u5929\u7ec3\u4e60\u771f\u7684\u5f88\u8f9b\u82e6~', lang: 'ko', time: '10\u5206\u949f\u524d' },
+    { user: 'yeonjun_official', avatar: 'Y', orig: '\u307f\u3093\u306a\u306b\u611f\u8b1d\uff01\u6b21\u306e\u30ab\u30e0\u30d0\u30c3\u30af\u697d\u3057\u307f\u306b\uff01', zh: '\u8c22\u8c22\u5927\u5bb6\uff01\u4e0b\u6b21\u56de\u5f52\u8bf7\u671f\u5f85\uff01', lang: 'ja', time: '30\u5206\u949f\u524d' },
+    { user: 'kim_nari_', avatar: 'K', orig: 'Our new choreo is killing it!', zh: '\u6211\u4eec\u7684\u65b0\u7f16\u821e\u592a\u7edd\u4e86\uff01', lang: 'en', time: '1\u5c0f\u65f6\u524d' },
+    { user: 'choi_naeun', avatar: 'C', orig: '\uc624\ub298 \ucc0d\uc5c8\ub294\ub370 \uc608\ube48 \uc544\ub2c8\ub77c\uace0 \ub9d0\ud560\uac8c\uc694', zh: '\u4eca\u5929\u62cd\u4e86\u7167\u7247\uff0c\u8bf4\u4e0d\u662f\u9884\u5446\u54e6', lang: 'ko', time: '2\u5c0f\u65f6\u524d' },
+    { user: 'lee_minji', avatar: 'L', orig: '\u30c0\u30f3\u30b9\u306e\u7df4\u7fd2\u304c\u7d42\u308f\u3063\u305f\uff01\u304a\u75b2\u308c\u69d8\uff01', zh: '\u821e\u8e48\u7ec3\u4e60\u7ed3\u675f\u4e86\uff01\u8f9b\u82e6\u4e86\uff01', lang: 'ja', time: '3\u5c0f\u65f6\u524d' },
+    { user: 'han_sol', avatar: 'H', orig: 'Studio session was fire today', zh: '\u4eca\u5929\u5f55\u97f3\u5ba4\u8d85\u71c3', lang: 'en', time: '5\u5c0f\u65f6\u524d' }
+];
+
 function renderWeversePage(container) {
+    try {
     if (!gameState.bubbleChats) gameState.bubbleChats = {};
     if (!gameState.weverseMyPosts) gameState.weverseMyPosts = []; if (!gameState.weverseUnread) gameState.weverseUnread = 0;
     var postsHtml = '';
@@ -5226,6 +5236,10 @@ function renderWeversePage(container) {
         + '<div class="section-title" style="margin-top:16px;">爱豆动态</div>'
         + postsHtml
         + getAppLinkHtml('weverse') + '</div></div>';
+    } catch(e) {
+        console.error('Weverse render error:', e);
+        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">Weverse页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
+    }
 }
 
 function translateWeverseMsg(idx) {
