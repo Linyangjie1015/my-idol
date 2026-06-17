@@ -68,27 +68,36 @@ export default async function handler(req, res) {
     if (slot === undefined || slot === null) return res.status(400).json({ error: 'missing slot' });
     if (!saveData) return res.status(400).json({ error: 'missing save_data' });
 
-    var upsertResp = await fetch(SUPABASE_URL + '/rest/v1/saves', {
+    // Delete existing save for this user+slot, then insert new one
+    // This avoids the need for a unique constraint for upsert
+    await fetch(SUPABASE_URL + '/rest/v1/saves?user_id=eq.' + userId + '&slot=eq.' + slot, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SERVICE_KEY,
+        'Authorization': 'Bearer ' + SERVICE_KEY
+      }
+    });
+
+    var insertResp = await fetch(SUPABASE_URL + '/rest/v1/saves', {
       method: 'POST',
       headers: {
         'apikey': SERVICE_KEY,
         'Authorization': 'Bearer ' + SERVICE_KEY,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates,return=representation'
+        'Prefer': 'return=representation'
       },
       body: JSON.stringify({
         user_id: userId,
         slot: slot,
         save_name: saveName,
-        save_data: saveData,
-        updated_at: new Date().toISOString()
+        save_data: saveData
       })
     });
 
-    if (upsertResp.ok) {
+    if (insertResp.ok) {
       return res.status(200).json({ ok: true });
     } else {
-      var errData = await upsertResp.json();
+      var errData = await insertResp.json();
       return res.status(500).json({ error: 'save failed', detail: errData });
     }
   }
