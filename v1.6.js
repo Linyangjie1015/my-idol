@@ -11203,6 +11203,26 @@ function _closeAccountOverlay() {
     if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
 }
 
+function _ensureCloudUser() {
+    if (!_cloudToken) return;
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", CLOUD_API + "/api/ensure-user", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Authorization", "Bearer " + _cloudToken);
+    xhr.timeout = 5000;
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var r = JSON.parse(xhr.responseText);
+                if (r.ok && r.user_id) {
+                    localStorage.setItem("myIdolPublicUserId", r.user_id);
+                }
+            } catch(e) {}
+        }
+    };
+    xhr.send(JSON.stringify({}));
+}
+
 function _doCloudRegister() {
     var emailEl = document.getElementById('regEmail');
     var nickEl = document.getElementById('regNickname');
@@ -11266,6 +11286,7 @@ function _doCloudRegister() {
                     _closeAccountOverlay();
                     if (token) {
                         showToast('注册成功，云端已连接');
+                    _ensureCloudUser();
                     } else {
                         showToast('注册成功，请查收邮箱验证后登录');
                     }
@@ -11341,6 +11362,7 @@ function _doCloudLogin() {
                         return;
                     }
                     showToast('登录成功');
+                    _ensureCloudUser();
                     currentPage = 'welcome';
                     render();
                     _doCloudSyncDown();
