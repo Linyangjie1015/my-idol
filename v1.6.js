@@ -2225,7 +2225,7 @@ function render考核Page(container) {
     var examEntriesHtml = '';
     for (var si = 0; si < subjects.length; si++) {
         var s = subjects[si];
-        var statVal = gameState.stats[s.key];
+        var statVal = gameState.stats[s.key] || 0;
         var nextLevel = -1;
         for (var li = 0; li < 3; li++) {
             if (!certs[s.key][li]) { nextLevel = li; break; }
@@ -2240,9 +2240,10 @@ function render考核Page(container) {
                 + '</div>';
         } else {
             var canTake = statVal >= 105 && gameState.money >= 300;
-            var lockReason = '';
-            if (statVal < 105) lockReason = '需' + s.name + '≥105（当前' + statVal + '）';
-            else if (gameState.money < 300) lockReason = '金币不足300';
+            var lockReasons = [];
+            if (statVal < 105) lockReasons.push('需' + s.name + '≥105（当前' + statVal + '）');
+            if (gameState.money < 300) lockReasons.push('金币不足300（当前' + gameState.money + '）');
+            var lockReason = lockReasons.length > 0 ? lockReasons.join(' · ') : '';
             examEntriesHtml += '<div class="exam-entry ' + (canTake ? '' : 'locked') + '" onclick="' + (canTake ? "startExam('" + s.key + "'," + nextLevel + ")" : '') + '">'
                 + '<div class="exam-entry-left">'
                 + '<div class="exam-entry-title"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:' + s.color + ';color:white;font-size:11px;font-weight:700;line-height:20px;text-align:center;margin-right:6px;">' + s.icon + '</span>' + s.name + ' - ' + levelNames[nextLevel] + '合格证</div>'
@@ -2299,7 +2300,7 @@ function render考核Page(container) {
 
 function startExam(subject, level) {
     _ensureExamState();
-    var statVal = gameState.stats[subject];
+    var statVal = gameState.stats[subject] || 0;
     if (statVal < 105) {
         showModal('无法参加', '该科目能力值需达到105才能参加考试（当前：' + statVal + '）');
         return;
@@ -6419,6 +6420,7 @@ function render成员信息Page(container) {
         html += getAppLinkHtml('members');
     container.innerHTML = html;
     } else if (level === 1) {
+        try {
         var company = COMPANIES[comp];
         if (!company) { gameState.membersViewLevel = 0; render(); return; }
         var groupKeys = Object.keys(company.groups); var groups = []; for (var _mgi = 0; _mgi < groupKeys.length; _mgi++) { groups.push([groupKeys[_mgi], company.groups[groupKeys[_mgi]]]); }
@@ -6430,7 +6432,9 @@ function render成员信息Page(container) {
         }
         html += '</div></div>';
         container.innerHTML = html;
+        } catch(e) { gameState.membersViewLevel = 0; render(); }
     } else if (level === 2) {
+        try {
         var company = COMPANIES[comp];
         if (!company) { gameState.membersViewLevel = 0; render(); return; }
         var group = company.groups[grp];
@@ -6448,6 +6452,7 @@ function render成员信息Page(container) {
         }
         html += '</div></div>';
         container.innerHTML = html;
+        } catch(e) { gameState.membersViewLevel = 0; render(); }
     }
 }
 
@@ -11296,6 +11301,7 @@ function _doCloudRegister() {
                 } else {
                     var msg = res.msg || (res.error && res.error.message) || res.error_description || '注册失败';
                     if (msg.indexOf('already') >= 0 || msg.indexOf('registered') >= 0) msg = '该邮箱已注册';
+                    if (msg.indexOf('rate limit') >= 0 || msg.indexOf('rate_limit') >= 0) msg = '注册过于频繁，请1小时后重试';
                     if (msg.indexOf('Database error') >= 0) msg = '服务器内部错误，请联系管理员';
                     if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
                     if (btnEl) btnEl.textContent = '注册';
@@ -11707,11 +11713,16 @@ function renderWelcomeAccountPage(container) {
             + '<div style="font-size:12px;opacity:0.7;">点击继续游戏</div>'
             + '</div>';
     }
+    if (!hasCloudToken) {
+        html += '\u003cdiv class="card" style="margin:0 0 12px;padding:12px;background:#FFF3E0;border:1px solid #FFB74D;border-radius:10px;"\u003e'
+            + '\u003cdiv style="font-size:12px;color:#E65100;"\u003e如果之前在其他网址玩过，请登录原账号恢复存档\u003c/div\u003e'
+            + '\u003c/div\u003e';
+    }
     html += '<div class="account-btn-group">'
         + '<button class="btn btn-primary btn-lg" onclick="_showCloudRegisterOverlay()">邮箱注册</button>'
         + '<button class="btn btn-outline btn-lg" onclick="_showCloudLoginOverlay()">邮箱登录</button>'
         + '</div>'
-        + '<div class="account-footer">注册后存档自动云端同步，换设备不丢进度</div>'
+        + '<div class="account-footer">登录账号后存档自动云端同步，换设备/网址不丢进度</div>'
         + '</div>';
     container.innerHTML = html;
 }

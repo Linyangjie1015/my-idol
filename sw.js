@@ -1,4 +1,4 @@
-var CACHE_NAME = 'my-idol-v1-6-5';
+var CACHE_NAME = 'my-idol-v1-6-6';
 var CACHE_URLS = [
   '/index.html',
   '/v1.6.html',
