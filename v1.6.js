@@ -3168,7 +3168,7 @@ var VIP_TIERS = {
     premium: { name: '完整版', price: 19.9, dailyLimit: 120, features: ['全部APP解锁', 'AI对话120条/天', '直播功能', '优先体验新内容', '一次性买断永久解锁'] }
 };
 var AFDIAN_URL = 'https://afdian.com/a/myidol';
-var WORKER_URL = 'https://my-idol-api.vercel.app';
+var WORKER_URL = 'https://myidol.asia';
 
 function getVipTier() {
     try { return JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier || null; } catch(e) { return null; }
@@ -11147,7 +11147,7 @@ function sendKakaoMessage() {
 }
 
 // ==================== CLOUD ACCOUNT SYSTEM ====================
-var CLOUD_API = 'https://my-idol-api.vercel.app';
+var CLOUD_API = 'https://myidol.asia';
 var SUPABASE_URL = 'https://yivdnocibzayqoifptfm.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpdmRub2NpYnpheXFvaWZwdGZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MTQ2MjIsImV4cCI6MjA5NzA5MDYyMn0.B4B6MhQe2xRtdrbPMRtlcFx26nWDfGgtM7GOl9sPKFw';
 var _cloudToken = localStorage.getItem('myIdolCloudToken') || '';
