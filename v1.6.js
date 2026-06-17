@@ -1049,9 +1049,10 @@ function handleInviteCodeInput(el) {
 }
 
 function checkInviteCode() {
+    var btnEl = document.getElementById('inviteCodeBtn');
+    if (btnEl && btnEl.disabled) return;
     var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase().replace(/\s/g, '');
     var errEl = document.getElementById('inviteCodeError');
-    var btnEl = document.getElementById('inviteCodeBtn');
     if (!code) {
         errEl.style.display = 'block';
         errEl.textContent = '请输入邀请码';
@@ -1060,7 +1061,7 @@ function checkInviteCode() {
         return;
     }
     if (INVITE_CODES.indexOf(code) !== -1) {
-        if(btnEl) btnEl.textContent='验证中...';
+        if(btnEl){btnEl.textContent='验证中...';btnEl.disabled=true;}
         window._inviteVerified = true;
         /* localStorage.setItem('myIdolInviteVerified', 'true'); */
         currentPage = 'welcome';
@@ -2088,6 +2089,8 @@ function startRestRecovery() {
 
 // ==================== EXAM SYSTEM ====================
 var isExamInProgress = false;
+// Reset stuck exam state on load
+(function(){try{var _s=localStorage.getItem(_getSaveKey?_getSaveKey(0):"");if(_s){var _d=JSON.parse(_s);if(!_d||!_d.examResult||!_d.examResult._inProgress){isExamInProgress=false;}}}catch(e){}})();
 var currentExamSubject = '';
 var currentExamLevel = 0;
 var currentExamAttempt = 0;
@@ -2155,6 +2158,7 @@ var simonColors = ['#FF8FA3', '#FFD700', '#87CEEB', '#98FB98'];
 var simonColorNames = ['粉', '金', '蓝', '绿'];
 
 function _ensureExamState() {
+    if (currentPage !== 'examGame') isExamInProgress = false;
     if (!gameState.certificates) {
         gameState.certificates = {
             dance: [false, false, false],
@@ -3143,12 +3147,14 @@ function getAIUsageToday(appId) {
 
 function getAIMaxTotalToday() {
     // VIP tier-based limits
-    var vipTier = null;
-    try { vipTier = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier; } catch(e) {}
-    if (vipTier === 'premium') return 80;
-    if (vipTier === 'advanced') return 40;
-    if (vipTier === 'basic') return 15;
-    return 3; // Free users get 3 AI messages per day (trial)
+    var vipTier = gameState.vipTier || null;
+    if (!vipTier) { try { vipTier = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier; } catch(e) {} }
+    var base = 3;
+    if (vipTier === 'premium') base = 80;
+    else if (vipTier === 'advanced') base = 40;
+    else if (vipTier === 'basic') base = 15;
+    var bonus = gameState._bonusAiToday || 0;
+    return base + bonus;
 }
 
 function canUseAIToday() {
@@ -3540,7 +3546,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
     try {
         if (page === 'mail' && gameState.emails) { for (var _mi = 0; _mi < gameState.emails.length; _mi++) gameState.emails[_mi].read = true; }
         if (page === 'meeting' && gameState.meetings) { for (var _mi2 = 0; _mi2 < gameState.meetings.length; _mi2++) gameState.meetings[_mi2].read = true; }
-        if (page === 'kakaotalk' && gameState.kakaoChats) { var _kck = Object.keys(gameState.kakaoChats); for (var _kci = 0; _kci < _kck.length; _kci++) { var _kcm = gameState.kakaoChats[_kck[_kci]]; for (var _kcj = 0; _kcj < _kcm.length; _kcj++) _kcm[_kcj].read = true; } }
+        /* KakaoTalk unread cleared per-chat when entering specific chat */
         if (page === 'updates') { gameState.lastReadVersion = 'V1.5.2'; }
         if (page === 'work') { gameState.newNotice = false; }
         if (page === 'live') { gameState.livePendingReward = false; }
@@ -6235,8 +6241,8 @@ function sendLiveChat() {
         })(500 + ri * 400 + Math.random() * 600);
     }
     // AI smart reply (if user has AI access)
-    var aiLimit = _getAILimit();
-    var aiUsed = gameState.aiUsedToday || 0;
+    var aiLimit = getAIMaxTotalToday();
+    var aiUsed = getAITotalUsageToday();
     if (aiUsed < aiLimit && typeof callCozeAI === 'function') {
         setTimeout(function() {
             var context = gameState.player.name + '是' + (gameState.player.role === 'Idol' ? '爱豆' : '练习生');
@@ -6250,7 +6256,7 @@ function sendLiveChat() {
                 cd.innerHTML = '<span style="color:#FFD700;font-weight:600;">' + from + '</span> <span style="color:var(--color-text-light);">' + resp + '</span>';
                 ca.appendChild(cd);
                 ca.scrollTop = ca.scrollHeight;
-                gameState.aiUsedToday = (gameState.aiUsedToday || 0) + 1;
+                recordAIUsage('live');
             });
         }, 1500 + Math.random() * 1000);
     }
@@ -10857,7 +10863,7 @@ function _renderKakaoChatList() {
             lastTime = chats[chats.length - 1].time;
         }
         html += '<div class="kakao-friend-item" data-fname="' + f.name + '" onclick="gameState.kakaoCurrentChat=this.dataset.fname;goToPage(\'kakaochat\');">'
-            + '<div class="kakao-avatar clickable" data-npc='+f.name+'" onclick="event.stopPropagation();showNpcCard(this.dataset.npc);" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
+            + '<div class="kakao-avatar clickable" data-npc="'+f.name+'" onclick="event.stopPropagation();showNpcCard(this.dataset.npc);" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
             + '<div class="kakao-friend-info">'
@@ -10887,7 +10893,7 @@ function _renderKakaoFriendList() {
     for (var i = 0; i < friends.length; i++) {
         var f = friends[i];
         html += '<div class="kakao-friend-item" data-fname="' + f.name + '" onclick="gameState.kakaoCurrentChat=this.dataset.fname;goToPage(\'kakaochat\');">'
-            + '<div class="kakao-avatar clickable" data-npc='+f.name+'" onclick="event.stopPropagation();showNpcCard(this.dataset.npc);" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
+            + '<div class="kakao-avatar clickable" data-npc="'+f.name+'" onclick="event.stopPropagation();showNpcCard(this.dataset.npc);" style="background:' + f.avatarColor + ';">' + f.name.charAt(0)
             + (f.online ? '<div class="kakao-online-dot"></div>' : '')
             + '</div>'
             + '<div class="kakao-friend-info">'
@@ -11010,7 +11016,7 @@ function renderKakaoChatPage(container) {
         + '</div>'
         + '<div class="kakao-chat-area" id="kakaoChatArea">' + chatHtml + '</div>'
         + '<div class="kakao-input-bar">'
-        + '<input class="kakao-input" id="kakaoMsgInput" placeholder="输入消息..." />'
+        + '<input class="kakao-input" id="kakaoMsgInput" placeholder="输入消息..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();sendKakaoMessage();}" />'
         + '<button class="kakao-send-btn" onclick="sendKakaoMessage()">'
         + '<svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>'
         + '</button>'
@@ -11020,6 +11026,56 @@ function renderKakaoChatPage(container) {
         var area = document.getElementById('kakaoChatArea');
         if (area) area.scrollTop = area.scrollHeight;
     }, 50);
+}
+
+
+function showNpcCard(npcName) {
+    if (!npcName) return;
+    var npc = null;
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
+    }
+    if (!npc) return;
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    var hiddenOk = 好感 >= 30;
+    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">'
+        + '<div style="background:var(--bg-card);border-radius:20px;width:85%;max-width:340px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">'
+        + '<div style="display:flex;align-items:center;margin-bottom:16px;">'
+        + '<div style="width:56px;height:56px;border-radius:50%;background:'+npc.avatarColor+';display:flex;align-items:center;justify-content:center;font-size:22px;color:white;font-weight:700;">'+npc.name.charAt(0)+'</div>'
+        + '<div style="margin-left:14px;flex:1;">'
+        + '<div style="font-size:18px;font-weight:700;color:var(--color-text);">'+npc.name+'</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">'+(npc.personality||'')+'</div>'
+        + '</div>'
+        + '<div style="cursor:pointer;font-size:24px;color:var(--color-text-light);padding:4px 8px;line-height:1;" onclick="this.closest(\'div[style*=position:fixed]\').remove()">&times;</div>'
+        + '</div>';
+    if (npc.bio) {
+        html += '<div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--color-text-light);margin-bottom:4px;">简介</div>'
+            + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">'+npc.bio+'</div></div>';
+    }
+    if (npc.quote) {
+        html += '<div style="margin-bottom:12px;padding:10px 14px;background:#FFF5F7;border-radius:10px;">'
+            + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">招牌语</div>'
+            + '<div style="font-size:13px;color:var(--color-text);font-style:italic;">\u201c'+npc.quote+'\u201d</div></div>';
+    }
+    html += '<div style="margin-bottom:12px;">'
+        + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:6px;">好感度 '+好感+'/100</div>'
+        + '<div style="height:6px;background:#EEE;border-radius:3px;overflow:hidden;">'
+        + '<div style="height:100%;width:'+好感+'%;background:linear-gradient(90deg,#FF8FA3,#FF6B8A);border-radius:3px;transition:width 0.3s;"></div>'
+        + '</div></div>';
+    if (npc.hidden) {
+        if (hiddenOk) {
+            html += '<div style="padding:10px 14px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:10px;">'
+                + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">隐藏特质</div>'
+                + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">'+npc.hidden+'</div></div>';
+        } else {
+            html += '<div style="padding:10px 14px;background:#F5F5F5;border-radius:10px;text-align:center;">'
+                + '<div style="font-size:12px;color:var(--color-text-light);">好感度达30解锁隐藏特质 ('+Math.max(0,30-好感)+'/30)</div></div>';
+        }
+    }
+    html += '</div></div>';
+    var overlay = document.createElement('div');
+    overlay.innerHTML = html;
+    document.body.appendChild(overlay);
 }
 
 function sendKakaoMessage() {
@@ -11074,8 +11130,15 @@ function sendKakaoMessage() {
             if (npc.hidden) npcContext += ' 隐藏特质：' + npc.hidden;
             getAIReply('kakaotalk', npcContext, text, function(reply) {
                 gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
-                        notifyKakao(npcName, reply.substring(0,30));
-                renderKakaoChatPage(document.getElementById('app'));
+                notifyKakao(npcName, reply.substring(0,30));
+                var ca = document.getElementById('kakaoChatArea');
+                if (ca) {
+                    var npcDiv = document.createElement('div');
+                    npcDiv.className = 'kakao-msg-row npc';
+                    npcDiv.innerHTML = '<div><div class="kakao-msg-bubble npc">' + reply + '</div><div class="kakao-msg-time">' + timeStr + '</div></div>';
+                    ca.appendChild(npcDiv);
+                    ca.scrollTop = ca.scrollHeight;
+                }
             });
         }
     }, replyDelay);
@@ -11645,6 +11708,31 @@ function _quickCloudLogin() {
 }
 
 // ==================== AUTO SAVE ====================
+
+// Home page swipe support
+(function() {
+    var _homeSwipeStartX = 0;
+    var _homeSwipeStartY = 0;
+    document.addEventListener('touchstart', function(e) {
+        var pg = e.target.closest && e.target.closest('.page.active');
+        if (!pg) return;
+        // Check if this is the home page by looking for app-grid
+        if (!pg.querySelector('.app-grid')) return;
+        _homeSwipeStartX = e.touches[0].clientX;
+        _homeSwipeStartY = e.touches[0].clientY;
+    }, {passive: true});
+    document.addEventListener('touchend', function(e) {
+        if (_homeSwipeStartX === 0) return;
+        var dx = e.changedTouches[0].clientX - _homeSwipeStartX;
+        var dy = e.changedTouches[0].clientY - _homeSwipeStartY;
+        _homeSwipeStartX = 0;
+        if (Math.abs(dx) < 50 || Math.abs(dy) > Math.abs(dx)) return;
+        var curPage = gameState.homePageNum || 1;
+        if (dx < 0 && curPage === 1) { gameState.homePageNum = 2; render(); }
+        else if (dx > 0 && curPage === 2) { gameState.homePageNum = 1; render(); }
+    }, {passive: true});
+})();
+
 var autoSaveTimer = null;
 
 function _doAutoSave(silent) {

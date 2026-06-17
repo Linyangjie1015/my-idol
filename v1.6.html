@@ -480,13 +480,13 @@
     }
 
     /* ==================== APP GRID ==================== */
-    .app-grid {
+    .app-grid { touch-action: pan-y;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 16px 8px;
         padding: 8px 0;
     }
-    .app-item {
+    .app-item { -webkit-tap-highlight-color: transparent;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -761,8 +761,8 @@
         margin-bottom: 10px; border: 1.5px solid var(--color-border); cursor: pointer;
         transition: all 0.2s;
     }
-    .exam-entry:active { transform: scale(0.98); }
-    .exam-entry.locked { opacity: 0.5; cursor: not-allowed; }
+    .exam-entry:active { transform: scale(0.98); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .exam-entry.locked { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
     .exam-entry .exam-entry-left { flex: 1; }
     .exam-entry .exam-entry-title { font-size: 14px; font-weight: 600; color: var(--color-text); }
     .exam-entry .exam-entry-sub { font-size: 12px; color: var(--color-text-light); margin-top: 2px; }
@@ -772,7 +772,7 @@
         border-radius: 16px; margin-top: 12px; text-align: center;
         border: 2px dashed var(--color-primary);
     }
-    .exam-comprehensive-entry.unlocked { border-style: solid; cursor: pointer; }
+    .exam-comprehensive-entry.unlocked { border-style: solid; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .exam-comprehensive-entry.locked { opacity: 0.5; }
 
     /* Dance exam - rhythm dots */
