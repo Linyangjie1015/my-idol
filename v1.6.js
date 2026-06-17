@@ -5402,7 +5402,7 @@ function renderInsPage(container) {
         for (var i = 0; i < allPosts.length; i++) {
             var p = allPosts[i];
             var contentId = 'insPost' + i;
-            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + p.user + \'\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '">' + p.content + ' <span class="translate-btn" onclick="_translateInsPost(' + i + ')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
+            tabContent += '<div class="card"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + p.user + \'\';goToPage(\'insprofile\')">' + p.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + p.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + p.time + '</div></div></div><p style="font-size:14px;margin-bottom:10px;" id="' + contentId + '">' + (p.content || p.text || '') + ' <span class="translate-btn" onclick="_translateInsPost(' + i + ')">翻译</span></p>' + (p.img ? '<img src="' + p.img + '" style="width:100%;border-radius:8px;">' : '') + '<div style="margin-top:10px;display:flex;gap:16px;color:var(--color-text-light);font-size:13px;"><span>' + p.likes + ' 点赞</span><span>评论</span></div></div>';
         }
         tabContent += '</div>';
     } else if (insTab === 'messages') {
@@ -5454,7 +5454,7 @@ function renderInsPage(container) {
             tabContent += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:2px;">';
             for (var i = 0; i < gameState.insPosts.length; i++) {
                 var ip = gameState.insPosts[i];
-                var shortContent = ip.content.length > 20 ? ip.content.substring(0,20) + '...' : ip.content;
+                var ipContent = ip.content || ip.text || '';  var shortContent = ipContent.length > 20 ? ipContent.substring(0,20) + '...' : ipContent;
                 tabContent += '<div style="aspect-ratio:1;background:var(--color-border);border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-light);padding:4px;cursor:pointer;" data-shortContent="' + shortContent + '" onclick="showModal(this.dataset.shortContent)">' + shortContent + '</div>';
             }
             tabContent += '</div>';
@@ -7556,7 +7556,7 @@ function startComeback() {
     // Auto post INS and trigger hotsearch when comeback starts
     if (!gameState.insPosts) gameState.insPosts = [];
     gameState.insPosts.unshift({
-        text: gameState.player.name + '\u7684\u65b0\u56de\u5f52\u5373\u5c06\u5f00\u59cb\uff01\u656c\u8bf7\u671f\u5f85~ \u2728',
+        user: gameState.player.name, avatar: gameState.player.avatar || '', content: gameState.player.name + '\u7684\u65b0\u56de\u5f52\u5373\u5c06\u5f00\u59cb\uff01\u656c\u8bf7\u671f\u5f85~ \u2728',
         likes: Math.floor(Math.random() * 500) + 200,
         time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
     });
