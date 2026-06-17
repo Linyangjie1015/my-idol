@@ -2267,7 +2267,7 @@ function render考核Page(container) {
     } else if (allLevel3) {
         var nextComp = gameState.examResult.comprehensive[0] ? 1 : 0;
         var needScore = nextComp === 0 ? '3/5' : '4/5';
-        compHtml = '<div class="exam-comprehensive-entry unlocked" data-nextComp="' + nextComp + '" onclick="startComprehensiveExam(this.dataset.nextComp)">'
+        compHtml = '<div class="exam-comprehensive-entry unlocked" data-nextComp="' + nextComp + '" onclick="startComprehensiveExam(parseInt(this.dataset.nextComp))">'
             + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
             + '<div style="font-size:16px;font-weight:700;color:var(--color-primary);">综合考试 - 第' + (nextComp + 1) + '次</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">5科各出1题，需答对' + needScore + '以上 · 300金币</div>'
@@ -2471,7 +2471,7 @@ function renderDanceExam(container, level) {
         if (!roundActive) return;
         var dot = document.getElementById('rdot' + idx);
         if (!dot) return;
-        if (idx === currentLitIndex) {
+        if (parseInt(idx) === currentLitIndex) {
             dot.className = 'rhythm-dot hit';
             dot.textContent = '✓';
             roundHits++;
@@ -2568,7 +2568,7 @@ function renderVocalExam(container, level) {
             pad.className = 'simon-pad lit';
             setTimeout(function() { if (pad) pad.className = 'simon-pad'; }, 200);
         }
-        playerSeq.push(idx);
+        playerSeq.push(parseInt(idx));
         var pos = playerSeq.length - 1;
         var progEl = document.getElementById('simonProgress');
         if (progEl) progEl.textContent = playerSeq.length + ' / ' + seqLen;
@@ -2632,7 +2632,7 @@ function renderRapExam(container, level) {
         if (answered) return;
         answered = true;
         var q = questions[currentQ];
-        var correct = idx === q.answer;
+        var correct = parseInt(idx) === q.answer;
         if (correct) correctCount++;
         var el = document.getElementById('rapOpt' + idx);
         if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
@@ -2712,7 +2712,7 @@ function renderActingExam(container, level) {
         if (answered) return;
         answered = true;
         var q = questions[currentQ];
-        var correct = idx === q.answer;
+        var correct = parseInt(idx) === q.answer;
         if (correct) correctCount++;
         var el = document.getElementById('actOpt' + idx);
         if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
@@ -2792,7 +2792,7 @@ function renderVarietyExam(container, level) {
         if (answered) return;
         answered = true;
         var q = questions[currentQ];
-        var correct = idx === q.answer;
+        var correct = parseInt(idx) === q.answer;
         if (correct) correctCount++;
         var el = document.getElementById('varOpt' + idx);
         if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
@@ -2970,7 +2970,7 @@ function renderComprehensiveExam(container, attempt) {
 
     window._compDanceHit = function(idx) {
         if (compDanceShowing) return;
-        compDancePlayerSeq.push(idx);
+        compDancePlayerSeq.push(parseInt(idx));
         var pos = compDancePlayerSeq.length - 1;
         var seq = mixedQuestions[currentQ].data;
         var dot = document.getElementById('cdot' + idx);
@@ -3022,7 +3022,7 @@ function renderComprehensiveExam(container, attempt) {
 
     window._compSimonClick = function(idx) {
         if (compSimonShowing) return;
-        compSimonPlayerSeq.push(idx);
+        compSimonPlayerSeq.push(parseInt(idx));
         var pos = compSimonPlayerSeq.length - 1;
         var seq = mixedQuestions[currentQ].data;
         var pad = document.getElementById('cspad' + idx);
@@ -3044,7 +3044,7 @@ function renderComprehensiveExam(container, attempt) {
         answered = true;
         var mq = mixedQuestions[currentQ];
         var q = mq.data;
-        var correct = idx === q.answer;
+        var correct = parseInt(idx) === q.answer;
         if (correct) correctCount++;
         var el = document.getElementById('compOpt' + idx);
         if (el) el.className = 'quiz-option ' + (correct ? 'selected-correct' : 'selected-wrong');
@@ -3097,7 +3097,7 @@ function render我的Page(container) {
     container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color:#FF69B4;">颜值</span>\n                        <div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.looks || 0) / 2) + '%;background:linear-gradient(90deg,#FF69B4,#FFB6C1);"></div></div>\n                        <span class="stat-value" style="color:#FF69B4;">' + (gameState.looks || 0) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
-                    }).join('')) + '\n                </div>\n                \n                <!-- 经济卡 -->\n                <div class="section-title">经济</div>\n                <div class="card">\n                    <div style="display: flex; justify-content: space-around;">\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + (gameState.money.toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">金币</div>\n                        </div>\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + (gameState.fans.toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">粉丝</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <!-- 背包卡 -->\n                <div class="section-title">背包</div>\n                <div class="card">\n                    ' + (gameState.inventory.length === 0 ? '\n                        <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>\n                    ' : gameState.inventory.map(function(item, i) { return '\n                        <div class="inventory-item">\n                            <span class="item-name">' + (item.name) + '</span>\n                            <button class="item-use" onclick="useItem(' + (i) + ')">使用</button>\n                        </div>\n                    '}).join('')) + '\n                </div>\n                \n                <!-- 账号操作 -->\n                <div class="section-title" style="margin-top:16px;">账号</div>\n                <div class="card" onclick="_doLogout()" style="cursor:pointer;">\n                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>\n                </div>\n            </div>\n        </div>\n    ';
+                    }).join('')) + '\n                </div>\n                \n                <!-- 经济卡 -->\n                <div class="section-title">经济</div>\n                <div class="card">\n                    <div style="display: flex; justify-content: space-around;">\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.money || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">金币</div>\n                        </div>\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.fans || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">粉丝</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <!-- 背包卡 -->\n                <div class="section-title">背包</div>\n                <div class="card">\n                    ' + (gameState.inventory.length === 0 ? '\n                        <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>\n                    ' : gameState.inventory.map(function(item, i) { return '\n                        <div class="inventory-item">\n                            <span class="item-name">' + (item.name) + '</span>\n                            <button class="item-use" onclick="useItem(' + (i) + ')">使用</button>\n                        </div>\n                    '}).join('')) + '\n                </div>\n                \n                <!-- 账号操作 -->\n                <div class="section-title" style="margin-top:16px;">账号</div>\n                <div class="card" onclick="_doLogout()" style="cursor:pointer;">\n                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>\n                </div>\n            </div>\n        </div>\n    ';
 }
 
 function useItem(index) {
@@ -3852,8 +3852,8 @@ function render行程表Page(container) {
         var actionsHtml = '';
         if (item.status === 'todo') {
             actionsHtml = '<div style="display:flex;gap:6px;align-items:center;">'
-                + '<button class="btn btn-sm btn-primary" data-i="' + i + '" onclick="joinSchedule(this.dataset.i)" style="font-size:11px;padding:4px 10px;">参加</button>'
-                + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="skipSchedule(this.dataset.i)" style="font-size:11px;padding:4px 10px;color:var(--color-danger);border-color:var(--color-danger);">不参加</button>'
+                + '<button class="btn btn-sm btn-primary" data-i="' + i + '" onclick="joinSchedule(parseInt(this.dataset.i))" style="font-size:11px;padding:4px 10px;">参加</button>'
+                + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="skipSchedule(parseInt(this.dataset.i))" style="font-size:11px;padding:4px 10px;color:var(--color-danger);border-color:var(--color-danger);">不参加</button>'
                 + '</div>';
         } else {
             actionsHtml = statusHtml;
@@ -3958,7 +3958,7 @@ function render会议Page(container) {
         var meetingsHtml = '';
         for (var mi = 0; mi < gameState.meetings.length; mi++) {
             var mt = gameState.meetings[mi];
-            meetingsHtml += '<div class="card" data-mi="' + mi + '" onclick="readMeeting(this.dataset.mi)">'
+            meetingsHtml += '<div class="card" data-mi="' + mi + '" onclick="readMeeting(parseInt(this.dataset.mi))">'
                 + '<div style="display:flex;align-items:flex-start;">'
                 + '<div class="meeting-dot ' + (mt.read ? 'read' : '') + '" style="margin-top:5px;"></div>'
                 + '<div style="flex:1;">'
@@ -4075,7 +4075,7 @@ function render工作Page(container) {
         else if (n.type === 'fanmeet') typeBg = 'background:#F0E4FF;color:#A070E0;';
         else if (n.type === 'concert') typeBg = 'background:#FFE4EC;color:#FF6B8A;';
         else typeBg = 'background:#E4F5FF;color:#5BB8E8;';
-        itemsHtml += '<div class="notice-card" data-i="' + i + '" onclick="viewNoticeDetail(this.dataset.i)">'
+        itemsHtml += '<div class="notice-card" data-i="' + i + '" onclick="viewNoticeDetail(parseInt(this.dataset.i))">'
             + '<div class="notice-type" style="' + typeBg + '">' + n.typeName + '</div>'
             + '<div class="notice-title">' + n.name + '</div>'
             + '<div class="notice-sub">体力 -' + n.体力 + '</div>'
@@ -5385,6 +5385,7 @@ function _translateTtDesc(idx) {
 }
 
 function renderInsPage(container) {
+    try {
     if (!gameState.insPosts) gameState.insPosts = [];
     if (!gameState.insMessages) gameState.insMessages = [];
     
@@ -5446,7 +5447,7 @@ function renderInsPage(container) {
         }
     } else if (insTab === 'profile') {
         var totalLikes = gameState.totalLikes || 0;
-        tabContent = '<div style="flex:1;overflow-y:auto;"><div style="text-align:center;padding:24px 16px;background:var(--bg-card);border-bottom:1px solid var(--color-border);"><div class="avatar" style="width:64px;height:64px;font-size:24px;margin:0 auto 10px;">' + (gameState.player.avatar || '') + '</div><div style="font-size:18px;font-weight:700;">' + gameState.player.name + '</div><div style="display:flex;justify-content:space-around;margin-top:16px;"><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + gameState.insPosts.length + '</div><div style="font-size:10px;color:var(--color-text-light);">动态</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + gameState.fans.toLocaleString() + '</div><div style="font-size:10px;color:var(--color-text-light);">粉丝</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + totalLikes + '</div><div style="font-size:10px;color:var(--color-text-light);">获赞</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + (gameState.fame || 30) + '</div><div style="font-size:10px;color:var(--color-text-light);">人气值</div></div></div></div>';
+        tabContent = '<div style="flex:1;overflow-y:auto;"><div style="text-align:center;padding:24px 16px;background:var(--bg-card);border-bottom:1px solid var(--color-border);"><div class="avatar" style="width:64px;height:64px;font-size:24px;margin:0 auto 10px;">' + (gameState.player.avatar || '') + '</div><div style="font-size:18px;font-weight:700;">' + gameState.player.name + '</div><div style="display:flex;justify-content:space-around;margin-top:16px;"><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + gameState.insPosts.length + '</div><div style="font-size:10px;color:var(--color-text-light);">动态</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + (gameState.fans || 0).toLocaleString() + '</div><div style="font-size:10px;color:var(--color-text-light);">粉丝</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + totalLikes + '</div><div style="font-size:10px;color:var(--color-text-light);">获赞</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + (gameState.fame || 30) + '</div><div style="font-size:10px;color:var(--color-text-light);">人气值</div></div></div></div>';
         if (gameState.insPosts.length === 0) {
             tabContent += '<div style="text-align:center;padding:30px;color:var(--color-text-light);font-size:13px;">还没有发过动态</div>';
         } else {
@@ -5468,6 +5469,10 @@ function renderInsPage(container) {
         + '</div>';
     
     container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">INS</div><div style="width:32px;"></div></div>' + tabBar + tabContent + getAppLinkHtml('ins') + '</div>';
+    } catch(e) {
+        console.error('INS render error:', e);
+        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">INS页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
+    }
 }
 
 function sendInsChat() {
@@ -5618,7 +5623,7 @@ function renderTiktokPage(container) {
         }
     } else if (tiktokTab === 'profile') {
         var totalLikes = gameState.totalLikes || 0;
-        tabContent = '<div style="flex:1;overflow-y:auto;"><div style="text-align:center;padding:24px 16px;background:var(--bg-card);border-bottom:1px solid var(--color-border);"><div class="avatar" style="width:64px;height:64px;font-size:24px;margin:0 auto 10px;">' + (gameState.player.avatar || '') + '</div><div style="font-size:18px;font-weight:700;">' + gameState.player.name + '</div><div style="display:flex;justify-content:space-around;margin-top:16px;"><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + gameState.tiktokPosts.length + '</div><div style="font-size:10px;color:var(--color-text-light);">视频</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + gameState.fans.toLocaleString() + '</div><div style="font-size:10px;color:var(--color-text-light);">粉丝</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + totalLikes + '</div><div style="font-size:10px;color:var(--color-text-light);">获赞</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + (gameState.fame || 30) + '</div><div style="font-size:10px;color:var(--color-text-light);">人气值</div></div></div></div>';
+        tabContent = '<div style="flex:1;overflow-y:auto;"><div style="text-align:center;padding:24px 16px;background:var(--bg-card);border-bottom:1px solid var(--color-border);"><div class="avatar" style="width:64px;height:64px;font-size:24px;margin:0 auto 10px;">' + (gameState.player.avatar || '') + '</div><div style="font-size:18px;font-weight:700;">' + gameState.player.name + '</div><div style="display:flex;justify-content:space-around;margin-top:16px;"><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + gameState.tiktokPosts.length + '</div><div style="font-size:10px;color:var(--color-text-light);">视频</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + (gameState.fans || 0).toLocaleString() + '</div><div style="font-size:10px;color:var(--color-text-light);">粉丝</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + totalLikes + '</div><div style="font-size:10px;color:var(--color-text-light);">获赞</div></div><div style="text-align:center;"><div style="font-weight:600;font-size:16px;">' + (gameState.fame || 30) + '</div><div style="font-size:10px;color:var(--color-text-light);">人气值</div></div></div></div>';
         if (gameState.tiktokPosts.length === 0) {
             tabContent += '<div style="text-align:center;padding:30px;color:var(--color-text-light);font-size:13px;">还没有发过视频</div>';
         } else {
@@ -5798,7 +5803,7 @@ function renderFoodPage(container) {
         + '<div class="page-content">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
         + '<div style="font-size:12px;opacity:0.8;">余额</div>'
-        + '<div style="font-size:22px;font-weight:700;">' + gameState.money.toLocaleString() + '</div>'
+        + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
         + '</div>'
         + foodCardsHtml
         + getAppLinkHtml('food') + '</div></div>';
@@ -5907,7 +5912,7 @@ function render快递服务Page(container) {
         + '<div class="page-content">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
         + '<div style="font-size:12px;opacity:0.8;">余额</div>'
-        + '<div style="font-size:22px;font-weight:700;">' + gameState.money.toLocaleString() + '</div>'
+        + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
         + '</div>'
         + delCardsHtml
         + getAppLinkHtml('delivery') + '</div></div>';
@@ -5984,14 +5989,14 @@ function applyLoan(amount, interest) {
 function repayLoan() {
     var totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
     if (gameState.money < totalOwed) {
-        showModal('金币不足', '金币不够还款，当前余额: ' + gameState.money.toLocaleString());
+        showModal('金币不足', '金币不够还款，当前余额: ' + (gameState.money || 0).toLocaleString());
         return;
     }
     gameState.money -= totalOwed;
     gameState.credit = Math.min(200, gameState.credit + 10);
     gameState.loanAmount = 0;
     gameState.loanInterest = 0;
-    showModal('还款成功', '已还清贷款\n+10 信誉\n当前余额: ' + gameState.money.toLocaleString());
+    showModal('还款成功', '已还清贷款\n+10 信誉\n当前余额: ' + (gameState.money || 0).toLocaleString());
     render();
 }
 
@@ -6484,7 +6489,7 @@ function render会议DialogPage(container) {
         
         var optionsHtml = '';
         for (var i = 0; i < ds.options.length; i++) {
-            optionsHtml += '<div class="card" data-i="' + i + '" onclick="choose会议Option(this.dataset.i)" style="cursor:pointer;">'
+            optionsHtml += '<div class="card" data-i="' + i + '" onclick="choose会议Option(parseInt(this.dataset.i))" style="cursor:pointer;">'
                 + '<div style="font-size:14px;">' + ds.options[i].text + '</div>'
                 + '</div>';
         }
@@ -6753,6 +6758,7 @@ function choose会议Option(optionIndex) {
 // ==================== INS PROFILE PAGE ====================
 function renderInsProfilePage(container) {
     var profileUser = gameState.insProfileView || gameState.player.name;
+    try {
     var posts = [
         { img: 'https://picsum.photos/300/300?random=10', likes: 234, caption: 'Great day!' },
         { img: 'https://picsum.photos/300/300?random=11', likes: 456, caption: 'Backstage' },
@@ -6795,6 +6801,10 @@ function renderInsProfilePage(container) {
         + postsGridHtml
         + '</div>'
         + '</div></div>';
+    } catch(e) {
+        console.error('INS profile render error:', e);
+        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">页面加载出错</div><button onclick="goToPage(\'ins\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回INS</button></div>';
+    }
 }
 
 function toggleInsFollow() {
@@ -6873,12 +6883,12 @@ function _switchSaveSlot() {
                 + '</div>';
         } else if (save && save.player && save.player.name) {
             var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
-            html += '<div class="save-slot occupied" data-i="' + i + '" onclick="_doSwitchSlot(this.dataset.i)">'
+            html += '<div class="save-slot occupied" data-i="' + i + '" onclick="_doSwitchSlot(parseInt(this.dataset.i))">'
                 + '<div style="font-weight:600;color:var(--color-text);">存档 ' + (i+1) + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + save.player.name + ' | ' + roleText + '</div>'
                 + '</div>';
         } else {
-            html += '<div class="save-slot empty" data-i="' + i + '" onclick="_doSwitchSlot(this.dataset.i)">'
+            html += '<div class="save-slot empty" data-i="' + i + '" onclick="_doSwitchSlot(parseInt(this.dataset.i))">'
                 + '<div>空存档 ' + (i+1) + '</div>'
                 + '</div>';
         }
@@ -7811,7 +7821,7 @@ function renderComebackPage(container) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
         for (var i = 0; i < COMEBACK_CONCEPTS.length; i++) {
             var c = COMEBACK_CONCEPTS[i];
-            html += '<div class="card" data-i="' + i + '" onclick="selectComebackConcept(this.dataset.i)" style="cursor:pointer;">'
+            html += '<div class="card" data-i="' + i + '" onclick="selectComebackConcept(parseInt(this.dataset.i))" style="cursor:pointer;">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div><div style="font-weight:600;">' + c.name + ' (' + c.style + ')</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + c.desc + '</div></div>'
@@ -7823,7 +7833,7 @@ function renderComebackPage(container) {
         for (var i = 0; i < TITLE_TRACK_TYPES.length; i++) {
             var t = TITLE_TRACK_TYPES[i];
             var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
-            html += '<div class="card" data-i="' + i + '" onclick="selectTitleTrack(this.dataset.i)" style="cursor:pointer;">'
+            html += '<div class="card" data-i="' + i + '" onclick="selectTitleTrack(parseInt(this.dataset.i))" style="cursor:pointer;">'
                 + '<div style="font-weight:600;">' + t.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + t.genre + ' / 加成: ' + statNames[t.bestStat] + '</div></div>';
         }
@@ -7839,7 +7849,7 @@ function renderComebackPage(container) {
                 var usedInComeback = ss._comebackUsed;
                 var cardStyle = usedInComeback ? 'opacity:0.4;pointer-events:none;' : 'cursor:pointer;';
                 var statusTag = usedInComeback ? '<span style="font-size:10px;color:var(--color-text-light);margin-left:6px;">已打歌</span>' : '<span style="font-size:10px;color:#4CD964;margin-left:6px;">可用</span>';
-                html += '<div class="card" style="' + cardStyle + '" data-ssi="' + ssi + '" onclick="selectSongForComeback(this.dataset.ssi)">'
+                html += '<div class="card" style="' + cardStyle + '" data-ssi="' + ssi + '" onclick="selectSongForComeback(parseInt(this.dataset.ssi))">'
                     + '<div style="font-weight:600;">' + ss.name + statusTag + '</div>'
                     + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ss.genre + ' | 概念: ' + ss.concept + ' | 品质: ' + ss.quality + '分</div>'
                     + '</div>';
@@ -7856,7 +7866,7 @@ function renderComebackPage(container) {
         if (gameState.songs && gameState.songs.length > 0) {
             for (var msi = 0; msi < gameState.songs.length; msi++) {
                 var ms = gameState.songs[msi];
-                html += '<div class="card" style="cursor:pointer;" data-msi="' + msi + '" onclick="startMVShootFromComeback(this.dataset.msi)"><div style="font-weight:600;">' + ms.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ms.genre + ' | 品质: ' + ms.quality + '分</div><div style="font-size:11px;color:var(--color-primary);margin-top:4px;">点击选择拍MV</div></div>';
+                html += '<div class="card" style="cursor:pointer;" data-msi="' + msi + '" onclick="startMVShootFromComeback(parseInt(this.dataset.msi))"><div style="font-weight:600;">' + ms.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ms.genre + ' | 品质: ' + ms.quality + '分</div><div style="font-size:11px;color:var(--color-primary);margin-top:4px;">点击选择拍MV</div></div>';
             }
         } else {
             html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有制作歌曲，请先进行歌曲制作</div><button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
@@ -8378,7 +8388,7 @@ function renderMVShootPage(container) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择MV概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲: ' + ms.song.name + '</div></div>';
         for (var mci = 0; mci < MV_SHOOT_CONCEPTS.length; mci++) {
             var mc = MV_SHOOT_CONCEPTS[mci];
-            html += '<div class="card" data-mci="' + mci + '" onclick="selectMVConcept(this.dataset.mci)" style="cursor:pointer;">'
+            html += '<div class="card" data-mci="' + mci + '" onclick="selectMVConcept(parseInt(this.dataset.mci))" style="cursor:pointer;">'
                 + '<div style="font-weight:600;">' + mc.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">MV品质倍率: x' + mc.mvBonus + '</div></div>';
         }
