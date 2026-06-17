@@ -3164,9 +3164,9 @@ function canUseAIToday() {
 
 // ===== VIP SYSTEM =====
 var VIP_TIERS = {
-    basic: { name: '基础版', price: 6, dailyLimit: 20, features: ['练习生路线', '基础社交互动', 'AI对话20条/天', '一次性买断永久解锁'] },
-    advanced: { name: '进阶版', price: 9.9, dailyLimit: 50, features: ['出道爱豆路线', 'AI对话50条/天', '全部社交APP', '一次性买断永久解锁'] },
-    premium: { name: '完整版', price: 19.9, dailyLimit: 120, features: ['全部APP解锁', 'AI对话120条/天', '直播功能', '优先体验新内容', '一次性买断永久解锁'] }
+    basic: { name: '基础版', price: 5, dailyLimit: 20, features: ['练习生路线', '基础社交互动', 'AI对话20条/天', '按月订阅'] },
+    advanced: { name: '进阶版', price: 9.9, dailyLimit: 50, features: ['出道爱豆路线', 'AI对话50条/天', '全部社交APP', '按月订阅'] },
+    premium: { name: '完整版', price: 19.9, dailyLimit: 120, features: ['全部APP解锁', 'AI对话120条/天', '直播功能', '优先体验新内容', '按月订阅'] }
 };
 var AFDIAN_URL = 'https://afdian.com/a/myidol';
 var WORKER_URL = 'https://myidol.asia';
@@ -3195,7 +3195,7 @@ function showVipPage() {
     };
     var html = '<div style="padding:8px 0;"><div style="text-align:center;margin-bottom:16px;">'
         + '<div style="font-size:18px;font-weight:700;margin-bottom:4px;">开通会员</div>'
-        + '<div style="font-size:13px;color:var(--color-text-light);">解锁完整游戏体验</div>' + '<div style="font-size:12px;color:#FF6B6B;margin-top:6px;font-weight:600;">一次性付费，永久解锁，非订阅制</div></div>'
+        + '<div style="font-size:13px;color:var(--color-text-light);">解锁完整游戏体验</div>' + '<div style="font-size:12px;color:#FF6B6B;margin-top:6px;font-weight:600;">按月订阅，自动续费，随时可取消</div></div>'
         + tierCard('premium', VIP_TIERS.premium, currentTier === 'premium')
         + tierCard('advanced', VIP_TIERS.advanced, currentTier === 'advanced')
         + tierCard('basic', VIP_TIERS.basic, currentTier === 'basic')
