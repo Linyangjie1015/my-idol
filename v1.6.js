@@ -6,7 +6,7 @@ if (!Array.prototype.includes) { Array.prototype.includes = function(searchEleme
 if (!String.prototype.padStart) { String.prototype.padStart = function padStart(targetLength, padString) { targetLength = targetLength >> 0; padString = String(typeof padString !== 'undefined' ? padString : ' '); if (this.length >= targetLength) return String(this); var padLen = targetLength - this.length; while (padString.length < padLen) padString += padString; return padString.slice(0, padLen) + String(this); }; }
 
 // ==================== MAINTENANCE MODE ====================
-var MAINTENANCE_MODE = true;
+var MAINTENANCE_MODE = false;
 var ADMIN_EMAIL = 'linyangjie10152008@qq.com';
 
 function _showMaintenancePage() {
