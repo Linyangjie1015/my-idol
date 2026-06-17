@@ -11325,7 +11325,11 @@ function _doCloudRegister() {
                 } else {
                     var msg = res.msg || (res.error && res.error.message) || res.error_description || '注册失败';
                     if (msg.indexOf('already') >= 0 || msg.indexOf('registered') >= 0) msg = '该邮箱已注册';
-                    if (msg.indexOf('rate limit') >= 0 || msg.indexOf('rate_limit') >= 0) msg = '注册过于频繁，请1小时后重试';
+                    if (msg.indexOf('rate limit') >= 0 || msg.indexOf('rate_limit') >= 0) {
+                        // Supabase email rate limited - fallback to admin signup (no email verification needed)
+                        _doAdminSignup(email, password, nickname, errEl, btnEl);
+                        return;
+                    }
                     if (msg.indexOf('Database error') >= 0) msg = '服务器内部错误，请联系管理员';
                     if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
                     if (btnEl) btnEl.textContent = '注册';
@@ -11337,6 +11341,74 @@ function _doCloudRegister() {
         }
     };
     xhr.send(JSON.stringify({ email: email, password: password, data: { nickname: nickname } }));
+}
+
+function _doAdminSignup(email, password, nickname, errEl, btnEl) {
+    if (btnEl) btnEl.textContent = '快速注册中...';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', CLOUD_API + '/api/admin-signup', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.timeout = 20000;
+    xhr.ontimeout = function() {
+        if (errEl) { errEl.textContent = '注册超时，请稍后重试'; errEl.style.display = 'block'; }
+        if (btnEl) btnEl.textContent = '注册';
+    };
+    xhr.onerror = function() {
+        if (errEl) { errEl.textContent = '网络错误，请重试'; errEl.style.display = 'block'; }
+        if (btnEl) btnEl.textContent = '注册';
+    };
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (xhr.status === 200 && res.success) {
+                    _cloudEmail = email;
+                    if (res.user && res.user.id) {
+                        localStorage.setItem('myIdolCloudUserId', res.user.id);
+                    }
+                    localStorage.setItem('myIdolCurrentUser', nickname);
+                    localStorage.setItem('myIdolLastUser', nickname);
+                    _closeAccountOverlay();
+                    showToast('注册成功，欢迎加入');
+                    currentPage = 'welcome';
+                    render();
+                    _checkAdmin(nickname);
+                    // Try to login to get token
+                    _doCloudLoginAuto(email, password);
+                } else {
+                    var msg = res.error || '注册失败';
+                    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+                    if (btnEl) btnEl.textContent = '注册';
+                }
+            } catch(e) {
+                if (errEl) { errEl.textContent = '注册异常，请重试'; errEl.style.display = 'block'; }
+                if (btnEl) btnEl.textContent = '注册';
+            }
+        }
+    };
+    xhr.send(JSON.stringify({ email: email, password: password, nickname: nickname }));
+}
+
+function _doCloudLoginAuto(email, password) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', SUPABASE_URL + '/auth/v1/token?grant_type=password', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('apikey', SUPABASE_ANON_KEY);
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+                var res = JSON.parse(xhr.responseText);
+                if (res.access_token) {
+                    _cloudToken = res.access_token;
+                    _cloudEmail = email;
+                    localStorage.setItem('myIdolCloudToken', res.access_token);
+                    localStorage.setItem('myIdolCloudEmail', email);
+                    _ensureCloudUser();
+                }
+            } catch(e) {}
+        }
+    };
+    xhr.send(JSON.stringify({ email: email, password: password }));
 }
 
 function _doCloudLogin() {
