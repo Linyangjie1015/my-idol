@@ -5078,6 +5078,15 @@ var _dateLocations = [
     { name: '家中', cost: 3000, stamina: 5, 好感Base: 4, desc: '简单温馨' }
 ];
 
+
+var _secretDateLocations = [
+    { name: '天台', cost: 0, stamina: 5, 好感Base: 12, desc: '只属于两个人的秘密基地', dangerBase: 3 },
+    { name: '深夜录音室', cost: 0, stamina: 5, 好感Base: 10, desc: '只有我们听得到的歌声', dangerBase: 2 },
+    { name: '地下停车场', cost: 0, stamina: 3, 好感Base: 8, desc: '车里只有我们两个人', dangerBase: 5 },
+    { name: '海边日出', cost: 5000, stamina: 15, 好感Base: 15, desc: '通宵等日出，浪漫到极致', dangerBase: 4 },
+    { name: '异国小巷', cost: 30000, stamina: 20, 好感Base: 20, desc: '没有人的地方，做回自己', dangerBase: 8 }
+];
+
 var _dateEvents = [
     { text: '突然下起暴雨，两人共撑一把伞', 好感: 6, 危险: 0, type: 'romantic' },
     { text: '对方偷偷牵了你的手', 好感: 8, 危险: 0, type: 'romantic' },
@@ -5126,7 +5135,7 @@ function _doLoveDate() {
         var loc = _dateLocations[i];
         var canAfford = gameState.money >= loc.cost && gameState.体力 >= loc.stamina;
         locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (canAfford ? '' : 'opacity:0.5;') + '"'
-            + (canAfford ? ' onclick="loveDateStep2(' + i + ')"' : '') + '>'
+            + (canAfford ? ' onclick="loveDateStep2(' + i + ',false)"' : '') + '>'
             + '<div><div style="font-weight:600;font-size:13px;">' + loc.name + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">' + loc.desc + '</div></div>'
             + '<div style="text-align:right;font-size:11px;">'
@@ -5134,11 +5143,28 @@ function _doLoveDate() {
             + '<div style="color:var(--color-text-light);">' + loc.stamina + ' 体力</div>'
             + '</div></div>';
     }
+    // V1.7: Secret date locations (love >= 80)
+    var datingLove = (gameState.npc好感度 && gameState.npc好感度[gameState.dating]) || 0;
+    if (datingLove >= 80 && _secretDateLocations) {
+        locHtml += '<div style="font-size:12px;font-weight:600;color:#FF2D55;margin:8px 0 6px;padding:4px 0;border-top:1px dashed var(--color-border);">秘密约会 (好感80解锁)</div>';
+        for (var si = 0; si < _secretDateLocations.length; si++) {
+            var sloc = _secretDateLocations[si];
+            var scanAfford = gameState.money >= sloc.cost && gameState.体力 >= sloc.stamina;
+            locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border:1px solid #FFD0D9;border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (scanAfford ? '' : 'opacity:0.5;') + '"'
+                + (scanAfford ? ' onclick="loveDateStep2(' + si + ',true)"' : '') + '>'
+                + '<div><div style="font-weight:600;font-size:13px;color:#FF2D55;">' + sloc.name + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);">' + sloc.desc + '</div></div>'
+                + '<div style="text-align:right;font-size:11px;">'
+                + '<div style="color:#FF2D55;">' + (sloc.cost > 0 ? sloc.cost.toLocaleString() + ' 金币' : '免费') + '</div>'
+                + '<div style="color:var(--color-text-light);">危险+' + sloc.dangerBase + '</div>'
+                + '</div></div>';
+        }
+    }
     showModal('选择约会地点', locHtml, [{ text: '算了', action: closeModal }]);
 }
 
-function loveDateStep2(locIdx) {
-    var loc = _dateLocations[locIdx];
+function loveDateStep2(locIdx, isSecret) {
+    var loc = isSecret ? _secretDateLocations[locIdx] : _dateLocations[locIdx];
     gameState.体力 = Math.max(0, gameState.体力 - loc.stamina);
     gameState.money -= loc.cost;
     if (!gameState.npc好感度) gameState.npc好感度 = {};
@@ -5149,15 +5175,15 @@ function loveDateStep2(locIdx) {
     var actHtml = '<div style="margin-bottom:8px;font-size:13px;color:var(--color-text-light);">在' + loc.name + '，你想做什么？</div>';
     for (var i = 0; i < _dateActions.length; i++) {
         var act = _dateActions[i];
-        actHtml += '<div style="padding:10px;margin-bottom:6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="loveDateStep3(' + locIdx + ',' + i + ')">'
+        actHtml += '<div style="padding:10px;margin-bottom:6px;background:var(--bg-card);border:1px solid var(--color-border);border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="loveDateStep3(' + locIdx + ',' + i + ',' + (isSecret ? 'true' : 'false') + ')">'
             + '<div style="font-weight:600;font-size:13px;">' + act.text + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">好感度 +' + act.好感 + (act.危险 > 0 ? ' | 危险值 +' + act.危险 : '') + '</div></div>';
     }
-    showModal('选择行动', actHtml, [{ text: '什么都不做', action: function() { closeModal(); loveDateStep3(locIdx, -1); } }]);
+    showModal('选择行动', actHtml, [{ text: '什么都不做', action: function() { closeModal(); loveDateStep3(locIdx, -1, isSecret); } }]);
 }
 
-function loveDateStep3(locIdx, actIdx) {
-    var loc = _dateLocations[locIdx];
+function loveDateStep3(locIdx, actIdx, isSecret) {
+    var loc = isSecret ? _secretDateLocations[locIdx] : _dateLocations[locIdx];
     var act = actIdx >= 0 ? _dateActions[actIdx] : { text: '安静陪伴', 好感: 1, 危险: 0 };
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     addLove(gameState.dating, act.好感);
@@ -6475,7 +6501,7 @@ function handleCrisis(eventIdx, actionIdx) {
     ];
     var a = actions[actionIdx];
     if (!a) return;
-    addDanger(a.danger, 'date');
+    addDanger(a.danger, 'date'); if (isSecret && loc.dangerBase) addDanger(loc.dangerBase, 'date');
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
     if (a.creditBonus) gameState.credit = Math.max(0, Math.min(200, gameState.credit + a.creditBonus));
     
