@@ -1961,7 +1961,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + renderWeeklyGoals()\n                + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + renderWeeklyGoals()\n                + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -7823,6 +7823,71 @@ function showToast(message, duration) {
     }, duration);
 }
 
+
+// V1.7: Notification Center (通知中心/消息聚合)
+function _initNotifCenter() {
+    if (!gameState._notifLog) gameState._notifLog = [];
+    if (!gameState._notifUnread) gameState._notifUnread = 0;
+}
+
+function _addNotifLog(source, title, text, iconBg) {
+    _initNotifCenter();
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    var day = now.getMonth() + 1 + '/' + now.getDate();
+    gameState._notifLog.unshift({
+        source: source,
+        title: title,
+        text: text,
+        iconBg: iconBg || '#FF8FA3',
+        time: day + ' ' + ts,
+        read: false
+    });
+    // Keep max 50
+    if (gameState._notifLog.length > 50) gameState._notifLog = gameState._notifLog.slice(0, 50);
+    gameState._notifUnread = (gameState._notifUnread || 0) + 1;
+}
+
+function _markAllRead() {
+    _initNotifCenter();
+    for (var i = 0; i < gameState._notifLog.length; i++) {
+        gameState._notifLog[i].read = true;
+    }
+    gameState._notifUnread = 0;
+    render();
+}
+
+function showNotifCenter() {
+    _initNotifCenter();
+    var logs = gameState._notifLog;
+    var html = '<div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">'
+        + '<div style="font-size:13px;color:var(--color-text-light);">共' + logs.length + '条通知</div>'
+        + (gameState._notifUnread > 0 ? '<div onclick="_markAllRead()" style="font-size:12px;color:var(--color-primary);cursor:pointer;">全部已读</div>' : '')
+        + '</div>';
+    if (logs.length === 0) {
+        html += '<div style="text-align:center;padding:30px;color:var(--color-text-light);font-size:13px;">暂无通知</div>';
+    } else {
+        for (var i = 0; i < Math.min(logs.length, 20); i++) {
+            var n = logs[i];
+            var iconLetter = n.source ? n.source.charAt(0) : 'M';
+            html += '<div style="display:flex;gap:10px;padding:10px;margin-bottom:6px;background:var(--bg-card);border-radius:8px;' + (n.read ? 'opacity:0.6;' : '') + '">'
+                + '<div style="width:32px;height:32px;border-radius:8px;background:' + n.iconBg + ';display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:700;flex-shrink:0;">' + iconLetter + '</div>'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div style="font-size:12px;font-weight:600;color:var(--color-text);">' + n.title + '</div>'
+                + '<div style="font-size:10px;color:var(--color-text-light);">' + n.time + '</div>'
+                + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + n.text + '</div>'
+                + '</div></div>';
+        }
+        if (logs.length > 20) {
+            html += '<div style="text-align:center;font-size:11px;color:var(--color-text-light);padding:8px;">还有' + (logs.length - 20) + '条更早的通知</div>';
+        }
+    }
+    showModal('通知中心', html, [{ text: '关闭', action: function() { _markAllRead(); closeModal(); } }]);
+}
+
 // ==================== PHONE NOTIFICATION SYSTEM ====================
 var _phoneNotifQueue = [];
 var _phoneNotifShowing = false;
@@ -7831,6 +7896,8 @@ function showPhoneNotification(appName, title, text, iconBg, duration) {
     if (!duration) duration = 2500;
     _phoneNotifQueue.push({ appName: appName, title: title, text: text, iconBg: iconBg || '#FF8FA3', duration: duration });
     if (!_phoneNotifShowing) _processPhoneNotif();
+    // V1.7: Log to notification center
+    _addNotifLog(appName || 'System', title, text, iconBg || '#FF8FA3');
 }
 
 function _processPhoneNotif() {
