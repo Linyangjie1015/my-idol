@@ -4616,6 +4616,101 @@ var _loveGiftReplies = [
     '最喜欢你了！', '呜呜太感动了', '我现在好幸福', '我会一直带着的！'
 ];
 
+// V1.7: Personality-based special gift reactions
+var _specialGiftReactions = {
+    '花': {
+        温柔: '你...你怎么突然送花...我好开心，脸好烫...',
+        冷淡: '花？...还行吧。谢了。',
+        开朗: '哇花花！好漂亮！我要放在房间里！',
+        调皮: '哟~送花？是不是做了什么亏心事啊~',
+        神秘: '花语是什么呢...让我猜猜你的心意...',
+        害羞: '啊...花...我、我收下了...别看我...'
+    },
+    '项链': {
+        温柔: '项链...你想让我一直戴着吗？我会的。',
+        冷淡: '挺贵的吧。...我不讨厌。',
+        开朗: '天哪太闪了！我马上戴上！',
+        调皮: '锁链？你在宣示主权吗~',
+        神秘: '这是否意味着...你想把我留在这条链子上？',
+        害羞: '项、项链...贴着皮肤的那种吗...我收下了...'
+    },
+    '戒指': {
+        温柔: '戒指...你知道这意味着什么吧？我愿意。',
+        冷淡: '...你认真的吗？...我不拒绝。',
+        开朗: '啊！！戒指！！这是求婚吗！！我愿意我愿意！',
+        调皮: '戒指？这么快就求婚？我还没答应做你女朋友呢~',
+        神秘: '环形...没有终点的意思...你是在许诺永远吗？',
+        害羞: '戒、戒指...这个太快了...但我...不想摘下来...'
+    },
+    '蛋糕': {
+        温柔: '蛋糕好甜，但没有你甜。',
+        冷淡: '我不怎么吃甜的...但既然是你买的，我会吃完。',
+        开朗: '蛋糕！我要先吃！分你一半！',
+        调皮: '你喂我啊~张嘴——啊不是，是我张嘴才对！',
+        神秘: '甜蜜的保质期是多久呢...希望比这块蛋糕长。',
+        害羞: '一起吃...吗？我...好开心的...'
+    },
+    '玩偶': {
+        温柔: '像你一样可爱。我会抱着它睡觉的。',
+        冷淡: '...放我床头好了。',
+        开朗: '天哪好可爱！我要给它取你的名字！',
+        调皮: '你是不是想让这个玩偶代替你陪我？',
+        神秘: '无生命的朋友...它会替你听我说梦话吗？',
+        害羞: '我会...抱着它...想象是你在抱我...'
+    }
+};
+
+var _defaultGiftReactions = {
+    温柔: '谢谢你...你总是这么贴心，我真的很幸福。',
+    冷淡: '...嗯，谢了。别花太多钱。',
+    开朗: '太棒了！谢谢！你是最好的人！',
+    调皮: '算你有心~不过下次要更好的哦~',
+    神秘: '你选择这个...是因为你知道我需要吗？',
+    害羞: '我、我很喜欢...谢谢你记得我...'
+};
+
+// V1.7: Get personality-based gift reaction
+function getGiftReaction(npcName, giftName) {
+    var npc = null;
+    var companies = COMPANIES;
+    for (var ci = 0; ci < companies.length && !npc; ci++) {
+        for (var gi = 0; gi < companies[ci].groups.length && !npc; gi++) {
+            for (var mi = 0; mi < companies[ci].groups[gi].members.length; mi++) {
+                if (companies[ci].groups[gi].members[mi].name === npcName) {
+                    npc = companies[ci].groups[gi].members[mi];
+                    break;
+                }
+            }
+        }
+    }
+    if (!npc) return null;
+    var personality = npc.personality || '温柔';
+    // Check if gift matches a special category
+    var giftLower = giftName.toLowerCase ? giftName.toLowerCase() : giftName;
+    var matchedKey = '';
+    var keys = Object.keys(_specialGiftReactions);
+    for (var ki = 0; ki < keys.length; ki++) {
+        if (giftLower.indexOf(keys[ki]) >= 0) {
+            matchedKey = keys[ki];
+            break;
+        }
+    }
+    var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    var reaction = '';
+    if (matchedKey) {
+        reaction = _specialGiftReactions[matchedKey][personality] || _specialGiftReactions[matchedKey]['温柔'];
+    } else {
+        reaction = _defaultGiftReactions[personality] || _defaultGiftReactions['温柔'];
+    }
+    // High love bonus reaction
+    if (love >= 80) {
+        reaction += ' ...跟你在一起好安心。';
+    } else if (love >= 60) {
+        reaction += ' 你对我真的很好。';
+    }
+    return reaction;
+}
+
 function render恋爱Page(container) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.loveChats) gameState.loveChats = {};
@@ -5023,16 +5118,26 @@ function sendLoveGift(giftName, price, loveVal) {
     // V1.7: AI-powered gift reply
     setTimeout(function() {
         if (gameState._loveReplyQueue[npcName] === giftQueueId) {
-            window._aiNpcName = npcName;
-            var giftCtx = npcName + '收到' + gameState.player.name + '送的' + giftName + '，非常开心';
-            getAIReply('dating', giftCtx, '收到礼物了', function(aiReply) {
+            var personalityReaction = getGiftReaction(npcName, giftName);
+            if (canUseAIToday()) {
+                window._aiNpcName = npcName;
+                var giftCtx = npcName + '收到' + gameState.player.name + '送的' + giftName + '，非常开心';
+                getAIReply('dating', giftCtx, '收到礼物了', function(aiReply) {
+                    if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
+                    var now2 = new Date();
+                    var h2 = now2.getHours(); var m2 = now2.getMinutes();
+                    var ts2 = (h2 < 10 ? '0' : '') + h2 + ':' + (m2 < 10 ? '0' : '') + m2;
+                    gameState.loveChats[npcName].push({ fromMe: false, text: aiReply, time: ts2 });
+                    render();
+                });
+            } else if (personalityReaction) {
                 if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
                 var now2 = new Date();
                 var h2 = now2.getHours(); var m2 = now2.getMinutes();
                 var ts2 = (h2 < 10 ? '0' : '') + h2 + ':' + (m2 < 10 ? '0' : '') + m2;
-                gameState.loveChats[npcName].push({ fromMe: false, text: aiReply, time: ts2 });
+                gameState.loveChats[npcName].push({ fromMe: false, text: personalityReaction, time: ts2 });
                 render();
-            });
+            }
         }
     }, 1500);
     showToast('送出 ' + giftName + ' +' + loveVal + ' 好感度');
