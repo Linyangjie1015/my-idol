@@ -3595,6 +3595,35 @@ function _renderToneSelector() {
     return html;
 }
 
+
+// V1.7: Time-of-Day System (时间变化效果)
+function _getTimeOfDay() {
+    var hour = new Date().getHours();
+    if (hour >= 6 && hour < 18) return 'day';
+    if (hour >= 18 && hour < 21) return 'dusk';
+    return 'night';
+}
+
+function _getTimeIcon() {
+    var tod = _getTimeOfDay();
+    if (tod === 'day') return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFB800" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>';
+    if (tod === 'dusk') return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2"><path d="M17 18a5 5 0 0 0-10 0"></path><line x1="12" y1="9" x2="12" y2="2"></line><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line><line x1="1" y1="18" x2="3" y2="18"></line><line x1="21" y1="18" x2="23" y2="18"></line><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line><line x1="23" y1="22" x2="1" y2="22"></line></svg>';
+    return '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B8C0FF" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+}
+
+function _applyTimeTheme() {
+    var tod = _getTimeOfDay();
+    var root = document.documentElement;
+    root.classList.remove('time-day', 'time-dusk', 'time-night');
+    root.classList.add('time-' + tod);
+}
+
+function _getTimeGreeting() {
+    var tod = _getTimeOfDay();
+    if (tod === 'day') return '白天';
+    if (tod === 'dusk') return '黄昏';
+    return '夜晚';
+}
 function getAIReply(appId, context, playerMessage, callback) {
     if (!canUseAIToday()) {
         callback(getFallbackReply(appId));
@@ -13972,7 +14001,7 @@ function _renderDayBar() {
     var dayInfo = _getGameDayDisplay();
     var html = '<div style="background:linear-gradient(135deg,#F0E6FF,#E6F0FF);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">';
     html += '<div>';
-    html += '<div style="font-size:14px;font-weight:700;color:var(--color-text);">\u7b2c ' + dayInfo.day + ' \u5929 <span style="font-size:11px;color:var(--color-text-light);font-weight:400;">' + dayInfo.weekDay + '</span></div>';
+    html += '<div style="display:flex;align-items:center;gap:4px;font-size:14px;font-weight:700;color:var(--color-text);">' + _getTimeIcon() + ' \u7b2c ' + dayInfo.day + ' \u5929 <span style="font-size:11px;color:var(--color-text-light);font-weight:400;">' + dayInfo.weekDay + '</span></div>';
     html += '<div style="font-size:11px;color:var(--color-text-light);">\u7b2c ' + dayInfo.month + ' \u6708</div>';
     html += '</div>';
     // Show active cooldowns
