@@ -7839,6 +7839,8 @@ function startComeback() {
     if (gameState.体力 < 50) { showModal('体力不足', '回归准备需要至少50体力'); return; }
     if (gameState.money < 50000) { showModal('资金不足', '回归准备需要50,000金币'); return; }
     gameState.comeback = { phase: 'concept', concept: null, titleTrack: null, promotion: 0, musicShowResults: [], daysLeft: 14 };
+    gameState.duringComeback = true;
+    gameState._comebackFansBefore = gameState.fans || 0;
     // 体力金币由歌曲制作和MV拍摄各自扣费
     // Auto post INS and trigger hotsearch when comeback starts
     if (!gameState.insPosts) gameState.insPosts = [];
@@ -7860,6 +7862,7 @@ function cancelComeback() {
         { text: '确定取消', action: function() {
             gameState.credit = Math.max(0, (gameState.credit || 150) - 20);
             gameState.comeback = null;
+            gameState.duringComeback = false;
             notifySystem('回归取消', '信誉-20');
             render();
         }},
@@ -7909,8 +7912,10 @@ function promoteComeback(type) {
     gameState.体力 -= cost;
     gameState.money -= moneyCost;
     gameState.comeback.promotion += gain + Math.floor(Math.random() * 5);
-    gameState.fans += Math.floor(Math.random() * 200 + 50);
-    if (type === 'fansign') { gameState.fans += 500; }
+    var fanGain = Math.floor(Math.random() * 200 + 50);
+    if (gameState.duringComeback) fanGain = Math.floor(fanGain * 1.5);
+    gameState.fans += fanGain;
+    if (type === 'fansign') { gameState.fans += (gameState.duringComeback ? 750 : 500); }
     gameState.comeback.daysLeft--;
     if (gameState.comeback.daysLeft <= 0) { gameState.comeback.phase = 'musicshow'; }
     triggerSilentSave();
@@ -8039,9 +8044,9 @@ function _finishMusicShow() {
         _triggerHotsearch(gameState.player.name + show.name + '一位', (Math.floor(Math.random() * 15) + 15) + '万', gameState.player.name + '在' + show.name + '斩获一位！回归大成功！', false);
         _triggerKakaoCongrats();
     } else if (totalScore >= 60) {
-        result.rank = 2; result.label = '二位'; gameState.money += 15000; gameState.fans += 800;
+        result.rank = 2; result.label = '二位'; gameState.money += 15000; gameState.fans += (gameState.duringComeback ? 1200 : 800);
     } else if (totalScore >= 40) {
-        result.rank = 3; result.label = '三位'; gameState.money += 8000; gameState.fans += 300;
+        result.rank = 3; result.label = '三位'; gameState.money += 8000; gameState.fans += (gameState.duringComeback ? 450 : 300);
     } else {
         result.rank = 0; result.label = '未入榜'; gameState.fans += 50;
     }
@@ -8089,6 +8094,152 @@ function _finishComeback() {
 
 function performMusicShow() {
     startMusicShow(0);
+}
+
+
+// V1.7: Comeback Report Card System
+function generateComebackReport(cb) {
+    if (!cb || !cb.musicShowResults) return null;
+    var totalFirsts = cb.totalFirsts || 0;
+    var totalAlbumSales = cb.totalAlbumSales || Math.floor((gameState.fans || 0) * 0.6 + (gameState.groupPopularity || 0) * 30);
+    var grade = totalFirsts >= 4 ? 'S' : totalFirsts >= 3 ? 'A' : totalFirsts >= 2 ? 'B' : totalFirsts >= 1 ? 'C' : 'D';
+    var mvQuality = cb.mvQuality || 0;
+    var promotion = cb.promotion || 0;
+    var concept = cb.concept ? cb.concept.name : '未选择';
+    var titleTrack = cb.titleTrack ? cb.titleTrack.name : '未选择';
+    
+    // Calculate fan growth during comeback
+    var fansBefore = gameState._comebackFansBefore || Math.floor(gameState.fans * 0.6);
+    var fansGained = gameState.fans - fansBefore;
+    
+    // Calculate total music show score
+    var totalScore = 0;
+    var showCount = cb.musicShowResults.length;
+    for (var i = 0; i < showCount; i++) {
+        totalScore += (cb.musicShowResults[i].score || 0);
+    }
+    var avgScore = showCount > 0 ? Math.floor(totalScore / showCount) : 0;
+    
+    // Best and worst shows
+    var bestShow = null;
+    var worstShow = null;
+    for (var j = 0; j < showCount; j++) {
+        if (!bestShow || cb.musicShowResults[j].score > bestShow.score) bestShow = cb.musicShowResults[j];
+        if (!worstShow || cb.musicShowResults[j].score < worstShow.score) worstShow = cb.musicShowResults[j];
+    }
+
+    return {
+        grade: grade,
+        concept: concept,
+        titleTrack: titleTrack,
+        mvQuality: mvQuality,
+        promotion: promotion,
+        albumSales: totalAlbumSales,
+        totalFirsts: totalFirsts,
+        showCount: showCount,
+        avgScore: avgScore,
+        bestShow: bestShow,
+        worstShow: worstShow,
+        fansGained: fansGained,
+        fansBefore: fansBefore
+    };
+}
+
+function renderComebackReportCard(container, cb) {
+    var report = generateComebackReport(cb);
+    if (!report) { container.innerHTML = '<div>数据异常</div>'; return; }
+    
+    var gradeColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#FF8FA3', D: '#999' };
+    var gradeLabels = { S: '大获全胜', A: '成绩优异', B: '表现不错', C: '中规中矩', D: '需要努力' };
+    var gColor = gradeColors[report.grade] || '#999';
+    var gLabel = gradeLabels[report.grade] || '';
+    
+    var html = '<div style="padding:16px 20px;">';
+    
+    // Header with grade
+    html += '<div style="text-align:center;margin-bottom:20px;">'
+        + '<div style="display:inline-block;width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,' + gColor + ',' + gColor + '33);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;">'
+        + '<div style="font-size:36px;font-weight:700;color:' + gColor + ';">' + report.grade + '</div>'
+        + '</div>'
+        + '<div style="font-size:16px;font-weight:700;color:var(--color-text);">回归成绩单</div>'
+        + '<div style="font-size:12px;color:' + gColor + ';font-weight:500;">' + gLabel + '</div>'
+        + '</div>';
+    
+    // Key stats grid
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">';
+    html += _reportStatCard('一位数', report.totalFirsts + '/' + report.showCount, gColor)
+        + _reportStatCard('MV品质', report.mvQuality + '分', gColor)
+        + _reportStatCard('专辑销量', report.albumSales.toLocaleString() + '张', gColor)
+        + _reportStatCard('平均分', report.avgScore + '分', gColor)
+        + _reportStatCard('粉丝增长', '+' + report.fansGained.toLocaleString(), '#4CD964')
+        + _reportStatCard('宣传投入', report.promotion + '点', gColor);
+    html += '</div>';
+    
+    // Concept and title track info
+    html += '<div style="background:var(--bg-card);border-radius:12px;padding:12px;margin-bottom:12px;">'
+        + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:8px;">回归信息</div>'
+        + '<div style="font-size:13px;margin-bottom:4px;"><span style="color:var(--color-text-light);">概念：</span><span style="font-weight:500;">' + report.concept + '</span></div>'
+        + '<div style="font-size:13px;"><span style="color:var(--color-text-light);">主打歌：</span><span style="font-weight:500;">' + report.titleTrack + '</span></div>'
+        + '</div>';
+    
+    // Show results
+    if (cb.musicShowResults && cb.musicShowResults.length > 0) {
+        html += '<div style="font-size:12px;font-weight:600;color:var(--color-text-light);margin-bottom:8px;">打歌成绩</div>';
+        for (var i = 0; i < cb.musicShowResults.length; i++) {
+            var r = cb.musicShowResults[i];
+            var rCol = r.rank === 1 ? '#FFD700' : r.rank === 2 ? '#C0C0C0' : r.rank === 3 ? '#CD7F32' : 'var(--color-text-light)';
+            var isBest = report.bestShow && r.showName === report.bestShow.showName;
+            var isWorst = report.worstShow && r.showName === report.worstShow.showName && showCount > 1;
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-card);border-radius:8px;margin-bottom:4px;' + (isBest ? 'border:1px solid #FFD700;' : '') + '">'
+                + '<div><div style="font-weight:500;font-size:13px;">' + (r.showName || '节目') + (isBest ? ' ★' : '') + '</div>'
+                + '<div style="font-size:10px;color:var(--color-text-light);">' + (r.channel || '') + '</div></div>'
+                + '<div style="text-align:right;"><div style="color:' + rCol + ';font-weight:700;font-size:15px;">' + r.label + '</div>'
+                + '<div style="font-size:10px;color:var(--color-text-light);">' + r.score + '分</div></div></div>';
+        }
+    }
+    
+    // Fan growth summary
+    if (report.fansGained > 0) {
+        html += '<div style="background:linear-gradient(135deg,#F0FFF0,#E8F5E9);border-radius:12px;padding:12px;margin-top:12px;text-align:center;">'
+            + '<div style="font-size:11px;color:#4CD964;margin-bottom:4px;">粉丝增长</div>'
+            + '<div style="font-size:20px;font-weight:700;color:#4CD964;">+' + report.fansGained.toLocaleString() + '</div>'
+            + '<div style="font-size:10px;color:var(--color-text-light);">回归前 ' + report.fansBefore.toLocaleString() + ' → 现在 ' + gameState.fans.toLocaleString() + '</div>'
+            + '</div>';
+    }
+    
+    // Complete button
+    html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:16px;" onclick="completeComeback()">完成回归</button>';
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function _reportStatCard(label, value, color) {
+    return '<div style="background:var(--bg-card);border-radius:10px;padding:10px;text-align:center;">'
+        + '<div style="font-size:10px;color:var(--color-text-light);margin-bottom:4px;">' + label + '</div>'
+        + '<div style="font-size:15px;font-weight:700;color:' + color + ';">' + value + '</div></div>';
+}
+
+function completeComeback() {
+    var cb = gameState.comeback;
+    if (!cb) return;
+    // Calculate final rewards based on grade
+    var totalFirsts = cb.totalFirsts || 0;
+    var grade = totalFirsts >= 4 ? 'S' : totalFirsts >= 3 ? 'A' : totalFirsts >= 2 ? 'B' : totalFirsts >= 1 ? 'C' : 'D';
+    var fameGain = { S: 20, A: 15, B: 10, C: 5, D: 2 }[grade] || 2;
+    gameState.fame = Math.min(200, (gameState.fame || 30) + fameGain);
+    gameState.groupPopularity = Math.min(100, (gameState.groupPopularity || 0) + Math.floor(fameGain / 2));
+    // Set cooldown
+    _setCooldown('comeback', 60);
+    // Trigger congratulations in KakaoTalk
+    _triggerKakaoCongrats();
+    // Clear comeback
+    gameState.comeback = null;
+    gameState.duringComeback = false;
+    delete gameState._comebackFansBefore;
+    notifySystem('回归完成', '评级: ' + grade + ' 名气+' + fameGain);
+    if (typeof checkAchievements === 'function') checkAchievements();
+    goToPage('home');
 }
 
 function renderComebackPage(container) {
@@ -8232,32 +8383,10 @@ function renderComebackPage(container) {
             html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:12px;" onclick="gameState.comeback.phase=\'done\';_finishComeback();render();">查看回归总评</button>';
         }
     } else if (cb.phase === 'done') {
-        var totalFirsts = cb.totalFirsts || 0;
-        var totalAlbumSales = cb.totalAlbumSales || Math.floor((gameState.fans || 0) * 0.6 + (gameState.groupPopularity || 0) * 30);
-        var grade = totalFirsts >= 4 ? 'S' : totalFirsts >= 3 ? 'A' : totalFirsts >= 2 ? 'B' : totalFirsts >= 1 ? 'C' : 'D';
-        var gradeColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#FF8FA3', D: '#999' };
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + gradeColors[grade] + ',var(--color-primary));color:white;padding:32px;">'
-            + '<div style="font-size:48px;font-weight:700;">' + grade + '</div>'
-            + '<div style="font-size:14px;opacity:0.9;margin-top:4px;">回归评级</div></div>'
-            + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">回归总结</div>'
-            + '<div style="font-size:13px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div>'
-            + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div>'
-            + '<div style="font-size:13px;">MV品质: ' + (cb.mvQuality || 0) + '分</div>'
-            + '<div style="font-size:13px;">专辑销量: ' + totalAlbumSales.toLocaleString() + ' 张</div>'
-            + '<div style="font-size:13px;">一位数: ' + totalFirsts + '/6</div></div>';
-        if (cb.musicShowResults && cb.musicShowResults.length > 0) {
-            html += '<div class="section-title">各节目成绩</div>';
-            for (var ri = 0; ri < cb.musicShowResults.length; ri++) {
-                var rr = cb.musicShowResults[ri];
-                var rCol = rr.rank === 1 ? '#FFD700' : rr.rank === 2 ? '#C0C0C0' : rr.rank === 3 ? '#CD7F32' : 'var(--color-text-light)';
-                html += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;">'
-                    + '<div><div style="font-weight:600;">' + (rr.showName || '节目') + '</div>'
-                    + '<div style="font-size:11px;color:var(--color-text-light);">' + (rr.channel || '') + '</div></div>'
-                    + '<div style="text-align:right;"><div style="color:' + rCol + ';font-weight:700;font-size:16px;">' + rr.label + '</div>'
-                    + '<div style="font-size:11px;color:var(--color-text-light);">' + rr.score + '分</div></div></div></div>';
-            }
-        }
-        html += '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="gameState.comeback=null;render();">完成回归</button>';
+        // V1.7: Enhanced comeback report card
+        _finishComeback();
+        renderComebackReportCard(container, cb);
+        return;
     }
     html += '</div></div>';
     html += getAppLinkHtml('comeback');
