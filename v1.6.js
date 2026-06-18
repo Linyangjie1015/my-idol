@@ -1961,7 +1961,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + renderWeeklyGoals()\n                + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -2060,7 +2060,7 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     gameState.influence = (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1;
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
-    showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]);
+    showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]); _trackWeeklyGoal('train', 1);
     render();
 }
 
@@ -4814,7 +4814,7 @@ function sendLoveChat() {
     var h = now.getHours(); var m = now.getMinutes();
     var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
     gameState.loveChats[target].push({ fromMe: true, text: text, time: ts });
-    addLove(target, Math.floor(Math.random() * 3) + 1);
+    addLove(target, Math.floor(Math.random() * 3) + 1); _trackWeeklyGoal('chat', 1);
     input.value = '';
     if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
     if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
@@ -5048,6 +5048,7 @@ function npcDate(name) {
         showModal('好感度不足', '需要好感度达到60才能在一起');
         return;
     }
+    _trackWeeklyGoal('date', 1);
     gameState.dating = name;
     showModal('在一起了！', '你和 ' + name + ' 正式在一起了！');
     render();
@@ -6691,6 +6692,7 @@ function stopLive() {
     var fansGain = Math.floor(viewers / 50) + 5;
     gameState.fans += fansGain;
     gameState.money += revenue;
+    _trackWeeklyGoal('live', 1); _trackWeeklyGoal('earn', revenue);
     gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 5) + 2;
     
     gameState.livePendingReward = true;
@@ -11695,6 +11697,129 @@ function viewHiddenDialogue(npcName, level) {
 }
 
 
+
+// ==================== V1.7: Weekly Goal System ====================
+var WEEKLY_GOALS = [
+    { id: 'train3', desc: '训练3次', target: 3, type: 'train', reward: { money: 5000, fame: 5 } },
+    { id: 'earn50k', desc: '赚50,000金币', target: 50000, type: 'earn', reward: { money: 10000, fame: 3 } },
+    { id: 'live2', desc: '直播2次', target: 2, type: 'live', reward: { money: 8000, fans: 500 } },
+    { id: 'date1', desc: '约会1次', target: 1, type: 'date', reward: { money: 3000, fame: 2 } },
+    { id: 'fans5k', desc: '粉丝达到5,000', target: 5000, type: 'fans_target', reward: { money: 15000, fame: 10 } },
+    { id: 'comeback_prep', desc: '完成回归准备', target: 1, type: 'comeback', reward: { money: 20000, fame: 15 } },
+    { id: 'chat5', desc: '和NPC聊天5次', target: 5, type: 'chat', reward: { money: 3000, fame: 3 } },
+    { id: 'work2', desc: '完成2个通告', target: 2, type: 'work', reward: { money: 12000, fame: 5 } }
+];
+
+function _initWeeklyGoals() {
+    if (gameState.player.role !== 'Idol' || gameState.preDebut) return;
+    if (!gameState.weeklyGoals) {
+        _generateWeeklyGoals();
+    }
+    // Check if week has changed
+    var currentWeek = Math.floor((gameState.gameDay - 1) / 7) + 1;
+    if (gameState.weeklyGoalsWeek && gameState.weeklyGoalsWeek !== currentWeek) {
+        // New week - settle old goals and generate new ones
+        _settleWeeklyGoals();
+        _generateWeeklyGoals();
+    }
+}
+
+function _generateWeeklyGoals() {
+    var currentWeek = Math.floor((gameState.gameDay - 1) / 7) + 1;
+    // Pick 3 random goals
+    var shuffled = WEEKLY_GOALS.slice().sort(function() { return Math.random() - 0.5; });
+    var selected = shuffled.slice(0, 3);
+    gameState.weeklyGoals = [];
+    for (var i = 0; i < selected.length; i++) {
+        gameState.weeklyGoals.push({
+            id: selected[i].id,
+            desc: selected[i].desc,
+            target: selected[i].target,
+            type: selected[i].type,
+            progress: 0,
+            claimed: false,
+            reward: selected[i].reward
+        });
+    }
+    gameState.weeklyGoalsWeek = currentWeek;
+    gameState.weeklyGoalStats = { train: 0, earn: 0, live: 0, date: 0, chat: 0, work: 0, comeback: 0 };
+}
+
+function _settleWeeklyGoals() {
+    if (!gameState.weeklyGoals) return;
+    var completed = 0;
+    for (var i = 0; i < gameState.weeklyGoals.length; i++) {
+        if (gameState.weeklyGoals[i].claimed) completed++;
+    }
+    if (completed === 3) {
+        gameState.fame = Math.min(200, (gameState.fame || 30) + 10);
+        showToast('全部周目标完成！名气+10');
+    }
+}
+
+function _trackWeeklyGoal(type, value) {
+    if (!gameState.weeklyGoals || gameState.player.role !== 'Idol') return;
+    if (!gameState.weeklyGoalStats) gameState.weeklyGoalStats = {};
+    gameState.weeklyGoalStats[type] = (gameState.weeklyGoalStats[type] || 0) + (value || 1);
+    // Update progress for matching goals
+    for (var i = 0; i < gameState.weeklyGoals.length; i++) {
+        var g = gameState.weeklyGoals[i];
+        if (g.type === type && !g.claimed) {
+            if (type === 'fans_target') {
+                g.progress = gameState.fans || 0;
+            } else {
+                g.progress = gameState.weeklyGoalStats[type] || 0;
+            }
+        }
+    }
+}
+
+function claimWeeklyGoal(idx) {
+    if (!gameState.weeklyGoals || !gameState.weeklyGoals[idx]) return;
+    var g = gameState.weeklyGoals[idx];
+    if (g.claimed) { showToast('已领取'); return; }
+    if (g.progress < g.target) { showToast('还没完成呢'); return; }
+    g.claimed = true;
+    if (g.reward.money) gameState.money += g.reward.money;
+    if (g.reward.fame) gameState.fame = Math.min(200, (gameState.fame || 30) + g.reward.fame);
+    if (g.reward.fans) gameState.fans = (gameState.fans || 0) + g.reward.fans;
+    var rewardText = '';
+    if (g.reward.money) rewardText += '+' + g.reward.money.toLocaleString() + '金币 ';
+    if (g.reward.fame) rewardText += '+' + g.reward.fame + '名气 ';
+    if (g.reward.fans) rewardText += '+' + g.reward.fans + '粉丝';
+    showToast('奖励领取：' + rewardText);
+    render();
+}
+
+function renderWeeklyGoals() {
+    _initWeeklyGoals();
+    if (!gameState.weeklyGoals || gameState.player.role !== 'Idol' || gameState.preDebut) return '';
+    var currentWeek = gameState.weeklyGoalsWeek || 1;
+    var daysLeft = 7 - ((gameState.gameDay - 1) % 7);
+    var html = '<div style="margin-bottom:12px;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+        + '<div style="font-size:13px;font-weight:600;color:var(--color-text);">第' + currentWeek + '周目标</div>'
+        + '<div style="font-size:11px;color:var(--color-text-light);">剩余' + daysLeft + '天</div>'
+        + '</div>';
+    for (var i = 0; i < gameState.weeklyGoals.length; i++) {
+        var g = gameState.weeklyGoals[i];
+        var pct = Math.min(100, Math.floor((g.progress / g.target) * 100));
+        var done = g.progress >= g.target;
+        html += '<div style="background:' + (g.claimed ? '#F5F5F5' : done ? 'linear-gradient(135deg,#FFF5F7,#FFE4EC)' : 'var(--bg-card)') + ';border-radius:10px;padding:10px 12px;margin-bottom:6px;' + (g.claimed ? 'opacity:0.6;' : '') + '">'
+            + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
+            + '<div style="font-size:12px;font-weight:600;color:' + (done ? 'var(--color-primary)' : 'var(--color-text)') + ';">' + g.desc + '</div>'
+            + (g.claimed ? '<span style="font-size:10px;color:var(--color-text-light);">已领取</span>' : done ? '<button style="font-size:10px;padding:2px 8px;border-radius:6px;border:none;background:var(--color-primary);color:white;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="claimWeeklyGoal(' + i + ')">领取</button>' : '<span style="font-size:10px;color:var(--color-text-light);">' + g.progress + '/' + g.target + '</span>')
+            + '</div>'
+            + '<div style="height:4px;background:#EEE;border-radius:2px;overflow:hidden;">'
+            + '<div style="height:100%;width:' + pct + '%;background:' + (done ? 'var(--color-primary)' : '#FFB3C1') + ';border-radius:2px;transition:width 0.3s;"></div>'
+            + '</div>'
+            + '<div style="font-size:9px;color:var(--color-text-light);margin-top:3px;">奖励：' + (g.reward.money ? g.reward.money.toLocaleString() + '金币 ' : '') + (g.reward.fame ? '+' + g.reward.fame + '名气 ' : '') + (g.reward.fans ? '+' + g.reward.fans + '粉丝' : '') + '</div>'
+            + '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
 // ==================== V1.7: Share Card Generator ====================
 function showShareCard() {
     var company = COMPANIES[gameState.player.company];
@@ -13464,6 +13589,7 @@ function _endDay() {
             gameState.cooldowns[cdKeys[ci]]--;
         }
     }
+    _initWeeklyGoals();
     gameState.\u4f53\u529b = gameState.max\u4f53\u529b;
     gameState.dayIncome = 0;
     gameState.dayExpense = 0;
