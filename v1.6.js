@@ -1006,7 +1006,16 @@ var gameState = {
     antiEvents: [],
     achievements: [],
     mvCollection: [],
-    kickMemberIndex: 0
+    kickMemberIndex: 0,
+    // V1.7 Calendar System
+    gameDay: 1,
+    gameMonth: 1,
+    dayIncome: 0,
+    dayExpense: 0,
+    monthIncome: 0,
+    monthExpense: 0,
+    dayActionLog: [],
+    cooldowns: { debut: 0, comeback: 0, confess: 0 }
 };
 var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 
@@ -1952,7 +1961,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -12639,7 +12648,193 @@ window.onerror = function(msg, url, line) {
 render();
 
 // ==================== DAILY CHECK-IN ====================
+
+// ==================== V1.7 CALENDAR SYSTEM ====================
+
+function _initCalendarState() {
+    if (!gameState.gameDay) gameState.gameDay = 1;
+    if (!gameState.gameMonth) gameState.gameMonth = 1;
+    if (typeof gameState.dayIncome !== 'number') gameState.dayIncome = 0;
+    if (typeof gameState.dayExpense !== 'number') gameState.dayExpense = 0;
+    if (typeof gameState.monthIncome !== 'number') gameState.monthIncome = 0;
+    if (typeof gameState.monthExpense !== 'number') gameState.monthExpense = 0;
+    if (!gameState.dayActionLog) gameState.dayActionLog = [];
+    if (!gameState.cooldowns) gameState.cooldowns = { debut: 0, comeback: 0, confess: 0 };
+}
+
+function _getGameDayDisplay() {
+    _initCalendarState();
+    var d = gameState.gameDay;
+    var m = gameState.gameMonth;
+    return { day: d, month: m, weekDay: _getWeekDayName(d) };
+}
+
+function _getWeekDayName(dayNum) {
+    var names = ['\u65e5', '\u4e00', '\u4e8c', '\u4e09', '\u56db', '\u4e94', '\u516d'];
+    return '\u5468' + names[(dayNum - 1) % 7];
+}
+
+function _logDayAction(text) {
+    _initCalendarState();
+    gameState.dayActionLog.push(text);
+    if (gameState.dayActionLog.length > 50) {
+        gameState.dayActionLog = gameState.dayActionLog.slice(-50);
+    }
+}
+
+function _addDayIncome(amount) {
+    _initCalendarState();
+    gameState.dayIncome += amount;
+    gameState.monthIncome += amount;
+}
+
+function _addDayExpense(amount) {
+    _initCalendarState();
+    gameState.dayExpense += amount;
+    gameState.monthExpense += amount;
+}
+
+function _checkCooldown(type) {
+    _initCalendarState();
+    var cd = gameState.cooldowns[type] || 0;
+    if (cd <= 0) return { ok: true, remaining: 0 };
+    return { ok: false, remaining: cd };
+}
+
+function _setCooldown(type, days) {
+    _initCalendarState();
+    gameState.cooldowns[type] = days;
+}
+
+function _endDay() {
+    _initCalendarState();
+    var summary = _buildDaySummary();
+    gameState.gameDay++;
+    var newMonth = Math.floor((gameState.gameDay - 1) / 30) + 1;
+    var isNewMonth = newMonth > gameState.gameMonth;
+    if (isNewMonth) {
+        var settlementMonth = gameState.gameMonth;
+        var settlementIncome = gameState.monthIncome;
+        var settlementExpense = gameState.monthExpense;
+        var companyCut = 0;
+        if (gameState.player.role === 'Idol' && !gameState.preDebut && settlementIncome > 0) {
+            companyCut = Math.floor(settlementIncome * 0.7);
+            gameState.money = Math.max(0, gameState.money - companyCut);
+        }
+        var fixedExpenses = [];
+        if (gameState.player.role === 'Idol' && !gameState.preDebut) {
+            gameState.money = Math.max(0, gameState.money - 5000);
+            fixedExpenses.push({ name: '\u5bbf\u820d\u8d39', amount: 5000 });
+            gameState.money = Math.max(0, gameState.money - 2000);
+            fixedExpenses.push({ name: '\u56e2\u961f\u8fd0\u8425\u8d39', amount: 2000 });
+        }
+        gameState.gameMonth = newMonth;
+        gameState.monthIncome = 0;
+        gameState.monthExpense = 0;
+        summary += _buildMonthSettlement(settlementMonth, settlementIncome, settlementExpense, companyCut, fixedExpenses);
+    }
+    var cdKeys = Object.keys(gameState.cooldowns);
+    for (var ci = 0; ci < cdKeys.length; ci++) {
+        if (gameState.cooldowns[cdKeys[ci]] > 0) {
+            gameState.cooldowns[cdKeys[ci]]--;
+        }
+    }
+    gameState.\u4f53\u529b = gameState.max\u4f53\u529b;
+    gameState.dayIncome = 0;
+    gameState.dayExpense = 0;
+    gameState.dayActionLog = [];
+    triggerSilentSave();
+    showModal('\u7b2c ' + (gameState.gameDay - 1) + ' \u5929\u7ed3\u675f', summary, [
+        { text: '\u65b0\u7684\u4e00\u5929', action: function() { closeModal(); render(); } }
+    ]);
+}
+
+function _buildDaySummary() {
+    _initCalendarState();
+    var html = '';
+    if (gameState.dayIncome > 0 || gameState.dayExpense > 0) {
+        html += '<div style="margin-bottom:12px;">';
+        if (gameState.dayIncome > 0) {
+            html += '<div style="color:#4CD964;font-size:14px;">\u6536\u5165 +' + gameState.dayIncome.toLocaleString() + '</div>';
+        }
+        if (gameState.dayExpense > 0) {
+            html += '<div style="color:#FF3B30;font-size:14px;">\u652f\u51fa -' + gameState.dayExpense.toLocaleString() + '</div>';
+        }
+        html += '</div>';
+    }
+    if (gameState.dayActionLog.length > 0) {
+        html += '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:8px;">\u4eca\u65e5\u8bb0\u5f55</div>';
+        var logs = gameState.dayActionLog.slice(-10);
+        for (var li = 0; li < logs.length; li++) {
+            html += '<div style="font-size:13px;color:var(--color-text);padding:2px 0;">' + logs[li] + '</div>';
+        }
+    }
+    if (!html) {
+        html = '<div style="color:var(--color-text-light);font-size:14px;">\u4eca\u5929\u4ec0\u4e48\u90fd\u6ca1\u505a\uff0c\u660e\u5929\u52a0\u6cb9\u5427</div>';
+    }
+    html += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--color-border);font-size:13px;color:var(--color-primary);">\u4f53\u529b\u5df2\u6062\u590d\u81f3 ' + gameState.max\u4f53\u529b + '</div>';
+    return html;
+}
+
+function _buildMonthSettlement(month, income, expense, companyCut, fixedExpenses) {
+    var html = '<div style="margin-top:16px;padding-top:12px;border-top:2px solid var(--color-primary);">';
+    html += '<div style="font-size:16px;font-weight:700;color:var(--color-primary);margin-bottom:10px;">\u7b2c ' + month + ' \u6708\u7ed3\u7b97</div>';
+    html += '<div style="font-size:13px;color:var(--color-text);margin-bottom:4px;">\u672c\u6708\u6536\u5165: <span style="color:#4CD964;">' + income.toLocaleString() + '</span></div>';
+    html += '<div style="font-size:13px;color:var(--color-text);margin-bottom:4px;">\u672c\u6708\u652f\u51fa: <span style="color:#FF3B30;">' + expense.toLocaleString() + '</span></div>';
+    if (companyCut > 0) {
+        html += '<div style="font-size:13px;color:var(--color-text);margin-bottom:4px;">\u516c\u53f8\u5206\u6210 (70%): <span style="color:#FF3B30;">-' + companyCut.toLocaleString() + '</span></div>';
+    }
+    for (var fi = 0; fi < fixedExpenses.length; fi++) {
+        html += '<div style="font-size:13px;color:var(--color-text);margin-bottom:4px;">' + fixedExpenses[fi].name + ': <span style="color:#FF3B30;">-' + fixedExpenses[fi].amount.toLocaleString() + '</span></div>';
+    }
+    var netProfit = income - expense - companyCut;
+    for (var fi2 = 0; fi2 < fixedExpenses.length; fi2++) {
+        netProfit -= fixedExpenses[fi2].amount;
+    }
+    html += '<div style="font-size:14px;font-weight:600;margin-top:8px;padding-top:8px;border-top:1px solid var(--color-border);">';
+    html += '\u672c\u6708\u51c0\u6536\u5165: <span style="color:' + (netProfit >= 0 ? '#4CD964' : '#FF3B30') + ';">' + (netProfit >= 0 ? '+' : '') + netProfit.toLocaleString() + '</span>';
+    html += '</div></div>';
+    return html;
+}
+
+
+function _renderDayBar() {
+    _initCalendarState();
+    var dayInfo = _getGameDayDisplay();
+    var html = '<div style="background:linear-gradient(135deg,#F0E6FF,#E6F0FF);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">';
+    html += '<div>';
+    html += '<div style="font-size:14px;font-weight:700;color:var(--color-text);">\u7b2c ' + dayInfo.day + ' \u5929 <span style="font-size:11px;color:var(--color-text-light);font-weight:400;">' + dayInfo.weekDay + '</span></div>';
+    html += '<div style="font-size:11px;color:var(--color-text-light);">\u7b2c ' + dayInfo.month + ' \u6708</div>';
+    html += '</div>';
+    // Show active cooldowns
+    var cdHtml = '';
+    var cdKeys = Object.keys(gameState.cooldowns);
+    var cdNames = { debut: '\u51fa\u9053', comeback: '\u56de\u5f52', confess: '\u8868\u767d' };
+    for (var ci = 0; ci < cdKeys.length; ci++) {
+        var cdVal = gameState.cooldowns[cdKeys[ci]] || 0;
+        if (cdVal > 0) {
+            cdHtml += '<span style="font-size:10px;background:#FFE4EC;color:#FF6B8A;padding:2px 6px;border-radius:4px;margin-left:4px;">' + cdNames[cdKeys[ci]] + ' ' + cdVal + '\u5929</span>';
+        }
+    }
+    if (cdHtml) {
+        html += '<div style="display:flex;align-items:center;">' + cdHtml + '</div>';
+    } else {
+        html += '<div style="font-size:11px;color:#4CD964;">\u65e0\u51b7\u5374</div>';
+    }
+    html += '</div>';
+    // End day button
+    html += '<div onclick="_endDay()" style="background:linear-gradient(135deg,#FF8FA3,#FF6B8A);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">';
+    html += '<div>';
+    html += '<div style="font-size:13px;font-weight:600;color:white;">\u7ed3\u675f\u4eca\u5929</div>';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.8);">\u4f53\u529b\u6062\u590d + \u65e5\u7ed3\u7b97</div>';
+    html += '</div>';
+    html += '<div style="font-size:13px;font-weight:600;color:white;">\u5165\u7761 \u003e</div>';
+    html += '</div>';
+    return html;
+}
+
 function doDailyCheckIn() {
+    _logDayAction('\u7b7e\u5230');
     var today = new Date().toDateString();
     if (gameState._lastCheckIn === today) {
         showToast('今天已签到');
