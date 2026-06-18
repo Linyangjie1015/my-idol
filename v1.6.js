@@ -1186,7 +1186,11 @@ function render() {
             case 'updates':
                 render更新通知Page(app);
                 break;
-            case 'kakaotalk':
+            case 'sms':
+                renderSmsPage(app);
+                break;
+            case 'sms': return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CD964" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+        case 'kakaotalk':
                 renderKakaoTalkPage(app);
                 break;
             case 'kakaochat':
@@ -1929,6 +1933,7 @@ function renderHomePage(container) {
         { id: 'weverse', icon: 'weverse', name: 'Weverse', unlock: 1000 },
         { id: 'crisis', icon: 'crisis', name: '私生危机', unlock: 5000 },
         { id: 'members', icon: 'members', name: '成员信息', unlock: 0 },
+        { id: 'sms', icon: 'sms', name: '短信', unlock: 0 },
         { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
         { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 },
@@ -1982,7 +1987,7 @@ function renderHomePage(container) {
                     var categories = [
                         { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
                         { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'vip'], page: 1 },
-                        { title: '社交', ids: ['ins', 'tiktok', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
+                        { title: '社交', ids: ['ins', 'tiktok', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
                         { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
                     ];
                     var catHtml = '';
@@ -3624,6 +3629,159 @@ function _getTimeGreeting() {
     if (tod === 'dusk') return '黄昏';
     return '夜晚';
 }
+
+// V1.7: SMS App (短信APP)
+var SMS_TEMPLATES = {
+    company: [
+        { from: '经纪部', text: '【通知】明日10:00公司有紧急会议，请准时参加', icon: '#2C2C2C' },
+        { from: '经纪部', text: '【通告】后天有品牌拍摄，请提前做好造型准备', icon: '#2C2C2C' },
+        { from: '经纪部', text: '【通知】本月结算已出，请查收', icon: '#2C2C2C' },
+        { from: '造型师', text: '明天的舞台造型我选了三套，你看看哪套合适？', icon: '#FF9500' },
+        { from: '经纪人', text: '下周有个综艺邀请，我帮你接了，好好准备', icon: '#FF9500' }
+    ],
+    teammate: [
+        { from: null, text: '你在哪？我找你有事', icon: '#FEE500' },
+        { from: null, text: '刚才那个编舞你学会了吗？教教我呗', icon: '#FEE500' },
+        { from: null, text: '明天一起去练习室吧', icon: '#FEE500' },
+        { from: null, text: '我买了零食，来不来吃？', icon: '#FEE500' },
+        { from: null, text: '你最近是不是太累了？注意休息', icon: '#FEE500' }
+    ],
+    fan: [
+        { from: '粉丝(敏珍)', text: '欧尼今天打歌舞台太绝了！我循环了十遍！', icon: '#E1306C' },
+        { from: '粉丝(智恩)', text: '你的笑容真的治愈了我，会一直支持你的！', icon: '#E1306C' },
+        { from: '粉丝(秀贤)', text: '新歌太好听了！什么时候开粉丝见面会？', icon: '#E1306C' }
+    ],
+    sasaeng: [
+        { from: '未知号码', text: '我知道你住哪', icon: '#FF2D55' },
+        { from: '未知号码', text: '你今天的穿搭好好看，我在你公司附近', icon: '#FF2D55' },
+        { from: '未知号码', text: '我能出来见一面吗？就一面', icon: '#FF2D55' },
+        { from: '未知号码', text: '别想跑，你永远是我的', icon: '#FF2D55' },
+        { from: '未知号码', text: '我看到你跟那个人一起走了', icon: '#FF2D55' }
+    ],
+    anti: [
+        { from: '匿名', text: '就你这种实力还能出道？', icon: '#8E8E93' },
+        { from: '匿名', text: '你的高音简直是在杀猪', icon: '#8E8E93' },
+        { from: '匿名', text: '退团吧，你不配', icon: '#8E8E93' }
+    ],
+    family: [
+        { from: '妈妈', text: '妈妈在电视上看到你了，你跳舞的样子真好看', icon: '#4CD964' },
+        { from: '妈妈', text: '记得按时吃饭，别太累了', icon: '#4CD964' },
+        { from: '爸爸', text: '看到新闻了，注意安全', icon: '#4CD964' }
+    ]
+};
+
+function _generateDailySMS() {
+    if (!gameState.sms) gameState.sms = [];
+    if (!gameState.smsDay) gameState.smsDay = '';
+    var today = new Date().toDateString();
+    if (gameState.smsDay === today) return; // already generated today
+    gameState.smsDay = today;
+    
+    var msgs = [];
+    // Company notice (always if debuted)
+    if (gameState.player.role === 'Idol') {
+        var compMsgs = SMS_TEMPLATES.company;
+        msgs.push(Object.assign({}, compMsgs[Math.floor(Math.random() * compMsgs.length)]));
+    }
+    // Teammate message (if love >= 30 with any NPC)
+    var npcNames = Object.keys(gameState.npc好感度 || {});
+    var closeNpcs = [];
+    for (var ni = 0; ni < npcNames.length; ni++) {
+        if ((gameState.npc好感度[npcNames[ni]] || 0) >= 30) closeNpcs.push(npcNames[ni]);
+    }
+    if (closeNpcs.length > 0 && Math.random() < 0.6) {
+        var teamMsgs = SMS_TEMPLATES.teammate;
+        var tm = Object.assign({}, teamMsgs[Math.floor(Math.random() * teamMsgs.length)]);
+        var sender = closeNpcs[Math.floor(Math.random() * closeNpcs.length)];
+        tm.from = tm.from || sender;
+        msgs.push(tm);
+    }
+    // Fan message (if debuted and has fans)
+    if (gameState.player.role === 'Idol' && gameState.fans > 0 && Math.random() < 0.4) {
+        var fanMsgs = SMS_TEMPLATES.fan;
+        msgs.push(Object.assign({}, fanMsgs[Math.floor(Math.random() * fanMsgs.length)]));
+    }
+    // Sasaeng (danger >= 30)
+    if (gameState.danger >= 30 && Math.random() < 0.5) {
+        var sasaengMsgs = SMS_TEMPLATES.sasaeng;
+        msgs.push(Object.assign({}, sasaengMsgs[Math.floor(Math.random() * sasaengMsgs.length)]));
+        addDanger(2, 'dating');
+    }
+    // Anti (after comeback or high danger)
+    if ((gameState.danger >= 20 || gameState.lastComebackRating) && Math.random() < 0.3) {
+        var antiMsgs = SMS_TEMPLATES.anti;
+        msgs.push(Object.assign({}, antiMsgs[Math.floor(Math.random() * antiMsgs.length)]));
+    }
+    // Family (rare, after debut)
+    if (gameState.player.role === 'Idol' && Math.random() < 0.15) {
+        var famMsgs = SMS_TEMPLATES.family;
+        msgs.push(Object.assign({}, famMsgs[Math.floor(Math.random() * famMsgs.length)]));
+    }
+    
+    // Add timestamps
+    var now = new Date();
+    for (var mi = 0; mi < msgs.length; mi++) {
+        msgs[mi].time = (now.getHours() < 10 ? '0' : '') + (now.getHours() - mi) + ':' + (Math.floor(Math.random() * 60) < 10 ? '0' : '') + Math.floor(Math.random() * 60);
+        msgs[mi].read = false;
+        if (!msgs[mi].from) msgs[mi].from = '系统';
+    }
+    gameState.sms = msgs.concat(gameState.sms || []);
+    if (gameState.sms.length > 30) gameState.sms = gameState.sms.slice(0, 30);
+    gameState.smsUnread = (gameState.smsUnread || 0) + msgs.length;
+}
+
+function _getSMSUnread() {
+    if (!gameState.sms) return 0;
+    var count = 0;
+    for (var i = 0; i < gameState.sms.length; i++) {
+        if (!gameState.sms[i].read) count++;
+    }
+    return count;
+}
+
+function renderSmsPage(container) {
+    _generateDailySMS();
+    var msgs = gameState.sms || [];
+    var html = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage('home')">\u2039 首页</div>'
+        + '<div class="page-title">短信</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">';
+    if (msgs.length === 0) {
+        html += '<div style="text-align:center;padding:40px;color:var(--color-text-light);font-size:13px;">暂无短信</div>';
+    } else {
+        for (var i = 0; i < msgs.length; i++) {
+            var m = msgs[i];
+            var iconLetter = m.from ? m.from.charAt(0) : '?';
+            html += '<div onclick="viewSms(' + i + ')" style="display:flex;gap:10px;padding:12px;margin-bottom:2px;background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (m.read ? 'opacity:0.6;' : '') + '">'
+                + '<div style="width:36px;height:36px;border-radius:10px;background:' + m.icon + ';display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:700;flex-shrink:0;">' + iconLetter + '</div>'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="display:flex;justify-content:space-between;">'
+                + '<div style="font-size:13px;font-weight:600;color:var(--color-text);">' + m.from + '</div>'
+                + '<div style="font-size:10px;color:var(--color-text-light);">' + m.time + '</div>'
+                + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + m.text + '</div>'
+                + '</div>'
+                + (!m.read ? '<div style="width:8px;height:8px;background:#FF2D55;border-radius:50%;margin-top:4px;flex-shrink:0;"></div>' : '')
+                + '</div>';
+        }
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function viewSms(idx) {
+    var m = (gameState.sms || [])[idx];
+    if (!m) return;
+    m.read = true;
+    gameState.smsUnread = Math.max(0, (gameState.smsUnread || 0) - 1);
+    showModal(m.from, '<div style="padding:8px 0;">'
+        + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">' + m.text + '</div>'
+        + '<div style="font-size:10px;color:var(--color-text-light);margin-top:8px;">' + m.time + '</div>'
+        + '</div>', [{ text: '关闭', action: function() { closeModal(); render(); } }]);
+}
 function getAIReply(appId, context, playerMessage, callback) {
     if (!canUseAIToday()) {
         callback(getFallbackReply(appId));
@@ -3896,6 +4054,9 @@ function getAppRedDot(appId) {
             break;
         case 'dating':
             if (gameState.datingUnread) count += gameState.datingUnread;
+            break;
+        case 'sms':
+            if (gameState.smsUnread) count += gameState.smsUnread;
             break;
     }
     return count > 0 ? count : null;
