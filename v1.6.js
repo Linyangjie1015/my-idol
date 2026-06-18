@@ -3139,6 +3139,67 @@ var COZE_API_TOKEN = 'pat_AmSccb3iybFfdyR8nfuvAYyUPWxwaQSP6RW0QTNtJrvLJsuVbQKapw
 var HIDDEN_MILESTONES = [30, 60, 90];
 var HIDDEN_DIALOGUES = {};
 
+// V1.7: Love relationship 5-node system (20/40/60/80/100)
+var LOVE_NODES = [20, 40, 60, 80, 100];
+var LOVE_STATUS = [
+  { min: 0, max: 19, label: "陌生", color: "#CCC", icon: "" },
+  { min: 20, max: 39, label: "熟悉", color: "#B388FF", icon: "" },
+  { min: 40, max: 59, label: "暧昧", color: "#FF9500", icon: "" },
+  { min: 60, max: 79, label: "恋人", color: "#FF6B8A", icon: "" },
+  { min: 80, max: 99, label: "挚爱", color: "#FF2D55", icon: "" },
+  { min: 100, max: 100, label: "灵魂伴侣", color: "#E040FB", icon: "" }
+];
+
+function getLoveStatus(love) {
+  for (var i = 0; i < LOVE_STATUS.length; i++) {
+    if (love >= LOVE_STATUS[i].min && love <= LOVE_STATUS[i].max) return LOVE_STATUS[i];
+  }
+  return LOVE_STATUS[0];
+}
+function addLove(npcName, amount) {
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var oldLove = gameState.npc好感度[npcName] || 0;
+    var newLove = Math.min(100, oldLove + amount);
+    gameState.npc好感度[npcName] = newLove;
+    // Check love node milestones
+    for (var ni = 0; ni < LOVE_NODES.length; ni++) {
+        var node = LOVE_NODES[ni];
+        if (oldLove < node && newLove >= node) {
+            var nodeStatus = getLoveStatus(node);
+            setTimeout(function(ns, n, nm) {
+                return function() {
+                    showToast(nm + ' 好感度达到' + n + '！关系升级为「' + ns.label + '」');
+                };
+            }(nodeStatus, node, npcName), 500);
+        }
+    }
+    // Check hidden milestones (30/60/90)
+    checkHiddenUnlock(npcName);
+    return newLove;
+}
+
+
+function _renderLoveProgressBar(love, isDating) {
+  var status = getLoveStatus(love);
+  var barColor = status.color;
+  var html = '<div style="padding:4px 0 2px 0;">'
+    + '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">'
+    + '<span style="font-size:9px;color:' + barColor + ';font-weight:600;">' + status.label + '</span>'
+    + (isDating ? '<span style="font-size:8px;padding:1px 4px;border-radius:3px;background:' + barColor + ';color:white;">恋人</span>' : '')
+    + '<span style="font-size:9px;color:var(--color-text-light);margin-left:auto;">' + love + '/100</span>'
+    + '</div>'
+    + '<div style="position:relative;height:8px;background:#EEE;border-radius:4px;overflow:visible;">'
+    + '<div style="height:100%;width:' + love + '%;background:linear-gradient(90deg,' + barColor + ',' + barColor + ');border-radius:4px;transition:width 0.3s;"></div>';
+  for (var ni = 0; ni < LOVE_NODES.length; ni++) {
+    var node = LOVE_NODES[ni];
+    var reached = love >= node;
+    var nodeColor = reached ? barColor : '#DDD';
+    var pct = node;
+    html += '<div style="position:absolute;top:50%;width:10px;height:10px;border-radius:50%;background:' + nodeColor + ';border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.15);left:' + pct + '%;transform:translate(-50%,-50%);z-index:2;"></div>';
+  }
+  html += '</div></div>';
+  return html;
+}
 // Build hidden dialogues from COMPANIES data
 (function() {
     var cKeys = Object.keys(COMPANIES);
@@ -4603,13 +4664,13 @@ function _renderLoveListView(container, npcs) {
     } else {
         if (gameState.dating) {
             var p好感 = gameState.npc好感度[gameState.dating] || 0;
-            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\'") + '\')">'
+            var pStatus = getLoveStatus(p好感);
+            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\\\'") + '\')"'
                 + '<div style="display:flex;align-items:center;gap:12px;">'
                 + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
-                + '<div style="display:flex;align-items:center;"><span style="font-weight:700;font-size:15px;color:var(--color-primary);">' + gameState.dating + '</span><span style="font-size:9px;padding:1px 4px;border-radius:3px;background:var(--color-primary);color:white;margin-left:6px;">恋人</span></div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">好感度: ' + p好感 + '/100</div>'
-                + '<div style="margin-top:4px;height:4px;background:var(--color-border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:' + p好感 + '%;background:linear-gradient(90deg,#FF8FA3,#FFB3C1);border-radius:2px;"></div></div>'
+                + '<div style="display:flex;align-items:center;"><span style="font-weight:700;font-size:15px;color:' + pStatus.color + ';">' + gameState.dating + '</span><span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + pStatus.color + ';color:white;margin-left:6px;">' + pStatus.label + '</span></div>'
+                + _renderLoveProgressBar(p好感, true)
                 + '</div></div></div>';
         }
         bodyHtml += '<div class="section-title">' + (gameState.dating ? '同公司成员' : '同公司成员') + '</div>';
@@ -4617,20 +4678,20 @@ function _renderLoveListView(container, npcs) {
             var npc = npcs[ni];
             if (npc.name === gameState.dating) continue;
             var 好感 = gameState.npc好感度[npc.name] || 0;
+            var npcStatus = getLoveStatus(好感);
             var canDate = 好感 >= 60;
             bodyHtml += '<div class="card" style="display:flex;align-items:center;gap:10px;">'
-                + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#7C4DFF,#B388FF);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">' + npc.name.charAt(0) + '</div>'
+                + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,' + npcStatus.color + ',' + npcStatus.color + '33);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">' + npc.name.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
-                + '<div style="font-weight:600;font-size:13px;">' + npc.name + '</div>'
+                + '<div style="display:flex;align-items:center;gap:4px;"><span style="font-weight:600;font-size:13px;">' + npc.name + '</span><span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + npcStatus.color + '22;color:' + npcStatus.color + ';font-weight:600;">' + npcStatus.label + '</span></div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);">' + npc.position + '</div>'
                 + '<div style="display:flex;align-items:center;gap:4px;margin-top:3px;">'
-                + '<span style="font-size:10px;color:var(--color-text-light);">好感</span>'
-                + '<div style="flex:1;height:4px;background:var(--color-border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:' + 好感 + '%;background:linear-gradient(90deg,#FF8FA3,#FFB3C1);border-radius:2px;"></div></div>'
-                + '<span style="font-size:10px;font-weight:600;color:' + (canDate ? 'var(--color-primary)' : 'var(--color-text-light)') + ';">' + 好感 + '</span>'
+                + '<div style="flex:1;height:4px;background:var(--color-border);border-radius:2px;overflow:hidden;position:relative;"><div style="height:100%;width:' + 好感 + '%;background:' + npcStatus.color + ';border-radius:2px;"></div></div>'
+                + '<span style="font-size:10px;font-weight:600;color:' + (canDate ? npcStatus.color : 'var(--color-text-light)') + ';">' + 好感 + '</span>'
                 + '</div></div>'
                 + '<div style="display:flex;flex-direction:column;gap:4px;">'
-                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + npc.name.replace(/'/g, "\\'") + '\')">聊天</button>'
-                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(\'' + npc.name.replace(/'/g, "\\'") + '\')">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
+                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\\'' + npc.name.replace(/'/g, "\\\\'") + '\\')" >聊天</button>'
+                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(\\'' + npc.name.replace(/'/g, "\\\\'") + '\\')" >在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
                 + '</div></div>';
         }
     }
@@ -4686,11 +4747,7 @@ function _renderLoveChatView(container, targetName, npcs) {
         bubbles = '<div style="text-align:center;color:var(--color-text-light);padding:20px;font-size:13px;">开始和 ' + targetName + ' 聊天吧</div>';
     }
 
-    var headerSub = '<div style="display:flex;align-items:center;gap:4px;">'
-        + '<span style="font-size:9px;color:var(--color-text-light);">好感 ' + 好感 + '</span>'
-        + '<div style="width:50px;height:3px;background:var(--color-border);border-radius:2px;overflow:hidden;"><div style="height:100%;width:' + 好感 + '%;background:#FF8FA3;border-radius:2px;"></div></div>'
-        + (isDating ? '<span style="font-size:8px;padding:1px 3px;border-radius:2px;background:var(--color-primary);color:white;">恋人</span>' : '')
-        + '</div>';
+    var headerSub = _renderLoveProgressBar(好感, isDating);
 
     container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
         + '<div class="page-header" style="flex-shrink:0;">'
@@ -4752,10 +4809,7 @@ function sendLoveChat() {
     var h = now.getHours(); var m = now.getMinutes();
     var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
     gameState.loveChats[target].push({ fromMe: true, text: text, time: ts });
-    if (!gameState.npc好感度) gameState.npc好感度 = {};
-    if (!gameState.npc好感度[target]) gameState.npc好感度[target] = 0;
-    gameState.npc好感度[target] = Math.min(100, gameState.npc好感度[target] + Math.floor(Math.random() * 3) + 1);
-    checkHiddenUnlock(target);
+    addLove(target, Math.floor(Math.random() * 3) + 1);
     input.value = '';
     if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
     if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
@@ -4790,7 +4844,7 @@ function npcLoveReplyAI(name) {
         var h = now.getHours(); var m = now.getMinutes();
         var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
         gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
-        gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+        addLove(name, Math.floor(Math.random() * 2) + 1);
         checkHiddenUnlock(name);
         if (window._loveChatTarget !== name || window._loveView !== 'chat') {
             if (!gameState.loveUnread) gameState.loveUnread = {};
@@ -4812,7 +4866,7 @@ function npcLoveReplyAI(name) {
         var h = now.getHours(); var m = now.getMinutes();
         var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
         gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
-        gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+        addLove(name, Math.floor(Math.random() * 2) + 1);
         checkHiddenUnlock(name);
         if (window._loveChatTarget !== name || window._loveView !== 'chat') {
             if (!gameState.loveUnread) gameState.loveUnread = {};
@@ -4836,7 +4890,7 @@ function npcLoveReply(name) {
     var h = now.getHours(); var m = now.getMinutes();
     var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
     gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
-    gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+    addLove(name, Math.floor(Math.random() * 2) + 1);
     if (window._loveChatTarget !== name || window._loveView !== 'chat') {
         if (!gameState.loveUnread) gameState.loveUnread = {};
         gameState.loveUnread[name] = (gameState.loveUnread[name] || 0) + 1;
@@ -4877,7 +4931,7 @@ function sendLoveSticker(stickerName) {
     var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
     gameState.loveChats[target].push({ fromMe: true, text: '[' + stickerName + ']', time: ts });
     if (!gameState.npc好感度) gameState.npc好感度 = {};
-    gameState.npc好感度[target] = Math.min(100, (gameState.npc好感度[target] || 0) + 2);
+    addLove(target, 2);
     var panel = document.getElementById('loveStickerPanel');
     if (panel) panel.style.display = 'none';
     if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
@@ -4940,7 +4994,7 @@ function sendLoveGift(giftName, price, loveVal) {
     var h = now.getHours(); var m = now.getMinutes();
     var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
     gameState.money -= price;
-    gameState.npc好感度[target] = Math.min(100, (gameState.npc好感度[target] || 0) + loveVal);
+    addLove(target, loveVal);
     gameState.loveChats[target].push({ fromMe: true, text: '[送出 ' + giftName + ']', time: ts });
     var panel = document.getElementById('loveGiftPanel');
     if (panel) panel.style.display = 'none';
@@ -5060,7 +5114,7 @@ function loveDateStep2(locIdx) {
     gameState.money -= loc.cost;
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.npc好感度[gameState.dating]) gameState.npc好感度[gameState.dating] = 0;
-    gameState.npc好感度[gameState.dating] = Math.min(100, gameState.npc好感度[gameState.dating] + loc.好感Base);
+    addLove(gameState.dating, loc.好感Base);
     window._dateLocIdx = locIdx;
     // step 2: 选行动
     var actHtml = '<div style="margin-bottom:8px;font-size:13px;color:var(--color-text-light);">在' + loc.name + '，你想做什么？</div>';
@@ -5077,14 +5131,14 @@ function loveDateStep3(locIdx, actIdx) {
     var loc = _dateLocations[locIdx];
     var act = actIdx >= 0 ? _dateActions[actIdx] : { text: '安静陪伴', 好感: 1, 危险: 0 };
     if (!gameState.npc好感度) gameState.npc好感度 = {};
-    gameState.npc好感度[gameState.dating] = Math.min(100, (gameState.npc好感度[gameState.dating] || 0) + act.好感);
+    addLove(gameState.dating, act.好感);
     if (act.危险 > 0) {
         if (!gameState.危险值) gameState.危险值 = 0;
         gameState.危险值 += act.危险;
     }
     // step 3: 随机事件
     var evt = _dateEvents[Math.floor(Math.random() * _dateEvents.length)];
-    gameState.npc好感度[gameState.dating] = Math.min(100, Math.max(0, (gameState.npc好感度[gameState.dating] || 0) + evt.好感));
+    addLove(gameState.dating, evt.好感);
     if (evt.危险 > 0) {
         if (!gameState.危险值) gameState.危险值 = 0;
         gameState.危险值 += evt.危险;
@@ -5156,7 +5210,7 @@ function doBreakup() {
         showModal(name + ' 不愿分手', name + ' 紧紧抓住你的手："不要走...我们再试一次好不好？"\n\n好感度还有 ' + 好感 + '，' + name + ' 不想放手', [
             { text: '心软留下', action: function() {
                 closeModal();
-                gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + 5);
+                addLove(name, 5);
                 showModal('和好了', '你选择了留下。\n' + name + ' 紧紧抱住了你。\n\n好感度 +5');
                 render();
             }},
@@ -5795,7 +5849,7 @@ function sendInsChat() {
     var npcCtx = insMsgChatUser + '在INS上聊天';
     window._aiNpcName = insMsgChatUser;
     getAIReply('ins', npcCtx, msg, function(reply) {
-        gameState.npc好感度[insMsgChatUser] = Math.min(100, (gameState.npc好感度[insMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
+        addLove(insMsgChatUser, Math.floor(Math.random() * 3) + 1);
     checkHiddenUnlock(insMsgChatUser);
         for (var ri = gameState.insMessages.length - 1; ri >= 0; ri--) {
             if (gameState.insMessages[ri].with === insMsgChatUser && !gameState.insMessages[ri].fromMe && gameState.insMessages[ri].text === '...') {
@@ -5969,7 +6023,7 @@ function sendTiktokChat() {
     var npcCtx = tiktokMsgChatUser + '在TikTok上聊天';
     window._aiNpcName = tiktokMsgChatUser;
     getAIReply('tiktok', npcCtx, msg, function(reply) {
-        gameState.npc好感度[tiktokMsgChatUser] = Math.min(100, (gameState.npc好感度[tiktokMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
+        addLove(tiktokMsgChatUser, Math.floor(Math.random() * 3) + 1);
     checkHiddenUnlock(tiktokMsgChatUser);
         for (var ri = gameState.tiktokMessages.length - 1; ri >= 0; ri--) {
             if (gameState.tiktokMessages[ri].with === tiktokMsgChatUser && !gameState.tiktokMessages[ri].fromMe && gameState.tiktokMessages[ri].text === '...') {
@@ -6131,7 +6185,7 @@ function orderFood(name, price, 体力, loveVal) {
             gameState.money -= price;
             gameState.体力 = Math.min(gameState.max体力, gameState.体力 + 体力);
             if (loveVal && loveVal > 0 && gameState.dating && gameState.npc好感度) {
-                gameState.npc好感度[gameState.dating] = Math.min(100, (gameState.npc好感度[gameState.dating] || 0) + loveVal);
+                addLove(gameState.dating, loveVal);
             }
             if (!gameState.inventory) gameState.inventory = [];
             gameState.inventory.push({ name: name, effect: '体力', value: 体力 });
@@ -6254,7 +6308,7 @@ function order快递服务(name, price, value, effect) {
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
             } else if (effect === '好感') {
                 if (gameState.dating && gameState.npc好感度) {
-                    gameState.npc好感度[gameState.dating] = Math.min(100, (gameState.npc好感度[gameState.dating] || 0) + value);
+                    addLove(gameState.dating, value);
                 }
             }
             if (!gameState.inventory) gameState.inventory = [];
@@ -7131,7 +7185,7 @@ function toggleInsFollow() {
         gameState.fans += 10;
         if (!gameState.npc好感度) gameState.npc好感度 = {};
         if (!gameState.npc好感度[profileUser]) gameState.npc好感度[profileUser] = 30;
-        gameState.npc好感度[profileUser] = Math.min(100, (gameState.npc好感度[profileUser] || 30) + 10);
+        addLove(profileUser, 10);
         showModal('关注成功', '已关注 ' + profileUser + '\n+10 粉丝\n好感度 +10');
     }
     render();
@@ -11679,14 +11733,8 @@ function showNpcCard(npcName) {
             + '</div></div>';
     }
 
-    html += '<div style="margin-bottom:12px;">'
-        + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:6px;">好感度 '+好感+'/100</div>'
-        + '<div style="height:6px;background:#EEE;border-radius:3px;overflow:hidden;position:relative;">'
-        + '<div style="height:100%;width:'+好感+'%;background:linear-gradient(90deg,#FF8FA3,#FF6B8A);border-radius:3px;transition:width 0.3s;"></div>'
-        + (milestones.length > 0 ? '<div style="position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;background:#FF6B8A;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);left:'+Math.min(100,milestones[0].level)+'%;transform:translateX(-50%);"></div>' : '')
-        + (milestones.length > 1 ? '<div style="position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;background:'+(好感>=milestones[1].level?'#FF6B8A':'#CCC')+';border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);left:'+milestones[1].level+'%;transform:translateX(-50%);"></div>' : '')
-        + (milestones.length > 2 ? '<div style="position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;background:'+(好感>=milestones[2].level?'#FF6B8A':'#CCC')+';border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);left:'+milestones[2].level+'%;transform:translateX(-50%);"></div>' : '')
-        + '</div></div>';
+    var isDatingNpc = gameState.dating === npcName;
+    html += '<div style="margin-bottom:12px;">' + _renderLoveProgressBar(好感, isDatingNpc) + '</div>';
 
     // V1.7: Show unlocked hidden dialogues
     if (milestoneHtml) {
