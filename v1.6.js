@@ -1186,10 +1186,14 @@ function render() {
             case 'updates':
                 render更新通知Page(app);
                 break;
+            case 'phone':
+                renderPhonePage(app);
+                break;
             case 'sms':
                 renderSmsPage(app);
                 break;
-            case 'sms': return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CD964" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+            case 'phone': return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CD964" stroke-width="2"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>';
+        case 'sms': return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CD964" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
         case 'kakaotalk':
                 renderKakaoTalkPage(app);
                 break;
@@ -1933,6 +1937,7 @@ function renderHomePage(container) {
         { id: 'weverse', icon: 'weverse', name: 'Weverse', unlock: 1000 },
         { id: 'crisis', icon: 'crisis', name: '私生危机', unlock: 5000 },
         { id: 'members', icon: 'members', name: '成员信息', unlock: 0 },
+        { id: 'phone', icon: 'phone', name: '电话', unlock: 0 },
         { id: 'sms', icon: 'sms', name: '短信', unlock: 0 },
         { id: 'kakaotalk', icon: 'kakaotalk', name: 'KakaoTalk', unlock: 0 },
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
@@ -1987,7 +1992,7 @@ function renderHomePage(container) {
                     var categories = [
                         { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
                         { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'vip'], page: 1 },
-                        { title: '社交', ids: ['ins', 'tiktok', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
+                        { title: '社交', ids: ['ins', 'tiktok', 'phone', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
                         { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
                     ];
                     var catHtml = '';
@@ -3781,6 +3786,177 @@ function viewSms(idx) {
         + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">' + m.text + '</div>'
         + '<div style="font-size:10px;color:var(--color-text-light);margin-top:8px;">' + m.time + '</div>'
         + '</div>', [{ text: '关闭', action: function() { closeModal(); render(); } }]);
+}
+
+// V1.7: Phone Call APP (电话APP)
+var CALL_TEMPLATES = {
+    manager: [
+        { text: '明天上午10点有个品牌活动，别迟到', effect: { fame: 2 } },
+        { text: '公司对你上次的舞台很满意，继续保持', effect: { fame: 3 } },
+        { text: '下周有个综艺录制，好好准备', effect: { fame: 2 } },
+        { text: '你的粉丝见面会时间定了，下个月15号', effect: { fans: 500 } }
+    ],
+    teammate: [
+        { text: '你还没走吗？我等你一起去吃夜宵', effect: { loveTarget: true, loveGain: 3 } },
+        { text: '刚才那个编舞你学会了吗？教教我', effect: { loveTarget: true, loveGain: 2 } },
+        { text: '我买了炸鸡，来不来？', effect: { loveTarget: true, loveGain: 2 } },
+        { text: '你今天舞台表现好帅！真的！', effect: { loveTarget: true, loveGain: 4 } }
+    ],
+    sasaeng: [
+        { text: '我知道你在哪，我在你楼下', effect: { danger: 8 } },
+        { text: '你怎么不回我消息？我等了好久', effect: { danger: 5 } },
+        { text: '我拍到你今天的照片了，好漂亮', effect: { danger: 6 } },
+        { text: '别想跑，你逃不掉的', effect: { danger: 10 } }
+    ],
+    anti: [
+        { text: '你这种水平也配出道？', effect: { credit: -3 } },
+        { text: '退团吧，你不配站在舞台上', effect: { credit: -2 } },
+        { text: '你的粉丝都是买的吧？', effect: { credit: -3 } }
+    ],
+    family: [
+        { text: '妈妈看你的舞台了，你做得很好', effect: { life: 10 } },
+        { text: '记得按时吃饭，别太累了', effect: { life: 15 } },
+        { text: '爸爸虽然嘴上不说，但他也在看你节目', effect: { life: 10 } }
+    ]
+};
+
+function _triggerPhoneCall() {
+    if (gameState.player.role !== 'Idol') return;
+    if (gameState._lastCallDay === gameState.gameDay) return; // once per game day
+    
+    // Determine call type
+    var types = [];
+    types.push({ type: 'manager', weight: 30 });
+    if (Object.keys(gameState.npc好感度 || {}).length > 0) types.push({ type: 'teammate', weight: 25 });
+    if (gameState.danger >= 30) types.push({ type: 'sasaeng', weight: 20 });
+    if (gameState.danger >= 20) types.push({ type: 'anti', weight: 10 });
+    types.push({ type: 'family', weight: 15 });
+    
+    var totalWeight = 0;
+    for (var tw = 0; tw < types.length; tw++) totalWeight += types[tw].weight;
+    var roll = Math.random() * totalWeight;
+    var chosen = types[0].type;
+    var cumulative = 0;
+    for (var tc = 0; tc < types.length; tc++) {
+        cumulative += types[tc].weight;
+        if (roll < cumulative) { chosen = types[tc].type; break; }
+    }
+    
+    var templates = CALL_TEMPLATES[chosen];
+    var call = templates[Math.floor(Math.random() * templates.length)];
+    
+    // Pick a random NPC for teammate calls
+    var callerName = '';
+    var callerIcon = '';
+    if (chosen === 'manager') {
+        callerName = '经纪人';
+        callerIcon = '#FF9500';
+    } else if (chosen === 'teammate') {
+        var npcKeys = Object.keys(gameState.npc好感度 || {});
+        var closeNpcs = [];
+        for (var nk = 0; nk < npcKeys.length; nk++) {
+            if ((gameState.npc好感度[npcKeys[nk]] || 0) >= 30) closeNpcs.push(npcKeys[nk]);
+        }
+        callerName = closeNpcs.length > 0 ? closeNpcs[Math.floor(Math.random() * closeNpcs.length)] : '队友';
+        callerIcon = '#FEE500';
+    } else if (chosen === 'sasaeng') {
+        callerName = '未知号码';
+        callerIcon = '#FF2D55';
+    } else if (chosen === 'anti') {
+        callerName = '匿名';
+        callerIcon = '#8E8E93';
+    } else {
+        callerName = '妈妈';
+        callerIcon = '#4CD964';
+    }
+    
+    _showIncomingCall(callerName, callerIcon, call, chosen);
+}
+
+function _showIncomingCall(callerName, callerIcon, call, callType) {
+    var callOverlay = document.createElement('div');
+    callOverlay.id = 'callOverlay';
+    callOverlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,' + callerIcon + '22,' + callerIcon + '44);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);animation:fadeIn 0.3s ease;';
+    
+    var iconLetter = callerName.charAt(0);
+    callOverlay.innerHTML = '<div style="margin-bottom:20px;">'
+        + '<div style="width:80px;height:80px;border-radius:50%;background:' + callerIcon + ';display:flex;align-items:center;justify-content:center;color:white;font-size:32px;font-weight:700;margin:0 auto;box-shadow:0 4px 20px ' + callerIcon + '66;">' + iconLetter + '</div>'
+        + '</div>'
+        + '<div style="font-size:22px;font-weight:700;color:var(--color-text);margin-bottom:4px;">' + callerName + '</div>'
+        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:30px;">来电...</div>'
+        + '<div style="display:flex;gap:40px;align-items:center;">'
+        + '<div onclick="_declineCall()" style="width:60px;height:60px;border-radius:50%;background:#FF3B30;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(255,59,48,0.4);">'
+        + '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>'
+        + '</div>'
+        + '<div onclick="_acceptCall('' + callerName.replace(/'/g, "\\'") + '','' + callType + '',' + JSON.stringify(call).replace(/"/g, "&quot;") + ')" style="width:60px;height:60px;border-radius:50%;background:#4CD964;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(76,217,100,0.4);">'
+        + '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>'
+        + '</div>'
+        + '</div>';
+    document.body.appendChild(callOverlay);
+    
+    // Auto-decline after 15 seconds
+    gameState._callTimer = setTimeout(function() { _declineCall(); }, 15000);
+}
+
+function _acceptCall(callerName, callType, call) {
+    if (gameState._callTimer) { clearTimeout(gameState._callTimer); gameState._callTimer = null; }
+    var overlay = document.getElementById('callOverlay');
+    if (overlay) overlay.parentNode.removeChild(overlay);
+    gameState._lastCallDay = gameState.gameDay;
+    
+    // Apply call effects
+    var effect = call.effect || {};
+    if (effect.fame) gameState.fame = Math.min(200, (gameState.fame || 30) + effect.fame);
+    if (effect.fans) gameState.fans = (gameState.fans || 0) + effect.fans;
+    if (effect.life) gameState.life = Math.min(100, (gameState.life || 100) + effect.life);
+    if (effect.credit) gameState.credit = Math.max(0, Math.min(150, (gameState.credit || 100) + effect.credit));
+    if (effect.danger) addDanger(effect.danger, 'dating');
+    if (effect.loveTarget && effect.loveGain) {
+        // Find highest love NPC
+        var bestNpc = callerName;
+        addLove(bestNpc, effect.loveGain);
+    }
+    
+    // Show call content
+    var effectText = '';
+    if (effect.fame) effectText += '名气+' + effect.fame + ' ';
+    if (effect.fans) effectText += '粉丝+' + effect.fans + ' ';
+    if (effect.life) effectText += '生命+' + effect.life + ' ';
+    if (effect.danger) effectText += '危险+' + effect.danger + ' ';
+    if (effect.loveGain) effectText += '好感+' + effect.loveGain + ' ';
+    if (effect.credit) effectText += '信誉' + (effect.credit > 0 ? '+' : '') + effect.credit + ' ';
+    
+    showModal(callerName + '的来电', '<div style="padding:8px 0;">'
+        + '<div style="font-size:14px;color:var(--color-text);line-height:1.8;">' + call.text + '</div>'
+        + (effectText ? '<div style="font-size:11px;color:var(--color-primary);margin-top:12px;font-weight:600;">' + effectText.trim() + '</div>' : '')
+        + '</div>', [{ text: '挂断', action: function() { closeModal(); render(); } }]);
+    
+    _addNotifLog('Phone', callerName + '来电', call.text, '#4CD964');
+}
+
+function _declineCall() {
+    if (gameState._callTimer) { clearTimeout(gameState._callTimer); gameState._callTimer = null; }
+    var overlay = document.getElementById('callOverlay');
+    if (overlay) overlay.parentNode.removeChild(overlay);
+    gameState._lastCallDay = gameState.gameDay;
+}
+
+function renderPhonePage(container) {
+    var html = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage('home')">\u2039 首页</div>'
+        + '<div class="page-title">电话</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="padding:40px 20px;text-align:center;">'
+        + '<div style="width:80px;height:80px;border-radius:50%;background:#4CD964;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">'
+        + '<svg width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>'
+        + '</div>'
+        + '<div style="font-size:16px;font-weight:700;color:var(--color-text);margin-bottom:8px;">电话</div>'
+        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">接到来电时会自动弹出</div>'
+        + '<div style="font-size:11px;color:var(--color-text-light);">经纪人 / 队友 / 家人 / 私生饭 / 黑粉</div>'
+        + '</div></div>';
+    container.innerHTML = html;
 }
 function getAIReply(appId, context, playerMessage, callback) {
     if (!canUseAIToday()) {
@@ -14065,6 +14241,10 @@ function _setCooldown(type, days) {
 }
 
 function _endDay() {
+    // V1.7: Random phone call trigger
+    if (Math.random() < 0.3) {
+        setTimeout(function() { _triggerPhoneCall(); }, 2000);
+    }
     _initCalendarState();
     var summary = _buildDaySummary();
     gameState.gameDay++;
