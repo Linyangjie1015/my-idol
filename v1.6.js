@@ -3285,6 +3285,96 @@ function recordAIUsage(appId) {
     gameState.aiUsage[key] = (gameState.aiUsage[key] || 0) + 1;
 }
 
+// V1.7: Build rich NPC profile for AI system prompt
+function getNPCProfile(appId, npcName) {
+    if (!npcName) return '';
+    var npc = null;
+    if (gameState.kakaoFriends) {
+        for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+            if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
+        }
+    }
+    if (!npc) {
+        var cKeys = Object.keys(COMPANIES);
+        for (var ci = 0; ci < cKeys.length; ci++) {
+            var comp = COMPANIES[cKeys[ci]];
+            var gKeys = Object.keys(comp.groups);
+            for (var gi = 0; gi < gKeys.length; gi++) {
+                var grp = comp.groups[gKeys[gi]];
+                for (var mi = 0; mi < grp.members.length; mi++) {
+                    var m = grp.members[mi];
+                    var mName = (typeof m === 'object') ? m.name : m;
+                    if (mName === npcName) {
+                        npc = {
+                            name: mName,
+                            personality: (typeof m === 'object' && m.personality) ? (m.personality.join ? m.personality.join('/') : m.personality) : '',
+                            specialty: (typeof m === 'object') ? (m.position || '') : '',
+                            bio: (typeof m === 'object') ? (m.bio || '') : '',
+                            quote: (typeof m === 'object') ? (m.quote || '') : '',
+                            hidden: (typeof m === 'object') ? (m.hidden || '') : '',
+                            group: grp.name,
+                            company: comp.name,
+                            isTeammate: (grp.name === gameState.player.group)
+                        };
+                        break;
+                    }
+                }
+                if (npc) break;
+            }
+            if (npc) break;
+        }
+    }
+    if (!npc) return '';
+    var profile = '';
+    var isManager = npc.isManager;
+    if (isManager) {
+        profile = '你是代表经纪人，负责管理和照顾艺人。';
+        if (appId === 'kakaotalk') profile += '你通过KakaoTalk和艺人沟通工作安排、关心他们的状态。';
+        return profile;
+    }
+    profile += '你叫' + npc.name;
+    if (npc.specialty) profile += '，队内定位是' + npc.specialty;
+    if (npc.group) profile += '，所属团体：' + npc.group;
+    if (npc.company) profile += '（' + npc.company + '）';
+    var isTeammate = npc.isTeammate || (npc.group === gameState.player.group);
+    if (isTeammate && gameState.player.role === 'Idol') profile += '。你是' + gameState.player.name + '的队友';
+    profile += '。';
+    if (npc.personality) {
+        var persStr = '';
+        if (typeof npc.personality === 'string') { persStr = npc.personality; }
+        else if (npc.personality.join) { persStr = npc.personality.join('、'); }
+        if (persStr) profile += '你的性格特点是' + persStr + '。';
+    }
+    if (npc.bio) profile += npc.bio;
+    if (npc.quote) profile += '你的招牌语录：「' + npc.quote + '」。';
+    var 好感 = 0;
+    if (gameState.npc好感度 && gameState.npc好感度[npcName]) 好感 = gameState.npc好感度[npcName];
+    if (npc.hidden && 好感 >= 30) {
+        profile += '你有一个只有亲近的人才知道的秘密：' + npc.hidden + '。';
+    }
+    if (appId === 'dating' || appId === 'kakaotalk') {
+        if (好感 >= 80) {
+            profile += '你和' + gameState.player.name + '关系非常亲密，无话不谈。';
+        } else if (好感 >= 60) {
+            profile += '你和' + gameState.player.name + '是很好的朋友，会分享很多事情。';
+        } else if (好感 >= 30) {
+            profile += '你和' + gameState.player.name + '比较熟悉了，偶尔会聊些心里话。';
+        } else {
+            profile += '你和' + gameState.player.name + '还不太熟，保持礼貌但有些距离。';
+        }
+    }
+    if (appId === 'kakaotalk') {
+        profile += '你正在通过KakaoTalk聊天，语气随意自然。';
+    } else if (appId === 'bubble') {
+        profile += '你正在通过泡泡和粉丝聊天，语气甜蜜亲切。';
+    } else if (appId === 'dating') {
+        profile += '你正在和恋人聊天，语气温柔暧昧。';
+    } else if (appId === 'weverse') {
+        profile += '你正在Weverse上和粉丝互动，语气温暖真诚。';
+    }
+    return profile;
+}
+
 function getAIReply(appId, context, playerMessage, callback) {
     if (!canUseAIToday()) {
         callback(getFallbackReply(appId));
@@ -3293,15 +3383,21 @@ function getAIReply(appId, context, playerMessage, callback) {
     recordAIUsage(appId);
 
     var prompts = {
-        kakaotalk: '你是韩国娱乐圈的偶像/练习生，正在通过KakaoTalk和同事聊天。' + context + '。用随意亲切的韩式聊天语气回复，2-4句话，像真正的朋友聊天一样自然，可以分享八卦、吐槽日程、讨论新歌新舞台，偶尔用~和！，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
-        bubble: '你是韩国当红爱豆，正在通过泡泡和粉丝聊天。' + context + '。用甜蜜亲切的语气回复粉丝，2-3句话，像和最好的朋友聊天一样，可以分享今天的心情、吃了什么、练习了什么，偶尔用~，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
-        dating: '你是韩国娱乐圈的偶像，正在和恋人聊天。' + context + '。用温柔暧昧的恋爱语气回复，2-3句话，可以说想对方、分享小确幸、撒娇或者关心对方，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
-        ins: '你是INS上的粉丝，正在评论爱豆的动态。用热情的评论语气回复，1-2句话，可以夸颜值、造型、氛围感，表达自己的喜爱和支持，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        kakaotalk: '你是韩国娱乐圈的偶像/练习生，正在通过KakaoTalk和同事聊天。' + context + '。用随意亲切的韩式聊天语气回复，2-4句话，像真正的朋友聊天一样自然，可以分享八卦、吐槽日程、讨论新歌新舞台，偶尔用~和！，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。严格按照你的人设和性格特点说话，保持角色一致性。',
+        bubble: '你是韩国当红爱豆，正在通过泡泡和粉丝聊天。' + context + '。用甜蜜亲切的语气回复粉丝，2-3句话，像和最好的朋友聊天一样，可以分享今天的心情、吃了什么、练习了什么，偶尔用~，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。严格按照你的人设说话。',
+        dating: '你是韩国娱乐圈的偶像，正在和恋人聊天。' + context + '。用温柔暧昧的恋爱语气回复，2-3句话，可以说想对方、分享小确幸、撒娇或者关心对方，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。严格按照你的人设和性格特点说话。',
+        ins: '你是INS上的粉丝，正在评论爱豆的动态。用热情的评论语气回复，1-2句话，可以夸颜值、造型、氛围感，表达自己的喜爱和支持，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。保持角色一致性。',
         tiktok: '你是TikTok上的粉丝，正在评论爱豆的视频。用活泼的评论语气回复，1-2句话，可以夸舞蹈、编舞、表现力，或者问问题、表达期待，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
-        weverse: '你是韩国当红爱豆，正在Weverse上和粉丝互动。用温暖真诚的语气回复，2-3句话，可以感谢粉丝支持、分享近况、回应粉丝的关心，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。',
+        weverse: '你是韩国当红爱豆，正在Weverse上和粉丝互动。用温暖真诚的语气回复，2-3句话，可以感谢粉丝支持、分享近况、回应粉丝的关心，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。严格按照你的人设说话。',
         live: '你是直播间的观众，正在看爱豆直播。用热情的弹幕语气回复，1-2句话，可以提问题、夸爱豆、点歌、互动，不要用emoji。用中文回复。绝对不要提到游戏、模拟器或任何虚拟世界。'
     };
     var systemPrompt = prompts[appId] || prompts.kakaotalk;
+    // V1.7: Inject NPC personality
+    var _aiNpc = window._aiNpcName || '';
+    if (_aiNpc) {
+        var npcProf = getNPCProfile(appId, _aiNpc);
+        if (npcProf) systemPrompt = npcProf + ' ' + systemPrompt;
+    }
     var userId = (gameState.player.name || 'player') + '_' + Math.floor(Math.random() * 10000);
 
     var xhr = new XMLHttpRequest();
@@ -4558,10 +4654,59 @@ function sendLoveChat() {
     var delay = 800 + Math.floor(Math.random() * 1500);
     setTimeout(function() {
         if (gameState._loveReplyQueue[npcName] === queueId) {
-            npcLoveReply(npcName);
+            npcLoveReplyAI(npcName);
         }
     }, delay);
     render();
+}
+
+
+// V1.7: AI-powered love chat reply (VIP only, free users keep hardcoded)
+function npcLoveReplyAI(name) {
+    if (!gameState.loveChats) gameState.loveChats = {};
+    if (!gameState.loveChats[name]) gameState.loveChats[name] = [];
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    var 好感 = gameState.npc好感度[name] || 0;
+    var canAI = canUseAIToday();
+    if (!canAI) {
+        // Fallback to hardcoded
+        var pool;
+        if (好感 >= 70) { pool = _loveChatReplies_high; }
+        else if (好感 >= 30) { pool = _loveChatReplies_mid; }
+        else { pool = _loveChatReplies_low; }
+        var reply = pool[Math.floor(Math.random() * pool.length)];
+        var now = new Date();
+        var h = now.getHours(); var m = now.getMinutes();
+        var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+        gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
+        gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+        if (window._loveChatTarget !== name || window._loveView !== 'chat') {
+            if (!gameState.loveUnread) gameState.loveUnread = {};
+            gameState.loveUnread[name] = (gameState.loveUnread[name] || 0) + 1;
+        }
+        render();
+        return;
+    }
+    // Use AI for love chat
+    window._aiNpcName = name;
+    var context = name + '和' + gameState.player.name + '在恋爱聊天';
+    var lastMsg = '';
+    if (gameState.loveChats[name] && gameState.loveChats[name].length > 0) {
+        var last = gameState.loveChats[name][gameState.loveChats[name].length - 1];
+        if (last.fromMe) lastMsg = last.text;
+    }
+    getAIReply('dating', context, lastMsg || '想你', function(reply) {
+        var now = new Date();
+        var h = now.getHours(); var m = now.getMinutes();
+        var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+        gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
+        gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+        if (window._loveChatTarget !== name || window._loveView !== 'chat') {
+            if (!gameState.loveUnread) gameState.loveUnread = {};
+            gameState.loveUnread[name] = (gameState.loveUnread[name] || 0) + 1;
+        }
+        render();
+    });
 }
 
 function npcLoveReply(name) {
@@ -4629,7 +4774,7 @@ function sendLoveSticker(stickerName) {
     var stkQueueId = gameState._loveReplyQueue[target];
     setTimeout(function() {
         if (gameState._loveReplyQueue[npcName] === stkQueueId) {
-            npcLoveReply(npcName);
+            npcLoveReplyAI(npcName);
         }
     }, 1200);
     render();
@@ -4690,18 +4835,22 @@ function sendLoveGift(giftName, price, loveVal) {
     if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
     gameState._loveReplyQueue[target]++;
     var giftQueueId = gameState._loveReplyQueue[target];
-    var reply = _loveGiftReplies[Math.floor(Math.random() * _loveGiftReplies.length)];
     var npcName = target;
+    // V1.7: AI-powered gift reply
     setTimeout(function() {
         if (gameState._loveReplyQueue[npcName] === giftQueueId) {
-            if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
-            var now2 = new Date();
-            var h2 = now2.getHours(); var m2 = now2.getMinutes();
-            var ts2 = (h2 < 10 ? '0' : '') + h2 + ':' + (m2 < 10 ? '0' : '') + m2;
-            gameState.loveChats[npcName].push({ fromMe: false, text: reply, time: ts2 });
-            render();
+            window._aiNpcName = npcName;
+            var giftCtx = npcName + '收到' + gameState.player.name + '送的' + giftName + '，非常开心';
+            getAIReply('dating', giftCtx, '收到礼物了', function(aiReply) {
+                if (!gameState.loveChats[npcName]) gameState.loveChats[npcName] = [];
+                var now2 = new Date();
+                var h2 = now2.getHours(); var m2 = now2.getMinutes();
+                var ts2 = (h2 < 10 ? '0' : '') + h2 + ':' + (m2 < 10 ? '0' : '') + m2;
+                gameState.loveChats[npcName].push({ fromMe: false, text: aiReply, time: ts2 });
+                render();
+            });
         }
-    }, 1200);
+    }, 1500);
     showToast('送出 ' + giftName + ' +' + loveVal + ' 好感度');
     render();
 }
@@ -5531,6 +5680,7 @@ function sendInsChat() {
     gameState.insMessages.push({ with: insMsgChatUser, fromMe: false, text: '...' });
     render();
     var npcCtx = insMsgChatUser + '在INS上聊天';
+    window._aiNpcName = insMsgChatUser;
     getAIReply('ins', npcCtx, msg, function(reply) {
         gameState.npc好感度[insMsgChatUser] = Math.min(100, (gameState.npc好感度[insMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
         for (var ri = gameState.insMessages.length - 1; ri >= 0; ri--) {
@@ -5703,6 +5853,7 @@ function sendTiktokChat() {
     gameState.tiktokMessages.push({ with: tiktokMsgChatUser, fromMe: false, text: '...' });
     render();
     var npcCtx = tiktokMsgChatUser + '在TikTok上聊天';
+    window._aiNpcName = tiktokMsgChatUser;
     getAIReply('tiktok', npcCtx, msg, function(reply) {
         gameState.npc好感度[tiktokMsgChatUser] = Math.min(100, (gameState.npc好感度[tiktokMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
         for (var ri = gameState.tiktokMessages.length - 1; ri >= 0; ri--) {
@@ -6292,10 +6443,10 @@ function sendLiveChat() {
     // AI smart reply (if user has AI access)
     var aiLimit = getAIMaxTotalToday();
     var aiUsed = getAITotalUsageToday();
-    if (aiUsed < aiLimit && typeof callCozeAI === 'function') {
+    if (aiUsed < aiLimit && canUseAIToday()) {
         setTimeout(function() {
-            var context = gameState.player.name + '是' + (gameState.player.role === 'Idol' ? '爱豆' : '练习生');
-            callCozeAI('live', msg, context, function(resp) {
+            window._aiNpcName = '';
+            getAIReply('live', '直播间弹幕', msg, function(resp) {
                 if (!resp) return;
                 var ca = document.getElementById('liveChatArea');
                 if (!ca) return;
@@ -6305,7 +6456,6 @@ function sendLiveChat() {
                 cd.innerHTML = '<span style="color:#FFD700;font-weight:600;">' + from + '</span> <span style="color:var(--color-text-light);">' + resp + '</span>';
                 ca.appendChild(cd);
                 ca.scrollTop = ca.scrollHeight;
-                recordAIUsage('live');
             });
         }, 1500 + Math.random() * 1000);
     }
@@ -11211,6 +11361,7 @@ function sendKakaoMessage() {
             if (npc.bio) npcContext += ' 背景：' + npc.bio;
             if (npc.quote) npcContext += ' 招牌语：' + npc.quote;
             if (npc.hidden) npcContext += ' 隐藏特质：' + npc.hidden;
+            window._aiNpcName = npcName;
             getAIReply('kakaotalk', npcContext, text, function(reply) {
                 gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
                 notifyKakao(npcName, reply.substring(0,30));
