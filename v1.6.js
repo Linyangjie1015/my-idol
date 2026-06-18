@@ -4695,13 +4695,14 @@ function _renderLoveChatView(container, targetName, npcs) {
     container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
         + '<div class="page-header" style="flex-shrink:0;">'
         + '<div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">‹ 返回</div>'
-        + '<div class="page-title"><div style="font-weight:600;font-size:15px;">' + targetName + '</div>' + headerSub + '</div>'
+        + '<div class="page-title"><div style="font-weight:600;font-size:15px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="showNpcCard(\''+targetName.replace(/'/g,"\\'")+'\')">' + targetName + '</div>' + headerSub + '</div>'
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div id="loveChatMsgs" style="flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;">' + bubbles + '</div>'
         + '<div id="loveChatBar" style="flex-shrink:0;padding:6px 10px;border-top:1px solid var(--color-border);background:var(--bg-card);display:flex;align-items:center;gap:6px;">'
         + '<button id="loveEmojiBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveStickerPanel()">E</button>'
         + '<button id="loveGiftBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveGiftPanel()">G</button>'
+        + '<button id="loveSecretBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(好感>=30?'var(--color-primary)':'var(--color-text-light)')+';" onclick="showLoveSecrets()">S</button>'
         + '<input type="text" id="loveChatInput" placeholder="说点什么..." style="flex:1;border:1px solid var(--color-border);border-radius:18px;padding:6px 12px;font-size:13px;outline:none;background:var(--bg-main);" onkeypress="if(event.key===\'Enter\')sendLoveChat()">'
         + '<button style="width:30px;height:30px;border-radius:50%;background:var(--color-primary);border:none;color:white;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;" onclick="sendLoveChat()">></button>'
         + '</div>'
@@ -4717,6 +4718,26 @@ function closeLoveChat() {
     window._loveView = 'list';
     window._loveChatTarget = '';
     render();
+}
+
+
+function showLoveSecrets() {
+    var target = window._loveChatTarget;
+    if (!target) return;
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[target]) || 0;
+    var dialogues = HIDDEN_DIALOGUES[target] || [];
+    if (dialogues.length === 0) { showToast('暂无秘密档案'); return; }
+    var html = '<div style="font-size:13px;line-height:1.6;">';
+    for (var i = 0; i < dialogues.length; i++) {
+        var d = dialogues[i];
+        var unlocked = 好感 >= d.level;
+        html += '<div style="padding:8px;margin-bottom:6px;border-radius:8px;background:'+(unlocked?'linear-gradient(135deg,#FFF5F7,#FFE4EC)':'#F5F5F5')+';'+(unlocked?'':'opacity:0.6;')+'">'
+            + '<div style="font-weight:600;font-size:12px;color:'+(unlocked?'var(--color-primary)':'var(--color-text-light)')+';margin-bottom:4px;">'+d.title+' (好感'+d.level+')</div>'
+            + (unlocked ? '<div style="color:var(--color-text);">'+d.dialogue+'</div>' : '<div style="color:var(--color-text-light);">好感度'+d.level+'解锁 (还差'+Math.max(0,d.level-好感)+')</div>')
+            + '</div>';
+    }
+    html += '</div>';
+    showModal(target + ' 的秘密档案', html, [{ text: '关闭', action: closeModal }]);
 }
 
 function sendLoveChat() {
@@ -11516,7 +11537,8 @@ function showNpcCard(npcName) {
         + '<div style="width:56px;height:56px;border-radius:50%;background:'+npc.avatarColor+';display:flex;align-items:center;justify-content:center;font-size:22px;color:white;font-weight:700;">'+npc.name.charAt(0)+'</div>'
         + '<div style="margin-left:14px;flex:1;">'
         + '<div style="font-size:18px;font-weight:700;color:var(--color-text);">'+npc.name+'</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">'+(npc.personality||'')+'</div>'
+        + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;">'+(npc.specialty||'')+(npc.specialty&&npc.personality?' | ':'')+(npc.personality||'')+'</div>'
+        + (npc.isTeammate ? '<div style="font-size:9px;color:var(--color-primary);margin-top:1px;">队友</div>' : '')
         + '</div>'
         + '<div style="cursor:pointer;font-size:24px;color:var(--color-text-light);padding:4px 8px;line-height:1;" onclick="this.closest(\'div[style*=position:fixed]\').remove()">&times;</div>'
         + '</div>';
