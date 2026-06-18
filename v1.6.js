@@ -3133,6 +3133,95 @@ function useItem(index) {
 
 var AI_PROXY_URL = '';
 var COZE_API_TOKEN = 'pat_AmSccb3iybFfdyR8nfuvAYyUPWxwaQSP6RW0QTNtJrvLJsuVbQKapw5Jv7ijNJrV';
+
+// V1.7: Hidden dialogue milestones for each NPC
+// 3 tiers: affection 30/60/90 unlock exclusive dialogues
+var HIDDEN_MILESTONES = [30, 60, 90];
+var HIDDEN_DIALOGUES = {};
+
+// Build hidden dialogues from COMPANIES data
+(function() {
+    var cKeys = Object.keys(COMPANIES);
+    for (var ci = 0; ci < cKeys.length; ci++) {
+        var comp = COMPANIES[cKeys[ci]];
+        var gKeys = Object.keys(comp.groups);
+        for (var gi = 0; gi < gKeys.length; gi++) {
+            var grp = comp.groups[gKeys[gi]];
+            for (var mi = 0; mi < grp.members.length; mi++) {
+                var m = grp.members[mi];
+                if (typeof m !== 'object') continue;
+                var mName = m.name;
+                var hidden = m.hidden || '';
+                HIDDEN_DIALOGUES[mName] = [
+                    { level: 30, title: '初识秘密', dialogue: hidden ? '你发现了：' + hidden : '你们开始变得更亲近了...' },
+                    { level: 60, title: '真心话', dialogue: _generateHiddenTier2(m) },
+                    { level: 90, title: '灵魂共鸣', dialogue: _generateHiddenTier3(m) }
+                ];
+            }
+        }
+    }
+})();
+
+function _generateHiddenTier2(m) {
+    var pers = (m.personality && m.personality.join) ? m.personality.join('、') : (m.personality || '');
+    var pos = m.position || '';
+    var pool = [
+        '深夜给你发消息说' + pers.split('、')[0] + '的事，声音带着一点醉意。',
+        '主动约你单独吃饭，席间第一次提起出道前最艰难的日子。',
+        '在你面前卸下所有防备，聊起了家人和不想被别人知道的梦想。',
+        '终于愿意让你看手机里最私密的备忘录，里面全是关于你的记录。',
+        '承认有时候很羡慕你的' + pos + '位置，说这是第一次对别人说这种话。',
+        '雨天突然跑来找你，什么都没带，只是说想见你一面。',
+        '告诉你一个从没跟任何人提过的秘密，然后红着脸说'不要告诉别人'。'
+    ];
+    return pool[Math.floor(m.name.charCodeAt(0) % pool.length)];
+}
+
+function _generateHiddenTier3(m) {
+    var pool = [
+        '在一个没有摄像头的角落，第一次主动牵起你的手。说"我一直在等这一天"。',
+        '在日记本最后一页写下你的名字，说这是整个世界最安全的秘密。',
+        '说如果有一天要离开这个行业，最舍不得的不是舞台，是你。',
+        '承认从练习生时期就一直在偷偷关注你，比你自己还了解你的习惯。',
+        '告诉你一个关于未来的计划，里面每一个场景都有你的位置。',
+        '说和你在一起的时候，才是真正做自己的时候。谢谢你接受全部的我。',
+        '在深夜的录音室里为你唱了一首从未发布的歌，说这是只属于你的。'
+    ];
+    return pool[Math.floor((m.name.charCodeAt(0) + m.name.charCodeAt(1)) % pool.length)];
+}
+
+// Check if a hidden milestone is unlocked for an NPC
+function getUnlockedHidden(npcName) {
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    var dialogues = HIDDEN_DIALOGUES[npcName];
+    if (!dialogues) return [];
+    var unlocked = [];
+    for (var i = 0; i < dialogues.length; i++) {
+        if (好感 >= dialogues[i].level) {
+            unlocked.push(dialogues[i]);
+        }
+    }
+    return unlocked;
+}
+
+// Check and trigger new hidden unlock notification
+function checkHiddenUnlock(npcName) {
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    var dialogues = HIDDEN_DIALOGUES[npcName];
+    if (!dialogues) return;
+    if (!gameState.hiddenUnlocked) gameState.hiddenUnlocked = {};
+    var key = npcName;
+    if (!gameState.hiddenUnlocked[key]) gameState.hiddenUnlocked[key] = [];
+    for (var i = 0; i < dialogues.length; i++) {
+        if (好感 >= dialogues[i].level && gameState.hiddenUnlocked[key].indexOf(dialogues[i].level) < 0) {
+            gameState.hiddenUnlocked[key].push(dialogues[i].level);
+            showToast('解锁' + npcName + '的秘密：' + dialogues[i].title);
+            notifySystem('秘密', '与' + npcName + '的' + dialogues[i].title + '已解锁');
+        }
+    }
+}
+
+
 var COZE_BOT_ID = '7650781503017959439';
 
 function getAITotalUsageToday() {
@@ -4645,6 +4734,7 @@ function sendLoveChat() {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.npc好感度[target]) gameState.npc好感度[target] = 0;
     gameState.npc好感度[target] = Math.min(100, gameState.npc好感度[target] + Math.floor(Math.random() * 3) + 1);
+    checkHiddenUnlock(target);
     input.value = '';
     if (!gameState._loveReplyQueue) gameState._loveReplyQueue = {};
     if (!gameState._loveReplyQueue[target]) gameState._loveReplyQueue[target] = 0;
@@ -4680,6 +4770,7 @@ function npcLoveReplyAI(name) {
         var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
         gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
         gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+        checkHiddenUnlock(name);
         if (window._loveChatTarget !== name || window._loveView !== 'chat') {
             if (!gameState.loveUnread) gameState.loveUnread = {};
             gameState.loveUnread[name] = (gameState.loveUnread[name] || 0) + 1;
@@ -4701,6 +4792,7 @@ function npcLoveReplyAI(name) {
         var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
         gameState.loveChats[name].push({ fromMe: false, text: reply, time: ts });
         gameState.npc好感度[name] = Math.min(100, (gameState.npc好感度[name] || 0) + Math.floor(Math.random() * 2) + 1);
+        checkHiddenUnlock(name);
         if (window._loveChatTarget !== name || window._loveView !== 'chat') {
             if (!gameState.loveUnread) gameState.loveUnread = {};
             gameState.loveUnread[name] = (gameState.loveUnread[name] || 0) + 1;
@@ -5683,6 +5775,7 @@ function sendInsChat() {
     window._aiNpcName = insMsgChatUser;
     getAIReply('ins', npcCtx, msg, function(reply) {
         gameState.npc好感度[insMsgChatUser] = Math.min(100, (gameState.npc好感度[insMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
+    checkHiddenUnlock(insMsgChatUser);
         for (var ri = gameState.insMessages.length - 1; ri >= 0; ri--) {
             if (gameState.insMessages[ri].with === insMsgChatUser && !gameState.insMessages[ri].fromMe && gameState.insMessages[ri].text === '...') {
                 gameState.insMessages[ri].text = reply;
@@ -5856,6 +5949,7 @@ function sendTiktokChat() {
     window._aiNpcName = tiktokMsgChatUser;
     getAIReply('tiktok', npcCtx, msg, function(reply) {
         gameState.npc好感度[tiktokMsgChatUser] = Math.min(100, (gameState.npc好感度[tiktokMsgChatUser] || 30) + Math.floor(Math.random() * 3) + 1);
+    checkHiddenUnlock(tiktokMsgChatUser);
         for (var ri = gameState.tiktokMessages.length - 1; ri >= 0; ri--) {
             if (gameState.tiktokMessages[ri].with === tiktokMsgChatUser && !gameState.tiktokMessages[ri].fromMe && gameState.tiktokMessages[ri].text === '...') {
                 gameState.tiktokMessages[ri].text = reply;
@@ -11262,6 +11356,22 @@ function renderKakaoChatPage(container) {
 }
 
 
+
+function viewHiddenDialogue(npcName, level) {
+    var dialogues = HIDDEN_DIALOGUES[npcName];
+    if (!dialogues) return;
+    var dlg = null;
+    for (var i = 0; i < dialogues.length; i++) {
+        if (dialogues[i].level === level) { dlg = dialogues[i]; break; }
+    }
+    if (!dlg) return;
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    if (好感 < dlg.level) return;
+    showModal(dlg.title + ' - ' + npcName, '<div style="font-size:14px;line-height:1.8;color:var(--color-text);">'+dlg.dialogue+'</div>', [
+        { text: '关闭', action: closeModal }
+    ]);
+}
+
 function showNpcCard(npcName) {
     if (!npcName) return;
     var npc = null;
@@ -11290,20 +11400,40 @@ function showNpcCard(npcName) {
             + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">招牌语</div>'
             + '<div style="font-size:13px;color:var(--color-text);font-style:italic;">\u201c'+npc.quote+'\u201d</div></div>';
     }
+    // V1.7: Enhanced affection bar with milestone markers
+    var milestoneHtml = '';
+    var milestones = HIDDEN_DIALOGUES[npcName] || [];
+    for (var mi = 0; mi < milestones.length; mi++) {
+        var ms = milestones[mi];
+        var msReached = 好感 >= ms.level;
+        var msLeft = Math.max(0, ms.level - 好感);
+        milestoneHtml += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:6px 8px;border-radius:8px;background:'+(msReached?'linear-gradient(135deg,#FFF5F7,#FFE4EC)':'#F5F5F5')+';'+(msReached?'cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;':'')+'"'+(msReached?' onclick="viewHiddenDialogue(\''+npcName.replace(/'/g,"\\'")+'\','+ms.level+')"':'')+'>'
+            + '<div style="width:18px;height:18px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;flex-shrink:0;background:'+(msReached?'linear-gradient(135deg,#FF8FA3,#FF6B8A)':'#CCC')+';">'+ms.level+'</div>'
+            + '<div style="flex:1;">'
+            + '<div style="font-size:11px;color:'+(msReached?'var(--color-primary)':'var(--color-text-light)')+';font-weight:'+(msReached?'600':'400')+';">'+ms.title+'</div>'
+            + (msReached ? '<div style="font-size:10px;color:var(--color-text-light);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ms.dialogue.substring(0,25)+'...</div>' : '<div style="font-size:10px;color:var(--color-text-light);margin-top:1px;">还需'+msLeft+'好感度</div>')
+            + '</div></div>';
+    }
+
     html += '<div style="margin-bottom:12px;">'
         + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:6px;">好感度 '+好感+'/100</div>'
-        + '<div style="height:6px;background:#EEE;border-radius:3px;overflow:hidden;">'
+        + '<div style="height:6px;background:#EEE;border-radius:3px;overflow:hidden;position:relative;">'
         + '<div style="height:100%;width:'+好感+'%;background:linear-gradient(90deg,#FF8FA3,#FF6B8A);border-radius:3px;transition:width 0.3s;"></div>'
+        + (milestones.length > 0 ? '<div style="position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;background:#FF6B8A;border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);left:'+Math.min(100,milestones[0].level)+'%;transform:translateX(-50%);"></div>' : '')
+        + (milestones.length > 1 ? '<div style="position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;background:'+(好感>=milestones[1].level?'#FF6B8A':'#CCC')+';border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);left:'+milestones[1].level+'%;transform:translateX(-50%);"></div>' : '')
+        + (milestones.length > 2 ? '<div style="position:absolute;top:-2px;width:10px;height:10px;border-radius:50%;background:'+(好感>=milestones[2].level?'#FF6B8A':'#CCC')+';border:2px solid white;box-shadow:0 1px 3px rgba(0,0,0,0.2);left:'+milestones[2].level+'%;transform:translateX(-50%);"></div>' : '')
         + '</div></div>';
-    if (npc.hidden) {
-        if (hiddenOk) {
-            html += '<div style="padding:10px 14px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:10px;">'
-                + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">隐藏特质</div>'
-                + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">'+npc.hidden+'</div></div>';
-        } else {
-            html += '<div style="padding:10px 14px;background:#F5F5F5;border-radius:10px;text-align:center;">'
-                + '<div style="font-size:12px;color:var(--color-text-light);">好感度达30解锁隐藏特质 ('+Math.max(0,30-好感)+'/30)</div></div>';
-        }
+
+    // V1.7: Show unlocked hidden dialogues
+    if (milestoneHtml) {
+        html += '<div style="margin-bottom:12px;"><div style="font-size:11px;color:var(--color-text-light);margin-bottom:8px;">秘密档案</div>' + milestoneHtml + '</div>';
+    }
+
+    // Keep backward compat: if npc has hidden but no HIDDEN_DIALOGUES entry
+    if (npc.hidden && !HIDDEN_DIALOGUES[npcName] && 好感 >= 30) {
+        html += '<div style="padding:10px 14px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:10px;">'
+            + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">隐藏特质</div>'
+            + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">'+npc.hidden+'</div></div>';
     }
     html += '</div></div>';
     var overlay = document.createElement('div');
