@@ -2365,7 +2365,8 @@ function passExam(subject, level) {
     if (subject === 'comprehensive') {
         gameState.examResult.comprehensive[level] = true;
         if (gameState.examResult.comprehensive[0] && gameState.examResult.comprehensive[1]) {
-            gameState.preDebut = true;
+            gameState.preDebut = true
+    _setCooldown('debut', 21);;
             triggerSilentSave();
         }
     } else {
@@ -6321,7 +6322,7 @@ function startLive() {
             var rEl = document.getElementById('liveRevenue');
             if (vEl) vEl.textContent = Math.floor(Math.random() * 500) + 100;
             if (lEl) lEl.textContent = Math.floor(Math.random() * 2000) + 500;
-            if (rEl) rEl.textContent = Math.floor(Math.random() * 5000) + 1000;
+            if (rEl) { var _fansBonus = Math.floor((gameState.fans || 0) * 0.05); rEl.textContent = Math.floor(Math.random() * 2000) + 1000 + _fansBonus; }
         }
     }, 3000);
     _addTimer(liveViewerTimer);
@@ -8887,6 +8888,31 @@ function launchFanProject(idx) {
         showToast(p.name + '启动成功! +' + p.fansGain + '粉丝');
     }
     notifySystem('后援会', p.name + '已启动!');
+    triggerSilentSave();
+    render();
+}
+
+
+function _setFanName() {
+    var input = document.getElementById('fanNameInput');
+    if (!input) return;
+    var name = input.value.trim();
+    if (!name) { showToast('\u8bf7\u8f93\u5165\u7c89\u4e1d\u540d'); return; }
+    if (name.length > 10) { showToast('\u6700\u591a10\u4e2a\u5b57'); return; }
+    if (!gameState.fanClub) gameState.fanClub = {};
+    gameState.fanClub.fanName = name;
+    _logDayAction('\u8bbe\u7f6e\u7c89\u4e1d\u540d: ' + name);
+    showToast('\u7c89\u4e1d\u540d\u5df2\u8bbe\u7f6e: ' + name);
+    triggerSilentSave();
+    render();
+}
+
+function _setCheerColor(color) {
+    if (!gameState.fanClub) gameState.fanClub = {};
+    gameState.fanClub.cheerColor = color;
+    gameState.fanClub.color = color;
+    _logDayAction('\u5e94\u63f4\u8272\u5df2\u66f4\u6362');
+    showToast('\u5e94\u63f4\u8272\u5df2\u66f4\u6362');
     triggerSilentSave();
     render();
 }
