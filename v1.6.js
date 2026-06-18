@@ -1961,7 +1961,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -3169,6 +3169,11 @@ function addLove(npcName, amount) {
             setTimeout(function(ns, n, nm) {
                 return function() {
                     showToast(nm + ' 好感度达到' + n + '！关系升级为「' + ns.label + '」');
+                    if (n >= 60) {
+                        setTimeout(function() {
+                            if (confirm('关系升级为「' + ns.label + '」！要生成分享卡片吗？')) showShareCard();
+                        }, 1500);
+                    }
                 };
             }(nodeStatus, node, npcName), 500);
         }
@@ -11687,6 +11692,107 @@ function viewHiddenDialogue(npcName, level) {
     showModal(dlg.title + ' - ' + npcName, '<div style="font-size:14px;line-height:1.8;color:var(--color-text);">'+dlg.dialogue+'</div>', [
         { text: '关闭', action: closeModal }
     ]);
+}
+
+
+// ==================== V1.7: Share Card Generator ====================
+function showShareCard() {
+    var company = COMPANIES[gameState.player.company];
+    var companyName = (company && company.name) || '';
+    var roleLabel = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+    var groupLabel = gameState.player.group || '';
+    var positionLabel = (gameState.player.positions && gameState.player.positions.length > 0) ? gameState.player.positions.join(' / ') : '';
+    var fanName = (gameState.fanClub && gameState.fanClub.name) || '';
+    var cheerColor = (gameState.fanClub && gameState.fanClub.color) || '#FF8FA3';
+    var fans = (gameState.fans || 0).toLocaleString();
+    var fame = gameState.fame || 30;
+    var money = (gameState.money || 0).toLocaleString();
+    var dayNum = gameState.gameDay || 1;
+    var datingLabel = gameState.dating || '';
+    var achieveCount = (gameState.achievements && gameState.achievements.length) || 0;
+    var topAchievement = '';
+    if (gameState.achievements && gameState.achievements.length > 0) {
+        topAchievement = gameState.achievements[gameState.achievements.length - 1];
+    }
+
+    var statsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+    var statItems = [
+        { label: '粉丝', value: fans, color: '#FF8FA3' },
+        { label: '名气', value: fame, color: '#FFB347' },
+        { label: '金币', value: money, color: '#FFD700' }
+    ];
+    if (datingLabel) {
+        statItems.push({ label: '恋人', value: datingLabel, color: '#FF6B8A' });
+    }
+    if (topAchievement) {
+        statItems.push({ label: '成就', value: topAchievement, color: '#7C4DFF' });
+    }
+    for (var si = 0; si < statItems.length; si++) {
+        var item = statItems[si];
+        statsHtml += '<div style="flex:1;min-width:60px;background:' + item.color + '18;border-radius:8px;padding:6px 8px;text-align:center;">'
+            + '<div style="font-size:9px;color:' + item.color + ';font-weight:600;">' + item.label + '</div>'
+            + '<div style="font-size:12px;color:var(--color-text);font-weight:700;margin-top:2px;">' + item.value + '</div>'
+            + '</div>';
+    }
+    statsHtml += '</div>';
+
+    var abilityKeys = ['dance', 'vocal', 'rap', 'acting', 'variety'];
+    var abilityLabels = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '演技', variety: '综艺' };
+    var abilityHtml = '<div style="display:flex;gap:4px;justify-content:center;margin-top:8px;">';
+    for (var ai = 0; ai < abilityKeys.length; ai++) {
+        var aKey = abilityKeys[ai];
+        var aVal = (gameState.stats && gameState.stats[aKey]) || 0;
+        var aPct = Math.min(100, aVal);
+        abilityHtml += '<div style="flex:1;text-align:center;">'
+            + '<div style="font-size:8px;color:var(--color-text-light);">' + abilityLabels[aKey] + '</div>'
+            + '<div style="height:4px;background:#EEE;border-radius:2px;margin-top:2px;overflow:hidden;"><div style="height:100%;width:' + aPct + '%;background:linear-gradient(90deg,' + cheerColor + ',' + cheerColor + '88);border-radius:2px;"></div></div>'
+            + '</div>';
+    }
+    abilityHtml += '</div>';
+
+    var cardHtml = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">'
+        + '<div style="width:85%;max-width:320px;" onclick="event.stopPropagation()">'
+        // The share card
+        + '<div style="background:linear-gradient(145deg,' + cheerColor + ',' + cheerColor + 'CC,#FF8FA3);border-radius:20px;padding:24px 20px 16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;overflow:hidden;">'
+        // Watermark
+        + '<div style="position:absolute;top:8px;right:12px;font-size:8px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:1px;">MY IDOL</div>'
+        // Avatar + Name
+        + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">'
+        + '<div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:white;border:2px solid rgba(255,255,255,0.4);">' + (gameState.player.avatar || gameState.player.name.charAt(0)) + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:18px;font-weight:700;color:white;">' + gameState.player.name + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.8);margin-top:2px;">' + companyName + ' | ' + roleLabel + '</div>'
+        + (groupLabel ? '<div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.9);margin-top:1px;">' + groupLabel + '</div>' : '')
+        + (positionLabel ? '<div style="font-size:10px;color:rgba(255,255,255,0.7);">' + positionLabel + '</div>' : '')
+        + '</div></div>'
+        // Stats grid (dark overlay for readability)
+        + '<div style="background:rgba(0,0,0,0.15);border-radius:12px;padding:10px;margin-bottom:10px;">' + statsHtml + '</div>'
+        // Ability bars
+        + '<div style="background:rgba(0,0,0,0.15);border-radius:12px;padding:10px;">'
+        + '<div style="font-size:9px;color:rgba(255,255,255,0.7);margin-bottom:4px;text-align:center;">ABILITY</div>'
+        + abilityHtml
+        + '</div>'
+        // Footer
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">'
+        + '<div style="font-size:9px;color:rgba(255,255,255,0.6);">DAY ' + dayNum + ' | ' + achieveCount + ' achievements</div>'
+        + (fanName ? '<div style="font-size:9px;color:rgba(255,255,255,0.7);font-weight:600;">' + fanName + '</div>' : '')
+        + '</div>'
+        + '</div>'
+        // Buttons below card
+        + '<div style="display:flex;gap:8px;margin-top:12px;">'
+        + '<button style="flex:1;padding:10px;border-radius:12px;border:none;background:var(--bg-card);color:var(--color-text);font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="this.closest(\'div[style*=position:fixed]\').remove()">关闭</button>'
+        + '<button style="flex:1;padding:10px;border-radius:12px;border:none;background:var(--color-primary);color:white;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="_saveShareCard()">保存截图</button>'
+        + '</div>'
+        + '<div style="text-align:center;margin-top:8px;font-size:10px;color:rgba(255,255,255,0.5);">长按卡片截图保存，分享到社交平台</div>'
+        + '</div></div>';
+
+    var overlay = document.createElement('div');
+    overlay.innerHTML = cardHtml;
+    document.body.appendChild(overlay);
+}
+
+function _saveShareCard() {
+    showToast('请长按卡片区域截图保存');
 }
 
 function showNpcCard(npcName) {
