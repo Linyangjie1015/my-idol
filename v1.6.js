@@ -3542,6 +3542,51 @@ function getNPCProfile(appId, npcName) {
     return profile;
 }
 
+
+// V1.7: Dress-up / Tone System (文案换装系统)
+var TONE_STYLES = [
+    { id: 'default', name: '日常', icon: 'N', desc: '自然随意的聊天风格', modifier: '' },
+    { id: 'sweet', name: '甜系', icon: 'S', desc: '甜蜜撒娇风格', modifier: '请用特别甜、爱撒娇的语气说话，多用"嘛""啦""哼""人家"等语气词，可以赖皮撒娇。' },
+    { id: 'cool', name: '酷系', icon: 'C', desc: '冷酷傲娇风格', modifier: '请用酷酷的、稍微傲娇的语气说话，表面冷淡但偶尔流露关心，可以"哼""才不是"等。' },
+    { id: 'formal', name: '敬语', icon: 'F', desc: '礼貌敬语风格', modifier: '请用礼貌的敬语风格说话，像正式场合一样使用敬称和谦让语，但偶尔露出真实感情。' },
+    { id: 'aegyo', name: '撒娇', icon: 'A', desc: '终极撒娇风格', modifier: '请用超爱撒娇的语气说话，像小猫一样粘人，用"呜呜""嘤嘤""人家不要嘛"等，可以疯狂求关注。' }
+];
+
+
+function showTonePicker() {
+    var html = _renderToneSelector();
+    html += '<div style="font-size:11px;color:var(--color-text-light);margin-top:8px;">选择聊天风格，NPC会用对应的语气回复</div>';
+    showModal('文案风格', html, [{ text: '确定', action: closeModal }]);
+}
+function _getCurrentTone() {
+    var tid = gameState.currentTone || 'default';
+    for (var i = 0; i < TONE_STYLES.length; i++) {
+        if (TONE_STYLES[i].id === tid) return TONE_STYLES[i];
+    }
+    return TONE_STYLES[0];
+}
+
+function _setTone(toneId) {
+    gameState.currentTone = toneId;
+    var tone = _getCurrentTone();
+    showToast('切换为 ' + tone.name + ' 风格');
+    render();
+}
+
+function _renderToneSelector() {
+    var current = _getCurrentTone();
+    var html = '<div style="margin:8px 0;display:flex;gap:6px;overflow-x:auto;padding:4px 0;">';
+    for (var i = 0; i < TONE_STYLES.length; i++) {
+        var t = TONE_STYLES[i];
+        var active = t.id === current.id;
+        html += '<div onclick="_setTone(\'' + t.id + '\')" style="flex-shrink:0;padding:5px 10px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;'
+            + (active ? 'background:var(--color-primary);color:white;' : 'background:var(--bg-card);color:var(--color-text);border:1px solid var(--color-border);')
+            + '">' + t.icon + ' ' + t.name + '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
 function getAIReply(appId, context, playerMessage, callback) {
     if (!canUseAIToday()) {
         callback(getFallbackReply(appId));
@@ -3565,6 +3610,9 @@ function getAIReply(appId, context, playerMessage, callback) {
         var npcProf = getNPCProfile(appId, _aiNpc);
         if (npcProf) systemPrompt = npcProf + ' ' + systemPrompt;
     }
+    // V1.7: Apply tone style modifier
+    var _tone = _getCurrentTone();
+    if (_tone.modifier) systemPrompt = _tone.modifier + ' ' + systemPrompt;
     var userId = (gameState.player.name || 'player') + '_' + Math.floor(Math.random() * 10000);
 
     var xhr = new XMLHttpRequest();
@@ -4871,6 +4919,7 @@ function _renderLoveChatView(container, targetName, npcs) {
         + '<div id="loveChatBar" style="flex-shrink:0;padding:6px 10px;border-top:1px solid var(--color-border);background:var(--bg-card);display:flex;align-items:center;gap:6px;">'
         + '<button id="loveEmojiBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveStickerPanel()">E</button>'
         + '<button id="loveGiftBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--color-text-light);" onclick="toggleLoveGiftPanel()">G</button>'
+        + '<div style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--color-primary);" onclick="showTonePicker()">' + (_getCurrentTone().icon) + '</div>'
         + '<button id="loveSecretBtn" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--color-border);background:var(--bg-card);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(好感>=30?'var(--color-primary)':'var(--color-text-light)')+';" onclick="showLoveSecrets()">S</button>'
         + '<input type="text" id="loveChatInput" placeholder="说点什么..." style="flex:1;border:1px solid var(--color-border);border-radius:18px;padding:6px 12px;font-size:13px;outline:none;background:var(--bg-main);" onkeypress="if(event.key===\'Enter\')sendLoveChat()">'
         + '<button style="width:30px;height:30px;border-radius:50%;background:var(--color-primary);border:none;color:white;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;" onclick="sendLoveChat()">></button>'
