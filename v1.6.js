@@ -1837,12 +1837,12 @@ function syncFromApp(sourceApp, data) {
         }
     }
     if (sourceApp === 'dating' && data && data.action === 'exposed') {
-        gameState.danger = Math.min(100, (gameState.danger || 0) + 30);
+        addDanger(30, 'dating');
         if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
         gameState.hotsearchTopics.unshift({ text: '恋情曝光!', type: 'bad', time: Date.now() });
     }
     if (sourceApp === 'crisis' && data && data.action === 'incident') {
-        gameState.danger = Math.min(100, (gameState.danger || 0) + data.dangerGain);
+        addDanger(data.dangerGain, 'crisis');
         if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
         gameState.hotsearchTopics.unshift({ text: data.title, type: 'bad', time: Date.now() });
     }
@@ -3155,6 +3155,18 @@ function getLoveStatus(love) {
     if (love >= LOVE_STATUS[i].min && love <= LOVE_STATUS[i].max) return LOVE_STATUS[i];
   }
   return LOVE_STATUS[0];
+}
+
+function addDanger(amount, source) {
+    if (!amount || amount === 0) return;
+    var actualAmount = amount;
+    // V1.7: Danger x2 during comeback period (恋爱曝光更危险)
+    if (gameState.duringComeback && (source === 'dating' || source === 'love' || source === 'date')) {
+        actualAmount = amount * 2;
+        showToast('回归期恋爱危险值x2！');
+    }
+    gameState.danger = Math.min(100, Math.max(0, (gameState.danger || 0) + actualAmount));
+    return actualAmount;
 }
 function addLove(npcName, amount) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
@@ -5094,6 +5106,17 @@ var _dateActions = [
 ];
 
 function loveDate() {
+    if (gameState.duringComeback) {
+        showModal('回归期约会警告', '你正在回归宣传期！约会被发现的风险翻倍，确定继续吗？', [
+            { text: '取消', action: closeModal },
+            { text: '不管了！', action: function() { closeModal(); _doLoveDate(); } }
+        ]);
+        return;
+    }
+    _doLoveDate();
+}
+
+function _doLoveDate() {
     if (!gameState.dating) return;
     if (gameState.体力 < 20) { showModal('体力不足', '约会需要至少20体力'); return; }
     if (gameState.money < 5000) { showModal('金币不足', '约会需要至少5,000金币'); return; }
@@ -6452,7 +6475,7 @@ function handleCrisis(eventIdx, actionIdx) {
     ];
     var a = actions[actionIdx];
     if (!a) return;
-    gameState.danger = Math.max(0, gameState.danger + a.danger);
+    addDanger(a.danger, 'date');
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
     if (a.creditBonus) gameState.credit = Math.max(0, Math.min(200, gameState.credit + a.creditBonus));
     
@@ -8309,17 +8332,30 @@ function completeComeback() {
     var totalFirsts = cb.totalFirsts || 0;
     var grade = totalFirsts >= 4 ? 'S' : totalFirsts >= 3 ? 'A' : totalFirsts >= 2 ? 'B' : totalFirsts >= 1 ? 'C' : 'D';
     var fameGain = { S: 20, A: 15, B: 10, C: 5, D: 2 }[grade] || 2;
+    // V1.7: Previous comeback rating bonus - good comeback = better next one
+    var prevRating = gameState.lastComebackRating || '';
+    var bonusFame = 0;
+    if (prevRating === 'S') { bonusFame = 5; fameGain += 5; }
+    else if (prevRating === 'A') { bonusFame = 3; fameGain += 3; }
+    else if (prevRating === 'D') { fameGain = Math.max(1, fameGain - 2); }
+    gameState.lastComebackRating = grade;
     gameState.fame = Math.min(200, (gameState.fame || 30) + fameGain);
     gameState.groupPopularity = Math.min(100, (gameState.groupPopularity || 0) + Math.floor(fameGain / 2));
+    // V1.7: Track comeback count and reduce cooldown for consecutive good comebacks
+    gameState.comebackCount = (gameState.comebackCount || 0) + 1;
+    var cdDays = 60;
+    if (grade === 'S' && gameState.comebackCount >= 2) cdDays = 45;
+    else if (grade === 'A' && gameState.comebackCount >= 3) cdDays = 50;
     // Set cooldown
-    _setCooldown('comeback', 60);
+    _setCooldown('comeback', cdDays);
     // Trigger congratulations in KakaoTalk
     _triggerKakaoCongrats();
     // Clear comeback
     gameState.comeback = null;
     gameState.duringComeback = false;
     delete gameState._comebackFansBefore;
-    notifySystem('回归完成', '评级: ' + grade + ' 名气+' + fameGain);
+    var bonusText = bonusFame > 0 ? ' (上次回归' + prevRating + '级加成+' + bonusFame + ')' : (prevRating === 'D' ? ' (上次D级影响-2)' : '');
+    notifySystem('回归完成', '评级: ' + grade + ' 名气+' + fameGain + bonusText);
     if (typeof checkAchievements === 'function') checkAchievements();
     goToPage('home');
 }
@@ -9359,7 +9395,7 @@ function triggerAntiEvent() {
     var event = ANTI_EVENTS[Math.floor(Math.random() * ANTI_EVENTS.length)];
     if (!gameState.antiEvents) gameState.antiEvents = [];
     gameState.antiEvents.push(event);
-    gameState.danger = gameState.danger + event.dangerAdd;
+    addDanger(event.dangerAdd, 'anti');
     gameState.fans = Math.max(0, gameState.fans - event.fanLoss);
     syncFromApp('crisis', { action: 'incident', title: event.title, dangerGain: event.dangerAdd });
     notifySystem('反黑警告', event.title);
@@ -13671,6 +13707,13 @@ function _renderDayBar() {
         html += '<div style="display:flex;align-items:center;">' + cdHtml + '</div>';
     } else {
         html += '<div style="font-size:11px;color:#4CD964;">\u65e0\u51b7\u5374</div>';
+    }
+    // V1.7: Comeback period warning
+    if (gameState.duringComeback) {
+        html += '<div style="background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:12px;padding:8px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">'
+            + '<div style="font-size:13px;font-weight:600;color:#FF6D00;">回归期</div>'
+            + '<div style="font-size:11px;color:#E65100;">恋爱危险值x2 | 粉丝增益1.5x</div>'
+            + '</div>';
     }
     html += '</div>';
     // End day button
