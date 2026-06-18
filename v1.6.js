@@ -8263,6 +8263,119 @@ function completeComeback() {
     goToPage('home');
 }
 
+
+// V1.7: NPC Proactive Messaging System
+var _npcMsgTimer = null;
+var NPC_PROACTIVE_INTERVAL = 180000; // 3 minutes base interval
+var NPC_PROACTIVE_MSGS = {
+    kakaotalk: {
+        low: [
+            '今天练习室空调坏了，热死我了', '你看到那个新综艺了吗', '食堂今天的饭还行',
+            '明天几点出发来着', '刚下了舞蹈课，腿要断了', '听说下周有评估',
+            '练习室被占了，等了一小时', '你带充电宝了吗', '今天好早啊',
+            '那个动作你学会了吗', '我买了奶茶你要吗', '经纪人找你了'
+        ],
+        mid: [
+            '今天录音被老师夸了！开心~', '说实话有点累，但不想跟别人说', '你最近怎么样啊',
+            '我发现一家超好吃的店，改天一起去', '练舞练到脚起泡了...别告诉别人', '你有没有觉得最近大家压力好大',
+            '想家了...你呢', '我偷偷写了一首歌，改天给你听', '其实我一直想问你一个问题',
+            '晚上要不要一起加练', '我请你吃宵夜吧', '今天经纪人说我进步了！'
+        ],
+        high: [
+            '深夜了，睡不着...你在吗', '今天特别想你', '说好不哭的结果还是哭了',
+            '你对我来说真的很重要', '有你在我就什么都不怕', '刚才做了个噩梦，第一个想到你',
+            '谢谢你一直在', '我最大的幸运就是遇见你', '明天想见你',
+            '我有些话只能对你说', '你累不累？累了就跟我说', '以后不管发生什么，我们都在一起'
+        ],
+        dating: [
+            '在干嘛呀~想你了', '今天看到一朵花好像你', '你吃饭了吗？不要饿着自己',
+            '梦到你了...脸好红', '想牵你的手', '你在哪呢，好想去找你',
+            '我给你写了一段旋律，等下唱给你听', '下次见面我要抱你', '你好烦啊...烦到我心跳好快',
+            '不要离开我好不好', '每天都在倒数下次见面的日子', '全世界我只对你这样'
+        ]
+    },
+    love: {
+        low: ['在吗', '嗨', '今天好累', '你在干嘛', '出来聊聊？'],
+        mid: ['想跟你说说话', '今天遇到一件事想告诉你', '你在忙吗', '晚上有空吗', '有件事想问你'],
+        high: ['好想你', '你现在方便吗', '想听你的声音', '我在你楼下', '别挂电话'],
+        dating: ['宝贝在干嘛', '想你了', '今天有没有想我', '晚上一起吃饭吧', '我好喜欢你']
+    }
+};
+
+function startNPCProactiveTimer() {
+    if (_npcMsgTimer) clearInterval(_npcMsgTimer);
+    var interval = NPC_PROACTIVE_INTERVAL + Math.floor(Math.random() * 120000);
+    _npcMsgTimer = setInterval(function() {
+        _triggerNPCProactive();
+        clearInterval(_npcMsgTimer);
+        startNPCProactiveTimer();
+    }, interval);
+    _addTimer(_npcMsgTimer);
+}
+
+function _triggerNPCProactive() {
+    if (!gameState || !gameState.player || !gameState.kakaoFriends) return;
+    if (gameState.kakaoFriends.length <= 1) return;
+    
+    var candidates = [];
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        if (!gameState.kakaoFriends[i].isManager) candidates.push(gameState.kakaoFriends[i]);
+    }
+    if (candidates.length === 0) return;
+    
+    var npc = candidates[Math.floor(Math.random() * candidates.length)];
+    var 好感 = (gameState.npc好感度 && gameState.npc好感度[npc.name]) || 0;
+    var isDating = gameState.dating === npc.name;
+    
+    var tier = 'low';
+    if (isDating) tier = 'dating';
+    else if (好感 >= 70) tier = 'high';
+    else if (好感 >= 30) tier = 'mid';
+    
+    var channel = 'kakaotalk';
+    if ((isDating || 好感 >= 50) && Math.random() < 0.3) channel = 'love';
+    
+    var pool;
+    if (channel === 'kakaotalk') {
+        pool = NPC_PROACTIVE_MSGS.kakaotalk[tier] || NPC_PROACTIVE_MSGS.kakaotalk.low;
+    } else {
+        pool = NPC_PROACTIVE_MSGS.love[tier] || NPC_PROACTIVE_MSGS.love.low;
+    }
+    
+    var msg = pool[Math.floor(Math.random() * pool.length)];
+    var now = new Date();
+    var h = now.getHours();
+    var m = now.getMinutes();
+    var timeStr = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    
+    if (channel === 'kakaotalk') {
+        if (!gameState.kakaoChats[npc.name]) gameState.kakaoChats[npc.name] = [];
+        gameState.kakaoChats[npc.name].push({ from: npc.name, text: msg, time: timeStr, read: false });
+        notifyKakao(npc.name, msg.substring(0, 30));
+    } else {
+        if (!gameState.loveChats) gameState.loveChats = {};
+        if (!gameState.loveChats[npc.name]) gameState.loveChats[npc.name] = [];
+        gameState.loveChats[npc.name].push({ fromMe: false, text: msg, time: timeStr });
+        if (!gameState.loveUnread) gameState.loveUnread = {};
+        gameState.loveUnread[npc.name] = (gameState.loveUnread[npc.name] || 0) + 1;
+        notifySystem(npc.name, msg.substring(0, 25));
+    }
+    
+    // Small chance to trigger a hotsearch event
+    if (Math.random() < 0.15 && gameState.player.role === 'Idol') {
+        var events = [
+            { title: gameState.player.name + '被拍深夜回宿舍', desc: '网友猜测是否有新恋情', heat: Math.floor(Math.random() * 5 + 3) + '万' },
+            { title: gameState.player.group + '回归预告流出', desc: '粉丝们在社交平台疯狂转发', heat: Math.floor(Math.random() * 10 + 8) + '万' },
+            { title: npc.name + '直播提及' + gameState.player.name, desc: '弹幕瞬间刷屏', heat: Math.floor(Math.random() * 8 + 5) + '万' }
+        ];
+        var ev = events[Math.floor(Math.random() * events.length)];
+        _triggerHotsearch(ev.title, ev.heat, ev.desc, false);
+    }
+    
+    triggerSilentSave();
+    render();
+}
+
 function renderComebackPage(container) {
     var cb = gameState.comeback;
     if (!cb) {
