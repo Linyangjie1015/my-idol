@@ -3181,6 +3181,14 @@ function addLove(npcName, amount) {
             setTimeout(function(ns, n, nm) {
                 return function() {
                     showToast(nm + ' 好感度达到' + n + '！关系升级为「' + ns.label + '」');
+            // V1.7: Share trigger for major love milestones
+            if (n === 100) {
+                _triggerShare('灵魂伴侣！', nm + '和你的关系达到了最高境界——灵魂伴侣！');
+            } else if (n === 80 && ns.label === '挚爱') {
+                _triggerShare('挚爱达成！', nm + '成为了你的挚爱！');
+            } else if (n === 60 && ns.label === '恋人') {
+                _triggerShare('恋爱了！', nm + '和' + gameState.player.name + '正式交往！');
+            }
                     if (n >= 60) {
                         setTimeout(function() {
                             if (confirm('关系升级为「' + ns.label + '」！要生成分享卡片吗？')) showShareCard();
@@ -8608,6 +8616,32 @@ function completeComeback() {
 }
 
 
+
+// V1.7: APP Dynamic Share System
+var _sharePayload = null;
+
+function _triggerShare(title, desc) {
+    _sharePayload = { title: title, desc: desc, time: new Date().toLocaleString() };
+    showModal('分享你的成就', '<div style="text-align:center;padding:12px;">'
+        + '<div style="font-size:18px;font-weight:700;color:var(--color-primary);margin-bottom:8px;">' + title + '</div>'
+        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:16px;">' + desc + '</div>'
+        + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:12px;">截图分享到社交平台，让更多人看到！</div>'
+        + '</div>',
+        [
+            { text: '查看分享卡片', action: function() { closeModal(); showShareCard(); } },
+            { text: '稍后', action: closeModal }
+        ]);
+}
+
+// Hook share triggers into key game events
+var _origCompleteComeback = completeComeback;
+completeComeback = function() {
+    var prevRating = gameState.lastComebackRating;
+    _origCompleteComeback();
+    if (gameState.lastComebackRating === 'S' || gameState.lastComebackRating === 'A') {
+        _triggerShare('回归评级' + gameState.lastComebackRating + '!', gameState.player.name + '的回归获得' + gameState.lastComebackRating + '级评价！');
+    }
+};
 // V1.7: NPC Proactive Messaging System
 var _npcMsgTimer = null;
 var NPC_PROACTIVE_INTERVAL = 180000; // 3 minutes base interval
@@ -13305,7 +13339,8 @@ function _completeDebut() {
     });
 
     _modalActions = [];
-    showModal('出道成功', '恭喜 ' + gameState.player.name + '！\n\n你已正式作为 ' + gameState.player.group + ' 成员出道！\n\n如需再次查看，请到邮箱查看正式出道通知书。');
+    showModal('出道成功', '恭喜 ' + gameState.player.name + '!\n\n你已正式作为 ' + gameState.player.group + ' 成员出道！\n\n如需再次查看，请到邮箱查看正式出道通知书。');
+    setTimeout(function() { _triggerShare('出道了！', gameState.player.name + '正式作为' + gameState.player.group + '成员出道！'); }, 3000);
 }
 
 // ==================== KICK FLOW (POWER MODE) ====================
