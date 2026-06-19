@@ -1,7 +1,5 @@
-var CACHE_NAME = 'my-idol-v1-7-1';
+var CACHE_NAME = 'my-idol-v1-7-2';
 var CACHE_URLS = [
-  '/index.html',
-  '/v1.6.html',
   '/v1.6.js',
   '/manifest.json',
   '/icon-192.png',
@@ -12,7 +10,9 @@ var CACHE_URLS = [
 self.addEventListener('install', function(event) {
   event.waitUntil(
     caches.open(CACHE_NAME).then(function(cache) {
-      return cache.addAll(CACHE_URLS);
+      return cache.addAll(CACHE_URLS).catch(function(err) {
+        console.warn('SW cache.addAll partial fail:', err);
+      });
     })
   );
   self.skipWaiting();
@@ -54,10 +54,14 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
+  if (event.request.mode === 'navigate') {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       var fetchPromise = fetch(event.request).then(function(response) {
-        if (response && response.status === 200 && response.type === 'basic') {
+        if (response && (response.status === 200 || response.status === 304) && response.type === 'basic') {
           var clone = response.clone();
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(event.request, clone);
