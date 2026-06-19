@@ -1451,6 +1451,7 @@ function closeNpcCard() {
     var CODE_KEY = 'myidol_code';
     if (localStorage.getItem(VERIFIED_KEY) === '1') {
         document.getElementById('inviteGate').className = 'hidden';
+        window._inviteVerified = true;
         return;
     }
     window.verifyGate = function() {
@@ -1468,6 +1469,8 @@ function closeNpcCard() {
             localStorage.setItem(VERIFIED_KEY, '1');
             localStorage.setItem(CODE_KEY, code);
             document.getElementById('inviteGate').className = 'hidden';
+            window._inviteVerified = true;
+            if (typeof render === 'function') render();
             try {
                 var logXhr = new XMLHttpRequest();
                 logXhr.open('POST', 'https://myidol.asia/api/verify-code', true);
