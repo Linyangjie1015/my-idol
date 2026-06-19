@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<script>
+window.__jsLoadStart = Date.now();
+window.__jsLoaded = false;
+window.__jsLoadError = null;
+window.addEventListener('error', function(e) {
+    if (e.target && e.target.tagName === 'SCRIPT') {
+        window.__jsLoadError = e.target.src || 'unknown script';
+    }
+}, true);
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>My Idol</title>
@@ -29,6 +39,35 @@
         --radius-lg: 16px;
         --radius-pill: 50px;
     }
+    /* V1.7: Time-of-Day Themes */
+    .time-day {
+        --bg-main: #FFF8F0;
+        --bg-card: #FFFFFF;
+        --glass-bg: rgba(255,255,255,0.7);
+    }
+    .time-dusk {
+        --bg-main: #FFF0E6;
+        --bg-card: #FFF5EE;
+        --glass-bg: rgba(255,228,196,0.5);
+    }
+    .time-night {
+        --bg-main: #1A1A2E;
+        --bg-card: #252540;
+        --color-text: #E8E8F0;
+        --color-text-light: #9898B0;
+        --color-border: #353555;
+        --glass-bg: rgba(30,30,60,0.7);
+    }
+    .time-night .phone-frame {
+        background: var(--bg-main);
+    }
+    .time-night .btn-primary {
+        background: linear-gradient(135deg, #7C4DFF, #B388FF);
+    }
+    .time-night .stat-fill {
+        opacity: 0.85;
+    }
+
 
     * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
     @media (min-width: 768px) {
@@ -1310,7 +1349,7 @@
 <div class="gate-footer">没有邀请码？参与摇号获取</div>
 </div>
 
-<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div></div>
+<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div id="loadMsg" style="margin-top:12px;font-size:12px;color:#FFB3C1;">Loading...</div></div>
 
 <div class="phone-frame">
     <!-- Status Bar -->
@@ -1347,7 +1386,10 @@
     <div class="home-indicator" id="homeIndicator" style="display: none;"></div>
 </div>
 
-<script src="v1.6.js"></script>
+<script>var __loadStep=0;function __updateLoad(msg){var s=document.getElementById('loadMsg');if(s)s.textContent=msg;}</script>
+<script src="v1.6.js" onload="window.__jsLoaded=true;window.__jsLoadTime=Date.now()-window.__jsLoadStart;__updateLoad('Loading data...')" onerror="window.__jsLoadFailed=true;window.__jsLoadError='v1.6.js fetch failed'"></script>
+<script>if(!window.render){window.__jsLoadFailed=true;var _s=document.createElement('script');_s.src='v1.6.js?_t='+Date.now();_s.onload=function(){__updateLoad('Loading data...')};_s.onerror=function(){window.__jsLoadFailed=true};document.head.appendChild(_s);}</script>
+<script src="npc-data.js" onload="window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'&&gameState.player&&gameState.player.company){try{render();}catch(e){}}" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1422,6 +1464,27 @@ function closeNpcCard() {
     var CODE_KEY = 'myidol_code';
     if (localStorage.getItem(VERIFIED_KEY) === '1') {
         document.getElementById('inviteGate').className = 'hidden';
+        window._inviteVerified = true;
+        var _ls2 = document.getElementById('loadingScreen');
+        if (_ls2) _ls2.style.display = 'none';
+        function _tryRender() {
+            if (typeof render === 'function') { try { render(); } catch(e) { console.error('render() failed on reload:', e); } }
+            else {
+                var _attempt = 0;
+                var _ri = setInterval(function(){
+                    _attempt++;
+                    if (typeof render === 'function') { clearInterval(_ri); try { render(); } catch(e) { console.error(e); } }
+                    else if (_attempt === 15) {
+                        var _ns = document.createElement('script');
+                        _ns.src = 'v1.6.js?_retry=' + Date.now();
+                        _ns.onload = function(){ if(typeof render==='function') try{render();}catch(e){} };
+                        document.head.appendChild(_ns);
+                    }
+                }, 300);
+                setTimeout(function(){ clearInterval(_ri); if (typeof render !== 'function') { var _a=document.getElementById('app'); if(_a) _a.innerHTML='<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请尝试：设置>Safari>清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>'; } }, 15000);
+            }
+        }
+        _tryRender();
         return;
     }
     window.verifyGate = function() {
@@ -1439,6 +1502,25 @@ function closeNpcCard() {
             localStorage.setItem(VERIFIED_KEY, '1');
             localStorage.setItem(CODE_KEY, code);
             document.getElementById('inviteGate').className = 'hidden';
+            window._inviteVerified = true;
+            var _ls = document.getElementById('loadingScreen');
+            if (_ls) _ls.style.display = 'none';
+            (function _waitRender(attempts) {
+                if (typeof render === 'function') {
+                    try { render(); } catch(e) {
+                        console.error('render() error:', e);
+                        var _app = document.getElementById('app');
+                        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载出错</div><div style="font-size:12px;margin-top:8px;word-break:break-all">' + (e.message||'') + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">重试</button></div>';
+                    }
+                } else if (attempts > 0) {
+                    var _lm = document.getElementById('loadMsg');
+                    if (_lm) _lm.textContent = 'Loading...(' + (41 - attempts) + ')';
+                    setTimeout(function(){ _waitRender(attempts - 1); }, 300);
+                } else {
+                    var _app2 = document.getElementById('app');
+                    if (_app2) _app2.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请清除浏览器缓存后重试</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
+                }
+            })(40);
             try {
                 var logXhr = new XMLHttpRequest();
                 logXhr.open('POST', 'https://myidol.asia/api/verify-code', true);
