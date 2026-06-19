@@ -2535,7 +2535,7 @@ function showVipPage() {
                 return '\u003cdiv style="text-align:center;font-size:12px;color:var(--color-text-light);margin-bottom:12px;"\u003e当前会员有效期至 ' + d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate() + '\u003c/div\u003e';
             }
             return '';
-        })())
+        })()
         + tierCard('premium', VIP_TIERS.premium, currentTier === 'premium')
         + tierCard('advanced', VIP_TIERS.advanced, currentTier === 'advanced')
         + tierCard('basic', VIP_TIERS.basic, currentTier === 'basic')
