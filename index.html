@@ -1349,7 +1349,7 @@ window.addEventListener('error', function(e) {
 <div class="gate-footer">没有邀请码？参与摇号获取</div>
 </div>
 
-<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div id="loadMsg" style="margin-top:12px;font-size:12px;color:#FFB3C1;">Loading...</div></div>
+<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div id="loadMsg" style="margin-top:12px;font-size:12px;color:#FFB3C1;">Loading...</div><div id="diagLog" style="margin-top:16px;padding:8px 16px;max-width:80%;max-height:200px;overflow-y:auto;background:rgba(255,255,255,0.7);border-radius:8px;font-size:10px;color:#888;line-height:1.4;text-align:left;word-break:break-all;"></div></div>
 
 <div class="phone-frame">
     <!-- Status Bar -->
@@ -1392,37 +1392,83 @@ var __jsLoaded = false;
 var __jsLoadFailed = false;
 var __jsLoadError = null;
 var __loadRetries = 0;
+function __diag(msg) {
+    var el = document.getElementById('diagLog');
+    if (el) {
+        var t = ((Date.now() - __jsLoadStart) / 1000).toFixed(1);
+        el.innerHTML += '<div>[' + t + 's] ' + msg + '</div>';
+        el.scrollTop = el.scrollHeight;
+    }
+    console.log('[DIAG] ' + msg);
+}
 function __updateLoad(msg) {
     var s = document.getElementById('loadMsg');
     if (s) s.textContent = msg;
 }
+__diag('HTML loaded');
+__diag('UA: ' + navigator.userAgent.substring(0, 60));
+
+// Check if SW exists
+if ('serviceWorker' in navigator) {
+    __diag('SW supported');
+    navigator.serviceWorker.getRegistration().then(function(reg) {
+        if (reg) {
+            __diag('SW found: ' + (reg.active ? reg.active.scriptURL : 'none'));
+        } else {
+            __diag('No SW registered');
+        }
+    }).catch(function(e) {
+        __diag('SW check error');
+    });
+} else {
+    __diag('SW not supported');
+}
+
+// Check localStorage
+try {
+    var vk = localStorage.getItem('myidol_verified');
+    __diag('Verified: ' + (vk === '1' ? 'yes' : 'no'));
+} catch(e) {
+    __diag('localStorage error');
+}
+
 function __loadScript(src, cb) {
+    __diag('Loading: ' + src.substring(0, 50));
     var s = document.createElement('script');
     s.src = src;
     s.onload = function() {
         __jsLoaded = true;
+        __diag('JS loaded OK (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
         if (cb) cb();
     };
-    s.onerror = function() {
+    s.onerror = function(e) {
         __jsLoadFailed = true;
         __jsLoadError = src;
-        if (__loadRetries < 3) {
+        __diag('JS LOAD FAILED: ' + src.substring(0, 50));
+        if (__loadRetries < 2) {
             __loadRetries++;
+            __diag('Retry #' + __loadRetries + '...');
             __updateLoad('Retrying... (' + __loadRetries + ')');
             setTimeout(function() {
-                __loadScript(src + '&_r=' + __loadRetries, cb);
-            }, 1000);
+                __loadScript(src.split('&_r=')[0] + '&_r=' + __loadRetries, cb);
+            }, 2000);
+        } else {
+            __diag('All retries failed');
+            __updateLoad('Load failed');
+            _showLoadError();
         }
     };
     document.head.appendChild(s);
 }
-// Load v1.6.js dynamically with cache-buster to bypass stale CDN cache
+
+// Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.0&_bust=' + Date.now(), function() {
+__loadScript('v1.6.js?v=1.7.1&_bust=' + Date.now(), function() {
     __updateLoad('Loading data...');
+    __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.0" onload="window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'&&gameState.player&&gameState.player.company){try{render();}catch(e){}}" async></script>
+<script src="npc-data.js?v=1.7.1" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'&&gameState.player&&gameState.player.company){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}" onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1442,7 +1488,7 @@ function showNpcCard(npcName) {
     }
   }
   if (!npc) { return; }
-  var html2 = '<button class="npc-card-close" onclick="closeNpcCard()">×</button>';
+  var html2 = '<button class="npc-card-close" onclick="closeNpcCard()">&times;</button>';
   html2 += '<div class="npc-card-header">';
   var cn = npc.name || npcName;
   var parenIdx = cn.indexOf('(');
@@ -1489,76 +1535,83 @@ function closeNpcCard() {
 }
 </script>
 
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js?v=1.7.0").then(function(reg){console.log("SW registered:",reg.scope)}).catch(function(err){console.log("SW failed:",err)})}</script>
+<script>
+// Register SW but with versioned URL to force update
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js?v=1.7.1").then(function(reg) {
+        __diag("SW registered: " + reg.scope);
+        if (reg.waiting) __diag("SW waiting to activate");
+        if (reg.installing) __diag("SW installing...");
+    }).catch(function(err) {
+        __diag("SW failed: " + err.message);
+    });
+}
+</script>
 
 <script>
 (function(){
     var VERIFIED_KEY = 'myidol_verified';
     var CODE_KEY = 'myidol_code';
-    
-    // Helper: wait for render() then call it. NEVER hide loadingScreen here - render() does that.
-    function _waitForRenderAndGo(callback) {
+
+    function _waitForRenderAndGo() {
         var attempts = 0;
-        var maxAttempts = 80; // 24 seconds at 300ms intervals
+        var maxAttempts = 80;
         var _ri = setInterval(function(){
             attempts++;
             if (typeof render === 'function') {
                 clearInterval(_ri);
-                try { render(); } catch(e) {
-                    console.error('render() error:', e);
+                __diag('render() found, calling...');
+                try {
+                    render();
+                    __diag('render() success');
+                } catch(e) {
+                    __diag('render() ERROR: ' + (e.message || e));
                     var _app = document.getElementById('app');
                     if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载出错</div><div style="font-size:12px;margin-top:8px;word-break:break-all">' + (e.message||'') + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">重试</button></div>';
                 }
-                if (callback) callback();
             } else if (__jsLoadFailed && attempts > 10) {
                 clearInterval(_ri);
-                // JS failed to load, try one more time with fresh URL
-                __updateLoad('重新加载中...');
+                __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.0&_retry=' + Date.now();
+                _ns.src = 'v1.6.js?v=1.7.1&_final=' + Date.now();
                 _ns.onload = function() {
-                    if (typeof render === 'function') {
-                        try { render(); } catch(e) { console.error(e); }
-                    }
+                    __diag('Final retry loaded');
+                    if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
                 };
                 _ns.onerror = function() {
+                    __diag('Final retry also failed');
                     _showLoadError();
                 };
                 document.head.appendChild(_ns);
             } else if (attempts >= maxAttempts) {
                 clearInterval(_ri);
-                if (typeof render !== 'function') {
-                    _showLoadError();
-                }
-            } else {
-                __updateLoad('加载中...(' + Math.floor(attempts*300/1000) + 's)');
+                __diag('TIMEOUT after 24s');
+                _showLoadError();
+            } else if (attempts % 10 === 0) {
+                __diag('Still waiting for render()... ' + (attempts*300/1000) + 's');
             }
         }, 300);
     }
-    
+
     function _showLoadError() {
         var ls = document.getElementById('loadingScreen');
         if (ls) ls.style.display = 'none';
         var _app = document.getElementById('app');
-        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请尝试：设置>Safari>清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
+        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请截图此页面发给我，然后尝试：</div><div style="font-size:11px;margin-top:4px;color:#999">设置 > Safari > 清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
     }
-    
-    // Already verified path
+
     if (localStorage.getItem(VERIFIED_KEY) === '1') {
         document.getElementById('inviteGate').className = 'hidden';
         window._inviteVerified = true;
-        // DO NOT hide loadingScreen here! Let render() hide it.
-        // Show "loading" message while waiting for JS
+        __diag('Already verified, waiting for JS...');
         __updateLoad('加载游戏中...');
         _waitForRenderAndGo();
         return;
     }
-    
-    // Not yet verified - set up verifyGate
+
     window.verifyGate = function() {
         var code = document.getElementById('gateCodeInput').value.trim().toUpperCase();
         var errEl = document.getElementById('gateErr');
-        var btn = document.getElementById('gateBtn');
         errEl.style.display = 'none';
         if (!code) { errEl.textContent = '请输入邀请码'; errEl.style.display = 'block'; return; }
         var VALID_CODES = ['LOVE7286','DREAM4886','DREAM5305','DREAM6461','DEBUT3677','V162877','MYIDOL5203','V165678','V164720','FAN3082'];
@@ -1571,7 +1624,7 @@ function closeNpcCard() {
             localStorage.setItem(CODE_KEY, code);
             document.getElementById('inviteGate').className = 'hidden';
             window._inviteVerified = true;
-            // DO NOT hide loadingScreen here! Just update the message.
+            __diag('Code verified, loading game...');
             __updateLoad('验证成功，加载游戏中...');
             _waitForRenderAndGo();
             try {
