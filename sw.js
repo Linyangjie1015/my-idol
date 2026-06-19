@@ -1,4 +1,4 @@
-var CACHE_NAME = 'my-idol-v1-7-5';
+var CACHE_NAME = 'my-idol-v1-7-6';
 var CACHE_URLS = [
   '/manifest.json',
   '/icon-192.png',
@@ -38,6 +38,14 @@ self.addEventListener('fetch', function(event) {
 
   if (event.request.method !== 'GET') return;
 
+  // Never intercept JS files - let browser handle them directly
+  // This prevents SW from serving stale/corrupt JS on Safari
+  var isJS = url.pathname.indexOf('.js') !== -1;
+  if (isJS) return;
+
+  // Never intercept HTML navigation
+  if (event.request.mode === 'navigate') return;
+
   var isApi = url.hostname.indexOf('supabase') !== -1 ||
               url.hostname.indexOf('vercel') !== -1 ||
               url.hostname.indexOf('api') !== -1;
@@ -53,27 +61,6 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  if (event.request.mode === 'navigate') {
-    return;
-  }
-
-  var isJS = url.pathname.indexOf('.js') !== -1;
-  if (isJS) {
-    event.respondWith(
-      fetch(event.request).then(function(response) {
-        if (response && (response.status === 200 || response.status === 304)) {
-          var clone = response.clone();
-          caches.open(CACHE_NAME).then(function(cache) {
-            cache.put(event.request, clone);
-          });
-        }
-        return response;
-      }).catch(function() {
-        return caches.match(event.request);
-      })
-    );
-    return;
-  }
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       var fetchPromise = fetch(event.request).then(function(response) {

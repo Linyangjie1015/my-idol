@@ -1386,10 +1386,43 @@ window.addEventListener('error', function(e) {
     <div class="home-indicator" id="homeIndicator" style="display: none;"></div>
 </div>
 
-<script>var __loadStep=0;function __updateLoad(msg){var s=document.getElementById('loadMsg');if(s)s.textContent=msg;}</script>
-<script src="v1.6.js" onload="window.__jsLoaded=true;window.__jsLoadTime=Date.now()-window.__jsLoadStart;__updateLoad('Loading data...')" onerror="window.__jsLoadFailed=true;window.__jsLoadError='v1.6.js fetch failed'"></script>
-<script>if(!window.render){window.__jsLoadFailed=true;var _s=document.createElement('script');_s.src='v1.6.js?_t='+Date.now();_s.onload=function(){__updateLoad('Loading data...')};_s.onerror=function(){window.__jsLoadFailed=true};document.head.appendChild(_s);}</script>
-<script src="npc-data.js" onload="window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'&&gameState.player&&gameState.player.company){try{render();}catch(e){}}" async></script>
+<script>
+var __jsLoadStart = Date.now();
+var __jsLoaded = false;
+var __jsLoadFailed = false;
+var __jsLoadError = null;
+var __loadRetries = 0;
+function __updateLoad(msg) {
+    var s = document.getElementById('loadMsg');
+    if (s) s.textContent = msg;
+}
+function __loadScript(src, cb) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function() {
+        __jsLoaded = true;
+        if (cb) cb();
+    };
+    s.onerror = function() {
+        __jsLoadFailed = true;
+        __jsLoadError = src;
+        if (__loadRetries < 3) {
+            __loadRetries++;
+            __updateLoad('Retrying... (' + __loadRetries + ')');
+            setTimeout(function() {
+                __loadScript(src + '&_r=' + __loadRetries, cb);
+            }, 1000);
+        }
+    };
+    document.head.appendChild(s);
+}
+// Load v1.6.js dynamically with cache-buster to bypass stale CDN cache
+__updateLoad('Loading game...');
+__loadScript('v1.6.js?v=1.7.0&_bust=' + Date.now(), function() {
+    __updateLoad('Loading data...');
+});
+</script>
+<script src="npc-data.js?v=1.7.0" onload="window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'&&gameState.player&&gameState.player.company){try{render();}catch(e){}}" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1429,7 +1462,7 @@ function showNpcCard(npcName) {
   html2 += '</div></div>';
   if (npc.quote) {
     html2 += '<div class="npc-card-section"><div class="npc-card-label">征牌语</div>';
-    html2 += '<div class="npc-card-quote">“' + npc.quote + '”</div></div>';
+    html2 += '<div class="npc-card-quote">"' + npc.quote + '"</div></div>';
   }
   if (npc.bio) {
     html2 += '<div class="npc-card-section"><div class="npc-card-label">背景</div>';
@@ -1456,37 +1489,72 @@ function closeNpcCard() {
 }
 </script>
 
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js").then(function(reg){console.log("SW registered:",reg.scope)}).catch(function(err){console.log("SW failed:",err)})}</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js?v=1.7.0").then(function(reg){console.log("SW registered:",reg.scope)}).catch(function(err){console.log("SW failed:",err)})}</script>
 
 <script>
 (function(){
     var VERIFIED_KEY = 'myidol_verified';
     var CODE_KEY = 'myidol_code';
+    
+    // Helper: wait for render() then call it. NEVER hide loadingScreen here - render() does that.
+    function _waitForRenderAndGo(callback) {
+        var attempts = 0;
+        var maxAttempts = 80; // 24 seconds at 300ms intervals
+        var _ri = setInterval(function(){
+            attempts++;
+            if (typeof render === 'function') {
+                clearInterval(_ri);
+                try { render(); } catch(e) {
+                    console.error('render() error:', e);
+                    var _app = document.getElementById('app');
+                    if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载出错</div><div style="font-size:12px;margin-top:8px;word-break:break-all">' + (e.message||'') + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">重试</button></div>';
+                }
+                if (callback) callback();
+            } else if (__jsLoadFailed && attempts > 10) {
+                clearInterval(_ri);
+                // JS failed to load, try one more time with fresh URL
+                __updateLoad('重新加载中...');
+                var _ns = document.createElement('script');
+                _ns.src = 'v1.6.js?v=1.7.0&_retry=' + Date.now();
+                _ns.onload = function() {
+                    if (typeof render === 'function') {
+                        try { render(); } catch(e) { console.error(e); }
+                    }
+                };
+                _ns.onerror = function() {
+                    _showLoadError();
+                };
+                document.head.appendChild(_ns);
+            } else if (attempts >= maxAttempts) {
+                clearInterval(_ri);
+                if (typeof render !== 'function') {
+                    _showLoadError();
+                }
+            } else {
+                __updateLoad('加载中...(' + Math.floor(attempts*300/1000) + 's)');
+            }
+        }, 300);
+    }
+    
+    function _showLoadError() {
+        var ls = document.getElementById('loadingScreen');
+        if (ls) ls.style.display = 'none';
+        var _app = document.getElementById('app');
+        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请尝试：设置>Safari>清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
+    }
+    
+    // Already verified path
     if (localStorage.getItem(VERIFIED_KEY) === '1') {
         document.getElementById('inviteGate').className = 'hidden';
         window._inviteVerified = true;
-        var _ls2 = document.getElementById('loadingScreen');
-        if (_ls2) _ls2.style.display = 'none';
-        function _tryRender() {
-            if (typeof render === 'function') { try { render(); } catch(e) { console.error('render() failed on reload:', e); } }
-            else {
-                var _attempt = 0;
-                var _ri = setInterval(function(){
-                    _attempt++;
-                    if (typeof render === 'function') { clearInterval(_ri); try { render(); } catch(e) { console.error(e); } }
-                    else if (_attempt === 15) {
-                        var _ns = document.createElement('script');
-                        _ns.src = 'v1.6.js?_retry=' + Date.now();
-                        _ns.onload = function(){ if(typeof render==='function') try{render();}catch(e){} };
-                        document.head.appendChild(_ns);
-                    }
-                }, 300);
-                setTimeout(function(){ clearInterval(_ri); if (typeof render !== 'function') { var _a=document.getElementById('app'); if(_a) _a.innerHTML='<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请尝试：设置>Safari>清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>'; } }, 15000);
-            }
-        }
-        _tryRender();
+        // DO NOT hide loadingScreen here! Let render() hide it.
+        // Show "loading" message while waiting for JS
+        __updateLoad('加载游戏中...');
+        _waitForRenderAndGo();
         return;
     }
+    
+    // Not yet verified - set up verifyGate
     window.verifyGate = function() {
         var code = document.getElementById('gateCodeInput').value.trim().toUpperCase();
         var errEl = document.getElementById('gateErr');
@@ -1503,24 +1571,9 @@ function closeNpcCard() {
             localStorage.setItem(CODE_KEY, code);
             document.getElementById('inviteGate').className = 'hidden';
             window._inviteVerified = true;
-            var _ls = document.getElementById('loadingScreen');
-            if (_ls) _ls.style.display = 'none';
-            (function _waitRender(attempts) {
-                if (typeof render === 'function') {
-                    try { render(); } catch(e) {
-                        console.error('render() error:', e);
-                        var _app = document.getElementById('app');
-                        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载出错</div><div style="font-size:12px;margin-top:8px;word-break:break-all">' + (e.message||'') + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">重试</button></div>';
-                    }
-                } else if (attempts > 0) {
-                    var _lm = document.getElementById('loadMsg');
-                    if (_lm) _lm.textContent = 'Loading...(' + (41 - attempts) + ')';
-                    setTimeout(function(){ _waitRender(attempts - 1); }, 300);
-                } else {
-                    var _app2 = document.getElementById('app');
-                    if (_app2) _app2.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请清除浏览器缓存后重试</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
-                }
-            })(40);
+            // DO NOT hide loadingScreen here! Just update the message.
+            __updateLoad('验证成功，加载游戏中...');
+            _waitForRenderAndGo();
             try {
                 var logXhr = new XMLHttpRequest();
                 logXhr.open('POST', 'https://myidol.asia/api/verify-code', true);
