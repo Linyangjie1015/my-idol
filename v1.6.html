@@ -1376,7 +1376,8 @@
     <div class="home-indicator" id="homeIndicator" style="display: none;"></div>
 </div>
 
-<script src="v1.6.js"></script>
+<script src="v1.6.js" onerror="window.__jsLoadFailed=true"></script>
+<script>if(!window.render){window.__jsLoadFailed=true;var _s=document.createElement('script');_s.src='v1.6.js?_t='+Date.now();_s.onerror=function(){window.__jsLoadFailed=true};document.head.appendChild(_s);}</script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1454,6 +1455,14 @@ function closeNpcCard() {
         window._inviteVerified = true;
         var _ls2 = document.getElementById('loadingScreen');
         if (_ls2) _ls2.style.display = 'none';
+        function _tryRender() {
+            if (typeof render === 'function') { try { render(); } catch(e) { console.error('render() failed on reload:', e); } }
+            else {
+                var _ri = setInterval(function(){ if (typeof render === 'function') { clearInterval(_ri); try { render(); } catch(e) { console.error(e); } } }, 200);
+                setTimeout(function(){ clearInterval(_ri); if (typeof render !== 'function') { var _a=document.getElementById('app'); if(_a) _a.innerHTML='<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:13px;margin-top:8px">请清除浏览器缓存后重新访问</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存并重试</button></div>'; } }, 10000);
+            }
+        }
+        _tryRender();
         return;
     }
     window.verifyGate = function() {

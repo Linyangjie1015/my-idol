@@ -1,6 +1,5 @@
-var CACHE_NAME = 'my-idol-v1-7-2';
+var CACHE_NAME = 'my-idol-v1-7-3';
 var CACHE_URLS = [
-  '/v1.6.js',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
@@ -58,6 +57,23 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
+  var isJS = url.pathname.indexOf('.js') !== -1;
+  if (isJS) {
+    event.respondWith(
+      fetch(event.request).then(function(response) {
+        if (response && (response.status === 200 || response.status === 304)) {
+          var clone = response.clone();
+          caches.open(CACHE_NAME).then(function(cache) {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      }).catch(function() {
+        return caches.match(event.request);
+      })
+    );
+    return;
+  }
   event.respondWith(
     caches.match(event.request).then(function(cached) {
       var fetchPromise = fetch(event.request).then(function(response) {
