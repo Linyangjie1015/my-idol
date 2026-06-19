@@ -1089,6 +1089,7 @@ function render() {
     if (typeof _checkAutoRest === 'function') _checkAutoRest();
     if (typeof gameState !== 'undefined' && gameState.体力 !== undefined) { if (gameState.体力 < 0) gameState.体力 = 0; if (gameState.体力 > gameState.max体力) gameState.体力 = gameState.max体力; }
     if (typeof gameState !== 'undefined' && gameState.stats) { var _sk = Object.keys(gameState.stats); for(var _si=0;_si<_sk.length;_si++){ if(gameState.stats[_sk[_si]]>150) gameState.stats[_sk[_si]]=150; } }
+    _applyTimeTheme();
     var app = document.getElementById('app');
     if (!app) return;
     try {
@@ -3199,11 +3200,7 @@ function addLove(npcName, amount) {
             } else if (n === 60 && ns.label === '恋人') {
                 _triggerShare('恋爱了！', nm + '和' + gameState.player.name + '正式交往！');
             }
-                    if (n >= 60) {
-                        setTimeout(function() {
-                            if (confirm('关系升级为「' + ns.label + '」！要生成分享卡片吗？')) showShareCard();
-                        }, 1500);
-                    }
+                    
                 };
             }(nodeStatus, node, npcName), 500);
         }
@@ -4246,8 +4243,27 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
             for (var si = 0; si < keys.length; si++) {
                 if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
             }
-            localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
-        } catch(e) {}
+            var jsonStr = JSON.stringify(saveData);
+            if (jsonStr.length > 4 * 1024 * 1024) {
+                console.warn('Save data too large:', jsonStr.length, 'bytes, trimming...');
+                if (gameState.dayActionLog) gameState.dayActionLog = gameState.dayActionLog.slice(-10);
+                if (gameState._notifLog) gameState._notifLog = gameState._notifLog.slice(-10);
+                if (gameState.sms) gameState.sms = gameState.sms.slice(-10);
+                jsonStr = JSON.stringify(saveData);
+            }
+            localStorage.setItem(_getSaveKey(), jsonStr);
+        } catch(e) {
+            console.warn('Save failed:', e);
+            if (e.name === 'QuotaExceededError' || e.code === 22) {
+                showToast('存储空间不足，部分数据已清理');
+                try {
+                    if (gameState.dayActionLog) gameState.dayActionLog = [];
+                    if (gameState._notifLog) gameState._notifLog = [];
+                    if (gameState.sms) gameState.sms = [];
+                    localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+                } catch(e2) {}
+            }
+        }
     }
     if (isExamInProgress) {
         showModal('考试进行中', '请先完成当前考试');
@@ -14181,6 +14197,9 @@ window.onerror = function(msg, url, line) {
 
 render();
 
+// V1.7: Auto-refresh time theme every 60 seconds
+setInterval(function() { _applyTimeTheme(); }, 60000);
+
 // ==================== DAILY CHECK-IN ====================
 
 // ==================== V1.7 CALENDAR SYSTEM ====================
@@ -14282,6 +14301,7 @@ function _endDay() {
     gameState.dayIncome = 0;
     gameState.dayExpense = 0;
     gameState.dayActionLog = [];
+    _generateDailySMS();
     triggerSilentSave();
     showModal('\u7b2c ' + (gameState.gameDay - 1) + ' \u5929\u7ed3\u675f', summary, [
         { text: '\u65b0\u7684\u4e00\u5929', action: function() { closeModal(); render(); } }
