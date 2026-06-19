@@ -1452,6 +1452,8 @@ function closeNpcCard() {
     if (localStorage.getItem(VERIFIED_KEY) === '1') {
         document.getElementById('inviteGate').className = 'hidden';
         window._inviteVerified = true;
+        var _ls2 = document.getElementById('loadingScreen');
+        if (_ls2) _ls2.style.display = 'none';
         return;
     }
     window.verifyGate = function() {
@@ -1470,7 +1472,19 @@ function closeNpcCard() {
             localStorage.setItem(CODE_KEY, code);
             document.getElementById('inviteGate').className = 'hidden';
             window._inviteVerified = true;
-            if (typeof render === 'function') render();
+            var _ls = document.getElementById('loadingScreen');
+            if (_ls) _ls.style.display = 'none';
+            if (typeof render === 'function') {
+                try { render(); } catch(e) {
+                    console.error('render() failed:', e);
+                    var _app = document.getElementById('app');
+                    if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A;"><div style="font-size:20px;font-weight:700;">加载出错</div><div style="font-size:13px;margin-top:8px;">' + e.message + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px;">重试</button></div>';
+                }
+            } else {
+                console.error('render is not defined!');
+                var _app2 = document.getElementById('app');
+                if (_app2) _app2.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A;"><div style="font-size:20px;font-weight:700;">脚本未加载</div><div style="font-size:13px;margin-top:8px;">v1.6.js加载失败，请刷新重试</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px;">刷新</button></div>';
+            }
             try {
                 var logXhr = new XMLHttpRequest();
                 logXhr.open('POST', 'https://myidol.asia/api/verify-code', true);
