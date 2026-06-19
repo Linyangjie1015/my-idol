@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Idol - Test</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, sans-serif; background: #FFF5F7; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+#log { width: 100%; max-width: 400px; background: white; border-radius: 12px; padding: 16px; font-size: 13px; line-height: 1.6; color: #333; box-shadow: 0 2px 12px rgba(255,143,163,0.15); }
+#log div { padding: 2px 0; border-bottom: 1px solid #f5f5f5; }
+.ok { color: #4CD964; }
+.err { color: #FF6B8A; }
+.wait { color: #999; }
+</style>
+</head>
+<body>
+<div id="log"></div>
+<script>
+var L = document.getElementById('log');
+var t0 = Date.now();
+function log(msg, cls) {
+    var d = document.createElement('div');
+    d.className = cls || '';
+    d.textContent = '[' + ((Date.now()-t0)/1000).toFixed(1) + 's] ' + msg;
+    L.appendChild(d);
+}
+log('Test page loaded', 'ok');
+log('UA: ' + navigator.userAgent.substring(0, 80), 'wait');
+
+// Check SW status
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistration().then(function(r) {
+        if (r) {
+            log('SW registered: ' + r.active.scriptURL, 'wait');
+            // Unregister old SW to get clean state
+            r.unregister().then(function() {
+                log('Old SW unregistered', 'ok');
+            });
+        } else {
+            log('No SW found', 'ok');
+        }
+    });
+} else {
+    log('SW not supported', 'ok');
+}
+
+// Try to fetch v1.6.js with fetch() to see raw response
+log('Fetching v1.6.js headers...', 'wait');
+fetch('v1.6.js?v=test1&_t=' + Date.now(), {method: 'HEAD'}).then(function(r) {
+    log('HEAD status: ' + r.status, r.ok ? 'ok' : 'err');
+    log('Content-Type: ' + r.headers.get('content-type'), 'wait');
+    log('Content-Length: ' + r.headers.get('content-length'), 'wait');
+    log('CF-Cache-Status: ' + r.headers.get('cf-cache-status'), 'wait');
+}).catch(function(e) {
+    log('HEAD failed: ' + e.message, 'err');
+});
+
+// Now try loading v1.6.js as a script
+log('Loading v1.6.js as script...', 'wait');
+var s = document.createElement('script');
+s.src = 'v1.6.js?v=test1&_t=' + Date.now();
+s.onload = function() {
+    log('v1.6.js loaded OK!', 'ok');
+    log('render exists: ' + (typeof render === 'function'), typeof render === 'function' ? 'ok' : 'err');
+    log('gameState exists: ' + (typeof gameState !== 'undefined'), typeof gameState !== 'undefined' ? 'ok' : 'err');
+    if (typeof render === 'function') {
+        log('Calling render()...', 'wait');
+        try {
+            render();
+            log('render() succeeded!', 'ok');
+        } catch(e) {
+            log('render() ERROR: ' + e.message, 'err');
+        }
+    }
+};
+s.onerror = function(e) {
+    log('v1.6.js FAILED to load', 'err');
+};
+document.head.appendChild(s);
+
+// Also load npc-data.js
+var s2 = document.createElement('script');
+s2.src = 'npc-data.js?v=test1&_t=' + Date.now();
+s2.onload = function() {
+    log('npc-data.js loaded OK!', 'ok');
+    log('COMPANIES filled: ' + (typeof COMPANIES !== 'undefined' && Object.keys(COMPANIES).length > 0), 'ok');
+};
+s2.onerror = function() {
+    log('npc-data.js FAILED', 'err');
+};
+document.head.appendChild(s2);
+</script>
+</body>
+</html>
