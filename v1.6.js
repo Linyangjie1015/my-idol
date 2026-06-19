@@ -1101,7 +1101,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar()\n                + renderWeeklyGoals()\n                + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar() + '\n                ' + renderWeeklyGoals() + '\n                ' + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -2394,7 +2394,7 @@ function _generateHiddenTier2(m) {
         '终于愿意让你看手机里最私密的备忘录，里面全是关于你的记录。',
         '承认有时候很羡慕你的' + pos + '位置，说这是第一次对别人说这种话。',
         '雨天突然跑来找你，什么都没带，只是说想见你一面。',
-        '告诉你一个从没跟任何人提过的秘密，然后红着脸说'不要告诉别人'。'
+        '告诉你一个从没跟任何人提过的秘密，然后红着脸说「不要告诉别人」。'
     ];
     return pool[Math.floor(m.name.charCodeAt(0) % pool.length)];
 }
@@ -2875,7 +2875,7 @@ function renderSmsPage(container) {
     var msgs = gameState.sms || [];
     var html = '<div class="page active">'
         + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage('home')">\u2039 首页</div>'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div>'
         + '<div class="page-title">短信</div>'
         + '<div style="width:32px;"></div>'
         + '</div>'
@@ -3014,7 +3014,7 @@ function _showIncomingCall(callerName, callerIcon, call, callType) {
         + '<div onclick="_declineCall()" style="width:60px;height:60px;border-radius:50%;background:#FF3B30;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(255,59,48,0.4);">'
         + '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>'
         + '</div>'
-        + '<div onclick="_acceptCall('' + callerName.replace(/'/g, "\\'") + '','' + callType + '',' + JSON.stringify(call).replace(/"/g, "&quot;") + ')" style="width:60px;height:60px;border-radius:50%;background:#4CD964;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(76,217,100,0.4);">'
+        + '<div onclick="_acceptCall(&#39;' + callerName + '&#39;,&#39;' + callType + '&#39;,' + JSON.stringify(call).replace(/"/g, "&quot;") + ')" style="width:60px;height:60px;border-radius:50%;background:#4CD964;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(76,217,100,0.4);">'
         + '<svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>'
         + '</div>'
         + '</div>';
@@ -3070,7 +3070,7 @@ function _declineCall() {
 function renderPhonePage(container) {
     var html = '<div class="page active">'
         + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage('home')">\u2039 首页</div>'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div>'
         + '<div class="page-title">电话</div>'
         + '<div style="width:32px;"></div>'
         + '</div>'
@@ -4369,8 +4369,8 @@ function _renderLoveListView(container, npcs) {
                 + '<span style="font-size:10px;font-weight:600;color:' + (canDate ? npcStatus.color : 'var(--color-text-light)') + ';">' + 好感 + '</span>'
                 + '</div></div>'
                 + '<div style="display:flex;flex-direction:column;gap:4px;">'
-                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\\'' + npc.name.replace(/'/g, "\\\\'") + '\\')" >聊天</button>'
-                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(\\'' + npc.name.replace(/'/g, "\\\\'") + '\\')" >在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
+                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(&#39;" + npc.name + "&#39;)">聊天</button>'
+                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(&#39;" + npc.name + "&#39;)">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
                 + '</div></div>';
         }
     }
