@@ -1138,7 +1138,7 @@ function renderHomePage(container) {
     container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px; padding-bottom: 100px;">\n                ' + _renderDayBar() + '\n                ' + renderWeeklyGoals() + '\n                ' + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
-        return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
+        return '<div style="background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
             + '<div><div style="font-size:13px;font-weight:600;color:var(--color-primary);">今日已签到</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">连续' + ci.streak + '天</div></div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">明天继续加油</div></div>';
@@ -4401,7 +4401,7 @@ function _renderLoveListView(container, npcs) {
         if (gameState.dating) {
             var p好感 = gameState.npc好感度[gameState.dating] || 0;
             var pStatus = getLoveStatus(p好感);
-            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\\\'") + '\')"'
+            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\\\'") + '\')"'
                 + '<div style="display:flex;align-items:center;gap:12px;">'
                 + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
@@ -4489,7 +4489,7 @@ function _renderLoveChatView(container, targetName, npcs) {
         + '<div class="page-header" style="flex-shrink:0;">'
         + '<div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">‹ 返回</div>'
         + '<div class="page-title"><div style="font-weight:600;font-size:15px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="showNpcCard(\''+targetName.replace(/'/g,"\\'")+'\')">' + targetName + '</div>' + headerSub + '</div>'
-        + '<div style="width:32px;"></div>'
+        + '<div onclick="showTonePicker()" style="width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" title="文案风格">' + _getCurrentTone().icon + '</div>'
         + '</div>'
         + '<div id="loveChatMsgs" style="flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;">' + bubbles + '</div>'
         + '<div id="loveChatBar" style="flex-shrink:0;padding:6px 10px;border-top:1px solid var(--color-border);background:var(--bg-card);display:flex;align-items:center;gap:6px;">'
@@ -4881,7 +4881,7 @@ function _doLoveDate() {
         for (var si = 0; si < _secretDateLocations.length; si++) {
             var sloc = _secretDateLocations[si];
             var scanAfford = gameState.money >= sloc.cost && gameState.体力 >= sloc.stamina;
-            locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border:1px solid #FFD0D9;border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (scanAfford ? '' : 'opacity:0.5;') + '"'
+            locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));border:1px solid #FFD0D9;border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (scanAfford ? '' : 'opacity:0.5;') + '"'
                 + (scanAfford ? ' onclick="loveDateStep2(' + si + ',true)"' : '') + '>'
                 + '<div><div style="font-weight:600;font-size:13px;color:#FF2D55;">' + sloc.name + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);">' + sloc.desc + '</div></div>'
@@ -11623,7 +11623,7 @@ function renderKakaoChatPage(container) {
         + '<div class="page-title" style="display:flex;align-items:center;">'
         + npc.name + (npc.online ? ' <div class="kakao-online-dot" style="position:static;margin-left:8px;"></div>' : '') + '<span style="font-size:10px;color:var(--color-text-light);margin-left:8px;">AI ' + getAITotalUsageToday() + '/' + getAIMaxTotalToday() + '</span>'
         + '</div>'
-        + '<div style="width:32px;"></div>'
+        + '<div onclick="showTonePicker()" style="width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + _getCurrentTone().icon + '</div>'
         + '</div>'
         + '<div class="kakao-chat-area" id="kakaoChatArea">' + chatHtml + '</div>'
         + '<div class="kakao-input-bar">'
@@ -11934,7 +11934,7 @@ function showNpcCard(npcName) {
 
     // Keep backward compat: if npc has hidden but no HIDDEN_DIALOGUES entry
     if (npc.hidden && !HIDDEN_DIALOGUES[npcName] && 好感 >= 30) {
-        html += '<div style="padding:10px 14px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:10px;">'
+        html += '<div style="padding:10px 14px;background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));border-radius:10px;">'
             + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">隐藏特质</div>'
             + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">'+npc.hidden+'</div></div>';
     }
@@ -13449,11 +13449,26 @@ goToPage = function(page) {
 };
 
 window.onerror = function(msg, url, line) {
-    document.body.innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;">' +
-        '<h2 style="color:#FF6B8A;">加载出错</h2>' +
-        '<p style="color:#666;margin:20px 0;">' + msg + ' (行 ' + line + ')</p>' +
-        '<button onclick="try{if(typeof gameState!==\'undefined\'&&gameState.player&&gameState.player.name){currentPage=\'home\';document.body.innerHTML=\'\';var _app=document.createElement(\'div\');_app.id=\'app\';document.body.appendChild(_app);render();renderBottomNav();}else{var _saved=localStorage.getItem(\'myIdolSaveData\');if(_saved){try{gameState=JSON.parse(_saved);window._inviteVerified=true;currentPage=\'home\';document.body.innerHTML=\'\';var _app2=document.createElement(\'div\');_app2.id=\'app\';document.body.appendChild(_app2);render();renderBottomNav();}catch(e){location.reload();}}else{location.reload();}}}catch(e){location.reload();}" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:25px;font-size:16px;">重试</button>' +
-        '<br><br><a href="https://linyangjie1015.github.io/my-idol/v1.6.html?v=' + Date.now() + '" style="color:#FF8FA3;">强制刷新(清缓存)</a></div>';
+    console.error('Error:', msg, url, line);
+    // Try to recover instead of destroying the whole page
+    if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
+        // Game is loaded, just go back to home
+        try {
+            currentPage = 'home';
+            if (typeof render === 'function') { render(); renderBottomNav(); }
+            showToast('出了点问题，已返回首页');
+            return true;
+        } catch(e) {}
+    }
+    // Last resort: show error page with recovery
+    var _app = document.getElementById('app');
+    if (_app) {
+        _app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-primary, #FF6B8A);">' +
+            '<div style="font-size:18px;font-weight:700;">出了点问题</div>' +
+            '<div style="font-size:12px;margin-top:8px;color:var(--color-text-light, #999);">' + msg + '</div>' +
+            '<button onclick="currentPage=\'home\';render();renderBottomNav();" style="margin-top:16px;padding:8px 20px;background:var(--color-primary, #FF8FA3);color:white;border:none;border-radius:20px;">返回首页</button>' +
+            '</div>';
+    }
     return true;
 };
 

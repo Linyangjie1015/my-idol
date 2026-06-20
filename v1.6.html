@@ -60,12 +60,92 @@ window.addEventListener('error', function(e) {
     }
     .time-night .phone-frame {
         background: var(--bg-main);
+        color: var(--color-text);
+    }
+    .time-night .page-content {
+        color: var(--color-text);
+    }
+    .time-night .page-header .page-title,
+    .time-night .page-header .back-btn {
+        color: var(--color-text);
+    }
+    .time-night h1, .time-night h2, .time-night h3,
+    .time-night .section-title, .time-night p, .time-night span,
+    .time-night div {
+        color: var(--color-text);
+    }
+    .time-night .bottom-nav .nav-item {
+        color: var(--color-text-light);
+    }
+    .time-night .bottom-nav .nav-item.active {
+        color: var(--color-primary);
+    }
+    .time-night .toast {
+        background: #3A3A58 !important; color: #E8E8F0 !important;
     }
     .time-night .btn-primary {
         background: linear-gradient(135deg, #7C4DFF, #B388FF);
     }
     .time-night .stat-fill {
         opacity: 0.85;
+    }
+    /* V1.7: Comprehensive dark mode for all chat apps */
+    .time-night .kakao-msg-bubble.me {
+        background: #3D2D5C !important; color: #E8E8F0 !important;
+    }
+    .time-night .kakao-msg-bubble.npc {
+        background: #2E2E4A !important; color: #E8E8F0 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.2) !important;
+    }
+    .time-night .kakao-input-bar {
+        background: #252540 !important; border-top-color: #353555 !important;
+    }
+    .time-night .kakao-input {
+        background: #1E1E38 !important; border-color: #4A4A6A !important; color: #E8E8F0 !important;
+    }
+    .time-night .kakao-msg-time {
+        color: #8888A8 !important;
+    }
+    .time-night .status-bar {
+        background: #252540 !important; border-bottom-color: #353555 !important;
+    }
+    .time-night .page-header {
+        background: #252540 !important; border-bottom-color: #353555 !important;
+    }
+    .time-night .card {
+        background: #2A2A48 !important; border-color: #353555 !important;
+    }
+    .time-night .bottom-nav {
+        background: #1E1E38 !important; border-top-color: #353555 !important;
+    }
+    .time-night .modal-content {
+        background: #252540 !important; border-color: #353555 !important; color: #E8E8F0 !important;
+    }
+    .time-night .modal-overlay {
+        background: rgba(0,0,0,0.7) !important;
+    }
+    .time-night input, .time-night textarea, .time-night select {
+        background: #1E1E38 !important; border-color: #4A4A6A !important; color: #E8E8F0 !important;
+    }
+    .time-night .section-title {
+        color: #B8B8D0 !important;
+    }
+    .time-night .btn-secondary {
+        background: #2A2A48 !important; border-color: #4A4A6A !important; color: #E8E8F0 !important;
+    }
+    .time-night .phone-frame {
+        border-color: #353555 !important; box-shadow: 0 25px 80px rgba(0,0,0,0.5) !important;
+    }
+    .time-night .invite-gate {
+        background: #1A1A2E !important;
+    }
+    .time-night .npc-card-overlay {
+        background: rgba(0,0,0,0.7) !important;
+    }
+    .time-night .npc-card-panel {
+        background: #252540 !important; color: #E8E8F0 !important;
+    }
+    .time-night .npc-card-tag {
+        background: #3A3A58 !important; color: #B8B8D0 !important;
     }
 
 
@@ -1463,12 +1543,12 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.7&_bust=' + Date.now(), function() {
+__loadScript('v1.6.js?v=1.7.8&_bust=' + Date.now(), function() {
     __updateLoad('Loading data...');
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.7" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.8" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1543,7 +1623,7 @@ function closeNpcCard() {
 <script>
 // Register SW but with versioned URL to force update
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js?v=1.7.7").then(function(reg) {
+    navigator.serviceWorker.register("/sw.js?v=1.7.8").then(function(reg) {
         __diag("SW registered: " + reg.scope);
         if (reg.waiting) __diag("SW waiting to activate");
         if (reg.installing) __diag("SW installing...");
@@ -1578,7 +1658,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.7&_final=' + Date.now();
+                _ns.src = 'v1.6.js?v=1.7.8&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
