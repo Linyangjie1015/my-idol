@@ -31,12 +31,12 @@ function navTo(page) { goToPage(page); }
 function setAndNav(stateExpr, page) { eval(stateExpr); goToPage(page); }
 
 // ==================== CARD IMAGE MAPPING ====================
-var CARD_IMG_BASE = "";
-var CARD_IMG_MAP = {};
-function _getCardImgUrl(cardName) { return ""; }
+var CARD_IMG_BASE = window.CARD_IMG_BASE || "";
+var CARD_IMG_MAP = window.CARD_IMG_MAP || {};
+var _getCardImgUrl = window._getCardImgUrl || function(cardName) { return ""; };
 
 // ==================== GAME DATA ====================
-var COMPANIES = {};
+var COMPANIES = window.COMPANIES || {};
 function __waitForCOMPANIES(callback, maxMs) {
     maxMs = maxMs || 8000;
     if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) {

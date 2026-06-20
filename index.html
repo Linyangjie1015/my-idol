@@ -1463,12 +1463,12 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.5&_bust=' + Date.now(), function() {
+__loadScript('v1.6.js?v=1.7.6&_bust=' + Date.now(), function() {
     __updateLoad('Loading data...');
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.5" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.6" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1538,7 +1538,7 @@ function closeNpcCard() {
 <script>
 // Register SW but with versioned URL to force update
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js?v=1.7.5").then(function(reg) {
+    navigator.serviceWorker.register("/sw.js?v=1.7.6").then(function(reg) {
         __diag("SW registered: " + reg.scope);
         if (reg.waiting) __diag("SW waiting to activate");
         if (reg.installing) __diag("SW installing...");
@@ -1573,7 +1573,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.5&_final=' + Date.now();
+                _ns.src = 'v1.6.js?v=1.7.6&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
