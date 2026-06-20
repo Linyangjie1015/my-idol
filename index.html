@@ -1463,21 +1463,26 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.6&_bust=' + Date.now(), function() {
+__loadScript('v1.6.js?v=1.7.7&_bust=' + Date.now(), function() {
     __updateLoad('Loading data...');
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.6" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.7" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
-  for (var ci = 0; ci < COMPANIES.length; ci++) {
-    var c = COMPANIES[ci];
-    if (!c.members) continue;
-    for (var mi = 0; mi < c.members.length; mi++) {
-      var m = c.members[mi];
-      if (m.name === npcName || (m.name && m.name.indexOf(npcName) === 0)) { npc = m; break; }
+  var compKeys = Object.keys(COMPANIES);
+  for (var ci = 0; ci < compKeys.length; ci++) {
+    var comp = COMPANIES[compKeys[ci]];
+    var gKeys = Object.keys(comp.groups);
+    for (var gi = 0; gi < gKeys.length; gi++) {
+      var grp = comp.groups[gKeys[gi]];
+      for (var mi = 0; mi < grp.members.length; mi++) {
+        var m = grp.members[mi];
+        if (m.name === npcName || (m.name && m.name.indexOf(npcName) === 0)) { npc = m; npc._companyName = comp.name; npc._groupName = grp.name; break; }
+      }
+      if (npc) break;
     }
     if (npc) break;
   }
@@ -1538,7 +1543,7 @@ function closeNpcCard() {
 <script>
 // Register SW but with versioned URL to force update
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js?v=1.7.6").then(function(reg) {
+    navigator.serviceWorker.register("/sw.js?v=1.7.7").then(function(reg) {
         __diag("SW registered: " + reg.scope);
         if (reg.waiting) __diag("SW waiting to activate");
         if (reg.installing) __diag("SW installing...");
@@ -1573,7 +1578,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.6&_final=' + Date.now();
+                _ns.src = 'v1.6.js?v=1.7.7&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }

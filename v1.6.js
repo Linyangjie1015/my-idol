@@ -238,6 +238,7 @@ function render() {
     if (typeof gameState !== 'undefined' && gameState.体力 !== undefined) { if (gameState.体力 < 0) gameState.体力 = 0; if (gameState.体力 > gameState.max体力) gameState.体力 = gameState.max体力; }
     if (typeof gameState !== 'undefined' && gameState.stats) { var _sk = Object.keys(gameState.stats); for(var _si=0;_si<_sk.length;_si++){ if(gameState.stats[_sk[_si]]>150) gameState.stats[_sk[_si]]=150; } }
     _applyTimeTheme();
+    if (typeof _buildHiddenDialogues === "function") _buildHiddenDialogues();
     var app = document.getElementById('app');
     if (!app) return;
     try {
@@ -2394,8 +2395,12 @@ function _renderLoveProgressBar(love, isDating) {
   html += '</div></div>';
   return html;
 }
-// Build hidden dialogues from COMPANIES data
-(function() {
+// Build hidden dialogues from COMPANIES data (called after COMPANIES loads)
+var _hiddenDialoguesBuilt = false;
+function _buildHiddenDialogues() {
+    if (_hiddenDialoguesBuilt) return;
+    if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) return;
+    if (Object.keys(COMPANIES).length === 0) COMPANIES = window.COMPANIES;
     var cKeys = Object.keys(COMPANIES);
     for (var ci = 0; ci < cKeys.length; ci++) {
         var comp = COMPANIES[cKeys[ci]];
@@ -2406,6 +2411,7 @@ function _renderLoveProgressBar(love, isDating) {
                 var m = grp.members[mi];
                 if (typeof m !== 'object') continue;
                 var mName = m.name;
+                if (HIDDEN_DIALOGUES[mName]) continue;
                 var hidden = m.hidden || '';
                 HIDDEN_DIALOGUES[mName] = [
                     { level: 30, title: '初识秘密', dialogue: hidden ? '你发现了：' + hidden : '你们开始变得更亲近了...' },
@@ -2415,7 +2421,8 @@ function _renderLoveProgressBar(love, isDating) {
             }
         }
     }
-})();
+    _hiddenDialoguesBuilt = true;
+}
 
 function _generateHiddenTier2(m) {
     var pers = (m.personality && m.personality.join) ? m.personality.join('、') : (m.personality || '');
@@ -2944,7 +2951,7 @@ function viewSms(idx) {
     var isNpc = m.from && gameState.kakaoFriends && gameState.kakaoFriends.some(function(f) { return f.name === m.from; });
     var btns = [{ text: '关闭', action: function() { closeModal(); render(); } }];
     if (isNpc) {
-        btns.unshift({ text: '回复', action: function() { closeModal; gameState.kakaoCurrentChat = m.from; goToPage('kakaochat'); } });
+        btns.unshift({ text: '回复', action: function() { closeModal(); gameState.kakaoCurrentChat = m.from; goToPage('kakaochat'); } });
     }
     showModal(m.from, '<div style="padding:8px 0;">'
         + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">' + m.text + '</div>'
@@ -4279,19 +4286,23 @@ var _defaultGiftReactions = {
 // V1.7: Get personality-based gift reaction
 function getGiftReaction(npcName, giftName) {
     var npc = null;
-    var companies = COMPANIES;
-    for (var ci = 0; ci < companies.length && !npc; ci++) {
-        for (var gi = 0; gi < companies[ci].groups.length && !npc; gi++) {
-            for (var mi = 0; mi < companies[ci].groups[gi].members.length; mi++) {
-                if (companies[ci].groups[gi].members[mi].name === npcName) {
-                    npc = companies[ci].groups[gi].members[mi];
+    if (Object.keys(COMPANIES).length === 0 && window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; }
+    var compKeys = Object.keys(COMPANIES);
+    for (var ci = 0; ci < compKeys.length && !npc; ci++) {
+        var comp = COMPANIES[compKeys[ci]];
+        var gKeys = Object.keys(comp.groups);
+        for (var gi = 0; gi < gKeys.length && !npc; gi++) {
+            var grp = comp.groups[gKeys[gi]];
+            for (var mi = 0; mi < grp.members.length; mi++) {
+                if (grp.members[mi].name === npcName) {
+                    npc = grp.members[mi];
                     break;
                 }
             }
         }
     }
     if (!npc) return null;
-    var personality = npc.personality || '温柔';
+    var personality = (npc.personality && npc.personality.join) ? npc.personality[0] : (npc.personality || '温柔');
     // Check if gift matches a special category
     var giftLower = giftName.toLowerCase ? giftName.toLowerCase() : giftName;
     var matchedKey = '';
@@ -11286,10 +11297,11 @@ function _ensureKakaoState() {
                     }
                     if (!_exists) {
                         var _mPers = 'helpful';
-                        if (_m.personality && _m.personality.indexOf('hostile') > -1) _mPers = 'hostile';
-                        else if (_m.personality && _m.personality.indexOf('backstabber') > -1) _mPers = 'backstabber';
-                        else if (_m.personality && _m.personality.indexOf('protective') > -1) _mPers = 'protective';
-                        else if (_m.personality && _m.personality.indexOf('prankster') > -1) _mPers = 'prankster';
+                        var _mPersStr = (_m.personality && _m.personality.join) ? _m.personality.join(',') : (_m.personality || '');
+                        if (_mPersStr.indexOf('冷淡') > -1) _mPers = 'hostile';
+                        else if (_mPersStr.indexOf('神秘') > -1) _mPers = 'backstabber';
+                        else if (_mPersStr.indexOf('温柔') > -1 || _mPersStr.indexOf('认真') > -1) _mPers = 'protective';
+                        else if (_mPersStr.indexOf('调皮') > -1 || _mPersStr.indexOf('幽默') > -1 || _mPersStr.indexOf('开朗') > -1) _mPers = 'prankster';
                         var _colors = ['#FF8FA3','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1'];
                         var _mColor = _colors[Math.floor(Math.random() * _colors.length)];
                         var _isTeammate = (_grp.name === gameState.player.group);
@@ -11978,7 +11990,8 @@ function sendKakaoMessage() {
         if (typing && typing.parentNode) typing.parentNode.removeChild(typing);
         
         if (npc) {
-            var npcContext = npc.name + '(' + npc.personality + ')';
+            var _npcPers = (npc.personality && npc.personality.join) ? npc.personality.join('/') : (npc.personality || '');
+            var npcContext = npc.name + '(' + _npcPers + ')';
             if (npc.bio) npcContext += ' 背景：' + npc.bio;
             if (npc.quote) npcContext += ' 招牌语：' + npc.quote;
             if (npc.hidden) npcContext += ' 隐藏特质：' + npc.hidden;
