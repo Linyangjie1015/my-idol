@@ -4322,8 +4322,9 @@ function render恋爱Page(container) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.loveChats) gameState.loveChats = {};
     if (!gameState.loveUnread) gameState.loveUnread = {};
+    if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0 && Object.keys(COMPANIES).length === 0) { COMPANIES = window.COMPANIES; }
     var sameCompanyNPCs = getSameCompanyNPCs();
-    if (sameCompanyNPCs.length === 0 && (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0)) {
+    if (Object.keys(COMPANIES).length === 0 && (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0)) {
         container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">数据加载中...</div></div></div>';
         __waitForCOMPANIES(function() { render(); });
         return;
@@ -10248,6 +10249,7 @@ function renderCompanyDetailPage(container) {
         return;
     }
     var company = COMPANIES[companyKey];
+    if (!company && window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; company = COMPANIES[companyKey]; }
 if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div></div>'; __waitForCOMPANIES(function() { render(); }); return; }
     
     var companyColors = {
@@ -10640,6 +10642,10 @@ function checkGroupHiddenCard(pool, groupName) {
 }
 
 function getGachaCard(pool) {
+    if (Object.keys(COMPANIES).length === 0) {
+        if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; }
+        else { return null; }
+    }
     var rates = GACHA_POOL[pool].rates;
     var rand = Math.random() * 100;
     var tier;
@@ -10845,6 +10851,14 @@ function _countTotalGachaCards() {
 }
 
 function renderGachaPage(container) {
+    if (Object.keys(COMPANIES).length === 0) {
+        if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; }
+        else {
+            __waitForCOMPANIES(function() { render(); });
+            container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">抽卡</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">卡池数据加载中...</div></div></div>';
+            return;
+        }
+    }
     initGachaPool();
     var kpop = gameState.gacha.kpop;
     var topIdol = gameState.gacha.topIdol;
