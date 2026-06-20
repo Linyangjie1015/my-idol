@@ -37,6 +37,25 @@ function _getCardImgUrl(cardName) { return ""; }
 
 // ==================== GAME DATA ====================
 var COMPANIES = {};
+function __waitForCOMPANIES(callback, maxMs) {
+    maxMs = maxMs || 8000;
+    if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) {
+        COMPANIES = window.COMPANIES;
+        callback();
+        return;
+    }
+    var waited = 0;
+    var interval = setInterval(function() {
+        waited += 300;
+        if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) {
+            clearInterval(interval);
+            COMPANIES = window.COMPANIES;
+            callback();
+        } else if (waited >= maxMs) {
+            clearInterval(interval);
+        }
+    }, 300);
+}
 
 // ==================== GAME STATE ====================
 var GROUP_INTROS = {};
@@ -506,7 +525,7 @@ function renderCreationStep1() {
 
 function renderCreationStep2() {
     if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
-        setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800);
+        __waitForCOMPANIES(function() { render(); });
         return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 2 \u6b65 / \u5171 6 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u516c\u53f8\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">\u4e0b\u4e00\u6b65</button>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
@@ -519,7 +538,7 @@ function renderCreationStep3() {
 
 function renderCreationStep4() {
     if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
-        setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800);
+        __waitForCOMPANIES(function() { render(); });
         return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 上一步</div>\n                <div class="page-title">第 4 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">数据加载中...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">下一步</button>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
@@ -574,6 +593,11 @@ function renderCreationStep5() {
 }
 
 function renderCreationStep6() {
+    if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
+        __waitForCOMPANIES(function() { render(); });
+        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 6 \u6b65 / \u5171 6 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n        </div>';
+    }
+    COMPANIES = window.COMPANIES;
     var company = COMPANIES[gameState.player.company];
     
     return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div class="avatar" style="width: 64px; height: 64px; font-size: 24px;">' + (gameState.player.name.charAt(0).toUpperCase()) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=COMPANIES[gameState.player.company]; return c&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
@@ -4301,7 +4325,7 @@ function render恋爱Page(container) {
     var sameCompanyNPCs = getSameCompanyNPCs();
     if (sameCompanyNPCs.length === 0 && (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0)) {
         container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">数据加载中...</div></div></div>';
-        setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800);
+        __waitForCOMPANIES(function() { render(); });
         return;
     }
     var view = window._loveView || 'list';
@@ -4735,6 +4759,7 @@ function sendLoveGift(giftName, price, loveVal) {
 
 function getSameCompanyNPCs() {
     var npcs = [];
+    if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0 && Object.keys(COMPANIES).length === 0) { COMPANIES = window.COMPANIES; }
     var company = COMPANIES[gameState.player.company];
     if (!company) return npcs;
     var keys = Object.keys(company.groups);
@@ -10223,7 +10248,7 @@ function renderCompanyDetailPage(container) {
         return;
     }
     var company = COMPANIES[companyKey];
-if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div></div>'; setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800); return; }
+if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div></div>'; __waitForCOMPANIES(function() { render(); }); return; }
     
     var companyColors = {
         'SN Entertainment': '#FF6B6B',
