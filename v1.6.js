@@ -505,6 +505,11 @@ function renderCreationStep1() {
 }
 
 function renderCreationStep2() {
+    if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
+        setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800);
+        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 2 \u6b65 / \u5171 6 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u516c\u53f8\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">\u4e0b\u4e00\u6b65</button>\n            </div>\n        </div>';
+    }
+    COMPANIES = window.COMPANIES;
     return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 2 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择公司</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">从五大公司中选择您的经纪公司</p>\n                \n                ' + (Object.entries(COMPANIES).map(function(entry) { var key = entry[0]; var company = entry[1]; return '\n                    <div class="company-card ' + (gameState.player.company === key ? 'selected' : '') + '" onclick="selectCompany(\'' + (key) + '\')">\n                        <div class="company-name">' + (company.name) + '</div>\n                        <div class="company-desc">' + (company.desc) + '</div>\n                        <div class="company-tags">\n                            ' + (company.tags.map(function(t) { return '<span class="badge badge-secondary">' + t + '</span>'; }).join('')) + '\n                        </div>\n                    </div>\n                '}).join('')) + '\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(3)">下一步</button>\n            </div>\n        </div>\n    ';
 }
 
@@ -513,6 +518,11 @@ function renderCreationStep3() {
 }
 
 function renderCreationStep4() {
+    if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
+        setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800);
+        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 上一步</div>\n                <div class="page-title">第 4 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">数据加载中...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">下一步</button>\n            </div>\n        </div>';
+    }
+    COMPANIES = window.COMPANIES;
     if (gameState.player.role === 'Idol') {
         var company = COMPANIES[gameState.player.company];
         var groupKeys = Object.keys(company.groups);
@@ -10671,10 +10681,12 @@ function pullGacha(pool, count) {
         var card;
         if (poolData.pity >= config.pity) {
             card = getGachaCard(pool);
+            if (!card) { showToast('卡池数据加载中，请稍后再试'); return null; }
             card.cardTier = 'S';
             poolData.pity = 0;
         } else {
             card = getGachaCard(pool);
+            if (!card) { showToast('卡池数据加载中，请稍后再试'); return null; }
         }
         if (poolData.collection[card.id]) {
             poolData.collection[card.id].fragments += 1;
