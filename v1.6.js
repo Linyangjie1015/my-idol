@@ -322,8 +322,7 @@ function render() {
             case 'sms':
                 renderSmsPage(app);
                 break;
-            case 'phone': return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CD964" stroke-width="2"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>';
-        case 'sms': return '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4CD964" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+
         case 'kakaotalk':
                 renderKakaoTalkPage(app);
                 break;
@@ -1101,7 +1100,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px;">\n                ' + _renderDayBar() + '\n                ' + renderWeeklyGoals() + '\n                ' + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px; padding-bottom: 100px;">\n                ' + _renderDayBar() + '\n                ' + renderWeeklyGoals() + '\n                ' + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -2908,10 +2907,15 @@ function viewSms(idx) {
     if (!m) return;
     m.read = true;
     gameState.smsUnread = Math.max(0, (gameState.smsUnread || 0) - 1);
+    var isNpc = m.from && gameState.kakaoFriends && gameState.kakaoFriends.some(function(f) { return f.name === m.from; });
+    var btns = [{ text: '关闭', action: function() { closeModal(); render(); } }];
+    if (isNpc) {
+        btns.unshift({ text: '回复', action: function() { closeModal; gameState.kakaoCurrentChat = m.from; goToPage('kakaochat'); } });
+    }
     showModal(m.from, '<div style="padding:8px 0;">'
         + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">' + m.text + '</div>'
         + '<div style="font-size:10px;color:var(--color-text-light);margin-top:8px;">' + m.time + '</div>'
-        + '</div>', [{ text: '关闭', action: function() { closeModal(); render(); } }]);
+        + '</div>', btns);
 }
 
 // V1.7: Phone Call APP (电话APP)
@@ -3510,7 +3514,9 @@ function getIcon(name) {
         'kpopwiki': '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
         'company': '<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="9" y1="6" x2="9.01" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="15" y1="6" x2="15.01" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="9" y1="10" x2="9.01" y2="10" stroke="currentColor" stroke-width="1.5"></line><line x1="15" y1="10" x2="15.01" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M9 18h6v4H9z" fill="currentColor" opacity="0.3"></path></svg>',
         'songprod': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9 9l7 3-7 3V9z" fill="currentColor" opacity="0.5"></path><line x1="12" y1="5" x2="12" y2="7" stroke="currentColor" stroke-width="1.5"></line><line x1="12" y1="17" x2="12" y2="19" stroke="currentColor" stroke-width="1.5"></line></svg>',
-        'mvshoot': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle><circle cx="18" cy="5" r="1" fill="currentColor" opacity="0.5"></circle></svg>'
+        'mvshoot': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle><circle cx="18" cy="5" r="1" fill="currentColor" opacity="0.5"></circle></svg>',
+        'phone': '<svg viewBox="0 0 24 24"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>',
+        'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
     };
     return icons[name] || '';
 }
@@ -4283,6 +4289,11 @@ function render恋爱Page(container) {
     if (!gameState.loveChats) gameState.loveChats = {};
     if (!gameState.loveUnread) gameState.loveUnread = {};
     var sameCompanyNPCs = getSameCompanyNPCs();
+    if (sameCompanyNPCs.length === 0 && (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0)) {
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">数据加载中...</div></div></div>';
+        setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800);
+        return;
+    }
     var view = window._loveView || 'list';
     if (view === 'chat' && window._loveChatTarget) {
         _renderLoveChatView(container, window._loveChatTarget, sameCompanyNPCs);
@@ -9260,9 +9271,67 @@ function renderFanClubPage(container) {
             + '<div style="font-size:11px;color:var(--color-text-light);">' + p.desc + '</div></div>'
             + '<button class="btn btn-sm" style="font-size:11px;" data-i="' + i + '" onclick="launchFanProject(this.dataset.i)">启动 (' + (p.cost / 10000) + '万)</button></div>';
     }
-    html += '</div></div></div>';
+    html += '</div>';
+    // V1.7: 粉丝名 & 应援色
+    var currentFanName = (fc.fanName || '');
+    var currentCheerColor = (fc.cheerColor || fc.color || '#FF8FA3');
+    var cheerColors = ['#FF8FA3','#FF6B6B','#FF9500','#FFCC02','#4CD964','#5AC8FA','#007AFF','#5856D6','#AF52DE','#FF2D55'];
+    html += '<div class="card"><div style="font-weight:600;margin-bottom:12px;">粉丝名 & 应援色</div>';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+    html += '<div style="font-size:13px;color:var(--color-text-light);white-space:nowrap;">粉丝名</div>';
+    html += '<input id="fanNameInput" type="text" value="' + currentFanName + '" placeholder="给粉丝起名" maxlength="10" style="flex:1;border:1px solid var(--color-border);border-radius:8px;padding:6px 10px;font-size:13px;outline:none;background:var(--bg-main);">';
+    html += '<button class="btn btn-sm btn-primary" onclick="_setFanName()">确定</button>';
+    html += '</div>';
+    html += '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:8px;">应援色</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+    for (var ci = 0; ci < cheerColors.length; ci++) {
+        var sel = cheerColors[ci] === currentCheerColor ? 'box-shadow:0 0 0 2px white,0 0 0 4px ' + cheerColors[ci] + ';' : '';
+        html += '<div style="width:28px;height:28px;border-radius:50%;background:' + cheerColors[ci] + ';cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + sel + '" onclick="_setCheerColor(\'' + cheerColors[ci] + '\')"></div>';
+    }
+    html += '</div>';
+    // V1.7: 应援扩展
+    html += '<div style="font-weight:600;margin:16px 0 12px;">应援扩展</div>';
+    var extProjects = [
+        { name: '应援巴士广告', cost: 80000, fansGain: 2000, desc: '在首尔公交投放广告' },
+        { name: 'LED屏应援', cost: 150000, fansGain: 5000, desc: '江南区LED大屏播放应援视频' },
+        { name: '咖啡厅快闪', cost: 60000, fansGain: 1500, desc: '主题咖啡厅限时应援活动' },
+        { name: '线上直播应援', cost: 30000, fansGain: 800, desc: '粉丝在线观看打歌直播' }
+    ];
+    for (var ei = 0; ei < extProjects.length; ei++) {
+        var ep = extProjects[ei];
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-border);">';
+        html += '<div><div style="font-weight:600;font-size:14px;">' + ep.name + '</div>';
+        html += '<div style="font-size:11px;color:var(--color-text-light);">' + ep.desc + '</div></div>';
+        html += '<button class="btn btn-sm" style="font-size:11px;" onclick="launchExtProject(' + ei + ')">启动 (' + (ep.cost / 10000) + '万)</button></div>';
+    }
+    html += '</div></div>';
     html += getAppLinkHtml('fanclub');
     container.innerHTML = html;
+}
+
+function launchExtProject(idx) {
+    var extProjects = [
+        { name: '应援巴士广告', cost: 80000, fansGain: 2000 },
+        { name: 'LED屏应援', cost: 150000, fansGain: 5000 },
+        { name: '咖啡厅快闪', cost: 60000, fansGain: 1500 },
+        { name: '线上直播应援', cost: 30000, fansGain: 800 }
+    ];
+    var p = extProjects[idx];
+    if (!p) return;
+    if (gameState.money < p.cost) { showToast('金币不足'); return; }
+    gameState.money -= p.cost;
+    gameState.fans += p.fansGain;
+    gameState.fame = (gameState.fame || 30) + 8;
+    gameState.fanClub.funds += Math.floor(p.cost * 0.2);
+    if (gameState.fans >= gameState.fanClub.level * 10000) {
+        gameState.fanClub.level = Math.min(6, gameState.fanClub.level + 1);
+        showToast('后援会升级! Lv.' + gameState.fanClub.level);
+    } else {
+        showToast(p.name + '启动成功! +' + p.fansGain + '粉丝');
+    }
+    notifySystem('后援会', p.name + '已启动!');
+    triggerSilentSave();
+    render();
 }
 
 function launchFanProject(idx) {
@@ -10144,7 +10213,7 @@ function renderCompanyDetailPage(container) {
         return;
     }
     var company = COMPANIES[companyKey];
-    if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content"><div class="card">公司数据加载中</div></div></div>'; return; }
+if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div></div>'; setTimeout(function() { if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; render(); } }, 800); return; }
     
     var companyColors = {
         'SN Entertainment': '#FF6B6B',
@@ -11476,7 +11545,7 @@ function renderKakaoChatPage(container) {
         var msg = chats[j];
         var isMe = msg.from === 'me';
         chatHtml += '<div class="kakao-msg-row ' + (isMe ? 'me' : 'npc') + '">'
-            + '<div>'
+            + '<div style="max-width:75%;">'
             + '<div class="kakao-msg-bubble ' + (isMe ? 'me' : 'npc') + '">' + msg.text + '</div>'
             + '<div class="kakao-msg-time">' + msg.time + '</div>'
             + '</div></div>';
