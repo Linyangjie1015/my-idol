@@ -1417,36 +1417,17 @@ window.addEventListener('error', function(e) {
     .kakao-avatar.clickable:active { transform: scale(0.92); }
 </style>
 <script>
-window.__syntaxErrorHealed = false;
+// Only log SyntaxErrors, don't block the page
 window.addEventListener('error', function(e) {
     var msg = e.message || '';
+    var file = e.filename || '';
     if (msg.indexOf('Unexpected EOF') !== -1 || msg.indexOf('SyntaxError') !== -1) {
-        console.warn('Detected JS parse error:', msg, 'line:', e.lineno);
-        if (!window.__syntaxErrorHealed) {
-            window.__syntaxErrorHealed = true;
-            // Clear only SW/caches, preserve localStorage (invite verification)
-            try { sessionStorage.clear(); } catch(ex) {}
-            try {
-                if (typeof caches !== 'undefined') {
-                    caches.keys().then(function(names) {
-                        for (var i = 0; i < names.length; i++) caches.delete(names[i]);
-                    });
-                }
-            } catch(ex) {}
-            try {
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistrations().then(function(regs) {
-                        for (var i = 0; i < regs.length; i++) regs[i].unregister();
-                    });
-                }
-            } catch(ex) {}
-            // Show user what happened
-            setTimeout(function() {
-                var ls = document.getElementById('loadingScreen');
-                if (ls) ls.style.display = 'none';
-                var _app = document.getElementById('app');
-                if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">检测到缓存问题</div><div style="font-size:12px;margin-top:8px;color:#666">已自动清理缓存，点击下方按钮重新加载</div><div style="font-size:11px;margin-top:4px;color:#999">如果反复出现：设置 > Safari > 清除历史记录与网站数据</div><button onclick="location.replace(location.origin+location.pathname+\'?_heal=\'+Date.now())" style="margin-top:16px;padding:10px 24px;background:#FF8FA3;color:white;border:none;border-radius:20px;font-size:14px">重新加载</button></div>';
-            }, 500);
+        console.warn('JS parse error:', msg, 'file:', file, 'line:', e.lineno);
+        // Only show debug overlay if it's from our own files
+        if (file.indexOf('myidol') !== -1 || file.indexOf('game.js') !== -1 || file.indexOf('v1.6') !== -1) {
+            if (typeof _showDebugError === 'function') {
+                _showDebugError('JS语法错误', 'Line ' + (e.lineno||'?') + ': ' + (msg||'').substring(0,80) + '\nFile: ' + (file||'').substring(0,60));
+            }
         }
     }
 }, true);
