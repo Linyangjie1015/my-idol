@@ -631,11 +631,15 @@ window.addEventListener('error', function(e) {
     .app-icon-wrap svg {
         width: 26px;
         height: 26px;
-        stroke: #FF8FA3;
+        stroke: #FF8FA3 !important;
         fill: none;
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;
+        color: #FF8FA3;
+    }
+    .app-icon-wrap svg [fill="currentColor"] {
+        fill: #FF8FA3 !important;
     }
     .app-icon-wrap svg.kakao-icon {
         stroke: none;
@@ -645,7 +649,8 @@ window.addEventListener('error', function(e) {
         background: linear-gradient(135deg, #F0F0F0, #E0E0E0);
         box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .app-icon-wrap.locked svg { stroke: #BBB; }
+    .app-icon-wrap.locked svg { stroke: #BBB !important; color: #BBB; }
+    .app-icon-wrap.locked svg [fill="currentColor"] { fill: #BBB !important; }
     .app-lock {
         position: absolute;
         bottom: -2px;
@@ -1431,7 +1436,7 @@ window.addEventListener('error', function(e) {
 </div>
 <div id="inviteGate">
 <div class="gate-logo">M</div>
-<div class="gate-title">My Idol V1.6</div>
+<div class="gate-title">My Idol V1.7</div>
 <div class="gate-desc">内测专用，请输入邀请码进入</div>
 <div class="gate-card">
 <input class="gate-input" id="gateCodeInput" type="text" placeholder="请输入邀请码" maxlength="20" />
@@ -1546,7 +1551,7 @@ function __loadScript(src, cb) {
             __diag('Retry #' + __loadRetries + '...');
             __updateLoad('Retrying... (' + __loadRetries + ')');
             setTimeout(function() {
-                __loadScript('game.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+                __loadScript('game.js?v=1.7.15&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
             }, 2000);
         } else {
             __diag('All retries failed');
@@ -1559,8 +1564,23 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('game.js?v=1.7.14&_bust=' + Date.now(), function() {
+__loadScript('game.js?v=1.7.15&_bust=' + Date.now(), function() {
     // Integrity check: verify critical functions exist
+    // Also verify game.js file size to detect truncation
+    try {
+        var _xhr = new XMLHttpRequest();
+        _xhr.open('HEAD', 'game.js?v=1.7.15&_check=' + Date.now(), true);
+        _xhr.onreadystatechange = function() {
+            if (_xhr.readyState === 4) {
+                var _sz = _xhr.getResponseHeader('content-length');
+                __diag('game.js size: ' + (_sz || 'unknown') + ' bytes');
+                if (_sz && parseInt(_sz) < 800000) {
+                    __diag('WARNING: game.js may be truncated (' + _sz + ' < 800000)');
+                }
+            }
+        };
+        _xhr.send();
+    } catch(e) {}
     if (typeof render !== 'function' || typeof render恋爱Page !== 'function') {
         __diag('CRITICAL: Missing functions after JS load - possible truncated file');
         if (!sessionStorage.getItem('__myidol_integrity')) {
@@ -1581,7 +1601,7 @@ __loadScript('game.js?v=1.7.14&_bust=' + Date.now(), function() {
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.14&_b=2" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.15&_b=3" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1654,14 +1674,16 @@ function closeNpcCard() {
 </script>
 
 <script>
-// Register SW but with versioned URL to force update
+// Unregister all service workers to prevent caching issues
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js?v=1.7.14").then(function(reg) {
-        __diag("SW registered: " + reg.scope);
-        if (reg.waiting) __diag("SW waiting to activate");
-        if (reg.installing) __diag("SW installing...");
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+        for (var i = 0; i < regs.length; i++) {
+            regs[i].unregister();
+            __diag("SW unregistered: " + regs[i].scope);
+        }
+        if (regs.length === 0) __diag("No SW to unregister");
     }).catch(function(err) {
-        __diag("SW failed: " + err.message);
+        __diag("SW unregister error: " + err.message);
     });
 }
 </script>
@@ -1691,7 +1713,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'game.js?v=1.7.14&_final=' + Date.now();
+                _ns.src = 'game.js?v=1.7.15&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
