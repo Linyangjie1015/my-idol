@@ -4591,7 +4591,7 @@ function _renderLoveListView(container, npcs) {
             var c = chatList[li];
             var unreadBadge = c.unread > 0 ? '<div style="min-width:16px;height:16px;border-radius:8px;background:var(--color-primary);color:white;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;">' + c.unread + '</div>' : '';
             var datingTag = c.isDating ? '<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:var(--color-primary);color:white;margin-left:4px;">恋人</span>' : '';
-            bodyHtml += '<div class="card" style="cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:10px;" onclick="openLoveChat(\'' + c.name.replace(/'/g, "\\'") + '\')">'
+            bodyHtml += '<div class="card" style="cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:10px;" onclick="openLoveChat(&#39;' + c.name + '&#39;)">'
                 + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + c.name.charAt(0) + '</div>'
                 + '<div style="flex:1;overflow:hidden;">'
                 + '<div style="display:flex;align-items:center;justify-content:space-between;">'
@@ -4614,7 +4614,7 @@ function _renderLoveListView(container, npcs) {
         if (gameState.dating) {
             var p好感 = gameState.npc好感度[gameState.dating] || 0;
             var pStatus = getLoveStatus(p好感);
-            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(\'' + gameState.dating.replace(/'/g, "\\\\'") + '\')"'
+            bodyHtml += '<div class="card" style="background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(&#39;' + gameState.dating + '&#39;)"'
                 + '<div style="display:flex;align-items:center;gap:12px;">'
                 + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
@@ -4629,7 +4629,7 @@ function _renderLoveListView(container, npcs) {
             var 好感 = gameState.npc好感度[npc.name] || 0;
             var npcStatus = getLoveStatus(好感);
             var canDate = 好感 >= 60;
-            bodyHtml += '<div class="card" style="display:flex;align-items:center;gap:10px;">'
+            bodyHtml += '<div class="card" style="display:flex;align-items:center;gap:10px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(&#39;' + npc.name + '&#39;)"'
                 + '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,' + npcStatus.color + ',' + npcStatus.color + '33);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">' + npc.name.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
                 + '<div style="display:flex;align-items:center;gap:4px;"><span style="font-weight:600;font-size:13px;">' + npc.name + '</span><span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + npcStatus.color + '22;color:' + npcStatus.color + ';font-weight:600;">' + npcStatus.label + '</span></div>'
@@ -4639,8 +4639,8 @@ function _renderLoveListView(container, npcs) {
                 + '<span style="font-size:10px;font-weight:600;color:' + (canDate ? npcStatus.color : 'var(--color-text-light)') + ';">' + 好感 + '</span>'
                 + '</div></div>'
                 + '<div style="display:flex;flex-direction:column;gap:4px;">'
-                + '<button class="btn btn-sm btn-secondary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(&#39;" + npc.name + "&#39;)">聊天</button>'
-                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:10px;padding:4px 8px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(&#39;" + npc.name + "&#39;)">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
+                + '<button class="btn btn-sm btn-secondary" style="font-size:11px;padding:6px 10px;min-height:32px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(&#39;" + npc.name + "&#39;)">聊天</button>'
+                + (canDate ? '<button class="btn btn-sm btn-primary" style="font-size:11px;padding:6px 10px;min-height:32px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="npcDate(&#39;" + npc.name + "&#39;)">在一起</button>' : '<div style="font-size:9px;color:var(--color-text-light);text-align:center;">好感60</div>')
                 + '</div></div>';
         }
     }
@@ -4672,12 +4672,10 @@ function openLoveChat(name) {
     render();
     } catch(e) {
         console.error('openLoveChat error:', e);
-        console.error('openLoveChat error:', e);
+        showToast('聊天打开失败: ' + (e.message || '').substring(0,30));
         window._loveView = 'list';
         window._loveChatTarget = '';
-        currentPage = 'home';
         render();
-        renderBottomNav();
     }
 }
 
