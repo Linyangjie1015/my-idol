@@ -12988,7 +12988,7 @@ function _showDebugError(title, detail) {
     overlay.style.cssText = 'position:fixed;bottom:60px;left:10px;right:10px;background:#1a1a2e;color:#fff;padding:12px;border-radius:12px;font-size:11px;z-index:99999;line-height:1.5;max-height:150px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
     overlay.innerHTML = '<div style="font-weight:700;color:#FF6B8A;margin-bottom:4px;">' + title + '</div><div style="color:#ccc;word-break:break-all;">' + detail + '</div><div style="margin-top:6px;text-align:right;"><button onclick="document.getElementById(\'__debugOverlay\').remove()" style="background:#FF6B8A;color:white;border:none;padding:4px 12px;border-radius:8px;font-size:11px;">关闭</button></div>';
     document.body.appendChild(overlay);
-    setTimeout(function() { if (document.getElementById('__debugOverlay')) document.getElementById('__debugOverlay').remove(); }, 15000);
+    setTimeout(function() { if (document.getElementById('__debugOverlay')) document.getElementById('__debugOverlay').remove(); }, 5000);
 }
 
 // ==================== INIT ====================
