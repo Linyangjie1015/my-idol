@@ -4554,7 +4554,7 @@ function render恋爱Page(container) {
         _renderLoveListView(container, sameCompanyNPCs);
     }
     } catch(e) {
-        console.error('Love app render error:', e);
+        console.error('Love app render error:', e); if(typeof _showDebugError==='function') _showDebugError('恋爱APP错误', e.message + '\n' + (e.stack||'').substring(0,200));
         container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(&#39;home&#39;)">‹ 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-primary);font-size:15px;font-weight:600;">加载遇到问题</div><div style="color:var(--color-text-light);font-size:12px;margin-top:8px;">点击返回首页</div><button onclick="currentPage=&#39;home&#39;;window._loveView=&#39;list&#39;;window._loveChatTarget=&#39;&#39;;render();renderBottomNav()" style="margin-top:16px;padding:10px 24px;background:var(--color-primary);color:white;border:none;border-radius:20px;font-size:14px;">返回首页</button></div></div>';
     }
 }
@@ -4663,12 +4663,22 @@ function _renderLoveListView(container, npcs) {
 }
 
 function openLoveChat(name) {
+    try {
     window._loveView = 'chat';
     window._loveChatTarget = name;
     if (!gameState.loveChats) gameState.loveChats = {};
     if (!gameState.loveChats[name]) gameState.loveChats[name] = [];
     if (gameState.loveUnread) gameState.loveUnread[name] = 0;
     render();
+    } catch(e) {
+        console.error('openLoveChat error:', e);
+        showToast('打开聊天失败: ' + (e.message || '').substring(0, 50));
+        window._loveView = 'list';
+        window._loveChatTarget = '';
+        currentPage = 'home';
+        render();
+        renderBottomNav();
+    }
 }
 
 function _renderLoveChatView(container, targetName, npcs) {
@@ -4725,7 +4735,7 @@ function _renderLoveChatView(container, targetName, npcs) {
     var msgEl = document.getElementById('loveChatMsgs');
     if (msgEl) msgEl.scrollTop = msgEl.scrollHeight;
     } catch(e) {
-        console.error('Love chat render error:', e);
+        console.error('Love chat render error:', e); if(typeof _showDebugError==='function') _showDebugError('恋爱聊天错误', e.message + '\n' + (e.stack||'').substring(0,200));
         container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;">&#8249; 返回</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);font-size:13px;">聊天加载失败</div><div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">' + (e.message || '') + '</div></div></div>';
     }
 }
@@ -12968,10 +12978,23 @@ document.addEventListener('visibilitychange', function() {
     }
 });
 
+
+// Debug: show error overlay
+function _showDebugError(title, detail) {
+    var existing = document.getElementById('__debugOverlay');
+    if (existing) existing.remove();
+    var overlay = document.createElement('div');
+    overlay.id = '__debugOverlay';
+    overlay.style.cssText = 'position:fixed;bottom:60px;left:10px;right:10px;background:#1a1a2e;color:#fff;padding:12px;border-radius:12px;font-size:11px;z-index:99999;line-height:1.5;max-height:150px;overflow-y:auto;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+    overlay.innerHTML = '<div style="font-weight:700;color:#FF6B8A;margin-bottom:4px;">' + title + '</div><div style="color:#ccc;word-break:break-all;">' + detail + '</div><div style="margin-top:6px;text-align:right;"><button onclick="document.getElementById(\'__debugOverlay\').remove()" style="background:#FF6B8A;color:white;border:none;padding:4px 12px;border-radius:8px;font-size:11px;">关闭</button></div>';
+    document.body.appendChild(overlay);
+    setTimeout(function() { if (document.getElementById('__debugOverlay')) document.getElementById('__debugOverlay').remove(); }, 15000);
+}
+
 // ==================== INIT ====================
 // ==================== GLOBAL ERROR HANDLER ====================
 window.onerror = function(msg, url, line) {
-    console.error('Global error:', msg, line);
+    console.error('Global error:', msg, line); if(typeof _showDebugError==='function') _showDebugError('全局错误 Line ' + line, String(msg || '').substring(0, 100));
     if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
         try {
             currentPage = 'home';
@@ -13699,7 +13722,7 @@ window.onerror = function(msg, url, line) {
                     window._loveView = 'list';
                     window._loveChatTarget = '';
                     if (typeof render === 'function') { render(); renderBottomNav(); }
-                    showToast('出了点问题，已返回首页');
+                    showToast('出了点问题: ' + (msg || '').substring(0, 40));
                     return true;
                 } catch(e) {}
             }
