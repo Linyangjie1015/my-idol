@@ -12,6 +12,9 @@ window.addEventListener('error', function(e) {
 }, true);
 </script>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>My Idol</title>
     <link rel="manifest" href="manifest.json">
@@ -1413,6 +1416,19 @@ window.addEventListener('error', function(e) {
     .kakao-avatar.clickable { cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .kakao-avatar.clickable:active { transform: scale(0.92); }
 </style>
+<script>
+window.addEventListener('error', function(e) {
+    if (e.message && e.message.indexOf('Unexpected EOF') !== -1) {
+        console.warn('Detected cached truncated JS, forcing hard reload...');
+        if (!sessionStorage.getItem('__myidol_healed')) {
+            sessionStorage.setItem('__myidol_healed', '1');
+            location.href = location.pathname + '?_heal=' + Date.now();
+        } else {
+            sessionStorage.removeItem('__myidol_healed');
+        }
+    }
+}, true);
+</script>
 </head>
 <body><div id="npcCardOverlay" class="npc-card-overlay" onclick="if(event.target===this)closeNpcCard()">
   <div class="npc-card" id="npcCardContent"></div>
@@ -1543,12 +1559,12 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.10&_bust=' + Date.now(), function() {
+__loadScript('v1.6.js?v=1.7.11&_bust=' + Date.now(), function() {
     __updateLoad('Loading data...');
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.10" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.11" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1623,7 +1639,7 @@ function closeNpcCard() {
 <script>
 // Register SW but with versioned URL to force update
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js?v=1.7.10").then(function(reg) {
+    navigator.serviceWorker.register("/sw.js?v=1.7.11").then(function(reg) {
         __diag("SW registered: " + reg.scope);
         if (reg.waiting) __diag("SW waiting to activate");
         if (reg.installing) __diag("SW installing...");
@@ -1658,7 +1674,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.10&_final=' + Date.now();
+                _ns.src = 'v1.6.js?v=1.7.11&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
