@@ -1424,8 +1424,7 @@ window.addEventListener('error', function(e) {
         console.warn('Detected JS parse error:', msg, 'line:', e.lineno);
         if (!window.__syntaxErrorHealed) {
             window.__syntaxErrorHealed = true;
-            // Nuclear cache clear
-            try { localStorage.clear(); } catch(ex) {}
+            // Clear only SW/caches, preserve localStorage (invite verification)
             try { sessionStorage.clear(); } catch(ex) {}
             try {
                 if (typeof caches !== 'undefined') {
@@ -1552,32 +1551,82 @@ try {
 }
 
 function __loadScript(src, cb) {
-    __diag('Loading: ' + src.substring(0, 50));
-    var s = document.createElement('script');
-    s.src = src;
-    s.onload = function() {
-        __jsLoaded = true;
-        __diag('JS loaded OK (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
-        if (cb) cb();
-    };
-    s.onerror = function(e) {
-        __jsLoadFailed = true;
-        __jsLoadError = src;
-        __diag('JS LOAD FAILED: ' + src.substring(0, 50));
-        if (__loadRetries < 2) {
-            __loadRetries++;
-            __diag('Retry #' + __loadRetries + '...');
-            __updateLoad('Retrying... (' + __loadRetries + ')');
-            setTimeout(function() {
-                __loadScript(src.split('&_r=')[0] + '&_r=' + __loadRetries, cb);
-            }, 2000);
+    __diag('XHR loading: ' + src.substring(0, 50));
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', src, true);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var code = xhr.responseText;
+            __diag('XHR received: ' + code.length + ' chars');
+            // Verify file is complete: must end with closing structure
+            var last200 = code.substring(code.length - 200);
+            if (code.length < 800000 || last200.indexOf('getCheckInInfo') === -1) {
+                __diag('TRUNCATED! Expected 870K+ chars, got ' + code.length);
+                if (__loadRetries < 3) {
+                    __loadRetries++;
+                    __diag('Retry #' + __loadRetries + ' with new bust...');
+                    __updateLoad('文件不完整，重试中... (' + __loadRetries + ')');
+                    setTimeout(function() {
+                        __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+                    }, 1500);
+                } else {
+                    __diag('All retries failed - file keeps getting truncated');
+                    __updateLoad('加载失败');
+                    _showLoadError();
+                }
+                return;
+            }
+            try {
+                // Verify syntax before eval
+                var testFn = new Function(code);
+                __diag('Syntax check passed');
+            } catch(e) {
+                __diag('SYNTAX ERROR in fetched code: ' + e.message);
+                if (__loadRetries < 3) {
+                    __loadRetries++;
+                    __diag('Retry #' + __loadRetries + '...');
+                    __updateLoad('语法错误，重试中... (' + __loadRetries + ')');
+                    setTimeout(function() {
+                        __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+                    }, 1500);
+                } else {
+                    __diag('Syntax keeps failing');
+                    __updateLoad('加载失败');
+                    _showLoadError();
+                }
+                return;
+            }
+            // All good - execute the code
+            var s = document.createElement('script');
+            s.textContent = code;
+            document.head.appendChild(s);
+            __jsLoaded = true;
+            __diag('JS executed OK (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
+            if (cb) cb();
         } else {
-            __diag('All retries failed');
-            __updateLoad('Load failed');
+            __diag('XHR HTTP error: ' + xhr.status);
+            if (__loadRetries < 3) {
+                __loadRetries++;
+                setTimeout(function() {
+                    __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+                }, 1500);
+            } else {
+                _showLoadError();
+            }
+        }
+    };
+    xhr.onerror = function() {
+        __diag('XHR network error');
+        if (__loadRetries < 3) {
+            __loadRetries++;
+            setTimeout(function() {
+                __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+            }, 1500);
+        } else {
             _showLoadError();
         }
     };
-    document.head.appendChild(s);
+    xhr.send();
 }
 
 // Start loading v1.6.js
@@ -1604,7 +1653,7 @@ __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now(), function() {
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.14" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.14&_b=2" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
