@@ -399,6 +399,9 @@ function render() {
             case 'gacha':
                 renderGachaPage(app);
                 break;
+            case 'wardrobe':
+                renderWardrobePage(app);
+                break;
             case 'vip':
                 renderVipPage(app);
                 break;
@@ -1109,6 +1112,7 @@ function renderHomePage(container) {
         { id: 'updates', icon: 'updates', name: '更新通知', unlock: 0 },
         { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 },
         { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
+        { id: 'wardrobe', icon: 'wardrobe', name: '换装', unlock: 0 },
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
         { id: 'comeback', icon: 'comeback', name: '回归计划', unlock: 0 },
@@ -1157,7 +1161,7 @@ function renderHomePage(container) {
                     var homePageNum = gameState.homePageNum || 1;
                     var categories = [
                         { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
-                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'vip'], page: 1 },
+                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'wardrobe', 'vip'], page: 1 },
                         { title: '社交', ids: ['ins', 'tiktok', 'phone', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
                         { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
                     ];
@@ -2887,6 +2891,91 @@ function buyAndEquipOutfit(itemId) {
     equipOutfit(itemId);
 }
 
+function renderWardrobePage(container) {
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">换装</div><div style="width:32px;"></div></div><div class="page-content">';
+    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#C8A2C8);color:white;padding:16px;">';
+    html += '<div style="font-size:28px;font-weight:700;">' + (gameState.equippedOutfit ? _getOutfitIcon() : '?') + '</div>';
+    html += '<div style="font-size:15px;font-weight:600;margin-top:4px;">' + (_getOutfitName() || '未穿着') + '</div>';
+    html += '<div style="font-size:12px;opacity:0.8;margin-top:2px;">颜值 +' + (gameState.equippedOutfit ? (function(){ for(var i=0;i<WARDROBE_ITEMS.length;i++){if(WARDROBE_ITEMS[i].id===gameState.equippedOutfit)return WARDROBE_ITEMS[i].looksVal;} return 0; })() : 0) + '</div>';
+    html += '</div>';
+    html += '<div style="font-size:12px;color:var(--color-text-light);margin:12px 0 8px 4px;">选择穿搭，提升颜值</div>';
+    var current = gameState.equippedOutfit;
+    for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
+        var item = WARDROBE_ITEMS[i];
+        var owned = gameState.ownedClothes && gameState.ownedClothes.indexOf(item.id) > -1;
+        var equipped = current === item.id;
+        var canAfford = gameState.money >= item.price;
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;border-radius:10px;' + (equipped ? 'background:var(--color-secondary);border:2px solid var(--color-primary);' : 'background:var(--bg-card);border:1px solid var(--color-border);') + '">';
+        html += '<div style="width:40px;height:40px;border-radius:50%;background:' + item.color + ';display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + item.icon + '</div>';
+        html += '<div style="flex:1;">';
+        html += '<div style="font-weight:600;font-size:13px;color:var(--color-text);">' + item.name + (equipped ? ' <span style="font-size:10px;color:var(--color-primary);">(穿着中)</span>' : '') + '</div>';
+        html += '<div style="font-size:11px;color:var(--color-text-light);">' + item.desc + ' | +' + item.looksVal + '颜值' + (item.loveVal ? ' +' + item.loveVal + '好感' : '') + '</div>';
+        html += '</div>';
+        if (equipped) {
+            html += '<button onclick="unequipOutfitFromPage()" style="padding:6px 14px;border-radius:14px;border:1px solid var(--color-border);background:var(--bg-card);font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">脱下</button>';
+        } else if (owned) {
+            html += '<button onclick="equipOutfitFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius:14px;border:none;background:var(--color-primary);color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">穿上</button>';
+        } else {
+            html += '<button onclick="buyAndEquipFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius:14px;border:none;background:' + (canAfford ? 'var(--color-primary)' : '#CCC') + ';color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + item.price.toLocaleString() + '</button>';
+        }
+        html += '</div>';
+    }
+    html += '</div></div>';
+    html += getAppLinkHtml('wardrobe');
+    container.innerHTML = html;
+}
+
+function equipOutfitFromPage(itemId) {
+    if (!gameState.ownedClothes || gameState.ownedClothes.indexOf(itemId) === -1) return;
+    if (gameState.equippedOutfit) {
+        var prev = null;
+        for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
+            if (WARDROBE_ITEMS[i].id === gameState.equippedOutfit) { prev = WARDROBE_ITEMS[i]; break; }
+        }
+        if (prev) { gameState.looks = Math.max(0, (gameState.looks || 0) - prev.looksVal); }
+    }
+    gameState.equippedOutfit = itemId;
+    var item = null;
+    for (var j = 0; j < WARDROBE_ITEMS.length; j++) {
+        if (WARDROBE_ITEMS[j].id === itemId) { item = WARDROBE_ITEMS[j]; break; }
+    }
+    if (item) {
+        gameState.looks = (gameState.looks || 0) + item.looksVal;
+        showToast('换上了 ' + item.name + ' +' + item.looksVal + '颜值');
+    }
+    render();
+}
+
+function unequipOutfitFromPage() {
+    if (!gameState.equippedOutfit) return;
+    var prev = null;
+    for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
+        if (WARDROBE_ITEMS[i].id === gameState.equippedOutfit) { prev = WARDROBE_ITEMS[i]; break; }
+    }
+    if (prev) { gameState.looks = Math.max(0, (gameState.looks || 0) - prev.looksVal); }
+    gameState.equippedOutfit = null;
+    showToast('已脱下 ' + prev.name);
+    render();
+}
+
+function buyAndEquipFromPage(itemId) {
+    var item = null;
+    for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
+        if (WARDROBE_ITEMS[i].id === itemId) { item = WARDROBE_ITEMS[i]; break; }
+    }
+    if (!item) return;
+    if (gameState.money < item.price) {
+        showToast('金币不足');
+        return;
+    }
+    gameState.money -= item.price;
+    if (!gameState.ownedClothes) gameState.ownedClothes = [];
+    if (gameState.ownedClothes.indexOf(itemId) === -1) {
+        gameState.ownedClothes.push(itemId);
+    }
+    equipOutfitFromPage(itemId);
+}
+
 // V1.7: Time-of-Day System (时间变化效果)
 function _getTimeOfDay() {
     var hour = new Date().getHours();
@@ -3673,6 +3762,7 @@ function getIcon(name) {
         'mvshoot': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle><circle cx="18" cy="5" r="1" fill="currentColor" opacity="0.5"></circle></svg>',
         'phone': '<svg viewBox="0 0 24 24"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>',
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
+        'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
     };
     return icons[name] || '';
 }
@@ -4610,7 +4700,7 @@ function _renderLoveChatView(container, targetName, npcs) {
         + '<div class="page-header" style="flex-shrink:0;">'
         + '<div class="back-btn" onclick="closeLoveChat()" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">‹ 返回</div>'
         + '<div class="page-title"><div style="font-weight:600;font-size:15px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="showNpcCard(\''+targetName.replace(/'/g,"\\'")+'\')">' + targetName + '</div>' + headerSub + '</div>'
-        + '<div onclick="showWardrobe()" style="width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" title="换装">' + (gameState.equippedOutfit ? _getOutfitIcon() : "W") + '</div>'
+        + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div id="loveChatMsgs" style="flex:1;overflow-y:auto;padding:12px;-webkit-overflow-scrolling:touch;">' + bubbles + '</div>'
         + '<div id="loveChatBar" style="flex-shrink:0;padding:6px 10px;border-top:1px solid var(--color-border);background:var(--bg-card);display:flex;align-items:center;gap:6px;">'
@@ -11032,8 +11122,11 @@ function renderGachaPage(container) {
 
     if (allCards.length > 0) {
         var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
-        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:600;margin-bottom:10px;">我的收藏 (' + allCards.length + '/' + _countTotalGachaCards() + ')';
-        for (var i = 0; i < Math.min(allCards.length, 30); i++) {
+        var tierOrder = { S: 0, A: 1, B: 2, C: 3 };
+        allCards.sort(function(a, b) { return (tierOrder[a.cardTier || 'C'] || 3) - (tierOrder[b.cardTier || 'C'] || 3); });
+        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:600;margin-bottom:10px;">我的收藏 (' + allCards.length + '/' + _countTotalGachaCards() + ')</div>';
+        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        for (var i = 0; i < allCards.length; i++) {
             var c = allCards[i];
             var t = c.cardTier || 'C';
             var isHid = c.isHidden ? true : false;
@@ -11051,8 +11144,8 @@ function renderGachaPage(container) {
                 + '<div style="position:absolute;top:1px;left:2px;font-size:8px;font-weight:700;text-shadow:0 0 3px rgba(0,0,0,0.5);color:' + ({S:'#FFD700',A:'#4CD964',B:'#5BB8E8',C:'#999'}[t] || '#999') + ';">' + t + '</div>'
                 + '</div>';
         }
-        if (allCards.length > 30) html += '<div style="display:flex;align-items:center;font-size:12px;color:var(--color-text-light);padding:8px;">+' + (allCards.length - 30) + '</div>';
-        html += '</div></div>';
+
+        html += '</div></div></div>';
     }
 
     html += '</div></div>';
@@ -11748,7 +11841,7 @@ function renderKakaoChatPage(container) {
         + '<div class="page-title" style="display:flex;align-items:center;">'
         + npc.name + (npc.online ? ' <div class="kakao-online-dot" style="position:static;margin-left:8px;"></div>' : '') + '<span style="font-size:10px;color:var(--color-text-light);margin-left:8px;">AI ' + getAITotalUsageToday() + '/' + getAIMaxTotalToday() + '</span>'
         + '</div>'
-        + '<div onclick="showWardrobe()" style="width:32px;height:32px;border-radius:50%;background:var(--color-primary);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + (gameState.equippedOutfit ? _getOutfitIcon() : "W") + '</div>'
+        + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="kakao-chat-area" id="kakaoChatArea">' + chatHtml + '</div>'
         + '<div class="kakao-input-bar">'
@@ -12872,9 +12965,17 @@ document.addEventListener('visibilitychange', function() {
 // ==================== GLOBAL ERROR HANDLER ====================
 window.onerror = function(msg, url, line) {
     console.error('Global error:', msg, line);
+    if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
+        try {
+            currentPage = 'home';
+            if (typeof render === 'function') { render(); renderBottomNav(); }
+            showToast('出了点问题: ' + (msg || '').substring(0, 30));
+            return true;
+        } catch(e) {}
+    }
     try {
         var app = document.getElementById('app');
-        if (app) app.innerHTML = '<div style="padding:40px;text-align:center;"><div style="font-size:18px;color:#FF6B8A;margin-bottom:12px;">出了点问题</div><div style="font-size:12px;color:#8E8E93;margin-bottom:16px;">' + (msg || '') + '</div><button onclick="goToPage(\'home\')" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;font-size:14px;cursor:pointer;">返回首页</button></div>';
+        if (app) app.innerHTML = '<div style="padding:40px;text-align:center;"><div style="font-size:18px;color:#FF6B8A;margin-bottom:12px;">出了点问题</div><div style="font-size:12px;color:#8E8E93;margin-bottom:16px;">' + (msg || '').substring(0, 50) + '</div><button onclick="currentPage=\'home\';render();renderBottomNav();" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;font-size:14px;cursor:pointer;">返回首页</button></div>';
     } catch(e2) {}
     return true;
 };
