@@ -4672,7 +4672,7 @@ function openLoveChat(name) {
     render();
     } catch(e) {
         console.error('openLoveChat error:', e);
-        showToast('打开聊天失败: ' + (e.message || '').substring(0, 50));
+        alert('openLoveChat错误: ' + (e.message || 'unknown') + '\n' + (e.stack||'').substring(0,300));
         window._loveView = 'list';
         window._loveChatTarget = '';
         currentPage = 'home';
@@ -12989,7 +12989,7 @@ window.onerror = function(msg, url, line) {
         try {
             currentPage = 'home';
             if (typeof render === 'function') { render(); renderBottomNav(); }
-            showToast('正在恢复...');
+            showToast('错误: ' + (msg||'').substring(0,60) + ' L' + line);
             return true;
         } catch(e) {}
     }
@@ -13712,7 +13712,7 @@ window.onerror = function(msg, url, line) {
                     window._loveView = 'list';
                     window._loveChatTarget = '';
                     if (typeof render === 'function') { render(); renderBottomNav(); }
-                    showToast('正在恢复...');
+                    showToast('错误: ' + (msg||'').substring(0,60) + ' L' + line);
                     return true;
                 } catch(e) {}
             }
