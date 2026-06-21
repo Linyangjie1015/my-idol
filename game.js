@@ -12989,7 +12989,7 @@ window.onerror = function(msg, url, line) {
         try {
             currentPage = 'home';
             if (typeof render === 'function') { render(); renderBottomNav(); }
-            showToast('错误: ' + (msg||'').substring(0,60) + ' L' + line);
+            showToast('错误: ' + (msg||'').substring(0,40) + ' L' + line + ' ' + (url||'').substring(0,40));
             return true;
         } catch(e) {}
     }
@@ -13712,7 +13712,7 @@ window.onerror = function(msg, url, line) {
                     window._loveView = 'list';
                     window._loveChatTarget = '';
                     if (typeof render === 'function') { render(); renderBottomNav(); }
-                    showToast('错误: ' + (msg||'').substring(0,60) + ' L' + line);
+                    showToast('错误: ' + (msg||'').substring(0,40) + ' L' + line + ' ' + (url||'').substring(0,40));
                     return true;
                 } catch(e) {}
             }
