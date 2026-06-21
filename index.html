@@ -1535,11 +1535,34 @@ function __loadScript(src, cb) {
     s.src = src;
     s.onload = function() {
         __jsLoaded = true;
-        __diag('Script tag onload fired (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
+        __diag('Script loaded (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
         // Verify critical functions exist (detects truncated load)
         if (typeof render !== 'function') {
             __diag('WARNING: render() missing - file may be truncated');
         }
+        // Post-load integrity check: verify file size via fetch
+        try {
+            var _ck = new XMLHttpRequest();
+            _ck.open('HEAD', src.split('&_bust')[0].split('?')[0], true);
+            _ck.onreadystatechange = function() {
+                if (_ck.readyState === 4 && _ck.status === 200) {
+                    var _sz = parseInt(_ck.getResponseHeader('content-length') || '0');
+                    __diag('game.js CDN size: ' + _sz + ' bytes');
+                    // game.js should be > 800000 bytes
+                    if (_sz > 0 && _sz < 800000) {
+                        __diag('TRUNCATED! (' + _sz + ' < 800000) - forcing reload');
+                        if (__loadRetries < 3) {
+                            __loadRetries++;
+                            __updateLoad('Reloading... (' + __loadRetries + ')');
+                            setTimeout(function() {
+                                location.href = location.pathname + '?_rb=' + Date.now();
+                            }, 500);
+                        }
+                    }
+                }
+            };
+            _ck.send();
+        } catch(e) {}
         if (cb) cb();
     };
     s.onerror = function(e) {
@@ -1566,21 +1589,6 @@ function __loadScript(src, cb) {
 __updateLoad('Loading game...');
 __loadScript('game.js?v=1.7.15&_bust=' + Date.now(), function() {
     // Integrity check: verify critical functions exist
-    // Also verify game.js file size to detect truncation
-    try {
-        var _xhr = new XMLHttpRequest();
-        _xhr.open('HEAD', 'game.js?v=1.7.15&_check=' + Date.now(), true);
-        _xhr.onreadystatechange = function() {
-            if (_xhr.readyState === 4) {
-                var _sz = _xhr.getResponseHeader('content-length');
-                __diag('game.js size: ' + (_sz || 'unknown') + ' bytes');
-                if (_sz && parseInt(_sz) < 800000) {
-                    __diag('WARNING: game.js may be truncated (' + _sz + ' < 800000)');
-                }
-            }
-        };
-        _xhr.send();
-    } catch(e) {}
     if (typeof render !== 'function' || typeof render恋爱Page !== 'function') {
         __diag('CRITICAL: Missing functions after JS load - possible truncated file');
         if (!sessionStorage.getItem('__myidol_integrity')) {

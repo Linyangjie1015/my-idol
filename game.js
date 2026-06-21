@@ -4672,7 +4672,7 @@ function openLoveChat(name) {
     render();
     } catch(e) {
         console.error('openLoveChat error:', e);
-        alert('openLoveChat错误: ' + (e.message || 'unknown') + '\n' + (e.stack||'').substring(0,300));
+        console.error('openLoveChat error:', e);
         window._loveView = 'list';
         window._loveChatTarget = '';
         currentPage = 'home';
@@ -12983,22 +12983,7 @@ document.addEventListener('visibilitychange', function() {
 
 // ==================== INIT ====================
 // ==================== GLOBAL ERROR HANDLER ====================
-window.onerror = function(msg, url, line) {
-    console.error('Global error:', msg, line); // debug overlay disabled for global errors
-    if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
-        try {
-            currentPage = 'home';
-            if (typeof render === 'function') { render(); renderBottomNav(); }
-            showToast('错误: ' + (msg||'').substring(0,40) + ' L' + line + ' ' + (url||'').substring(0,40));
-            return true;
-        } catch(e) {}
-    }
-    try {
-        var app = document.getElementById('app');
-        if (app) app.innerHTML = '<div style="padding:40px;text-align:center;"><div style="font-size:18px;color:#FF6B8A;margin-bottom:12px;">出了点问题</div><div style="font-size:12px;color:#8E8E93;margin-bottom:16px;">' + (msg || '').substring(0, 50) + '</div><button onclick="currentPage=\'home\';render();renderBottomNav();" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;font-size:14px;cursor:pointer;">返回首页</button></div>';
-    } catch(e2) {}
-    return true;
-};
+// window.onerror is set below (near end of file) - this slot intentionally left empty
 
 // ==================== DEBUT PLAN APP ====================
 function render出道企划Page(container) {
@@ -13695,30 +13680,18 @@ goToPage = function(page) {
 };
 
 window.onerror = function(msg, url, line) {
-    console.error('Error:', msg, url, line);
-    // If SyntaxError from our JS file, try clearing caches and reloading
+    console.warn('Error:', msg, 'L' + line, url || '');
+    // SyntaxError / Unexpected EOF: just log, don't disrupt the page
+    // These often come from Safari partially caching large JS files
     if (msg && (msg.indexOf('SyntaxError') !== -1 || msg.indexOf('Unexpected EOF') !== -1)) {
-        var jsUrl = (url || '');
-        if (jsUrl.indexOf('v1.6.js') !== -1 || jsUrl.indexOf('game.js') !== -1 || jsUrl.indexOf('myidol') !== -1 || jsUrl === '') {
-            console.warn('JS parse error detected, recovering to home page');
-            // Clear SW caches silently (no page reload)
-            if (typeof caches !== 'undefined') {
-                caches.keys().then(function(ns) { for(var i=0;i<ns.length;i++) caches.delete(ns[i]); });
-            }
-            // Recover to home page instead of reloading
-            if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
-                try {
-                    currentPage = 'home';
-                    window._loveView = 'list';
-                    window._loveChatTarget = '';
-                    if (typeof render === 'function') { render(); renderBottomNav(); }
-                    showToast('错误: ' + (msg||'').substring(0,40) + ' L' + line + ' ' + (url||'').substring(0,40));
-                    return true;
-                } catch(e) {}
-            }
+        console.warn('JS parse error (non-blocking):', msg, url);
+        // Clear caches silently for next reload
+        if (typeof caches !== 'undefined') {
+            try { caches.keys().then(function(ns) { for(var i=0;i<ns.length;i++) caches.delete(ns[i]); }); } catch(e) {}
         }
+        return true; // suppress the error, don't navigate away
     }
-    // Try to recover instead of destroying the whole page
+    // For runtime errors, try to recover
     if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
         try {
             currentPage = 'home';
