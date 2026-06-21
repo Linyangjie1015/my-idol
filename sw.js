@@ -1,4 +1,4 @@
-var CACHE_NAME = 'my-idol-v1-7-18';
+var CACHE_NAME = 'my-idol-v1-7-19';
 var CACHE_URLS = [
   '/manifest.json',
   '/icon-192.png',
