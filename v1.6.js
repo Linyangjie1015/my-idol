@@ -4535,13 +4535,14 @@ function getGiftReaction(npcName, giftName) {
 }
 
 function render恋爱Page(container) {
+    try {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     if (!gameState.loveChats) gameState.loveChats = {};
     if (!gameState.loveUnread) gameState.loveUnread = {};
     if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0 && Object.keys(COMPANIES).length === 0) { COMPANIES = window.COMPANIES; }
     var sameCompanyNPCs = getSameCompanyNPCs();
     if (Object.keys(COMPANIES).length === 0 && (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0)) {
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">数据加载中...</div></div></div>';
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(&#39;home&#39;)">‹ 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">数据加载中...</div></div></div>';
         __waitForCOMPANIES(function() { render(); });
         return;
     }
@@ -4551,7 +4552,12 @@ function render恋爱Page(container) {
     } else {
         _renderLoveListView(container, sameCompanyNPCs);
     }
+    } catch(e) {
+        console.error('Love app render error:', e);
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(&#39;home&#39;)">‹ 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-primary);font-size:15px;font-weight:600;">加载遇到问题</div><div style="color:var(--color-text-light);font-size:12px;margin-top:8px;">请尝试刷新页面</div><button onclick="location.reload()" style="margin-top:16px;padding:10px 24px;background:var(--color-primary);color:white;border:none;border-radius:20px;font-size:14px;">重新加载</button></div></div>';
+    }
 }
+
 
 function _renderLoveListView(container, npcs) {
     try {
@@ -13676,13 +13682,29 @@ goToPage = function(page) {
 
 window.onerror = function(msg, url, line) {
     console.error('Error:', msg, url, line);
+    // If SyntaxError from our JS file, try clearing caches and reloading
+    if (msg && (msg.indexOf('SyntaxError') !== -1 || msg.indexOf('Unexpected EOF') !== -1)) {
+        var jsUrl = (url || '');
+        if (jsUrl.indexOf('v1.6.js') !== -1 || jsUrl.indexOf('myidol') !== -1 || jsUrl === '') {
+            console.warn('JS parse error detected, attempting cache clear + reload');
+            if (!sessionStorage.getItem('__myidol_onerror_heal')) {
+                sessionStorage.setItem('__myidol_onerror_heal', '1');
+                if (typeof caches !== 'undefined') {
+                    caches.keys().then(function(ns) { for(var i=0;i<ns.length;i++) caches.delete(ns[i]); }).then(function() { location.reload(true); });
+                } else {
+                    location.reload(true);
+                }
+                return true;
+            }
+            sessionStorage.removeItem('__myidol_onerror_heal');
+        }
+    }
     // Try to recover instead of destroying the whole page
     if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
-        // Game is loaded, just go back to home
         try {
             currentPage = 'home';
             if (typeof render === 'function') { render(); renderBottomNav(); }
-            showToast('出了点问题，已返回首页: ' + (msg || '').substring(0,30));
+            showToast('出了点问题: ' + (msg || '').substring(0,30));
             return true;
         } catch(e) {}
     }
@@ -13691,8 +13713,8 @@ window.onerror = function(msg, url, line) {
     if (_app) {
         _app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-primary, #FF6B8A);">' +
             '<div style="font-size:18px;font-weight:700;">出了点问题</div>' +
-            '<div style="font-size:12px;margin-top:8px;color:var(--color-text-light, #999);">' + msg + '</div>' +
-            '<button onclick="currentPage=\'home\';render();renderBottomNav();" style="margin-top:16px;padding:8px 20px;background:var(--color-primary, #FF8FA3);color:white;border:none;border-radius:20px;">返回首页</button>' +
+            '<div style="font-size:12px;margin-top:8px;color:var(--color-text-light, #999);">' + (msg || '').substring(0, 50) + '</div>' +
+            '<button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:var(--color-primary, #FF8FA3);color:white;border:none;border-radius:20px;">重新加载</button>' +
             '</div>';
     }
     return true;

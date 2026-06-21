@@ -1418,13 +1418,23 @@ window.addEventListener('error', function(e) {
 </style>
 <script>
 window.addEventListener('error', function(e) {
-    if (e.message && e.message.indexOf('Unexpected EOF') !== -1) {
-        console.warn('Detected cached truncated JS, forcing hard reload...');
-        if (!sessionStorage.getItem('__myidol_healed')) {
-            sessionStorage.setItem('__myidol_healed', '1');
-            location.href = location.pathname + '?_heal=' + Date.now();
+    var msg = e.message || '';
+    if (msg.indexOf('Unexpected EOF') !== -1 || msg.indexOf('SyntaxError') !== -1) {
+        console.warn('Detected JS parse error:', msg);
+        if (!sessionStorage.getItem('__myidol_healed2')) {
+            sessionStorage.setItem('__myidol_healed2', '1');
+            if (typeof caches !== 'undefined') {
+                caches.keys().then(function(names) {
+                    for (var i = 0; i < names.length; i++) caches.delete(names[i]);
+                }).then(function() {
+                    location.reload(true);
+                });
+            } else {
+                location.reload(true);
+            }
         } else {
-            sessionStorage.removeItem('__myidol_healed');
+            sessionStorage.removeItem('__myidol_healed2');
+            console.warn('Still getting SyntaxError after reload - giving up auto-heal');
         }
     }
 }, true);
@@ -1559,12 +1569,26 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.11&_bust=' + Date.now(), function() {
+__loadScript('v1.6.js?v=1.7.12&_bust=' + Date.now(), function() {
+    // Integrity check: verify critical functions exist
+    if (typeof render !== 'function' || typeof render恋爱Page !== 'function') {
+        __diag('CRITICAL: Missing functions after JS load - possible truncated file');
+        if (!sessionStorage.getItem('__myidol_integrity')) {
+            sessionStorage.setItem('__myidol_integrity', '1');
+            if (typeof caches !== 'undefined') {
+                caches.keys().then(function(ns) { for(var i=0;i<ns.length;i++) caches.delete(ns[i]); }).then(function() { location.reload(true); });
+            } else { location.reload(true); }
+            return;
+        }
+        sessionStorage.removeItem('__myidol_integrity');
+    }
+    // Clear integrity flag on successful load
+    sessionStorage.removeItem('__myidol_integrity');
     __updateLoad('Loading data...');
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.11" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.12" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1639,7 +1663,7 @@ function closeNpcCard() {
 <script>
 // Register SW but with versioned URL to force update
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js?v=1.7.11").then(function(reg) {
+    navigator.serviceWorker.register("/sw.js?v=1.7.12").then(function(reg) {
         __diag("SW registered: " + reg.scope);
         if (reg.waiting) __diag("SW waiting to activate");
         if (reg.installing) __diag("SW installing...");
@@ -1674,7 +1698,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.11&_final=' + Date.now();
+                _ns.src = 'v1.6.js?v=1.7.12&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
