@@ -1551,87 +1551,41 @@ try {
 }
 
 function __loadScript(src, cb) {
-    __diag('XHR loading: ' + src.substring(0, 50));
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', src, true);
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            var code = xhr.responseText;
-            __diag('XHR received: ' + code.length + ' chars');
-            // Verify file is complete: must end with closing structure
-            var last200 = code.substring(code.length - 200);
-            if (code.length < 800000 || last200.indexOf('getCheckInInfo') === -1) {
-                __diag('TRUNCATED! Expected 870K+ chars, got ' + code.length);
-                if (__loadRetries < 3) {
-                    __loadRetries++;
-                    __diag('Retry #' + __loadRetries + ' with new bust...');
-                    __updateLoad('文件不完整，重试中... (' + __loadRetries + ')');
-                    setTimeout(function() {
-                        __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
-                    }, 1500);
-                } else {
-                    __diag('All retries failed - file keeps getting truncated');
-                    __updateLoad('加载失败');
-                    _showLoadError();
-                }
-                return;
-            }
-            try {
-                // Verify syntax before eval
-                var testFn = new Function(code);
-                __diag('Syntax check passed');
-            } catch(e) {
-                __diag('SYNTAX ERROR in fetched code: ' + e.message);
-                if (__loadRetries < 3) {
-                    __loadRetries++;
-                    __diag('Retry #' + __loadRetries + '...');
-                    __updateLoad('语法错误，重试中... (' + __loadRetries + ')');
-                    setTimeout(function() {
-                        __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
-                    }, 1500);
-                } else {
-                    __diag('Syntax keeps failing');
-                    __updateLoad('加载失败');
-                    _showLoadError();
-                }
-                return;
-            }
-            // All good - execute the code
-            var s = document.createElement('script');
-            s.textContent = code;
-            document.head.appendChild(s);
-            __jsLoaded = true;
-            __diag('JS executed OK (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
-            if (cb) cb();
-        } else {
-            __diag('XHR HTTP error: ' + xhr.status);
-            if (__loadRetries < 3) {
-                __loadRetries++;
-                setTimeout(function() {
-                    __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
-                }, 1500);
-            } else {
-                _showLoadError();
-            }
+    __diag('Loading: ' + src.substring(0, 60));
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = function() {
+        __jsLoaded = true;
+        __diag('Script tag onload fired (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
+        // Verify critical functions exist (detects truncated load)
+        if (typeof render !== 'function') {
+            __diag('WARNING: render() missing - file may be truncated');
         }
+        if (cb) cb();
     };
-    xhr.onerror = function() {
-        __diag('XHR network error');
+    s.onerror = function(e) {
+        __jsLoadFailed = true;
+        __jsLoadError = src;
+        __diag('Script LOAD FAILED: ' + src.substring(0, 60));
         if (__loadRetries < 3) {
             __loadRetries++;
+            __diag('Retry #' + __loadRetries + '...');
+            __updateLoad('Retrying... (' + __loadRetries + ')');
             setTimeout(function() {
-                __loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
-            }, 1500);
+                __loadScript('game.js?v=1.7.14&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+            }, 2000);
         } else {
+            __diag('All retries failed');
+            __updateLoad('Load failed');
             _showLoadError();
         }
     };
-    xhr.send();
+    document.head.appendChild(s);
 }
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('v1.6.js?v=1.7.14&_bust=' + Date.now(), function() {
+__loadScript('game.js?v=1.7.14&_bust=' + Date.now(), function() {
     // Integrity check: verify critical functions exist
     if (typeof render !== 'function' || typeof render恋爱Page !== 'function') {
         __diag('CRITICAL: Missing functions after JS load - possible truncated file');
@@ -1763,7 +1717,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'v1.6.js?v=1.7.14&_final=' + Date.now();
+                _ns.src = 'game.js?v=1.7.14&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
