@@ -409,6 +409,9 @@ function render() {
             case 'company':
                 renderCompanyDetailPage(app);
                 break;
+            case 'guide':
+                renderGuidePage(app);
+                break;
             case 'earn':
                 render赚钱中心Page(app);
                 break;
@@ -967,7 +970,8 @@ var APP_NAMES = {
     'comeback': '回归计划', 'songprod': '歌曲制作', 'music': '音乐放送',
     'mvstudio': 'MV工作室', 'contract': '合约', 'relation': '队友关系',
     'management': '经纪团队', 'antiblack': '反黑中心', 'fanclub': '后援会',
-    'pr': '公关室', 'kpopwiki': 'Kpop百科'
+    'pr': '公关室', 'kpopwiki': 'Kpop百科',
+    'guide': '新手指南'
 };
 
 function getAppLinkHtml(currentAppId) {
@@ -1126,7 +1130,8 @@ function renderHomePage(container) {
         { id: 'antiblack', icon: 'antiblack', name: '反黑中心', unlock: 0 },
         { id: 'fanclub', icon: 'fanclub', name: '后援会', unlock: 0 },
         { id: 'pr', icon: 'pr', name: '公关室', unlock: 0 },
-        { id: 'kpopwiki', icon: 'kpopwiki', name: 'Kpop百科', unlock: 0 }
+        { id: 'kpopwiki', icon: 'kpopwiki', name: 'Kpop百科', unlock: 0 },
+        { id: 'guide', icon: 'guide', name: '新手指南', unlock: 0 }
     ];
     
     var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
@@ -1164,7 +1169,7 @@ function renderHomePage(container) {
                         { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
                         { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'wardrobe', 'vip'], page: 1 },
                         { title: '社交', ids: ['ins', 'tiktok', 'phone', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
-                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki'], page: 2 }
+                        { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki', 'guide'], page: 2 }
                     ];
                     var catHtml = '';
                     for (var ci = 0; ci < categories.length; ci++) {
@@ -3761,6 +3766,7 @@ function getIcon(name) {
         'company': '<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="9" y1="6" x2="9.01" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="15" y1="6" x2="15.01" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="9" y1="10" x2="9.01" y2="10" stroke="currentColor" stroke-width="1.5"></line><line x1="15" y1="10" x2="15.01" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M9 18h6v4H9z" fill="currentColor" opacity="0.3"></path></svg>',
         'songprod': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9 9l7 3-7 3V9z" fill="currentColor" opacity="0.5"></path><line x1="12" y1="5" x2="12" y2="7" stroke="currentColor" stroke-width="1.5"></line><line x1="12" y1="17" x2="12" y2="19" stroke="currentColor" stroke-width="1.5"></line></svg>',
         'mvshoot': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle><circle cx="18" cy="5" r="1" fill="currentColor" opacity="0.5"></circle></svg>',
+        'guide': '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>',
         'phone': '<svg viewBox="0 0 24 24"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>',
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
         'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
@@ -10481,6 +10487,147 @@ function toggleWikiRealGroup(el) {
 }
 
 
+
+// ==================== GUIDE PAGE (新手指南) ====================
+
+function renderGuidePage(container) {
+    var _guideSections = [
+        {
+            title: '开始游戏',
+            subtitle: '从练习生到出道爱豆',
+            highlight: true,
+            items: [
+                { name: '创建角色', desc: '输入艺名、选择性别和生日，挑选3个性格标签' },
+                { name: '选择公司', desc: '五大经纪公司各有风格' },
+                { name: '选择身份', desc: '练习生从零训练，出道爱豆直接进入团体' },
+                { name: '加入团体', desc: '和队友一起活动' }
+            ]
+        },
+        {
+            title: '核心循环',
+            subtitle: '每天该做什么',
+            highlight: true,
+            items: [
+                { name: '训练', desc: '提升唱跳rap实力' },
+                { name: '通告', desc: '接单赚钱+涨粉' },
+                { name: '考核', desc: '练习生月度考核，不合格会被淘汰' },
+                { name: '回归', desc: '出道后策划回归：歌曲+MV+打歌' }
+            ]
+        },
+        {
+            title: '工作',
+            items: [
+                { name: '出道企划', desc: '查看出道进度', small: true },
+                { name: '通告', desc: '综艺/代言/活动', small: true },
+                { name: '行程表', desc: '每日安排', small: true },
+                { name: '会议', desc: '讨论回归方案', small: true },
+                { name: '邮箱', desc: '公司通知', small: true },
+                { name: '成员信息', desc: '队友资料', small: true },
+                { name: '合约', desc: '经纪合约', small: true },
+                { name: '反黑/公关', desc: '维护风评', small: true }
+            ]
+        },
+        {
+            title: '赚钱',
+            items: [
+                { name: '赚钱中心', desc: '每日任务', small: true },
+                { name: '外卖', desc: '恢复体力', small: true },
+                { name: '快递', desc: '买道具礼物', small: true },
+                { name: '抽卡', desc: '收集S/A/B/C卡牌', small: true },
+                { name: '换装', desc: '6套风格服装', small: true },
+                { name: '会员', desc: 'AI额度加成', small: true }
+            ]
+        },
+        {
+            title: '社交',
+            items: [
+                { name: 'KakaoTalk', desc: '和队友AI聊天', small: true },
+                { name: 'INS / TikTok', desc: '发动态涨粉', small: true },
+                { name: '恋爱', desc: '好感60可交往', small: true },
+                { name: '泡泡/Weverse', desc: '粉丝1k+解锁', small: true }
+            ]
+        },
+        {
+            title: '娱乐',
+            items: [
+                { name: '回归计划', desc: '歌曲+MV+打歌全流程', small: true },
+                { name: '直播', desc: '开直播赚金币', small: true },
+                { name: '热搜', desc: '你的事件可能上榜', small: true },
+                { name: '排行榜', desc: '各维度排名', small: true },
+                { name: '成就', desc: '解锁游戏成就', small: true }
+            ]
+        },
+        {
+            title: '重要数值',
+            highlight: true,
+            items: [
+                { name: '体力', desc: '活动消耗，外卖恢复，归零无法活动' },
+                { name: '金币', desc: '通告/签到/直播获得' },
+                { name: '粉丝', desc: '粉丝数决定解锁内容' },
+                { name: '危险值', desc: '过高会被暂停活动' },
+                { name: '好感度', desc: '聊天/送礼提升，60可恋爱' }
+            ]
+        },
+        {
+            title: '小技巧',
+            highlight: true,
+            items: [
+                { name: '每日签到', desc: '连续签到奖励递增，第3天+1AI额度，第7天+3AI额度' },
+                { name: '文案风格', desc: '聊天输入栏左侧可切换5种语气' },
+                { name: '云同步', desc: '注册账号自动保存进度' },
+                { name: '分享卡片', desc: '首页右上角可生成角色卡片' }
+            ]
+        }
+    ];
+
+    var _bodyHtml = '';
+    for (var _si = 0; _si < _guideSections.length; _si++) {
+        var _sec = _guideSections[_si];
+        var _isHighlight = _sec.highlight;
+        if (_isHighlight) {
+            _bodyHtml += '<div style="margin:0 8px 20px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:16px;padding:16px 18px;">'
+                + '<div style="font-size:16px;font-weight:700;color:#FF6B8A;margin-bottom:4px;">' + _sec.title + '</div>';
+            if (_sec.subtitle) {
+                _bodyHtml += '<div style="font-size:11px;color:#FFB3C1;margin-bottom:14px;">' + _sec.subtitle + '</div>';
+            } else {
+                _bodyHtml += '<div style="height:10px;"></div>';
+            }
+            for (var _ii = 0; _ii < _sec.items.length; _ii++) {
+                var _it = _sec.items[_ii];
+                _bodyHtml += '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">'
+                    + '<div style="width:5px;height:5px;border-radius:50%;background:#FF8FA3;flex-shrink:0;margin-top:1px;"></div>'
+                    + '<div><span style="font-weight:600;font-size:13px;color:#333;">' + _it.name + '</span>'
+                    + '<span style="font-size:12px;color:#999;margin-left:4px;">' + _it.desc + '</span></div></div>';
+            }
+            _bodyHtml += '</div>';
+        } else {
+            _bodyHtml += '<div style="margin:0 8px 20px;">'
+                + '<div style="font-size:13px;font-weight:700;color:#FF8FA3;margin-bottom:10px;padding-left:4px;">' + _sec.title + '</div>'
+                + '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+            for (var _ji = 0; _ji < _sec.items.length; _ji++) {
+                var _jt = _sec.items[_ji];
+                _bodyHtml += '<div style="background:#FFF5F7;border-radius:10px;padding:8px 12px;min-width:80px;">'
+                    + '<div style="font-weight:600;font-size:12px;color:#FF6B8A;">' + _jt.name + '</div>'
+                    + '<div style="font-size:10px;color:#BBB;margin-top:2px;">' + _jt.desc + '</div></div>';
+            }
+            _bodyHtml += '</div></div>';
+        }
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header" style="background:linear-gradient(180deg,#FFF0F3,var(--bg-card));">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">&#8249; 首页</div>'
+        + '<div class="page-title" style="color:#FF6B8A;">新手指南</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="padding:20px 12px 80px;">'
+        + '<div style="text-align:center;margin-bottom:24px;">'
+        + '<div style="font-size:24px;font-weight:800;color:#FF6B8A;letter-spacing:1px;">My Idol</div>'
+        + '<div style="font-size:11px;color:#FFB3C1;margin-top:6px;">韩娱爱豆模拟器</div>'
+        + '</div>'
+        + _bodyHtml
+        + '</div></div>';
+}
 
 // ==================== COMPANY DETAIL PAGE (公司详情) ====================
 function renderCompanyDetailPage(container) {
