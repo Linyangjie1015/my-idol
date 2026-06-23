@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     var SUPABASE_URL = process.env.SUPABASE_URL;
     var SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
-    // Step 1: Check Supabase first (works always, no network issue)
+    // Step 1: Check Supabase first (always works, no overseas network issue)
     if (SUPABASE_URL && SUPABASE_KEY) {
       var dbResp = await fetch(SUPABASE_URL + '/rest/v1/payments?order_id=eq.' + encodeURIComponent(orderNo) + '&select=order_id,product_type,amount,status', {
         headers: {
@@ -50,9 +50,9 @@ export default async function handler(req, res) {
       }
     }
 
-    // Step 2: Not in Supabase, try Afdian API directly (may fail due to network)
+    // Step 2: Not in Supabase, try Afdian API directly (may fail from overseas)
     if (!process.env.AFDIAN_TOKEN || !process.env.AFDIAN_USER_ID) {
-      return res.status(200).json({ success: false, message: '订单未找到，请确认订单号或联系客服' });
+      return res.status(200).json({ success: false, message: '订单未找到，请确认订单号或稍后再试' });
     }
 
     try {
@@ -79,12 +79,12 @@ export default async function handler(req, res) {
       var afdianData = await afdianResp.json();
 
       if (afdianData.ec !== 200) {
-        return res.status(200).json({ success: false, message: '订单查询失败，请稍后再试或联系客服' });
+        return res.status(200).json({ success: false, message: '订单查询失败，请稍后再试' });
       }
 
       var orders = (afdianData.data && afdianData.data.list) ? afdianData.data.list : [];
       if (orders.length === 0) {
-        return res.status(200).json({ success: false, message: '未找到该订单，请确认订单号是否正确' });
+        return res.status(200).json({ success: false, message: '未找到该订单，请确认订单号' });
       }
 
       var order = orders[0];
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ success: false, message: '订单金额不匹配任何档位' });
       }
 
-      // Save to Supabase for future lookups
+      // Save to Supabase for future lookups (user_id omitted = null)
       if (SUPABASE_URL && SUPABASE_KEY) {
         try {
           await fetch(SUPABASE_URL + '/rest/v1/payments', {
@@ -111,7 +111,6 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
               order_id: order.out_trade_no,
-              user_id: 0,
               product_type: tier.key,
               amount: parseInt(parseFloat(order.total_amount) * 100),
               status: 'paid'
@@ -132,10 +131,10 @@ export default async function handler(req, res) {
       });
 
     } catch (afdianErr) {
-      // Afdian API unreachable (expected from Vercel overseas)
+      // Afdian API unreachable (expected from Vercel overseas servers)
       return res.status(200).json({
         success: false,
-        message: '订单验证暂时不可用，请联系客服手动确认（微信：LYJ10152008）'
+        message: '订单暂未同步，请等待1-2分钟后重试'
       });
     }
 

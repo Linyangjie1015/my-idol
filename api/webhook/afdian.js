@@ -27,9 +27,7 @@ export default async function handler(req, res) {
       if (SUPABASE_URL && SUPABASE_KEY) {
         var tier = getTier(order.total_amount, order.plan_id || '');
         var orderNo = order.out_trade_no || '';
-        var userId = order.user_id || '';
         var amount = order.total_amount || '0';
-        var planId = order.plan_id || '';
         var productType = tier ? tier.key : 'unknown';
 
         // Check if order already exists
@@ -41,8 +39,15 @@ export default async function handler(req, res) {
         });
         var existing = await checkResp.json();
 
+        var payload = {
+          order_id: orderNo,
+          product_type: productType,
+          amount: parseInt(parseFloat(amount) * 100),
+          status: 'paid'
+        };
+
         if (!existing || existing.length === 0) {
-          // Store new order in Supabase
+          // Insert new order (user_id omitted = null, avoids FK constraint)
           await fetch(SUPABASE_URL + '/rest/v1/payments', {
             method: 'POST',
             headers: {
@@ -51,16 +56,10 @@ export default async function handler(req, res) {
               'Content-Type': 'application/json',
               'Prefer': 'return=minimal'
             },
-            body: JSON.stringify({
-              order_id: orderNo,
-              user_id: 0,
-              product_type: productType,
-              amount: parseInt(parseFloat(amount) * 100),
-              status: 'paid'
-            })
+            body: JSON.stringify(payload)
           });
         } else {
-          // Order exists, update status if needed
+          // Update existing order
           await fetch(SUPABASE_URL + '/rest/v1/payments?order_id=eq.' + encodeURIComponent(orderNo), {
             method: 'PATCH',
             headers: {
