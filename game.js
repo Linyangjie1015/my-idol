@@ -165,6 +165,7 @@ var gameState = {
     dayActionLog: [],
     cooldowns: { debut: 0, comeback: 0, confess: 0 },
     equippedOutfit: null,
+    faceCustom: null,
     ownedClothes: []
 };
 var _defaultGameState = JSON.parse(JSON.stringify(gameState));
@@ -406,6 +407,9 @@ function render() {
             case 'company':
                 renderCompanyDetailPage(app);
                 break;
+            case 'face':
+                renderFacePage(app);
+                break;
             case 'guide':
                 renderGuidePage(app);
                 break;
@@ -515,6 +519,9 @@ function renderCreationPage(container) {
         case 6:
             content = renderCreationStep6();
             break;
+        case 7:
+            content = renderCreationStep7();
+            break;
     }
     
     container.innerHTML = content;
@@ -561,7 +568,7 @@ function renderCreationStep0() {
 }
 
 function renderCreationStep1() {
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToWelcome()">‹ 返回</div>\n                <div class="page-title">第 1 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">个人信息</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">输入艺名、选择性别、输入生日</p>\n                \n                <div class="section-title">艺名 (英文)</div>\n                <input type="text" id="inputName" placeholder="例如: Jenny, Lisa, Rose" value="' + (gameState.player.name) + '" onblur="gameState.player.name = this.value">\n                \n                <div class="section-title">性别</div>\n                <div style="display: flex; gap: 12px;">\n                    <button class="btn ' + (gameState.player.gender === 'F' ? 'btn-primary' : 'btn-secondary') + '" onclick="select性别(\'F\')" style="flex: 1;">女</button>\n                    <button class="btn ' + (gameState.player.gender === 'M' ? 'btn-primary' : 'btn-secondary') + '" onclick="select性别(\'M\')" style="flex: 1;">男</button>\n                </div>\n                \n                <div class="section-title">生日</div>\n                <div style="display: flex; gap: 8px;">\n                    <select id="inputBirth年" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">\n                        <option value="">年</option>\n                        ' + (genBirthOptions(2012, 23, 0)) + '\n                    </select>\n                    <select id="inputBirth月" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">\n                        <option value="">月</option>\n                        ' + (genBirthOptions(1, 12, 1)) + '\n                    </select>\n                    <select id="inputBirth日" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">\n                        <option value="">日</option>\n                        ' + (genBirthOptions(1, 31, 2)) + '\n                    </select>\n                </div>\n                \n                <div id="ageDisplay" style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: var(--radius-md); margin-bottom: 16px;">\n                    <span style="color: var(--color-text-light); font-size: 13px;">年龄: </span>\n                    <span id="ageValue" style="color: var(--color-primary); font-weight: 600;">' + (gameState.player.age > 0 ? gameState.player.age : "-") + '</span>\n                </div>\n                \n                <div class="section-title" style="margin-top: 24px;">性格标签 (选择3个)</div>\n                <div id="personalityTags">\n                    ' + (['热情', '冷静', '开朗', '上进', '幽默', '认真', '温柔', '自信'].map(function(p) { return '\n                        <span class="tag ' + (gameState.player.personality.indexOf(p) > -1 ? 'selected' : '') + '" onclick="togglePersonality(\'' + (p) + '\')">' + (p) + '</span>\n                    '}).join('')) + '\n                </div>\n                <div style="text-align: center; margin-top: 12px; color: var(--color-text-light); font-size: 13px;">\n                    已选: <span id="personalityCount">' + (gameState.player.personality.length) + '</span>/3\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(2)">下一步</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToWelcome()">‹ 返回</div>\n                <div class="page-title">第 1 步 / 共 7 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">个人信息</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">输入艺名、选择性别、输入生日</p>\n                \n                <div class="section-title">艺名 (英文)</div>\n                <input type="text" id="inputName" placeholder="例如: Jenny, Lisa, Rose" value="' + (gameState.player.name) + '" onblur="gameState.player.name = this.value">\n                \n                <div class="section-title">性别</div>\n                <div style="display: flex; gap: 12px;">\n                    <button class="btn ' + (gameState.player.gender === 'F' ? 'btn-primary' : 'btn-secondary') + '" onclick="select性别(\'F\')" style="flex: 1;">女</button>\n                    <button class="btn ' + (gameState.player.gender === 'M' ? 'btn-primary' : 'btn-secondary') + '" onclick="select性别(\'M\')" style="flex: 1;">男</button>\n                </div>\n                \n                <div class="section-title">生日</div>\n                <div style="display: flex; gap: 8px;">\n                    <select id="inputBirth年" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">\n                        <option value="">年</option>\n                        ' + (genBirthOptions(2012, 23, 0)) + '\n                    </select>\n                    <select id="inputBirth月" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">\n                        <option value="">月</option>\n                        ' + (genBirthOptions(1, 12, 1)) + '\n                    </select>\n                    <select id="inputBirth日" onchange="calculateAge()" style="flex:1;padding:14px 8px;font-size:16px;border:1.5px solid var(--color-border);border-radius:12px;background:white;min-height:48px;-webkit-appearance:none;appearance:none;">\n                        <option value="">日</option>\n                        ' + (genBirthOptions(1, 31, 2)) + '\n                    </select>\n                </div>\n                \n                <div id="ageDisplay" style="text-align: center; padding: 12px; background: var(--bg-card); border-radius: var(--radius-md); margin-bottom: 16px;">\n                    <span style="color: var(--color-text-light); font-size: 13px;">年龄: </span>\n                    <span id="ageValue" style="color: var(--color-primary); font-weight: 600;">' + (gameState.player.age > 0 ? gameState.player.age : "-") + '</span>\n                </div>\n                \n                <div class="section-title" style="margin-top: 24px;">性格标签 (选择3个)</div>\n                <div id="personalityTags">\n                    ' + (['热情', '冷静', '开朗', '上进', '幽默', '认真', '温柔', '自信'].map(function(p) { return '\n                        <span class="tag ' + (gameState.player.personality.indexOf(p) > -1 ? 'selected' : '') + '" onclick="togglePersonality(\'' + (p) + '\')">' + (p) + '</span>\n                    '}).join('')) + '\n                </div>\n                <div style="text-align: center; margin-top: 12px; color: var(--color-text-light); font-size: 13px;">\n                    已选: <span id="personalityCount">' + (gameState.player.personality.length) + '</span>/3\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(2)">下一步</button>\n            </div>\n        </div>\n    ';
 }
 
 function renderCreationStep2() {
@@ -570,17 +577,17 @@ function renderCreationStep2() {
         return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 2 \u6b65 / \u5171 6 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u516c\u53f8\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">\u4e0b\u4e00\u6b65</button>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 2 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择公司</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">从五大公司中选择您的经纪公司</p>\n                \n                ' + (Object.entries(COMPANIES).map(function(entry) { var key = entry[0]; var company = entry[1]; return '\n                    <div class="company-card ' + (gameState.player.company === key ? 'selected' : '') + '" onclick="selectCompany(\'' + (key) + '\')">\n                        <div class="company-name">' + (company.name) + '</div>\n                        <div class="company-desc">' + (company.desc) + '</div>\n                        <div class="company-tags">\n                            ' + (company.tags.map(function(t) { return '<span class="badge badge-secondary">' + t + '</span>'; }).join('')) + '\n                        </div>\n                    </div>\n                '}).join('')) + '\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(3)">下一步</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 2 步 / 共 7 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择公司</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">从五大公司中选择您的经纪公司</p>\n                \n                ' + (Object.entries(COMPANIES).map(function(entry) { var key = entry[0]; var company = entry[1]; return '\n                    <div class="company-card ' + (gameState.player.company === key ? 'selected' : '') + '" onclick="selectCompany(\'' + (key) + '\')">\n                        <div class="company-name">' + (company.name) + '</div>\n                        <div class="company-desc">' + (company.desc) + '</div>\n                        <div class="company-tags">\n                            ' + (company.tags.map(function(t) { return '<span class="badge badge-secondary">' + t + '</span>'; }).join('')) + '\n                        </div>\n                    </div>\n                '}).join('')) + '\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(3)">下一步</button>\n            </div>\n        </div>\n    ';
 }
 
 function renderCreationStep3() {
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 3 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择身份</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择您的起始路线</p>\n                \n                <div class="card ' + (gameState.player.role === 'Trainee' ? 'selected' : '') + '" onclick="selectRole(\'Trainee\')" style="margin-bottom: 12px; cursor: pointer;">\n                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">练习生 Trainee</div>\n                    <div style="font-size: 13px; color: var(--color-text-light);">从零开始，努力训练，等待出道机会</div>\n                </div>\n                \n                <div class="card ' + (gameState.player.role === 'Idol' ? 'selected' : '') + '" onclick="selectRole(\'Idol\')" style="cursor: pointer;">\n                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">出道爱豆 Debut Idol</div>\n                    <div style="font-size: 13px; color: var(--color-text-light);">以出道爱豆身份开始，选择你的原创团体</div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(4)">下一步</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 3 步 / 共 7 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">选择身份</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择您的起始路线</p>\n                \n                <div class="card ' + (gameState.player.role === 'Trainee' ? 'selected' : '') + '" onclick="selectRole(\'Trainee\')" style="margin-bottom: 12px; cursor: pointer;">\n                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">练习生 Trainee</div>\n                    <div style="font-size: 13px; color: var(--color-text-light);">从零开始，努力训练，等待出道机会</div>\n                </div>\n                \n                <div class="card ' + (gameState.player.role === 'Idol' ? 'selected' : '') + '" onclick="selectRole(\'Idol\')" style="cursor: pointer;">\n                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">出道爱豆 Debut Idol</div>\n                    <div style="font-size: 13px; color: var(--color-text-light);">以出道爱豆身份开始，选择你的原创团体</div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(4)">下一步</button>\n            </div>\n        </div>\n    ';
 }
 
 function renderCreationStep4() {
     if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
         __waitForCOMPANIES(function() { render(); });
-        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 上一步</div>\n                <div class="page-title">第 4 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">数据加载中...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">下一步</button>\n            </div>\n        </div>';
+        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 上一步</div>\n                <div class="page-title">第 4 步 / 共 7 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">数据加载中...</div>\n            </div>\n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" disabled style="opacity:0.5;">下一步</button>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
     if (gameState.player.role === 'Idol') {
@@ -626,22 +633,65 @@ function renderCreationStep4() {
 function renderCreationStep5() {
     var positions = ['主唱', '主舞', '主Rapper', '门面', '中心位', '队长', '忙内'];
     
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 5 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">队内定位</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择最多3个定位，按志愿顺序排列</p>\n                \n                <div style="text-align: center;">\n                    ' + (positions.map(function(p) {
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 5 步 / 共 7 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 8px;">队内定位</h2>\n                <p style="color: var(--color-text-light); font-size: 14px; margin-bottom: 24px;">选择最多3个定位，按志愿顺序排列</p>\n                \n                <div style="text-align: center;">\n                    ' + (positions.map(function(p) {
                         var pIdx = gameState.player.positions.indexOf(p);
                         var label = pIdx === 0 ? '第一定位' : pIdx === 1 ? '第二定位' : pIdx === 2 ? '第三定位' : '';
                         return '<span class="tag ' + (pIdx > -1 ? 'selected' : '') + '" data-p="' + p + '" onclick="togglePosition(this.dataset.p)" style="font-size:14px;padding:12px 20px;margin:6px;position:relative;">' + p + (label ? '<span style="position:absolute;top:-6px;right:-6px;font-size:9px;padding:1px 5px;border-radius:50px;background:var(--color-primary);color:white;font-weight:600;">' + label + '</span>' : '') + '</span>';
                     }).join('')) + '\n                </div>\n                \n                <div style="text-align: center; margin-top: 24px; color: var(--color-text-light); font-size: 13px;">\n                    已选: <span id="positionCount">' + (gameState.player.positions.length) + '</span>/3\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border);">\n                <button class="btn btn-primary btn-lg" onclick="nextCreationStep(6)">下一步</button>\n            </div>\n        </div>\n    ';
 }
 
+
 function renderCreationStep6() {
+    var fc = _getFaceConfig();
+    var html = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="prevCreationStep()">&#8249; 上一步</div>'
+        + '<div class="page-title">第 6 步 / 共 7 步</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;">'
+        + '<h2 style="font-size:24px;font-weight:700;color:var(--color-text);margin-bottom:8px;">定制造型</h2>'
+        + '<p style="color:var(--color-text-light);font-size:14px;margin-bottom:16px;">设计你的专属形象</p>';
+
+    // Preview
+    html += '<div style="text-align:center;margin:12px 0 20px;">'
+        + '<div style="width:110px;height:110px;border-radius:50%;margin:0 auto;overflow:hidden;border:3px solid var(--color-primary);box-shadow:0 4px 15px rgba(255,143,163,0.3);">'
+        + generateFaceSVG(110, fc)
+        + '</div></div>';
+
+    // Skin color
+    html += _faceSection('肤色', FACE_SKIN_NAMES, fc.skin, 'skin', FACE_SKINS);
+    // Face shape
+    html += _faceOptionRow('脸型', FACE_SHAPES, fc.shape, 'shape');
+    // Eyes
+    html += _faceOptionRow('眼睛', FACE_EYES, fc.eyes, 'eyes');
+    // Eye color
+    html += _faceSection('瞳色', FACE_EYE_COLOR_NAMES, fc.eyeColor, 'eyeColor', FACE_EYE_COLORS);
+    // Eyebrows
+    html += _faceOptionRow('眉毛', FACE_EYEBROWS, fc.eyebrows, 'eyebrows');
+    // Mouth
+    html += _faceOptionRow('嘴巴', FACE_MOUTHS, fc.mouth, 'mouth');
+    // Hair
+    html += _faceOptionRow('发型', FACE_HAIRS, fc.hair, 'hair');
+    // Hair color
+    html += _faceSection('发色', FACE_HAIR_COLOR_NAMES, fc.hairColor, 'hairColor', FACE_HAIR_COLORS);
+
+    html += '</div>'
+        + '<div style="padding:16px 20px;background:var(--bg-card);border-top:1px solid var(--color-border);">'
+        + '<button class="btn btn-primary btn-lg" onclick="nextCreationStep(7)">下一步</button>'
+        + '</div></div>';
+    return html;
+}
+
+function renderCreationStep7() {
     if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
         __waitForCOMPANIES(function() { render(); });
-        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 6 \u6b65 / \u5171 6 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n        </div>';
+        return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 7 \u6b65 / \u5171 7 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
     var company = COMPANIES[gameState.player.company];
     
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div class="avatar" style="width: 64px; height: 64px; font-size: 24px;">' + (gameState.player.name.charAt(0).toUpperCase()) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=COMPANIES[gameState.player.company]; return c&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 7 步 / 共 7 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--color-primary);">' + generateFaceSVG(64, _getFaceConfig()) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=COMPANIES[gameState.player.company]; return c&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
 }
 
 function genBirthOptions(start, count, part) {
@@ -804,6 +854,7 @@ function nextCreationStep(step) {
             return;
         }
     }
+    // Face step (6) has no validation - free customization
     creationStep = step;
     render();
 }
@@ -1149,6 +1200,7 @@ function renderHomePage(container) {
         { id: 'achievement', icon: 'achievement', name: '成就', unlock: 0 },
         { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
         { id: 'wardrobe', icon: 'wardrobe', name: '换装', unlock: 0 },
+        { id: 'face', icon: 'face', name: '造型', unlock: 0 },
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 },
         { id: 'company', icon: 'company', name: '我的公司', unlock: 0 },
         { id: 'comeback', icon: 'comeback', name: '回归计划', unlock: 0 },
@@ -1198,7 +1250,7 @@ function renderHomePage(container) {
                     var homePageNum = gameState.homePageNum || 1;
                     var categories = [
                         { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
-                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'wardrobe', 'vip'], page: 1 },
+                        { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'wardrobe', 'face', 'vip'], page: 1 },
                         { title: '社交', ids: ['ins', 'tiktok', 'phone', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
                         { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki', 'guide'], page: 2 }
                     ];
@@ -2770,6 +2822,240 @@ function getNPCProfile(appId, npcName) {
 }
 
 
+
+// V1.7: Face Customization System
+var FACE_SKINS = ['#FFEEE0','#FFE0C0','#FFD1A4','#F5C5A3','#D4A373','#A0785A'];
+var FACE_SKIN_NAMES = ['白癍','自然','暖杏','小麦','蜜糖','古铜'];
+var FACE_SHAPES = [
+  { name:'圆脸', id:'round' },
+  { name:'鹅蛋脸', id:'oval' },
+  { name:'V字脸', id:'vline' }
+];
+var FACE_EYES = [
+  { name:'圆眼', id:'round' },
+  { name:'猫眼', id:'cat' },
+  { name:'杏眼', id:'almond' },
+  { name:'笑眼', id:'smile' }
+];
+var FACE_EYE_COLORS = ['#1A1A1A','#5C3317','#4A90D9','#4CAF50','#888888','#8B4513'];
+var FACE_EYE_COLOR_NAMES = ['黑','棕','蓝','绿','灰','琥玀'];
+var FACE_EYEBROWS = [
+  { name:'自然眉', id:'natural' },
+  { name:'平眉', id:'straight' },
+  { name:'挑眉', id:'arched' }
+];
+var FACE_MOUTHS = [
+  { name:'微笑', id:'smile' },
+  { name:'大笑', id:'grin' },
+  { name:'猫嘴', id:'cat' },
+  { name:'嘟嘴', id:'pout' }
+];
+var FACE_HAIRS = [
+  { name:'长直发', id:'long_straight' },
+  { name:'波波头', id:'bob' },
+  { name:'马尾', id:'ponytail' },
+  { name:'双马尾', id:'twin_tail' },
+  { name:'短发', id:'short' },
+  { name:'长卷发', id:'wavy' }
+];
+var FACE_HAIR_COLORS = ['#1A1A1A','#5C3317','#E8C872','#C0392B','#FF8FA3','#5B9BD5','#9B59B6','#C0C0C0'];
+var FACE_HAIR_COLOR_NAMES = ['黑','棕','金','红','粉','蓝','紫','银'];
+
+function _getFaceConfig() {
+  if (!gameState.faceCustom) {
+    gameState.faceCustom = { skin:0, shape:0, eyes:0, eyeColor:0, eyebrows:0, mouth:0, hair:0, hairColor:0 };
+  }
+  return gameState.faceCustom;
+}
+
+function generateFaceSVG(size, fc) {
+  if (!fc) fc = _getFaceConfig();
+  var s = size || 80;
+  var vb = '0 0 120 120';
+  var skin = FACE_SKINS[fc.skin] || FACE_SKINS[0];
+  var hairColor = FACE_HAIR_COLORS[fc.hairColor] || FACE_HAIR_COLORS[0];
+  var eyeColor = FACE_EYE_COLORS[fc.eyeColor] || FACE_EYE_COLORS[0];
+  var svg = '<svg viewBox="' + vb + '" width="' + s + '" height="' + s + '" xmlns="http://www.w3.org/2000/svg">';
+  svg += _getHairBackSVG(fc.hair, hairColor);
+  svg += _getFaceShapeSVG(fc.shape, skin);
+  svg += '<ellipse cx="40" cy="72" rx="8" ry="5" fill="#FFB6C1" opacity="0.3"/>';
+  svg += '<ellipse cx="80" cy="72" rx="8" ry="5" fill="#FFB6C1" opacity="0.3"/>';
+  svg += _getEyesSVG(fc.eyes, eyeColor);
+  svg += _getEyebrowsSVG(fc.eyebrows);
+  svg += _getMouthSVG(fc.mouth);
+  svg += _getHairFrontSVG(fc.hair, hairColor);
+  svg += '</svg>';
+  return svg;
+}
+
+function _getFaceShapeSVG(shape, skin) {
+  if (shape === 1) return '<ellipse cx="60" cy="62" rx="30" ry="35" fill="' + skin + '"/>';
+  if (shape === 2) return '<path d="M30 55 Q30 30 60 28 Q90 30 90 55 Q90 85 60 92 Q30 85 30 55Z" fill="' + skin + '"/>';
+  return '<circle cx="60" cy="60" r="32" fill="' + skin + '"/>';
+}
+
+function _getEyesSVG(eyes, color) {
+  if (eyes === 1) {
+    return '<path d="M38 58 Q44 50 50 56 L50 60 Q44 54 38 60Z" fill="white" stroke="' + color + '" stroke-width="1"/>'
+      + '<circle cx="44" cy="57" r="4" fill="' + color + '"/>'
+      + '<circle cx="45" cy="55.5" r="1.5" fill="white"/>'
+      + '<path d="M70 56 Q76 50 82 58 L82 60 Q76 54 70 60Z" fill="white" stroke="' + color + '" stroke-width="1"/>'
+      + '<circle cx="76" cy="57" r="4" fill="' + color + '"/>'
+      + '<circle cx="77" cy="55.5" r="1.5" fill="white"/>';
+  }
+  if (eyes === 2) {
+    return '<path d="M36 58 Q44 52 52 58 Q44 64 36 58Z" fill="white"/>'
+      + '<circle cx="44" cy="58" r="5" fill="' + color + '"/>'
+      + '<circle cx="45.5" cy="56.5" r="2" fill="white"/>'
+      + '<path d="M68 58 Q76 52 84 58 Q76 64 68 58Z" fill="white"/>'
+      + '<circle cx="76" cy="58" r="5" fill="' + color + '"/>'
+      + '<circle cx="77.5" cy="56.5" r="2" fill="white"/>';
+  }
+  if (eyes === 3) {
+    return '<path d="M37 58 Q44 52 51 58" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>'
+      + '<path d="M69 58 Q76 52 83 58" fill="none" stroke="' + color + '" stroke-width="2.5" stroke-linecap="round"/>';
+  }
+  return '<ellipse cx="44" cy="58" rx="7" ry="8" fill="white"/>'
+    + '<circle cx="44" cy="58" r="5" fill="' + color + '"/>'
+    + '<circle cx="46" cy="56" r="2.5" fill="white"/>'
+    + '<ellipse cx="76" cy="58" rx="7" ry="8" fill="white"/>'
+    + '<circle cx="76" cy="58" r="5" fill="' + color + '"/>'
+    + '<circle cx="78" cy="56" r="2.5" fill="white"/>';
+}
+
+function _getEyebrowsSVG(eyebrows) {
+  if (eyebrows === 1) {
+    return '<line x1="36" y1="48" x2="52" y2="48" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>'
+      + '<line x1="68" y1="48" x2="84" y2="48" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>';
+  }
+  if (eyebrows === 2) {
+    return '<path d="M36 50 Q44 44 52 48" fill="none" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>'
+      + '<path d="M68 48 Q76 44 84 50" fill="none" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>';
+  }
+  return '<path d="M36 50 Q44 46 52 49" fill="none" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>'
+    + '<path d="M68 49 Q76 46 84 50" fill="none" stroke="#3D2B1F" stroke-width="2" stroke-linecap="round"/>';
+}
+
+function _getMouthSVG(mouth) {
+  if (mouth === 1) {
+    return '<path d="M48 74 Q60 86 72 74" fill="#E88B8B" stroke="#D4706F" stroke-width="1"/>'
+      + '<path d="M50 74 L70 74 Q60 80 50 74Z" fill="white"/>';
+  }
+  if (mouth === 2) {
+    return '<path d="M52 76 Q56 72 60 76 Q64 72 68 76" fill="none" stroke="#D4706F" stroke-width="1.5" stroke-linecap="round"/>';
+  }
+  if (mouth === 3) {
+    return '<ellipse cx="60" cy="76" rx="6" ry="4" fill="#E88B8B"/>'
+      + '<path d="M56 75 Q60 72 64 75" fill="none" stroke="#D4706F" stroke-width="1"/>';
+  }
+  return '<path d="M50 74 Q60 82 70 74" fill="none" stroke="#D4706F" stroke-width="2" stroke-linecap="round"/>';
+}
+
+function _getHairBackSVG(hair, color) {
+  if (hair === 0) return '<path d="M24 40 Q24 100 60 100 Q96 100 96 40 Q96 30 60 26 Q24 30 24 40Z" fill="' + color + '"/>';
+  if (hair === 2) return '<path d="M24 40 Q24 100 60 100 Q96 100 96 40 Q96 30 60 26 Q24 30 24 40Z" fill="' + color + '"/>'
+    + '<ellipse cx="95" cy="55" rx="8" ry="20" fill="' + color + '"/>';
+  if (hair === 3) return '<path d="M24 40 Q24 100 60 100 Q96 100 96 40 Q96 30 60 26 Q24 30 24 40Z" fill="' + color + '"/>'
+    + '<ellipse cx="20" cy="65" rx="7" ry="18" fill="' + color + '"/>'
+    + '<ellipse cx="100" cy="65" rx="7" ry="18" fill="' + color + '"/>';
+  if (hair === 5) return '<path d="M22 40 Q22 100 60 100 Q98 100 98 40 Q98 28 60 24 Q22 28 22 40Z" fill="' + color + '"/>';
+  return '<path d="M26 40 Q26 28 60 24 Q94 28 94 40 L94 60 Q94 70 86 72 L34 72 Q26 70 26 60Z" fill="' + color + '"/>';
+}
+
+function _getHairFrontSVG(hair, color) {
+  if (hair === 0) return '<path d="M28 44 Q28 32 60 28 Q92 32 92 44 L92 46 Q80 40 60 40 Q40 40 28 46Z" fill="' + color + '"/>'
+    + '<path d="M32 44 L38 44 L36 52Z" fill="' + color + '"/>'
+    + '<path d="M88 44 L82 44 L84 52Z" fill="' + color + '"/>';
+  if (hair === 1) return '<path d="M28 44 Q28 32 60 28 Q92 32 92 44 L92 50 Q88 54 84 50 Q80 54 76 50 Q72 54 60 52 Q48 54 44 50 Q40 54 36 50 Q32 54 28 50Z" fill="' + color + '"/>';
+  if (hair === 2) return '<path d="M28 44 Q28 32 60 28 Q92 32 92 44 L92 48 Q80 42 60 42 Q40 42 28 48Z" fill="' + color + '"/>'
+    + '<circle cx="88" cy="36" r="6" fill="' + color + '"/>';
+  if (hair === 3) return '<path d="M28 44 Q28 32 60 28 Q92 32 92 44 L92 48 Q80 42 60 42 Q40 42 28 48Z" fill="' + color + '"/>'
+    + '<circle cx="28" cy="44" r="4" fill="' + color + '"/>'
+    + '<circle cx="92" cy="44" r="4" fill="' + color + '"/>'
+    + '<circle cx="26" cy="44" r="3" fill="#FF8FA3"/>'
+    + '<circle cx="94" cy="44" r="3" fill="#FF8FA3"/>';
+  if (hair === 4) return '<path d="M28 42 Q28 30 60 26 Q92 30 92 42 L92 50 Q85 44 78 48 Q72 42 60 46 Q48 42 42 48 Q35 44 28 50Z" fill="' + color + '"/>';
+  if (hair === 5) return '<path d="M26 44 Q26 30 60 26 Q94 30 94 44 L94 50 Q88 44 82 48 Q76 42 60 46 Q44 42 38 48 Q32 44 26 50Z" fill="' + color + '"/>';
+  return '';
+}
+
+function renderFacePage(container) {
+  var fc = _getFaceConfig();
+  var html = '<div class="page active"><div class="page-header">'
+    + '<div class="back-btn" onclick="goToPage(&#39;home&#39;)">&#8249; 首页</div>'
+    + '<div class="page-title">造型</div>'
+    + '<div style="width:32px;"></div>'
+    + '</div><div class="page-content" style="padding-bottom:80px;">';
+
+  html += '<div style="text-align:center;margin:16px 0;">'
+    + '<div style="width:120px;height:120px;border-radius:50%;margin:0 auto;overflow:hidden;border:3px solid var(--color-primary);box-shadow:0 4px 15px rgba(255,143,163,0.3);">'
+    + generateFaceSVG(120, fc)
+    + '</div></div>';
+
+  html += _faceSection('肤色', FACE_SKIN_NAMES, fc.skin, 'skin', FACE_SKINS);
+  html += _faceOptionRow('脸型', FACE_SHAPES, fc.shape, 'shape');
+  html += _faceOptionRow('眼睛', FACE_EYES, fc.eyes, 'eyes');
+  html += _faceSection('瞳色', FACE_EYE_COLOR_NAMES, fc.eyeColor, 'eyeColor', FACE_EYE_COLORS);
+  html += _faceOptionRow('眉毛', FACE_EYEBROWS, fc.eyebrows, 'eyebrows');
+  html += _faceOptionRow('嘴巴', FACE_MOUTHS, fc.mouth, 'mouth');
+  html += _faceOptionRow('发型', FACE_HAIRS, fc.hair, 'hair');
+  html += _faceSection('发色', FACE_HAIR_COLOR_NAMES, fc.hairColor, 'hairColor', FACE_HAIR_COLORS);
+
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+function _faceSection(label, names, current, key, colors) {
+  var html = '<div style="margin:12px 0;">'
+    + '<div style="font-size:13px;font-weight:600;color:var(--color-text);margin-bottom:8px;">' + label + '</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+  for (var i = 0; i < names.length; i++) {
+    var sel = i === current;
+    var darkColor = colors && (colors[i] === '#1A1A1A' || colors[i] === '#5C3317' || colors[i] === '#8B4513');
+    html += '<div onclick="_setFaceProp(&#39;' + key + '&#39;,' + i + ')" style="'
+      + 'width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;'
+      + 'background:' + (colors ? colors[i] : 'var(--bg-card)') + ';'
+      + 'border:2px solid ' + (sel ? 'var(--color-primary)' : 'transparent') + ';'
+      + 'box-shadow:' + (sel ? '0 0 8px rgba(255,143,163,0.5)' : 'none') + ';'
+      + 'font-size:9px;color:' + (darkColor ? 'white' : 'var(--color-text)') + ';'
+      + 'font-weight:' + (sel ? '700' : '400') + ';'
+      + '">' + names[i] + '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function _faceOptionRow(label, options, current, key) {
+  var html = '<div style="margin:12px 0;">'
+    + '<div style="font-size:13px;font-weight:600;color:var(--color-text);margin-bottom:8px;">' + label + '</div>'
+    + '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+  for (var i = 0; i < options.length; i++) {
+    var sel = i === current;
+    html += '<div onclick="_setFaceProp(&#39;' + key + '&#39;,' + i + ')" style="'
+      + 'padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;'
+      + 'background:' + (sel ? 'var(--color-primary)' : 'var(--bg-card)') + ';'
+      + 'color:' + (sel ? 'white' : 'var(--color-text)') + ';'
+      + 'border:1px solid ' + (sel ? 'var(--color-primary)' : 'var(--color-border)') + ';'
+      + 'font-weight:' + (sel ? '600' : '400') + ';'
+      + '">' + options[i].name + '</div>';
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function _setFaceProp(key, val) {
+  var fc = _getFaceConfig();
+  fc[key] = val;
+  gameState.faceCustom = fc;
+  autoSave();
+  if (typeof creationStep !== 'undefined' && creationStep === 6) {
+    render();
+  } else {
+    renderFacePage(document.getElementById('app-container'));
+  }
+}
+
+
 // V1.7: Dress-up / Tone System (文案换装系统)
 var TONE_STYLES = [
     { id: 'default', name: '日常', icon: 'N', desc: '自然随意的聊天风格', modifier: '' },
@@ -3801,6 +4087,7 @@ function getIcon(name) {
         'phone': '<svg viewBox="0 0 24 24"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>',
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
         'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
+        'face': '<svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9 13c1.5 2 4.5 2 6 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9.5" cy="9.5" r="1" fill="currentColor"></circle><circle cx="14.5" cy="9.5" r="1" fill="currentColor"></circle><path d="M7 17c-2 1-3 3-3 5h16c0-2-1-4-3-5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
     };
     return icons[name] || '';
 }
