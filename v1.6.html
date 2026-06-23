@@ -1436,7 +1436,7 @@ window.addEventListener('error', function(e) {
 </div>
 <div id="inviteGate">
 <div class="gate-logo">M</div>
-<div class="gate-title">My Idol V1.6</div>
+<div class="gate-title">My Idol V1.7</div>
 <div class="gate-desc">内测专用，请输入邀请码进入</div>
 <div class="gate-card">
 <input class="gate-input" id="gateCodeInput" type="text" placeholder="请输入邀请码" maxlength="20" />
@@ -1535,11 +1535,34 @@ function __loadScript(src, cb) {
     s.src = src;
     s.onload = function() {
         __jsLoaded = true;
-        __diag('Script tag onload fired (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
+        __diag('Script loaded (' + ((Date.now()-__jsLoadStart)/1000).toFixed(1) + 's)');
         // Verify critical functions exist (detects truncated load)
         if (typeof render !== 'function') {
             __diag('WARNING: render() missing - file may be truncated');
         }
+        // Post-load integrity check: verify file size via fetch
+        try {
+            var _ck = new XMLHttpRequest();
+            _ck.open('HEAD', src.split('&_bust')[0].split('?')[0], true);
+            _ck.onreadystatechange = function() {
+                if (_ck.readyState === 4 && _ck.status === 200) {
+                    var _sz = parseInt(_ck.getResponseHeader('content-length') || '0');
+                    __diag('game.js CDN size: ' + _sz + ' bytes');
+                    // game.js should be > 800000 bytes
+                    if (_sz > 0 && _sz < 800000) {
+                        __diag('TRUNCATED! (' + _sz + ' < 800000) - forcing reload');
+                        if (__loadRetries < 3) {
+                            __loadRetries++;
+                            __updateLoad('Reloading... (' + __loadRetries + ')');
+                            setTimeout(function() {
+                                location.href = location.pathname + '?_rb=' + Date.now();
+                            }, 500);
+                        }
+                    }
+                }
+            };
+            _ck.send();
+        } catch(e) {}
         if (cb) cb();
     };
     s.onerror = function(e) {

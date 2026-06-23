@@ -244,13 +244,10 @@ function render() {
     var app = document.getElementById('app');
     if (!app) return;
     try {
+        // V1.7 public beta: invite code removed, auto-verify
         if (!window._inviteVerified) {
-            if (localStorage.getItem('myIdolInviteVerified') === 'true') {
-                window._inviteVerified = true;
-            } else {
-                renderInviteCodePage(app);
-                return;
-            }
+            window._inviteVerified = true;
+            localStorage.setItem('myIdolInviteVerified', 'true');
         }
         switch(currentPage) {
             case 'welcome':
@@ -487,7 +484,7 @@ function startNewGame(slot) {
         avatar: ''
     };
     current存档 = slot;
-    creationStep = 1;
+    creationStep = 0;
     currentPage = 'create';
     render();
 }
@@ -496,6 +493,9 @@ function renderCreationPage(container) {
     var content = '';
     
     switch(creationStep) {
+        case 0:
+            content = renderCreationStep0();
+            break;
         case 1:
             content = renderCreationStep1();
             setTimeout(function() { if (gameState.player.birthDate) calculateAge(); }, 50);
@@ -527,6 +527,37 @@ function renderCreationPage(container) {
             completeCreation();
         });
     }
+}
+
+
+// ===== ANTI-PIRACY WARNING (Step 0) =====
+function renderCreationStep0() {
+    return '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+        + '<div class="page-header">'
+        + '<div style="width:32px;"></div>'
+        + '<div class="page-title">重要声明</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px 24px;">'
+        + '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:24px;">'
+        + '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 9v4"/><circle cx="12" cy="16" r="0.5" fill="white" stroke="none"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
+        + '</div>'
+        + '<div style="font-size:18px;font-weight:700;color:#FF6B8A;text-align:center;margin-bottom:16px;">My Idol 是免费游戏</div>'
+        + '<div style="background:white;border-radius:16px;padding:20px;width:100%;max-width:320px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
+        + '<div style="font-size:13px;color:#333;line-height:1.8;text-align:left;">'
+        + '<div style="font-weight:700;color:#FF6B8A;margin-bottom:8px;">禁止以下行为:</div>'
+        + '<div style="padding-left:12px;">1. 售卖游戏链接或邀请码</div>'
+        + '<div style="padding-left:12px;">2. 以任何形式收费提供访问</div>'
+        + '<div style="padding-left:12px;">3. 倒卖游戏账号或存档</div>'
+        + '<div style="margin-top:12px;font-weight:600;color:#FF3B30;">发现售卖一律视为盗版</div>'
+        + '<div style="margin-top:8px;font-size:11px;color:#999;">My Idol 永久免费，官方唯一网址: myidol.asia</div>'
+        + '</div>'
+        + '</div>'
+        + '<div style="margin-top:24px;width:100%;max-width:320px;">'
+        + '<button class="btn btn-primary btn-lg" onclick="creationStep=1;render();" style="width:100%;">我已了解，继续</button>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
 }
 
 function renderCreationStep1() {
@@ -778,7 +809,7 @@ function nextCreationStep(step) {
 }
 
 function prevCreationStep() {
-    if (creationStep > 1) { creationStep--; render(); }
+    if (creationStep > 0) { creationStep--; render(); }
 }
 
 function goToWelcome() {
@@ -795,7 +826,7 @@ function goToWelcome() {
 
 function _resetCreation() {
     gameState.player = { name: '', gender: '', birthDate: '', age: 0, personality: [], company: '', groups: [], positions: [], role: '', avatar: '' };
-    creationStep = 1;
+    creationStep = 0;
 }
 
 function completeCreation() {
