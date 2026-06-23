@@ -20,6 +20,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: false, message: '请输入订单号' });
     }
 
+    if (!process.env.AFDIAN_TOKEN || !process.env.AFDIAN_USER_ID) {
+      return res.status(200).json({ success: false, message: '系统配置异常，请联系客服' });
+    }
+
     // Call Afdian API to verify order
     var ts = Math.floor(Date.now() / 1000).toString();
     var params = JSON.stringify({ out_trade_no: orderNo });
@@ -28,7 +32,10 @@ export default async function handler(req, res) {
 
     var afdianResp = await fetch('https://afdian.net/api/open/query-order', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'User-Agent': 'MyIdol/1.0'
+      },
       body: JSON.stringify({
         user_id: process.env.AFDIAN_USER_ID,
         params: params,
@@ -68,6 +75,7 @@ export default async function handler(req, res) {
     });
 
   } catch (e) {
+    // Return more specific error for debugging
     return res.status(200).json({ success: false, message: '验证失败: ' + e.message });
   }
 }

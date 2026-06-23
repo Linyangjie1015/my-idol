@@ -6499,7 +6499,7 @@ function handleCrisis(eventIdx, actionIdx) {
     ];
     var a = actions[actionIdx];
     if (!a) return;
-    addDanger(a.danger, 'date'); if (isSecret && loc.dangerBase) addDanger(loc.dangerBase, 'date');
+    addDanger(a.danger, 'crisis');
     if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
     if (a.creditBonus) gameState.credit = Math.max(0, Math.min(200, gameState.credit + a.creditBonus));
     
@@ -7270,12 +7270,17 @@ function _resetSave() {
             var key = _getSaveKey(current存档);
             localStorage.removeItem(key);
             if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
+            var _rsKeys = Object.keys(gameState);
+            for (var _ri = 0; _ri < _rsKeys.length; _ri++) {
+                delete gameState[_rsKeys[_ri]];
+            }
             Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             gameState.player = {
                 name: '', gender: '', birthDate: '', age: 0,
                 personality: [], company: '', group: '', groups: [],
                 positions: [], role: '', avatar: ''
             };
+            _resetGlobalState();
             currentPage = 'create';
             creationStep = 1;
             document.getElementById('statusBar').style.display = 'none';
@@ -7323,8 +7328,15 @@ function _doSwitchSlot(slot) {
     var data = localStorage.getItem(key);
     if (data) {
         try {
+            // Clear ALL existing gameState properties to prevent cross-save data leaking
+            var _swKeys = Object.keys(gameState);
+            for (var _ski = 0; _ski < _swKeys.length; _ski++) {
+                delete gameState[_swKeys[_ski]];
+            }
+            Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             Object.assign(gameState, JSON.parse(data));
             _ensureV16Fields();
+            _resetGlobalState();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
             render();
@@ -7604,14 +7616,32 @@ function _updateDangerDisplay() {
     }
 }
 
+// Reset all non-gameState global variables that should be per-save
+function _resetGlobalState() {
+    crisisEvents = [];
+    isLive = false;
+    isExamInProgress = false;
+    window._loveView = 'list';
+    window._loveChatTarget = '';
+    _kakaoAddPersonality = '';
+    if (speechRecognition) { try { speechRecognition.stop(); } catch(e) {} speechRecognition = null; }
+}
+
 function loadGame(slot) {
     try {
         var key = _getSaveKey(slot);
         var data = localStorage.getItem(key);
         if (data) {
             var saveData = JSON.parse(data);
+            // Clear ALL existing gameState properties to prevent cross-save data leaking
+            var existingKeys = Object.keys(gameState);
+            for (var ki = 0; ki < existingKeys.length; ki++) {
+                delete gameState[existingKeys[ki]];
+            }
+            Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             Object.assign(gameState, saveData);
             _ensureV16Fields();
+            _resetGlobalState();
             current存档 = slot;
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
@@ -13000,8 +13030,15 @@ function _loadSlot(slot) {
     var data = localStorage.getItem(key);
     if (data) {
         try {
+            // Clear ALL existing gameState properties to prevent cross-save data leaking
+            var _lsKeys = Object.keys(gameState);
+            for (var _lki = 0; _lki < _lsKeys.length; _lki++) {
+                delete gameState[_lsKeys[_lki]];
+            }
+            Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             Object.assign(gameState, JSON.parse(data));
             _ensureV16Fields();
+            _resetGlobalState();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             current存档 = slot;
             currentPage = 'home';
@@ -13022,8 +13059,13 @@ function _startNewSlot(slot) {
     slot = parseInt(slot, 10);
     current存档 = slot;
     creationStep = 1;
+    var _nsKeys = Object.keys(gameState);
+    for (var _ni = 0; _ni < _nsKeys.length; _ni++) {
+        delete gameState[_nsKeys[_ni]];
+    }
     Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
     _ensureV16Fields();
+    _resetGlobalState();
     gameState.player = {
         name: '',
         gender: '',
