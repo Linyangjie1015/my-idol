@@ -1574,7 +1574,7 @@ function _showElevatorModal() {
         {id:'floor2',name:'2F \u521b\u4f5c\u5c42',desc:'\u5f55\u97f3\u5ba4 \u00b7 \u5199\u6b4c\u533a'},
         {id:'floor3',name:'3F \u8bad\u7ec3\u5c42',desc:'\u821e\u8e48\u5ba4 \u00b7 \u58f0\u4e50\u5ba4 \u00b7 \u5f62\u4f53\u5ba4'},
         {id:'floor4',name:'4F \u8fd0\u8425\u5c42',desc:'\u7ecf\u7eaa\u90e8 \u00b7 \u516c\u5173\u90e8 \u00b7 \u4f1a\u8bae\u5ba4'},
-        {id:'floor5',name:'5F \u9876\u5c42',desc:'\u793e\u957f\u5ba4 \u00b7 VIP\u4f11\u606f\u5ba4'}
+        {id:'floor5',name:'5F \u9876\u5c42',desc:'\u793e\u957f\u5ba4 \u00b7 VIP\u5165\u7761\u5ba4'}
     ];
     var h = '<div id="elevatorModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">';
     h += '<div style="background:#1a1a2e;border-radius:16px;padding:20px;width:85%;max-width:320px;">';
@@ -1680,7 +1680,7 @@ function _buildPhoneModal() {
 
 function _hsAction(hs) {
     if (hs.action === 'phone') { _exitSceneToUI(); }
-    else if (hs.action === 'sleep') { doRest(); }
+    else if (hs.action === 'sleep') { _endDay(); }
     else if (hs.action === 'nav') {
         if (hs.target === '_nav') _showSceneNavModal();
         else if (hs.target === '_elevator') _showElevatorModal();
@@ -1705,7 +1705,7 @@ function renderScenePage(container) {
         var hs = scene.hotspots[hi];
         var act = '';
         if (hs.action === 'phone') act = '_showPhoneModal()';
-        else if (hs.action === 'sleep') act = 'doRest()';
+        else if (hs.action === 'sleep') act = '_endDay()';
         else if (hs.action === 'nav' && hs.target === '_nav') act = '_showSceneNavModal()';
         else if (hs.action === 'nav' && hs.target === '_elevator') act = '_showElevatorModal()';
         else if (hs.action === 'scene') act = '_navigateScene(\'' + hs.target + '\')';
@@ -1725,7 +1725,8 @@ function renderScenePage(container) {
         + '<div class="scene-day">\u7b2c' + dayInfo.day + '\u5929 ' + dayInfo.weekDay + '</div>'
         + '<div class="scene-loc">' + locationName + '</div>'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
-        + '</div>'; + '<div style="position:absolute;bottom:max(6px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:16px;background:rgba(0,0,0,0.35);backdrop-filter:blur(8px);border-radius:20px;padding:5px 14px;">' + '<div onclick="_exitSceneToUI()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>\u624b\u673a</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>\u5bfc\u822a</div>' + '<div onclick="goToPage(\'me\')" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>\u6211\u7684</div>' + '</div>'
+        + '<div style="position:absolute;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:14px;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius:20px;padding:6px 16px;">' + '<div onclick="_exitSceneToUI()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>手机</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>导航</div>' + '<div onclick="goToPage(&#39;me&#39;)" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>我的</div>' + '</div>'
+        + '</div>'
 }
 
 // ==================== TRAINING PAGE ====================
