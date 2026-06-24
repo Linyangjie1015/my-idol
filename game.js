@@ -37,10 +37,53 @@ var _getCardImgUrl = window._getCardImgUrl || function(cardName) { return ""; };
 
 // ==================== GAME DATA ====================
 var COMPANIES = window.COMPANIES || {};
+
+// ==================== V2.0 SAVE MIGRATION ====================
+var _migrateV2Save = function() {
+    if (!gameState || !gameState.player) return;
+    // Migrate company to SEONGWOO ENT
+    var oldCompanies = ['SN Entertainment', 'YK Entertainment', 'JYP+ Entertainment', 'HYBE+', 'HYBE+ Entertainment'];
+    if (oldCompanies.indexOf(gameState.player.company) >= 0 || !COMPANIES[gameState.player.company]) {
+        gameState.player.company = 'SEONGWOO ENT';
+    }
+    // Migrate groups to Haeoreum
+    if (!gameState.player.groups || gameState.player.groups.length === 0) {
+        gameState.player.groups = ['Haeoreum'];
+    } else {
+        var validGroups = COMPANIES['SEONGWOO ENT'] ? Object.keys(COMPANIES['SEONGWOO ENT'].groups) : ['Haeoreum'];
+        var newGroups = [];
+        for (var gi = 0; gi < gameState.player.groups.length; gi++) {
+            if (validGroups.indexOf(gameState.player.groups[gi]) >= 0) {
+                newGroups.push(gameState.player.groups[gi]);
+            }
+        }
+        if (newGroups.length === 0) newGroups = ['Haeoreum'];
+        gameState.player.groups = newGroups;
+    }
+    // Migrate group if it doesn't exist
+    if (!gameState.player.group) {
+        var c = COMPANIES[gameState.player.company];
+        if (c && c.groups && gameState.player.groups.length > 0 && c.groups[gameState.player.groups[0]]) {
+            gameState.player.group = c.groups[gameState.player.groups[0]].name;
+        } else {
+            gameState.player.group = 'Haeoreum';
+        }
+    }
+    // Ensure COMPANIES is available
+    if (!window.COMPANIES || Object.keys(window.COMPANIES).length === 0) {
+        if (typeof COMPANIES !== 'undefined' && Object.keys(COMPANIES).length > 0) {
+            window.COMPANIES = COMPANIES;
+        }
+    } else {
+        COMPANIES = window.COMPANIES;
+    }
+};
+
 function __waitForCOMPANIES(callback, maxMs) {
     maxMs = maxMs || 8000;
     if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) {
         COMPANIES = window.COMPANIES;
+        _migrateV2Save();
         callback();
         return;
     }
@@ -56,6 +99,26 @@ function __waitForCOMPANIES(callback, maxMs) {
         }
     }, 300);
 }
+
+var _getCompany = function(key) {
+    if (!key) key = gameState.player.company;
+    if (COMPANIES[key]) return COMPANIES[key];
+    // Migrate on the fly
+    if (key !== 'SEONGWOO ENT') {
+        gameState.player.company = 'SEONGWOO ENT';
+        if (COMPANIES['SEONGWOO ENT']) return COMPANIES['SEONGWOO ENT'];
+    }
+    if (window.COMPANIES && window.COMPANIES['SEONGWOO ENT']) {
+        COMPANIES = window.COMPANIES;
+        return COMPANIES['SEONGWOO ENT'];
+    }
+    return { name: 'SEONGWOO ENT 星隅娱乐', desc: '', tags: [], groups: { Haeoreum: { name: 'Haeoreum', desc: '', tier: 'S', members: [] } } };
+};
+var _getGroupName = function(gk) {
+    var c = _getCompany();
+    if (c && c.groups && c.groups[gk]) return c.groups[gk].name;
+    return gk;
+};
 
 // ==================== GAME STATE ====================
 var GROUP_INTROS = {};
@@ -262,7 +325,15 @@ function render() {
                 renderCreationPage(app);
                 break;
             case 'home':
-                var _bn=document.getElementById('bottomNav');if(_bn)_bn.style.display='none';renderScenePage(app);
+                if (window._inSceneMode) {
+                    var _bn=document.getElementById('bottomNav');if(_bn)_bn.style.display='none';
+                    renderScenePage(app);
+                } else {
+                    renderHomePage(app);
+                }
+                break;
+            case 'phoneui':
+                renderHomePage(app);
                 break;
             case 'training':
                 render训练Page(app);
@@ -582,7 +653,7 @@ function renderCreationStep4() {
         return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 4 \u6b65 / \u5171 4 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     
     return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 4 \u6b65 / \u5171 4 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">\u786e\u8ba4\u5e76\u5f00\u59cb</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--color-primary);">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '\u5973' : '\u7537') + ' | ' + (gameState.player.age) + '\u5c81</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u516c\u53f8</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u8eab\u4efd</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '\u7ec3\u4e60\u751f' : '\u51fa\u9053\u7231\u8c46') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u56e2\u4f53</span>\n                            <span style="font-weight: 600;">Haeoreum</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u961f\u5185\u5b9a\u4f4d</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' / ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">\u6027\u683c</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('\u3001')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">\u51fa\u751f\u65e5\u671f</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">\u5f00\u59cb\u6e38\u620f</button>\n            </div>\n        </div>\n    ';
 }
@@ -603,9 +674,9 @@ function renderCreationStep6() {
         return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 6 \u6b65 / \u5171 6 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content" style="flex: 1; overflow-y: auto; text-align: center; padding-top: 60px;">\n                <div style="color: var(--color-text-light);">\u6570\u636e\u52a0\u8f7d\u4e2d...</div>\n            </div>\n        </div>';
     }
     COMPANIES = window.COMPANIES;
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--color-primary);">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=COMPANIES[gameState.player.company]; return c&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--color-primary);">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=_getCompany(); return c&&c.groups&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
 }
 
 function genBirthOptions(start, count, part) {
@@ -824,7 +895,7 @@ function initAsTrainee() {
     
     gameState.player.avatar = gameState.player.name.charAt(0).toUpperCase();
     
-    var companyData = COMPANIES[company];
+    var companyData = _getCompany(company);
     gameState.emails.unshift({
         title: '欢迎加入 ' + ((companyData && companyData.name) || company) + '！',
         from: ((companyData && companyData.name) || company) + ' 人事部',
@@ -858,14 +929,14 @@ function initAsIdol() {
     gameState.money = 80000 + Math.floor(Math.random() * 40001);
     
         var selectedGroupKey = (gameState.player.groups && gameState.player.groups.length > 0) ? gameState.player.groups[0] : null;
-        var _compObj = COMPANIES[company];
+        var _compObj = _getCompany(company);
         var originalGroupName = selectedGroupKey && _compObj && _compObj.groups[selectedGroupKey] ? _compObj.groups[selectedGroupKey].name : gameState.player.name + '\u7684\u56e2\u4f53';
         gameState.player.group = originalGroupName; gameState.player.originalGroup = true;
     
     gameState.fans = 200 + Math.floor(Math.random() * 601);
     gameState.player.avatar = gameState.player.name.charAt(0).toUpperCase();
     
-    var companyData = COMPANIES[company];
+    var companyData = _getCompany(company);
     gameState.emails.unshift({
         title: '出道快乐！',
         from: (companyData ? companyData.name || company : company) + ' 经纪部',
@@ -1077,7 +1148,7 @@ function renderHomePage(container) {
     ];
     
     var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     var timeLabel = '';
     if (gameState.player.role === 'Trainee') {
         var weekNum = Math.floor((gameState.gameDay - 1) / 7) + 1;
@@ -1512,7 +1583,9 @@ function _exitSceneToUI() {
         _phoneModalVisible = false;
         var sb = document.querySelector('[onclick*="回到场景"]');
         if (sb && sb.parentNode) sb.parentNode.removeChild(sb);
-        if (typeof goToPage === 'function') { goToPage('home'); }
+        var _overlay = document.querySelector('.scene-full-overlay');
+        if (_overlay) _overlay.remove();
+        if (typeof goToPage === 'function') { goToPage('phoneui'); }
         else { location.reload(); }
     } catch(e) {
         window._inSceneMode = false;
@@ -2728,7 +2801,7 @@ function renderComprehensiveExam(container, attempt) {
 // ==================== MY PAGE ====================
 function render我的Page(container) {
     var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     var genderText = gameState.player.gender === 'F' ? '女' : '男';
     
     container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>' + (gameState.equippedOutfit ? '<div style="font-size:10px;color:var(--color-primary);margin-top:4px;">' + _getOutfitName() + '</div>' : '') + '\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color:#FF69B4;">颜值</span>\n                        <div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.looks || 0) / 2) + '%;background:linear-gradient(90deg,#FF69B4,#FFB6C1);"></div></div>\n                        <span class="stat-value" style="color:#FF69B4;">' + (gameState.looks || 0) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
@@ -5471,7 +5544,7 @@ function sendLoveGift(giftName, price, loveVal) {
 function getSameCompanyNPCs() {
     var npcs = [];
     if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0 && Object.keys(COMPANIES).length === 0) { COMPANIES = window.COMPANIES; }
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     if (!company) return npcs;
     var keys = Object.keys(company.groups);
     for (var k = 0; k < keys.length; k++) {
@@ -7768,6 +7841,7 @@ function _doSwitchSlot(slot) {
             Object.assign(gameState, JSON.parse(JSON.stringify(_defaultGameState)));
             Object.assign(gameState, JSON.parse(data));
             _ensureV16Fields();
+            _migrateV2Save();
             _resetGlobalState();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             currentPage = 'home';
@@ -12079,7 +12153,7 @@ function _ensureKakaoState() {
     if (!gameState.kakaoTab) gameState.kakaoTab = 'chats';
     // Add teammates and company colleagues for debuted Idols
     if (gameState.player.role === 'Idol' && gameState.player.group) {
-        var _comp = COMPANIES[gameState.player.company];
+        var _comp = _getCompany(gameState.player.company);
         if (_comp) {
             var _gkeys = Object.keys(_comp.groups);
             for (var _gki = 0; _gki < _gkeys.length; _gki++) {
@@ -12748,7 +12822,7 @@ function renderWeeklyGoals() {
 
 // ==================== V1.7: Share Card Generator ====================
 function showShareCard() {
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     var companyName = (company && company.name) || '';
     var roleLabel = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
     var groupLabel = gameState.player.group || '';
@@ -13828,7 +13902,7 @@ function render出道DialogPage(container) {
     var step = gameState.debutStep;
     var result = gameState.debutResult;
     var playerName = gameState.player.name;
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
 
     if (step >= 100) {
         _renderKickFlow(container, step, company);
@@ -13936,10 +14010,10 @@ function _completeDebut() {
     if (gameState.player.role === 'Idol') return;
     gameState.player.role = 'Idol';
         if(typeof checkAchievements==='function') checkAchievements();
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     var hasBusinessLoan = (gameState.loanAmount > 0 && gameState.loanInterest >= 5);
     if (!gameState.player.group) {
-        var _company = COMPANIES[gameState.player.company]; var _selGroupKey = null; if (gameState.player.groups && gameState.player.groups.length > 0) { if (gameState.player.groups.length === 1) { _selGroupKey = gameState.player.groups[0]; } else { var _randIdx = Math.floor(Math.random() * gameState.player.groups.length); _selGroupKey = gameState.player.groups[_randIdx]; } } gameState.player.group = _selGroupKey && _company && _company.groups[_selGroupKey] ? _company.groups[_selGroupKey].name : gameState.player.name + '\u7684\u56e2\u4f53';
+        var _company = _getCompany(gameState.player.company); var _selGroupKey = null; if (gameState.player.groups && gameState.player.groups.length > 0) { if (gameState.player.groups.length === 1) { _selGroupKey = gameState.player.groups[0]; } else { var _randIdx = Math.floor(Math.random() * gameState.player.groups.length); _selGroupKey = gameState.player.groups[_randIdx]; } } gameState.player.group = _selGroupKey && _company && _company.groups[_selGroupKey] ? _company.groups[_selGroupKey].name : gameState.player.name + '\u7684\u56e2\u4f53';
     }
     gameState.player.originalGroup = true;
     if (!gameState.player.group) gameState.player.group = gameState.player.name + '的团体';
@@ -14079,7 +14153,7 @@ function _selectKickMember(index) {
 }
 
 function confirmKick() {
-    var company = COMPANIES[gameState.player.company];
+    var company = _getCompany(gameState.player.company);
     if (!company) return;
     var targetGroup = gameState.debutResult;
     var group = company.groups[targetGroup];
