@@ -262,7 +262,7 @@ function render() {
                 renderCreationPage(app);
                 break;
             case 'home':
-                renderScenePage(app);
+                var _bn=document.getElementById('bottomNav');if(_bn)_bn.style.display='none';renderScenePage(app);
                 break;
             case 'training':
                 render训练Page(app);
@@ -1239,156 +1239,268 @@ function renderHomePage(container) {
 // ==================== V1.8 SCENE NAVIGATION SYSTEM ====================
 
 var SCENES = {
-    dorm: {
-        name: '\u5bbf\u820d', img: 'imgs/scenes/dorm.jpg', role: 'Trainee',
+    // === HOME (Idol) ===
+    home: {
+        name: '客厅', img: 'imgs/scenes/home.jpg', role: 'Idol',
         hotspots: [
-            {x:72,y:55,icon:'phone',label:'\u624b\u673a',action:'phone'},
-            {x:30,y:50,icon:'bed',label:'\u7761\u89c9',action:'sleep'},
-            {x:88,y:45,icon:'door',label:'\u51fa\u95e8',action:'nav',target:'_nav'},
-            {x:15,y:60,icon:'shirt',label:'\u8863\u67b6',action:'app',target:'wardrobe'}
+            {x:50,y:60,icon:'phone',label:'手机',action:'phone'},
+            {x:35,y:55,icon:'bed',label:'休息',action:'sleep'},
+            {x:75,y:30,icon:'door',label:'走廊',action:'scene',target:'home_corridor'},
+            {x:25,y:70,icon:'food',label:'外卖',action:'app',target:'food'},
+            {x:80,y:75,icon:'delivery',label:'快递',action:'app',target:'delivery'},
+            {x:88,y:45,icon:'door',label:'出门',action:'nav',target:'_nav'}
         ]
     },
-    home: {
-        name: '\u5ba2\u5385', img: 'imgs/scenes/home.jpg', role: 'Idol',
+    home_corridor: {
+        name: '走廊', img: 'imgs/scenes/home_corridor.jpg', role: 'Idol',
         hotspots: [
-            {x:50,y:62,icon:'phone',label:'\u624b\u673a',action:'phone'},
-            {x:35,y:55,icon:'bed',label:'\u4f11\u606f',action:'sleep'},
-            {x:88,y:45,icon:'door',label:'\u51fa\u95e8',action:'nav',target:'_nav'},
-            {x:75,y:30,icon:'shirt',label:'\u8863\u5e3d\u95f4',action:'scene',target:'wardrobe_room'},
-            {x:25,y:70,icon:'food',label:'\u5916\u5356',action:'app',target:'food'},
-            {x:80,y:75,icon:'delivery',label:'\u5feb\u9012',action:'app',target:'delivery'},
-            {x:20,y:35,icon:'bed',label:'\u5367\u5ba4',action:'scene',target:'bedroom'},
-            {x:60,y:30,icon:'bath',label:'\u536b\u751f\u95f4',action:'scene',target:'bathroom'}
+            {x:25,y:45,icon:'bed',label:'卧室',action:'scene',target:'bedroom'},
+            {x:55,y:45,icon:'bath',label:'卫生间',action:'scene',target:'bathroom'},
+            {x:80,y:45,icon:'shirt',label:'衣帽间',action:'scene',target:'wardrobe_room'},
+            {x:50,y:85,icon:'door',label:'回客厅',action:'scene',target:'home'}
         ]
     },
     bedroom: {
-        name: '\u5367\u5ba4', img: 'imgs/scenes/bedroom.jpg', role: 'Idol',
+        name: '卧室', img: 'imgs/scenes/bedroom.jpg', role: 'Idol',
         hotspots: [
-            {x:50,y:55,icon:'bed',label:'\u7761\u89c9',action:'sleep'},
-            {x:85,y:50,icon:'door',label:'\u8fd4\u56de',action:'scene',target:'home'}
+            {x:50,y:55,icon:'bed',label:'睡觉',action:'sleep'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'home_corridor'}
         ]
     },
     wardrobe_room: {
-        name: '\u8863\u5e3d\u95f4', img: 'imgs/scenes/wardrobe_room.jpg', role: 'Idol',
+        name: '衣帽间', img: 'imgs/scenes/wardrobe_room.jpg', role: 'Idol',
         hotspots: [
-            {x:50,y:50,icon:'shirt',label:'\u6362\u88c5',action:'app',target:'wardrobe'},
-            {x:25,y:60,icon:'star',label:'\u9996\u9970',action:'app',target:'wardrobe'},
-            {x:85,y:50,icon:'door',label:'\u8fd4\u56de',action:'scene',target:'home'}
+            {x:50,y:50,icon:'shirt',label:'换装',action:'app',target:'wardrobe'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'home_corridor'}
         ]
     },
     bathroom: {
-        name: '\u536b\u751f\u95f4', img: 'imgs/scenes/bathroom.jpg', role: 'Idol',
+        name: '卫生间', img: 'imgs/scenes/bathroom.jpg', role: 'Idol',
         hotspots: [
-            {x:85,y:50,icon:'door',label:'\u8fd4\u56de',action:'scene',target:'home'}
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'home_corridor'}
         ]
     },
-    company: {
-        name: '\u516c\u53f8\u5927\u5385', img: 'imgs/scenes/company.jpg',
+
+    // === DORM (Trainee) ===
+    dorm: {
+        name: '宿舍', img: 'imgs/scenes/dorm.jpg', role: 'Trainee',
         hotspots: [
-            {x:50,y:55,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'},
-            {x:20,y:65,icon:'food',label:'\u5496\u5561\u5427',action:'app',target:'food'},
-            {x:88,y:45,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:55,icon:'phone',label:'手机',action:'phone'},
+            {x:30,y:50,icon:'bed',label:'睡觉',action:'sleep'},
+            {x:75,y:35,icon:'door',label:'走廊',action:'scene',target:'dorm_corridor'},
+            {x:88,y:45,icon:'door',label:'出门',action:'nav',target:'_nav'}
+        ]
+    },
+    dorm_corridor: {
+        name: '走廊', img: 'imgs/scenes/dorm_corridor.jpg', role: 'Trainee',
+        hotspots: [
+            {x:25,y:45,icon:'bed',label:'卧室',action:'scene',target:'bedroom_dorm'},
+            {x:55,y:45,icon:'bath',label:'卫生间',action:'scene',target:'bathroom_dorm'},
+            {x:80,y:45,icon:'shirt',label:'衣架',action:'app',target:'wardrobe'},
+            {x:50,y:85,icon:'door',label:'回宿舍',action:'scene',target:'dorm'}
+        ]
+    },
+    bedroom_dorm: {
+        name: '卧室', img: 'imgs/scenes/bedroom.jpg', role: 'Trainee',
+        hotspots: [
+            {x:50,y:55,icon:'bed',label:'睡觉',action:'sleep'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'dorm_corridor'}
+        ]
+    },
+    bathroom_dorm: {
+        name: '卫生间', img: 'imgs/scenes/bathroom.jpg', role: 'Trainee',
+        hotspots: [
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'dorm_corridor'}
+        ]
+    },
+
+    // === COMPANY ===
+    company: {
+        name: '公司大厅', img: 'imgs/scenes/company.jpg',
+        hotspots: [
+            {x:50,y:55,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'},
+            {x:20,y:65,icon:'food',label:'咖啡吧',action:'app',target:'food'},
+            {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     floor2: {
-        name: '\u521b\u4f5c\u5c42', img: 'imgs/scenes/recording.jpg', floor: 2,
+        name: '走廊', img: 'imgs/scenes/company_corridor_f2.jpg', floor: 2,
         hotspots: [
-            {x:30,y:40,icon:'recording',label:'\u5f55\u97f3\u5ba4A',action:'app',target:'songprod'},
-            {x:70,y:40,icon:'recording',label:'\u5f55\u97f3\u5ba4B',action:'app',target:'music'},
-            {x:50,y:65,icon:'edit',label:'\u5199\u6b4c\u533a',action:'app',target:'songprod'},
-            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+            {x:25,y:45,icon:'recording',label:'录音室A',action:'scene',target:'recording_a'},
+            {x:50,y:45,icon:'recording',label:'录音室B',action:'scene',target:'recording_b'},
+            {x:75,y:45,icon:'edit',label:'写歌区',action:'scene',target:'songwriting'},
+            {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
+        ]
+    },
+    recording_a: {
+        name: '录音室A', img: 'imgs/scenes/recording.jpg', floor: 2,
+        hotspots: [
+            {x:50,y:50,icon:'recording',label:'录音',action:'app',target:'songprod'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor2'}
+        ]
+    },
+    recording_b: {
+        name: '录音室B', img: 'imgs/scenes/recording.jpg', floor: 2,
+        hotspots: [
+            {x:50,y:50,icon:'recording',label:'录音',action:'app',target:'music'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor2'}
+        ]
+    },
+    songwriting: {
+        name: '写歌区', img: 'imgs/scenes/recording.jpg', floor: 2,
+        hotspots: [
+            {x:50,y:50,icon:'edit',label:'创作',action:'app',target:'songprod'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor2'}
         ]
     },
     floor3: {
-        name: '\u8bad\u7ec3\u5c42', img: 'imgs/scenes/dance.jpg', floor: 3,
+        name: '走廊', img: 'imgs/scenes/company_corridor_f3.jpg', floor: 3,
         hotspots: [
-            {x:30,y:45,icon:'dance',label:'\u821e\u8e48\u5ba4',action:'app',target:'training'},
-            {x:70,y:45,icon:'vocal',label:'\u58f0\u4e50\u5ba4',action:'app',target:'training'},
-            {x:50,y:70,icon:'body',label:'\u5f62\u4f53\u5ba4',action:'app',target:'training'},
-            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+            {x:25,y:45,icon:'dance',label:'舞蹈室',action:'scene',target:'dance_room'},
+            {x:50,y:45,icon:'vocal',label:'声乐室',action:'scene',target:'vocal_room'},
+            {x:75,y:45,icon:'body',label:'形体室',action:'scene',target:'body_room'},
+            {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
+        ]
+    },
+    dance_room: {
+        name: '舞蹈室', img: 'imgs/scenes/dance.jpg', floor: 3,
+        hotspots: [
+            {x:50,y:50,icon:'dance',label:'训练',action:'app',target:'training'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor3'}
+        ]
+    },
+    vocal_room: {
+        name: '声乐室', img: 'imgs/scenes/vocal.jpg', floor: 3,
+        hotspots: [
+            {x:50,y:50,icon:'vocal',label:'训练',action:'app',target:'training'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor3'}
+        ]
+    },
+    body_room: {
+        name: '形体室', img: 'imgs/scenes/dance.jpg', floor: 3,
+        hotspots: [
+            {x:50,y:50,icon:'body',label:'训练',action:'app',target:'training'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor3'}
         ]
     },
     floor4: {
-        name: '\u8fd0\u8425\u5c42', img: 'imgs/scenes/meeting.jpg', floor: 4,
+        name: '走廊', img: 'imgs/scenes/company_corridor_f4.jpg', floor: 4,
         hotspots: [
-            {x:30,y:40,icon:'management',label:'\u7ecf\u7eaa\u90e8',action:'app',target:'management'},
-            {x:70,y:40,icon:'pr',label:'\u516c\u5173\u90e8',action:'app',target:'pr'},
-            {x:50,y:65,icon:'meeting',label:'\u4f1a\u8bae\u5ba4',action:'app',target:'meeting'},
-            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+            {x:25,y:45,icon:'management',label:'经纪部',action:'scene',target:'mgmt_office'},
+            {x:50,y:45,icon:'pr',label:'公关部',action:'scene',target:'pr_office'},
+            {x:75,y:45,icon:'meeting',label:'会议室',action:'scene',target:'meeting_room'},
+            {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
+        ]
+    },
+    mgmt_office: {
+        name: '经纪部', img: 'imgs/scenes/meeting.jpg', floor: 4,
+        hotspots: [
+            {x:50,y:50,icon:'management',label:'办公',action:'app',target:'management'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'}
+        ]
+    },
+    pr_office: {
+        name: '公关部', img: 'imgs/scenes/meeting.jpg', floor: 4,
+        hotspots: [
+            {x:50,y:50,icon:'pr',label:'公关',action:'app',target:'pr'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'}
+        ]
+    },
+    meeting_room: {
+        name: '会议室', img: 'imgs/scenes/meeting.jpg', floor: 4,
+        hotspots: [
+            {x:50,y:50,icon:'meeting',label:'开会',action:'app',target:'meeting'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'}
         ]
     },
     floor5: {
-        name: '\u9876\u5c42', img: 'imgs/scenes/vip.jpg', floor: 5,
+        name: '走廊', img: 'imgs/scenes/company_corridor_f5.jpg', floor: 5,
         hotspots: [
-            {x:30,y:45,icon:'company',label:'\u793e\u957f\u5ba4',action:'app',target:'contract'},
-            {x:70,y:45,icon:'vip',label:'VIP\u4f11\u606f\u5ba4',action:'app',target:'vip'},
-            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+            {x:35,y:45,icon:'company',label:'社长室',action:'scene',target:'ceo_office'},
+            {x:65,y:45,icon:'vip',label:'VIP休息室',action:'scene',target:'vip_room'},
+            {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
         ]
     },
-    mall: {
-        name: '\u5546\u573a', img: 'imgs/scenes/mall.jpg',
+    ceo_office: {
+        name: '社长室', img: 'imgs/scenes/vip.jpg', floor: 5,
         hotspots: [
-            {x:30,y:40,icon:'shirt',label:'\u670d\u88c5\u5e97',action:'app',target:'wardrobe'},
-            {x:70,y:40,icon:'gacha',label:'\u5468\u8fb9\u5e97',action:'app',target:'gacha'},
-            {x:50,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:50,icon:'company',label:'谈话',action:'app',target:'contract'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor5'}
+        ]
+    },
+    vip_room: {
+        name: 'VIP休息室', img: 'imgs/scenes/vip.jpg', floor: 5,
+        hotspots: [
+            {x:50,y:50,icon:'vip',label:'休息',action:'app',target:'vip'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor5'}
+        ]
+    },
+
+    // === OUTSIDE ===
+    mall: {
+        name: '商场', img: 'imgs/scenes/mall.jpg',
+        hotspots: [
+            {x:30,y:40,icon:'shirt',label:'服装店',action:'app',target:'wardrobe'},
+            {x:70,y:40,icon:'gacha',label:'周边店',action:'app',target:'gacha'},
+            {x:50,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     stage: {
-        name: '\u821e\u53f0', img: 'imgs/scenes/stage.jpg',
+        name: '舞台', img: 'imgs/scenes/stage.jpg',
         hotspots: [
-            {x:50,y:50,icon:'mic',label:'\u8868\u6f14',action:'app',target:'live'},
-            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:50,icon:'mic',label:'表演',action:'app',target:'live'},
+            {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     musicshow: {
-        name: '\u6253\u6b4c\u8282\u76ee', img: 'imgs/scenes/musicshow.jpg',
+        name: '打歌节目', img: 'imgs/scenes/musicshow.jpg',
         hotspots: [
-            {x:50,y:45,icon:'music',label:'\u6253\u6b4c',action:'app',target:'music'},
-            {x:85,y:50,icon:'elevator',label:'\u5019\u573a',action:'scene',target:'musicbank'},
-            {x:15,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:45,icon:'music',label:'打歌',action:'app',target:'music'},
+            {x:85,y:50,icon:'door',label:'候场',action:'scene',target:'musicbank'},
+            {x:15,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     musicbank: {
-        name: '\u97f3\u4e50\u653e\u9001\u5019\u573a', img: 'imgs/scenes/musicbank.jpg',
+        name: '音乐放送候场', img: 'imgs/scenes/musicbank.jpg',
         hotspots: [
-            {x:50,y:40,icon:'music',label:'\u767b\u53f0',action:'app',target:'music'},
-            {x:85,y:50,icon:'door',label:'\u8d70\u5eca',action:'scene',target:'musicshow'},
-            {x:15,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:40,icon:'music',label:'登台',action:'app',target:'music'},
+            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'musicshow'},
+            {x:15,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     livestream: {
-        name: '\u76f4\u64ad\u95f4', img: 'imgs/scenes/livestream.jpg',
+        name: '直播间', img: 'imgs/scenes/livestream.jpg',
         hotspots: [
-            {x:50,y:50,icon:'live',label:'\u5f00\u64ad',action:'app',target:'live'},
-            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:50,icon:'live',label:'开播',action:'app',target:'live'},
+            {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     restaurant: {
-        name: '\u9910\u5385', img: 'imgs/scenes/restaurant.jpg',
+        name: '餐厅', img: 'imgs/scenes/restaurant.jpg',
         hotspots: [
-            {x:50,y:55,icon:'food',label:'\u83dc\u5355',action:'app',target:'food'},
-            {x:88,y:45,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:55,icon:'food',label:'菜单',action:'app',target:'food'},
+            {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     redcarpet: {
-        name: '\u7ea2\u6bef', img: 'imgs/scenes/redcarpet.jpg', role: 'Idol',
+        name: '红毯', img: 'imgs/scenes/redcarpet.jpg', role: 'Idol',
         hotspots: [
-            {x:50,y:60,icon:'star',label:'\u8d70\u7ea2\u6bef',action:'app',target:'schedule'},
-            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:60,icon:'star',label:'走红毯',action:'app',target:'schedule'},
+            {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     gacha: {
-        name: '\u5468\u8fb9\u5e97', img: 'imgs/scenes/gacha.jpg',
+        name: '周边店', img: 'imgs/scenes/gacha.jpg',
         hotspots: [
-            {x:50,y:50,icon:'gacha',label:'\u62bd\u5361',action:'app',target:'gacha'},
-            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:50,icon:'gacha',label:'抽卡',action:'app',target:'gacha'},
+            {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     photoshoot: {
-        name: '\u62cd\u6444\u68da', img: 'imgs/scenes/photoshoot.jpg',
+        name: '拍摄棚', img: 'imgs/scenes/photoshoot.jpg',
         hotspots: [
-            {x:50,y:45,icon:'camera',label:'\u62cd\u6444',action:'app',target:'work'},
-            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+            {x:50,y:45,icon:'camera',label:'拍摄',action:'app',target:'work'},
+            {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     }
 };
@@ -1581,16 +1693,9 @@ function renderScenePage(container) {
     if (!scene) { sceneId = _getHomeScene(); scene = SCENES[sceneId]; }
     if (!scene) { renderHomePage(container); return; }
 
-    var roleText = gameState.player.role === 'Trainee' ? '\u7ec3\u4e60\u751f' : '\u51fa\u9053\u7231\u8c46';
-    var company = COMPANIES[gameState.player.company];
-    var companyName = (company && company.name) || '';
     var locationName = scene.name;
     if (scene.floor) locationName = scene.floor + 'F ' + scene.name;
-
-    var ci = getCheckInInfo();
-    var checkinHtml = ci.checkedIn
-        ? '<div style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 9px;display:flex;align-items:center;gap:5px;"><div style="font-size:11px;font-weight:600;color:#FF8FA3;">\u5df2\u7b7e\u5230</div><div style="font-size:10px;color:rgba(255,255,255,0.6);">\u8fde\u7eed' + ci.streak + '\u5929</div></div>'
-        : '<div onclick="doDailyCheckIn()" style="background:linear-gradient(135deg,#FF8FA3,#FF6B8A);border-radius:8px;padding:5px 9px;cursor:pointer;display:flex;align-items:center;gap:5px;"><div style="font-size:11px;font-weight:600;color:white;">\u7b7e\u5230</div><div style="font-size:10px;color:rgba(255,255,255,0.8);">\u9886\u5e01</div></div>';
+    var dayInfo = _getGameDayDisplay();
 
     var hotspotsHtml = '';
     for (var hi = 0; hi < scene.hotspots.length; hi++) {
@@ -1603,45 +1708,22 @@ function renderScenePage(container) {
         else if (hs.action === 'scene') act = '_navigateScene(\'' + hs.target + '\')';
         else if (hs.action === 'app') act = 'goToPage(\'' + hs.target + '\')';
 
-        hotspotsHtml += '<div onclick="' + act + '" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;">';
-        hotspotsHtml += '<div style="width:46px;height:46px;border-radius:50%;background:rgba(255,143,163,0.85);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;margin:0 auto 2px;box-shadow:0 2px 10px rgba(255,107,138,0.4);">';
+        hotspotsHtml += '<div onclick="' + act + '" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;">';
+        hotspotsHtml += '<div class="scene-hs">';
         hotspotsHtml += getIcon(hs.icon);
         hotspotsHtml += '</div>';
-        hotspotsHtml += '<div style="font-size:10px;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.9);white-space:nowrap;font-weight:600;">' + hs.label + '</div>';
+        hotspotsHtml += '<div class="scene-hs-label">' + hs.label + '</div>';
         hotspotsHtml += '</div>';
     }
 
-    var dayBarHtml = _renderDayBar();
-
-    container.innerHTML = '<div class="page active" style="position:relative;overflow:hidden;height:100vh;width:100vw;">'
-        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(\'' + scene.img + '\');background-size:cover;background-position:center;filter:brightness(0.82);"></div>'
-        + '<div style="position:absolute;top:0;left:0;right:0;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));z-index:20;">'
-        + '<div style="display:flex;align-items:center;justify-content:space-between;">'
-        + '<div style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 9px;display:flex;align-items:center;gap:7px;">'
-        + '<div class="avatar" style="width:26px;height:26px;font-size:11px;">' + (gameState.player.avatar) + '</div>'
-        + '<div><div style="font-size:12px;font-weight:700;color:white;">' + (gameState.player.name) + '</div>'
-        + '<div style="font-size:9px;color:rgba(255,255,255,0.7);">' + companyName + ' ' + roleText + '</div></div></div>'
-        + checkinHtml
-        + '<div style="display:flex;gap:6px;">'
-        + '<div onclick="showNotifCenter()" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 7px;cursor:pointer;position:relative;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
-        + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:2px;right:2px;width:6px;height:6px;background:#FF2D55;border-radius:50%;"></div>' : '')
-        + '</div>'
-        + '<div onclick="goToPage(\'settings\')" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 7px;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>'
-        + '</div></div>'
-        + dayBarHtml
-        + '</div>'
+    container.innerHTML = '<style>.scene-hs{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;margin:0 auto 2px;box-shadow:0 2px 8px rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.18);transition:transform .15s,background .15s;}.scene-hs:active{transform:scale(0.9);background:rgba(255,255,255,0.25);}.scene-hs svg{width:20px;height:20px;stroke:white;fill:none;}.scene-hs-label{font-size:8px;color:rgba(255,255,255,0.75);text-shadow:0 1px 3px rgba(0,0,0,0.7);white-space:nowrap;font-weight:500;letter-spacing:0.3px;}.scene-day{position:absolute;top:max(6px,env(safe-area-inset-top));left:8px;z-index:20;background:rgba(0,0,0,0.3);backdrop-filter:blur(6px);border-radius:6px;padding:2px 6px;font-size:9px;color:rgba(255,255,255,0.7);font-weight:500;}.scene-loc{position:absolute;top:max(6px,env(safe-area-inset-top));right:8px;z-index:20;background:rgba(0,0,0,0.3);backdrop-filter:blur(6px);border-radius:6px;padding:2px 6px;font-size:9px;color:rgba(255,255,255,0.7);font-weight:500;}</style>'
+        + '<div style="position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;z-index:1;">'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(\'' + scene.img + '\');background-size:cover;background-position:center;"></div>'
+        + '<div class="scene-day">\u7b2c' + dayInfo.day + '\u5929 ' + dayInfo.weekDay + '</div>'
+        + '<div class="scene-loc">' + locationName + '</div>'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
-        + '<div style="position:absolute;bottom:0;left:0;right:0;z-index:20;padding:8px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom));">'
-        + '<div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);border-radius:14px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;">'
-        + '<div style="font-size:12px;font-weight:600;color:white;">' + locationName + '</div>'
-        + '<div style="display:flex;gap:14px;">'
-        + '<div onclick="_showPhoneModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>\u624b\u673a</div>'
-        + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>\u5bfc\u822a</div>'
-        + '<div onclick="goToPage(\'home\')" style="color:#FF8FA3;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>\u7ecf\u5178</div>'
-        + '</div></div></div>'
         + '</div>';
 }
-
 
 // ==================== TRAINING PAGE ====================
 function render训练Page(container) {
@@ -4223,6 +4305,22 @@ function getIcon(name) {
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
         'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
         'daily': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M8 14l2 2 4-4" fill="none" stroke="#FF8FA3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+        'bed': '<svg viewBox="0 0 24 24"><path d="M2 4v16" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M2 8h5a3 3 0 0 1 3 3v1H2V8z" fill="currentColor" opacity="0.3"></path><path d="M10 12h10a2 2 0 0 1 2 2v6H10v-8z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M10 14h2v2h-2z" fill="currentColor" opacity="0.2"></path></svg>',
+        'door': '<svg viewBox="0 0 24 24"><path d="M5 2h14a1 1 0 0 1 1 1v18H4V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="12" x2="12.01" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg>',
+        'shirt': '<svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a1 1 0 0 0-.73 1.09L4 10h3l1 12h8l1-12h3l1.11-5.45a1 1 0 0 0-.73-1.09z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
+        'bath': '<svg viewBox="0 0 24 24"><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M6 12V5a2 2 0 0 1 2-2h3" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
+        'body': '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M6.5 8h11a2.5 2.5 0 0 1 0 5h-11a2.5 2.5 0 0 1 0-5z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="13" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line></svg>',
+        'elevator': '<svg viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M12 6l3 4H9l3-4z" fill="currentColor" opacity="0.5"></path><path d="M12 18l-3-4h6l-3 4z" fill="currentColor" opacity="0.5"></path></svg>',
+        'dance': '<svg viewBox="0 0 24 24"><circle cx="12" cy="4" r="2" fill="currentColor"></circle><path d="M8 10l4 2 4-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><path d="M12 12v5" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M8 22l4-5 4 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
+        'vocal': '<svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line></svg>',
+        'recording': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="currentColor" opacity="0.3"></circle><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="12" cy="12" r="1.5" fill="currentColor"></circle><line x1="12" y1="2" x2="12" y2="5" stroke="currentColor" stroke-width="1.5"></line><line x1="12" y1="19" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"></line><line x1="2" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="1.5"></line><line x1="19" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"></line></svg>',
+        'edit': '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
+        'camera': '<svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><circle cx="12" cy="13" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle></svg>',
+        'star': '<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1" stroke-linejoin="round"></polygon></svg>',
+        'mic': '<svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="1.5"></line></svg>',
+        'award': '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><polygon points="12,4 13.1,6.5 16,6.8 14,8.6 14.5,11.5 12,10.2 9.5,11.5 10,8.6 8,6.8 10.9,6.5" fill="currentColor" opacity="0.3"></polygon></svg>',
+        'shopping': '<svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="1.5"></line><path d="M16 10a4 4 0 0 1-8 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
+        'fanchat': '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M8 13h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="9" r="1" fill="currentColor"></circle><circle cx="15" cy="9" r="1" fill="currentColor"></circle></svg>',
     };
     return icons[name] || '';
 }
