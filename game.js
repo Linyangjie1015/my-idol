@@ -262,7 +262,7 @@ function render() {
                 renderCreationPage(app);
                 break;
             case 'home':
-                renderHomePage(app);
+                renderScenePage(app);
                 break;
             case 'training':
                 render训练Page(app);
@@ -1232,6 +1232,415 @@ function renderHomePage(container) {
                 }()) + '\n            </div>\n        </div>\n    ';
 }
 
+
+
+
+
+// ==================== V1.8 SCENE NAVIGATION SYSTEM ====================
+
+var SCENES = {
+    dorm: {
+        name: '\u5bbf\u820d', img: 'imgs/scenes/dorm.jpg', role: 'Trainee',
+        hotspots: [
+            {x:72,y:55,icon:'phone',label:'\u624b\u673a',action:'phone'},
+            {x:30,y:50,icon:'bed',label:'\u7761\u89c9',action:'sleep'},
+            {x:88,y:45,icon:'door',label:'\u51fa\u95e8',action:'nav',target:'_nav'},
+            {x:15,y:60,icon:'shirt',label:'\u8863\u67b6',action:'app',target:'wardrobe'}
+        ]
+    },
+    home: {
+        name: '\u5ba2\u5385', img: 'imgs/scenes/home.jpg', role: 'Idol',
+        hotspots: [
+            {x:50,y:62,icon:'phone',label:'\u624b\u673a',action:'phone'},
+            {x:35,y:55,icon:'bed',label:'\u4f11\u606f',action:'sleep'},
+            {x:88,y:45,icon:'door',label:'\u51fa\u95e8',action:'nav',target:'_nav'},
+            {x:75,y:30,icon:'shirt',label:'\u8863\u5e3d\u95f4',action:'scene',target:'wardrobe_room'},
+            {x:25,y:70,icon:'food',label:'\u5916\u5356',action:'app',target:'food'},
+            {x:80,y:75,icon:'delivery',label:'\u5feb\u9012',action:'app',target:'delivery'},
+            {x:20,y:35,icon:'bed',label:'\u5367\u5ba4',action:'scene',target:'bedroom'},
+            {x:60,y:30,icon:'bath',label:'\u536b\u751f\u95f4',action:'scene',target:'bathroom'}
+        ]
+    },
+    bedroom: {
+        name: '\u5367\u5ba4', img: 'imgs/scenes/bedroom.jpg', role: 'Idol',
+        hotspots: [
+            {x:50,y:55,icon:'bed',label:'\u7761\u89c9',action:'sleep'},
+            {x:85,y:50,icon:'door',label:'\u8fd4\u56de',action:'scene',target:'home'}
+        ]
+    },
+    wardrobe_room: {
+        name: '\u8863\u5e3d\u95f4', img: 'imgs/scenes/wardrobe_room.jpg', role: 'Idol',
+        hotspots: [
+            {x:50,y:50,icon:'shirt',label:'\u6362\u88c5',action:'app',target:'wardrobe'},
+            {x:25,y:60,icon:'star',label:'\u9996\u9970',action:'app',target:'wardrobe'},
+            {x:85,y:50,icon:'door',label:'\u8fd4\u56de',action:'scene',target:'home'}
+        ]
+    },
+    bathroom: {
+        name: '\u536b\u751f\u95f4', img: 'imgs/scenes/bathroom.jpg', role: 'Idol',
+        hotspots: [
+            {x:85,y:50,icon:'door',label:'\u8fd4\u56de',action:'scene',target:'home'}
+        ]
+    },
+    company: {
+        name: '\u516c\u53f8\u5927\u5385', img: 'imgs/scenes/company.jpg',
+        hotspots: [
+            {x:50,y:55,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'},
+            {x:20,y:65,icon:'food',label:'\u5496\u5561\u5427',action:'app',target:'food'},
+            {x:88,y:45,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    floor2: {
+        name: '\u521b\u4f5c\u5c42', img: 'imgs/scenes/recording.jpg', floor: 2,
+        hotspots: [
+            {x:30,y:40,icon:'recording',label:'\u5f55\u97f3\u5ba4A',action:'app',target:'songprod'},
+            {x:70,y:40,icon:'recording',label:'\u5f55\u97f3\u5ba4B',action:'app',target:'music'},
+            {x:50,y:65,icon:'edit',label:'\u5199\u6b4c\u533a',action:'app',target:'songprod'},
+            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+        ]
+    },
+    floor3: {
+        name: '\u8bad\u7ec3\u5c42', img: 'imgs/scenes/dance.jpg', floor: 3,
+        hotspots: [
+            {x:30,y:45,icon:'dance',label:'\u821e\u8e48\u5ba4',action:'app',target:'training'},
+            {x:70,y:45,icon:'vocal',label:'\u58f0\u4e50\u5ba4',action:'app',target:'training'},
+            {x:50,y:70,icon:'body',label:'\u5f62\u4f53\u5ba4',action:'app',target:'training'},
+            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+        ]
+    },
+    floor4: {
+        name: '\u8fd0\u8425\u5c42', img: 'imgs/scenes/meeting.jpg', floor: 4,
+        hotspots: [
+            {x:30,y:40,icon:'management',label:'\u7ecf\u7eaa\u90e8',action:'app',target:'management'},
+            {x:70,y:40,icon:'pr',label:'\u516c\u5173\u90e8',action:'app',target:'pr'},
+            {x:50,y:65,icon:'meeting',label:'\u4f1a\u8bae\u5ba4',action:'app',target:'meeting'},
+            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+        ]
+    },
+    floor5: {
+        name: '\u9876\u5c42', img: 'imgs/scenes/vip.jpg', floor: 5,
+        hotspots: [
+            {x:30,y:45,icon:'company',label:'\u793e\u957f\u5ba4',action:'app',target:'contract'},
+            {x:70,y:45,icon:'vip',label:'VIP\u4f11\u606f\u5ba4',action:'app',target:'vip'},
+            {x:88,y:45,icon:'elevator',label:'\u7535\u68af',action:'nav',target:'_elevator'}
+        ]
+    },
+    mall: {
+        name: '\u5546\u573a', img: 'imgs/scenes/mall.jpg',
+        hotspots: [
+            {x:30,y:40,icon:'shirt',label:'\u670d\u88c5\u5e97',action:'app',target:'wardrobe'},
+            {x:70,y:40,icon:'gacha',label:'\u5468\u8fb9\u5e97',action:'app',target:'gacha'},
+            {x:50,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    stage: {
+        name: '\u821e\u53f0', img: 'imgs/scenes/stage.jpg',
+        hotspots: [
+            {x:50,y:50,icon:'mic',label:'\u8868\u6f14',action:'app',target:'live'},
+            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    musicshow: {
+        name: '\u6253\u6b4c\u8282\u76ee', img: 'imgs/scenes/musicshow.jpg',
+        hotspots: [
+            {x:50,y:45,icon:'music',label:'\u6253\u6b4c',action:'app',target:'music'},
+            {x:85,y:50,icon:'elevator',label:'\u5019\u573a',action:'scene',target:'musicbank'},
+            {x:15,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    musicbank: {
+        name: '\u97f3\u4e50\u653e\u9001\u5019\u573a', img: 'imgs/scenes/musicbank.jpg',
+        hotspots: [
+            {x:50,y:40,icon:'music',label:'\u767b\u53f0',action:'app',target:'music'},
+            {x:85,y:50,icon:'door',label:'\u8d70\u5eca',action:'scene',target:'musicshow'},
+            {x:15,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    livestream: {
+        name: '\u76f4\u64ad\u95f4', img: 'imgs/scenes/livestream.jpg',
+        hotspots: [
+            {x:50,y:50,icon:'live',label:'\u5f00\u64ad',action:'app',target:'live'},
+            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    restaurant: {
+        name: '\u9910\u5385', img: 'imgs/scenes/restaurant.jpg',
+        hotspots: [
+            {x:50,y:55,icon:'food',label:'\u83dc\u5355',action:'app',target:'food'},
+            {x:88,y:45,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    redcarpet: {
+        name: '\u7ea2\u6bef', img: 'imgs/scenes/redcarpet.jpg', role: 'Idol',
+        hotspots: [
+            {x:50,y:60,icon:'star',label:'\u8d70\u7ea2\u6bef',action:'app',target:'schedule'},
+            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    gacha: {
+        name: '\u5468\u8fb9\u5e97', img: 'imgs/scenes/gacha.jpg',
+        hotspots: [
+            {x:50,y:50,icon:'gacha',label:'\u62bd\u5361',action:'app',target:'gacha'},
+            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    },
+    photoshoot: {
+        name: '\u62cd\u6444\u68da', img: 'imgs/scenes/photoshoot.jpg',
+        hotspots: [
+            {x:50,y:45,icon:'camera',label:'\u62cd\u6444',action:'app',target:'work'},
+            {x:88,y:80,icon:'door',label:'\u79bb\u5f00',action:'nav',target:'_nav'}
+        ]
+    }
+};
+
+var SCENE_NAV_OPTIONS = [
+    {id:'_home',name:'\u5bb6',icon:'bed'},
+    {id:'company',name:'\u516c\u53f8',icon:'company'},
+    {id:'mall',name:'\u5546\u573a',icon:'shopping'},
+    {id:'restaurant',name:'\u9910\u5385',icon:'food'},
+    {id:'stage',name:'\u821e\u53f0',icon:'star'},
+    {id:'musicshow',name:'\u6253\u6b4c\u8282\u76ee',icon:'music'},
+    {id:'livestream',name:'\u76f4\u64ad\u95f4',icon:'live'},
+    {id:'redcarpet',name:'\u7ea2\u6bef',icon:'award'},
+    {id:'gacha',name:'\u5468\u8fb9\u5e97',icon:'gacha'},
+    {id:'photoshoot',name:'\u62cd\u6444\u68da',icon:'camera'}
+];
+
+var SCENE_TIPS = [
+    '\u4f60\u5728\u8def\u4e0a\u9047\u5230\u4e86\u4e00\u53ea\u732b\uff0c\u5b83\u770b\u4e86\u4f60\u4e00\u773c\u5c31\u8d70\u4e86',
+    '\u7535\u68af\u91cc\u6709\u4eba\u5728\u8ba8\u8bba\u4f60\u7684\u65b0\u6b4c',
+    '\u4eca\u5929\u5929\u6c14\u5f88\u597d\uff0c\u9002\u5408\u7ec3\u4e60',
+    '\u8def\u4e0a\u7c89\u4e1d\u8ba4\u51fa\u4e86\u4f60\uff0c\u5174\u594b\u5730\u6253\u62db\u547c',
+    '\u7ecf\u7eaa\u4eba\u53d1\u6765\u6d88\u606f\uff1a\u52a0\u6cb9\uff01',
+    '\u4f60\u7684\u6b4c\u5728\u8def\u8fb9\u5e97\u94fa\u91cc\u64ad\u653e\u7740',
+    '\u8def\u4e0a\u9047\u5230\u4e86\u540c\u5bb6\u516c\u53f8\u7684\u524d\u8f88',
+    '\u98ce\u5f88\u5927\uff0c\u8bb0\u5f97\u7a7f\u5916\u5957'
+];
+
+function _getHomeScene() {
+    return (gameState.player.role === 'Trainee') ? 'dorm' : 'home';
+}
+
+function _navigateScene(sceneId) {
+    if (sceneId === '_home') { sceneId = _getHomeScene(); }
+    if (!SCENES[sceneId]) { showToast('\u573a\u666f\u4e0d\u5b58\u5728'); return; }
+    var sc = SCENES[sceneId];
+    if (sc.role === 'Idol' && gameState.player.role === 'Trainee') {
+        showToast('\u51fa\u9053\u540e\u89e3\u9501'); return;
+    }
+    gameState._currentScene = sceneId;
+    var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
+    _phoneModalVisible = false;
+    render();
+}
+
+function _showSceneNavModal() {
+    var m = document.getElementById('sceneNavModal'); if (m) { m.remove(); return; }
+    var isT = gameState.player.role === 'Trainee';
+    var h = '<div id="sceneNavModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)this.remove()">';
+    h += '<div style="background:var(--bg-card);border-radius:20px 20px 0 0;padding:20px 16px 24px;width:100%;max-width:420px;max-height:60vh;overflow-y:auto;">';
+    h += '<div style="font-size:16px;font-weight:700;color:var(--color-text);margin-bottom:14px;text-align:center;">\u53bb\u54ea\u91cc\uff1f</div>';
+    h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
+    for (var i = 0; i < SCENE_NAV_OPTIONS.length; i++) {
+        var opt = SCENE_NAV_OPTIONS[i];
+        var sid = opt.id;
+        if (sid === '_home') sid = _getHomeScene();
+        var sc = SCENES[sid];
+        if (sc && sc.role === 'Idol' && isT) continue;
+        var active = gameState._currentScene === sid;
+        h += '<div onclick="document.getElementById(\'sceneNavModal\').remove();_navigateScene(\'' + opt.id + '\')" style="background:' + (active ? 'var(--color-primary)' : 'var(--bg-hover)') + ';color:' + (active ? 'white' : 'var(--color-text)') + ';border-radius:12px;padding:12px 6px;text-align:center;cursor:pointer;font-size:12px;font-weight:600;">' + opt.name + '</div>';
+    }
+    h += '</div></div></div>';
+    document.body.insertAdjacentHTML('beforeend', h);
+}
+
+function _showElevatorModal() {
+    var m = document.getElementById('elevatorModal'); if (m) { m.remove(); return; }
+    var floors = [
+        {id:'floor2',name:'2F \u521b\u4f5c\u5c42',desc:'\u5f55\u97f3\u5ba4 \u00b7 \u5199\u6b4c\u533a'},
+        {id:'floor3',name:'3F \u8bad\u7ec3\u5c42',desc:'\u821e\u8e48\u5ba4 \u00b7 \u58f0\u4e50\u5ba4 \u00b7 \u5f62\u4f53\u5ba4'},
+        {id:'floor4',name:'4F \u8fd0\u8425\u5c42',desc:'\u7ecf\u7eaa\u90e8 \u00b7 \u516c\u5173\u90e8 \u00b7 \u4f1a\u8bae\u5ba4'},
+        {id:'floor5',name:'5F \u9876\u5c42',desc:'\u793e\u957f\u5ba4 \u00b7 VIP\u4f11\u606f\u5ba4'}
+    ];
+    var h = '<div id="elevatorModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">';
+    h += '<div style="background:#1a1a2e;border-radius:16px;padding:20px;width:85%;max-width:320px;">';
+    h += '<div style="font-size:15px;font-weight:700;color:white;margin-bottom:4px;text-align:center;">\u7535\u68af</div>';
+    h += '<div style="font-size:11px;color:#888;margin-bottom:14px;text-align:center;">1F \u661f\u5149\u5927\u5385</div>';
+    for (var i = 0; i < floors.length; i++) {
+        var f = floors[i];
+        h += '<div onclick="document.getElementById(\'elevatorModal\').remove();_navigateScene(\'' + f.id + '\')" style="background:#252540;border-radius:10px;padding:12px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">';
+        h += '<div><div style="color:white;font-size:13px;font-weight:600;">' + f.name + '</div><div style="color:#888;font-size:10px;">' + f.desc + '</div></div>';
+        h += '<div style="color:#666;font-size:16px;">\u203a</div></div>';
+    }
+    h += '<div onclick="document.getElementById(\'elevatorModal\').remove()" style="text-align:center;color:#888;font-size:12px;margin-top:10px;cursor:pointer;">\u5173\u95ed</div>';
+    h += '</div></div>';
+    document.body.insertAdjacentHTML('beforeend', h);
+}
+
+var _phoneModalVisible = false;
+function _showPhoneModal() {
+    _phoneModalVisible = !_phoneModalVisible;
+    var pm = document.getElementById('phoneModal');
+    if (!_phoneModalVisible) { if (pm) pm.style.display = 'none'; return; }
+    if (!pm) { _buildPhoneModal(); pm = document.getElementById('phoneModal'); }
+    pm.style.display = 'flex';
+}
+
+function _buildPhoneModal() {
+    var apps = [
+        {id:'daily',icon:'daily',name:'\u4eca\u65e5\u4efb\u52a1',unlock:0},
+        {id:'debut',icon:'debut',name:'\u51fa\u9053\u4f01\u5212',unlock:0},
+        {id:'earn',icon:'earn',name:'\u8d5a\u94b1\u4e2d\u5fc3',unlock:0},
+        {id:'hotsearch',icon:'hotsearch',name:'\u70ed\u641c',unlock:0},
+        {id:'ranking',icon:'ranking',name:'\u6392\u884c\u699c',unlock:0},
+        {id:'schedule',icon:'schedule',name:'\u884c\u7a0b\u8868',unlock:0},
+        {id:'meeting',icon:'meeting',name:'\u4f1a\u8bae',unlock:0},
+        {id:'mail',icon:'mail',name:'\u90ae\u7bb1',unlock:0},
+        {id:'work',icon:'work',name:'\u901a\u544a',unlock:0},
+        {id:'ins',icon:'ins',name:'INS',unlock:0},
+        {id:'tiktok',icon:'tiktok',name:'TikTok',unlock:0},
+        {id:'food',icon:'food',name:'\u5916\u5356',unlock:0},
+        {id:'delivery',icon:'delivery',name:'\u5feb\u9012',unlock:0},
+        {id:'loan',icon:'loan',name:'\u8d37\u6b3e',unlock:0},
+        {id:'live',icon:'live',name:'\u76f4\u64ad',unlock:0},
+        {id:'dating',icon:'dating',name:'\u604b\u7231',unlock:0},
+        {id:'bubble',icon:'bubble',name:'\u6ce1\u6ce1',unlock:1000},
+        {id:'fanchat',icon:'fanchat',name:'\u7c89\u4e1d\u79c1\u804a',unlock:3000},
+        {id:'weverse',icon:'weverse',name:'Weverse',unlock:1000},
+        {id:'crisis',icon:'crisis',name:'\u79c1\u751f\u5371\u673a',unlock:5000},
+        {id:'members',icon:'members',name:'\u6210\u5458\u4fe1\u606f',unlock:0},
+        {id:'phone',icon:'phone',name:'\u7535\u8bdd',unlock:0},
+        {id:'sms',icon:'sms',name:'\u77ed\u4fe1',unlock:0},
+        {id:'kakaotalk',icon:'kakaotalk',name:'KakaoTalk',unlock:0},
+        {id:'updates',icon:'updates',name:'\u66f4\u65b0\u901a\u77e5',unlock:0},
+        {id:'achievement',icon:'achievement',name:'\u6210\u5c31',unlock:0},
+        {id:'gacha',icon:'gacha',name:'\u62bd\u5361',unlock:0},
+        {id:'wardrobe',icon:'wardrobe',name:'\u6362\u88c5',unlock:0},
+        {id:'vip',icon:'vip',name:'\u4f1a\u5458',unlock:0},
+        {id:'company',icon:'company',name:'\u6211\u7684\u516c\u53f8',unlock:0},
+        {id:'comeback',icon:'comeback',name:'\u56de\u5f52\u8ba1\u5212',unlock:0},
+        {id:'songprod',icon:'songprod',name:'\u6b4c\u66f2\u5236\u4f5c',unlock:0},
+        {id:'music',icon:'music',name:'\u97f3\u4e50\u653e\u9001',unlock:0},
+        {id:'mvstudio',icon:'mvstudio',name:'MV\u5de5\u4f5c\u5ba4',unlock:0},
+        {id:'contract',icon:'contract',name:'\u5408\u7ea6',unlock:0},
+        {id:'relation',icon:'relation',name:'\u961f\u53cb\u5173\u7cfb',unlock:0},
+        {id:'management',icon:'management',name:'\u7ecf\u7eaa\u56e2\u961f',unlock:0},
+        {id:'antiblack',icon:'antiblack',name:'\u53cd\u9ed1\u4e2d\u5fc3',unlock:0},
+        {id:'fanclub',icon:'fanclub',name:'\u540e\u63f4\u4f1a',unlock:0},
+        {id:'pr',icon:'pr',name:'\u516c\u5173\u5ba4',unlock:0},
+        {id:'kpopwiki',icon:'kpopwiki',name:'Kpop\u767e\u79d1',unlock:0},
+        {id:'guide',icon:'guide',name:'\u65b0\u624b\u6307\u5357',unlock:0}
+    ];
+    var categories = [
+        {title:'\u5de5\u4f5c',ids:['daily','debut','work','schedule','meeting','mail','members','crisis','updates','contract','management','antiblack','pr']},
+        {title:'\u8d5a\u94b1',ids:['earn','food','delivery','loan','gacha','wardrobe','vip']},
+        {title:'\u793e\u4ea4',ids:['ins','tiktok','phone','sms','kakaotalk','bubble','weverse','dating','relation','fanclub']},
+        {title:'\u5a31\u4e50',ids:['live','hotsearch','ranking','comeback','songprod','music','mvstudio','achievement','company','kpopwiki','guide']}
+    ];
+    var appMap = {};
+    for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
+    var h = '<div id="phoneModal" style="position:fixed;bottom:0;left:0;right:0;height:75vh;background:var(--bg-card);border-radius:20px 20px 0 0;z-index:9998;display:flex;flex-direction:column;box-shadow:0 -4px 20px rgba(0,0,0,0.3);">';
+    h += '<div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-border);">';
+    h += '<div style="font-size:15px;font-weight:700;color:var(--color-text);">\u624b\u673a</div>';
+    h += '<div onclick="_showPhoneModal()" style="color:var(--color-text-light);cursor:pointer;font-size:13px;">\u5173\u95ed</div>';
+    h += '</div>';
+    h += '<div style="flex:1;overflow-y:auto;padding:10px 14px;padding-bottom:20px;">';
+    for (var ci = 0; ci < categories.length; ci++) {
+        var cat = categories[ci];
+        h += '<div style="font-size:11px;color:var(--color-text-light);margin:' + (ci > 0 ? '12' : '0') + 'px 0 5px 3px;font-weight:500;">' + cat.title + '</div>';
+        h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">';
+        for (var ji = 0; ji < cat.ids.length; ji++) {
+            var _a = appMap[cat.ids[ji]];
+            if (!_a) continue;
+            var _lk = _a.unlock > 0 && gameState.fans < _a.unlock;
+            var _rd = (!_lk) ? getAppRedDot(_a.id) : null;
+            h += '<div style="text-align:center;padding:5px 2px;cursor:pointer;' + (_lk ? 'opacity:0.4;' : '') + '" onclick="' + (_lk ? '' : 'document.getElementById(\'phoneModal\').style.display=\'none\';_phoneModalVisible=false;goToPage(\'' + _a.id + '\')') + '">';
+            h += '<div style="width:36px;height:36px;border-radius:10px;background:var(--bg-hover);margin:0 auto 3px;display:flex;align-items:center;justify-content:center;position:relative;">' + getIcon(_a.icon) + (_rd ? '<div style="position:absolute;top:-2px;right:-2px;width:7px;height:7px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div>';
+            h += '<div style="font-size:9px;color:var(--color-text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _a.name + '</div></div>';
+        }
+        h += '</div>';
+    }
+    h += '</div></div>';
+    document.body.insertAdjacentHTML('beforeend', h);
+}
+
+function _hsAction(hs) {
+    if (hs.action === 'phone') { _showPhoneModal(); }
+    else if (hs.action === 'sleep') { doRest(); }
+    else if (hs.action === 'nav') {
+        if (hs.target === '_nav') _showSceneNavModal();
+        else if (hs.target === '_elevator') _showElevatorModal();
+    }
+    else if (hs.action === 'scene') { _navigateScene(hs.target); }
+    else if (hs.action === 'app') { goToPage(hs.target); }
+}
+
+function renderScenePage(container) {
+    var sceneId = gameState._currentScene || _getHomeScene();
+    var scene = SCENES[sceneId];
+    if (!scene) { sceneId = _getHomeScene(); scene = SCENES[sceneId]; }
+    if (!scene) { renderHomePage(container); return; }
+
+    var roleText = gameState.player.role === 'Trainee' ? '\u7ec3\u4e60\u751f' : '\u51fa\u9053\u7231\u8c46';
+    var company = COMPANIES[gameState.player.company];
+    var companyName = (company && company.name) || '';
+    var locationName = scene.name;
+    if (scene.floor) locationName = scene.floor + 'F ' + scene.name;
+
+    var ci = getCheckInInfo();
+    var checkinHtml = ci.checkedIn
+        ? '<div style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 9px;display:flex;align-items:center;gap:5px;"><div style="font-size:11px;font-weight:600;color:#FF8FA3;">\u5df2\u7b7e\u5230</div><div style="font-size:10px;color:rgba(255,255,255,0.6);">\u8fde\u7eed' + ci.streak + '\u5929</div></div>'
+        : '<div onclick="doDailyCheckIn()" style="background:linear-gradient(135deg,#FF8FA3,#FF6B8A);border-radius:8px;padding:5px 9px;cursor:pointer;display:flex;align-items:center;gap:5px;"><div style="font-size:11px;font-weight:600;color:white;">\u7b7e\u5230</div><div style="font-size:10px;color:rgba(255,255,255,0.8);">\u9886\u5e01</div></div>';
+
+    var hotspotsHtml = '';
+    for (var hi = 0; hi < scene.hotspots.length; hi++) {
+        var hs = scene.hotspots[hi];
+        var act = '';
+        if (hs.action === 'phone') act = '_showPhoneModal()';
+        else if (hs.action === 'sleep') act = 'doRest()';
+        else if (hs.action === 'nav' && hs.target === '_nav') act = '_showSceneNavModal()';
+        else if (hs.action === 'nav' && hs.target === '_elevator') act = '_showElevatorModal()';
+        else if (hs.action === 'scene') act = '_navigateScene(\'' + hs.target + '\')';
+        else if (hs.action === 'app') act = 'goToPage(\'' + hs.target + '\')';
+
+        hotspotsHtml += '<div onclick="' + act + '" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;">';
+        hotspotsHtml += '<div style="width:46px;height:46px;border-radius:50%;background:rgba(255,143,163,0.85);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;margin:0 auto 2px;box-shadow:0 2px 10px rgba(255,107,138,0.4);">';
+        hotspotsHtml += getIcon(hs.icon);
+        hotspotsHtml += '</div>';
+        hotspotsHtml += '<div style="font-size:10px;color:white;text-shadow:0 1px 4px rgba(0,0,0,0.9);white-space:nowrap;font-weight:600;">' + hs.label + '</div>';
+        hotspotsHtml += '</div>';
+    }
+
+    var dayBarHtml = _renderDayBar();
+
+    container.innerHTML = '<div class="page active" style="position:relative;overflow:hidden;height:100vh;width:100vw;">'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(\'' + scene.img + '\');background-size:cover;background-position:center;filter:brightness(0.82);"></div>'
+        + '<div style="position:absolute;top:0;left:0;right:0;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));z-index:20;">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+        + '<div style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 9px;display:flex;align-items:center;gap:7px;">'
+        + '<div class="avatar" style="width:26px;height:26px;font-size:11px;">' + (gameState.player.avatar) + '</div>'
+        + '<div><div style="font-size:12px;font-weight:700;color:white;">' + (gameState.player.name) + '</div>'
+        + '<div style="font-size:9px;color:rgba(255,255,255,0.7);">' + companyName + ' ' + roleText + '</div></div></div>'
+        + checkinHtml
+        + '<div style="display:flex;gap:6px;">'
+        + '<div onclick="showNotifCenter()" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 7px;cursor:pointer;position:relative;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>'
+        + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:2px;right:2px;width:6px;height:6px;background:#FF2D55;border-radius:50%;"></div>' : '')
+        + '</div>'
+        + '<div onclick="goToPage(\'settings\')" style="background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);border-radius:8px;padding:5px 7px;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>'
+        + '</div></div>'
+        + dayBarHtml
+        + '</div>'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
+        + '<div style="position:absolute;bottom:0;left:0;right:0;z-index:20;padding:8px 14px;padding-bottom:max(8px,env(safe-area-inset-bottom));">'
+        + '<div style="background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);border-radius:14px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;">'
+        + '<div style="font-size:12px;font-weight:600;color:white;">' + locationName + '</div>'
+        + '<div style="display:flex;gap:14px;">'
+        + '<div onclick="_showPhoneModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>\u624b\u673a</div>'
+        + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>\u5bfc\u822a</div>'
+        + '<div onclick="goToPage(\'home\')" style="color:#FF8FA3;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:11px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>\u7ecf\u5178</div>'
+        + '</div></div></div>'
+        + '</div>';
+}
 
 
 // ==================== TRAINING PAGE ====================
