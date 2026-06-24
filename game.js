@@ -1185,7 +1185,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    if (window._inSceneMode) { var _sb = document.createElement('div'); _sb.style.cssText='position:fixed;top:max(10px,env(safe-area-inset-top));right:12px;z-index:100;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);color:white;padding:5px 10px;border-radius:14px;font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent;'; _sb.textContent='回到场景'; _sb.onclick=function(){window._inSceneMode=true;render();}; document.body.appendChild(_sb); }
+    if (window._inSceneMode) { var _sb = document.createElement('div'); _sb.id='backToSceneBtn'; _sb.style.cssText='position:fixed;top:max(10px,env(safe-area-inset-top));right:12px;z-index:100;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);color:white;padding:5px 10px;border-radius:14px;font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent;'; _sb.textContent='回到场景'; _sb.onclick=function(){window._inSceneMode=true;var app=document.getElementById('app');if(app&&typeof renderScenePage==='function'){renderScenePage(app);}else{render();}}; document.body.appendChild(_sb); }
     container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px; padding-bottom: 100px;">\n                ' + _renderDayBar() + '\n                ' + (_triggerDailyEvent(), renderWeeklyGoals()) + '\n                ' + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
@@ -1593,10 +1593,20 @@ function _showElevatorModal() {
 
 var _phoneModalVisible = false;
 function _exitSceneToUI() {
-    window._inSceneMode = true;
-    var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
-    _phoneModalVisible = false;
-    goToPage('home');
+    try {
+        window._inSceneMode = false;
+        var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
+        var em = document.getElementById('elevatorModal'); if (em) em.remove();
+        var nm = document.getElementById('sceneNavModal'); if (nm) nm.remove();
+        _phoneModalVisible = false;
+        var sb = document.querySelector('[onclick*="回到场景"]');
+        if (sb && sb.parentNode) sb.parentNode.removeChild(sb);
+        if (typeof goToPage === 'function') { goToPage('home'); }
+        else { location.reload(); }
+    } catch(e) {
+        window._inSceneMode = false;
+        location.reload();
+    }
 }
 function _closePhoneAndReturn() {
     var pm = document.getElementById('phoneModal');
@@ -1723,7 +1733,7 @@ function renderScenePage(container) {
         else if (hs.action === 'scene') act = '_navigateScene(\'' + hs.target + '\')';
         else if (hs.action === 'app') act = 'goToPage(\'' + hs.target + '\')';
 
-        hotspotsHtml += '<div onclick="' + act + '" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;">';
+        hotspotsHtml += '<div onclick="try{' + act + '}catch(e){alert(\'Error:\'+e.message)}" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;">';
         hotspotsHtml += '<div class="scene-hs">';
         hotspotsHtml += getIcon(hs.icon);
         hotspotsHtml += '</div>';
@@ -14699,6 +14709,14 @@ function _setCooldown(type, days) {
 }
 
 function _endDay() {
+    // Clean up scene mode if active
+    if (window._inSceneMode) {
+        window._inSceneMode = false;
+        var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
+        var em = document.getElementById('elevatorModal'); if (em) em.remove();
+        var nm = document.getElementById('sceneNavModal'); if (nm) nm.remove();
+        _phoneModalVisible = false;
+    }
     // V1.7: Random phone call trigger
     if (Math.random() < 0.3) {
         setTimeout(function() { _triggerPhoneCall(); }, 2000);
