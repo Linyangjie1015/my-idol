@@ -413,6 +413,9 @@ function render() {
             case 'guide':
                 renderGuidePage(app);
                 break;
+            case 'daily':
+                renderDailyPage(app);
+                break;
             case 'earn':
                 render赚钱中心Page(app);
                 break;
@@ -1173,6 +1176,7 @@ function renderHomePage(container) {
     }
 
     var apps = [
+        { id: 'daily', icon: 'daily', name: '今日任务', unlock: 0 },
         { id: 'debut', icon: 'debut', name: '出道企划', unlock: 0 },
         { id: 'earn', icon: 'earn', name: '赚钱中心', unlock: 0 },
         { id: 'hotsearch', icon: 'hotsearch', name: '热搜', unlock: 0 },
@@ -1230,7 +1234,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>';
     }
     
-    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px; padding-bottom: 100px;">\n                ' + _renderDayBar() + '\n                ' + renderWeeklyGoals() + '\n                ' + (function() {
+    container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px; padding-bottom: 100px;">\n                ' + _renderDayBar() + '\n                ' + (_triggerDailyEvent(), renderWeeklyGoals()) + '\n                ' + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
         return '<div style="background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">'
@@ -1249,7 +1253,7 @@ function renderHomePage(container) {
                     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
                     var homePageNum = gameState.homePageNum || 1;
                     var categories = [
-                        { title: '工作', ids: ['debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
+                        { title: '工作', ids: ['daily', 'debut', 'work', 'schedule', 'meeting', 'mail', 'members', 'crisis', 'updates', 'contract', 'management', 'antiblack', 'pr'], page: 1 },
                         { title: '赚钱', ids: ['earn', 'food', 'delivery', 'loan', 'gacha', 'wardrobe', 'face', 'vip'], page: 1 },
                         { title: '社交', ids: ['ins', 'tiktok', 'phone', 'sms', 'kakaotalk', 'bubble', 'weverse', 'dating', 'relation', 'fanclub'], page: 2 },
                         { title: '娱乐', ids: ['live', 'hotsearch', 'ranking', 'comeback', 'songprod', 'music', 'mvstudio', 'achievement', 'company', 'kpopwiki', 'guide'], page: 2 }
@@ -3932,6 +3936,9 @@ function getAppRedDot(appId) {
         case 'sms':
             if (gameState.smsUnread) count += gameState.smsUnread;
             break;
+        case 'daily':
+            count = _getDailyTodoCount();
+            break;
     }
     return count > 0 ? count : null;
 }
@@ -4088,6 +4095,7 @@ function getIcon(name) {
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
         'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
         'face': '<svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9 13c1.5 2 4.5 2 6 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9.5" cy="9.5" r="1" fill="currentColor"></circle><circle cx="14.5" cy="9.5" r="1" fill="currentColor"></circle><path d="M7 17c-2 1-3 3-3 5h16c0-2-1-4-3-5" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
+        'daily': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M8 14l2 2 4-4" fill="none" stroke="#FF8FA3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
     };
     return icons[name] || '';
 }
@@ -12387,6 +12395,174 @@ function viewHiddenDialogue(npcName, level) {
 
 
 // ==================== V1.7: Weekly Goal System ====================
+
+// ==================== V1.7.20: Daily Tasks & Random Events ====================
+var DAILY_EVENTS = [
+    { id: 'old_diary', desc: '在练习室发现了一本日记，里面写满了梦想', reward: { fame: 3 } },
+    { id: 'fan_food', desc: '粉丝送来了应援餐，体力恢复了', reward: { stamina: 30 } },
+    { id: 'npc_invite', desc: '某位队友主动约你吃饭，心情变好了', reward: { fame: 2 } },
+    { id: 'company_bonus', desc: '公司发了奖金', reward: { money: 8000 } },
+    { id: 'lucky_fan', desc: '在路上被粉丝认出来了，粉丝数小幅增长', reward: { fans: 200 } },
+    { id: 'vocal_boost', desc: '今天嗓子状态特别好，口技小幅提升', reward: { fame: 5 } },
+    { id: 'gift_clothes', desc: '收到了品牌赞助的服装', reward: { money: 5000 } },
+    { id: 'street_photo', desc: '街拍被登上热搜，名气小幅上升', reward: { fame: 8, fans: 300 } },
+    { id: 'rest_well', desc: '昨晚睡得很好，体力充沛', reward: { stamina: 40 } },
+    { id: 'fan_letter', desc: '收到了一封感人的粉丝信', reward: { fame: 2 } },
+    { id: 'dance_miracle', desc: '今天跳舞状态神奇，身体素质提升', reward: { fame: 4 } },
+    { id: 'variety_call', desc: '收到了综艺节目的邀请', reward: { money: 10000 } },
+    { id: 'manager_praise', desc: '经纪人夸你近期进步很大', reward: { fame: 3 } },
+    { id: 'lucky_find', desc: '在公司门口发现了丢失的钱包', reward: { money: 3000 } },
+    { id: 'rainy_fan', desc: '下雨天被粉丝送了扇子，心里暖暖的', reward: { fans: 150 } }
+];
+
+function _triggerDailyEvent() {
+    if (gameState._dailyEventDay === gameState.gameDay) return;
+    gameState._dailyEventDay = gameState.gameDay;
+    var count = Math.random() < 0.5 ? 1 : 2;
+    var shuffled = DAILY_EVENTS.slice().sort(function() { return Math.random() - 0.5; });
+    gameState._todayEvents = [];
+    for (var i = 0; i < Math.min(count, shuffled.length); i++) {
+        var ev = shuffled[i];
+        var eventObj = { id: ev.id, desc: ev.desc, claimed: false, reward: {} };
+        if (ev.reward.money) { gameState.money = (gameState.money || 0) + ev.reward.money; eventObj.reward.money = ev.reward.money; }
+        if (ev.reward.fame) { gameState.fame = (gameState.fame || 0) + ev.reward.fame; eventObj.reward.fame = ev.reward.fame; }
+        if (ev.reward.fans) { gameState.fans = (gameState.fans || 0) + ev.reward.fans; eventObj.reward.fans = ev.reward.fans; }
+        if (ev.reward.stamina) { gameState['体力'] = Math.min(gameState.max体力 || 100, (gameState['体力'] || 0) + ev.reward.stamina); eventObj.reward.stamina = ev.reward.stamina; }
+        gameState._todayEvents.push(eventObj);
+    }
+    if (gameState._todayEvents.length > 0) {
+        var msgs = [];
+        for (var j = 0; j < gameState._todayEvents.length; j++) {
+            msgs.push(gameState._todayEvents[j].desc);
+        }
+        _pushNotif('今日事件', msgs.join('\n'), 'daily');
+    }
+}
+
+function _getDailyTodoCount() {
+    var count = 0;
+    var ci = getCheckInInfo();
+    if (!ci.checkedIn) count++;
+    if (gameState.weeklyGoals) {
+        for (var i = 0; i < gameState.weeklyGoals.length; i++) {
+            if (!gameState.weeklyGoals[i].claimed) count++;
+        }
+    }
+    if (!gameState._todayEvents || gameState._todayEvents.length === 0) count++;
+    return count;
+}
+
+function renderDailyPage(container) {
+    _triggerDailyEvent();
+    _initWeeklyGoals();
+    var ci = getCheckInInfo();
+    var html = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(&#39;home&#39;)">&#8249; 首页</div>'
+        + '<div class="page-title">今日任务</div>'
+        + '<div style="width: 32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="padding-bottom: 100px;">';
+    html += '<div style="margin-bottom: 16px;">'
+        + '<div style="font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 10px;">每日签到</div>';
+    if (ci.checkedIn) {
+        html += '<div style="background: linear-gradient(135deg, #FFF5F7, #FFE4EC); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">'
+            + '<div><div style="font-size: 15px; font-weight: 700; color: var(--color-primary);">今日已签到</div>'
+            + '<div style="font-size: 12px; color: var(--color-text-light); margin-top: 4px;">连续签到 ' + ci.streak + ' 天</div></div>'
+            + '<div style="width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center;">'
+            + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>'
+            + '</div>';
+    } else {
+        html += '<div onclick="doDailyCheckIn()" style="background: linear-gradient(135deg, #FF8FA3, #FF6B8A); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">'
+            + '<div><div style="font-size: 15px; font-weight: 700; color: white;">签到领金币</div>'
+            + '<div style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px;">连续签到奖励更多</div></div>'
+            + '<div style="font-size: 15px; font-weight: 700; color: white;">签到 &#8250;</div>'
+            + '</div>';
+    }
+    html += '</div>';
+    if (gameState.weeklyGoals && gameState.weeklyGoals.length > 0) {
+        html += '<div style="margin-bottom: 16px;">'
+            + '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">'
+            + '<div style="font-size: 14px; font-weight: 700; color: var(--color-text);">周目标</div>'
+            + '<div style="font-size: 12px; color: var(--color-text-light);">第' + (gameState.weeklyGoalsWeek || 1) + '周</div>'
+            + '</div>';
+        for (var i = 0; i < gameState.weeklyGoals.length; i++) {
+            var g = gameState.weeklyGoals[i];
+            var pct = Math.min(100, Math.floor((g.progress / g.target) * 100));
+            var done = g.progress >= g.target;
+            html += '<div style="background: ' + (g.claimed ? '#F5F5F5' : done ? 'linear-gradient(135deg, #FFF5F7, #FFE4EC)' : 'var(--bg-card)') + '; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;' + (g.claimed ? 'opacity: 0.6;' : '') + '">'
+                + '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">'
+                + '<div style="font-size: 13px; font-weight: 600; color: ' + (done ? 'var(--color-primary)' : 'var(--color-text)') + ';">' + g.desc + '</div>';
+            if (g.claimed) {
+                html += '<span style="font-size: 11px; color: var(--color-text-light);">已领取</span>';
+            } else if (done) {
+                html += '<button style="font-size: 11px; padding: 4px 12px; border-radius: 8px; border: none; background: var(--color-primary); color: white; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent;" onclick="claimWeeklyGoal(' + i + ')">领取</button>';
+            } else {
+                html += '<span style="font-size: 11px; color: var(--color-text-light);">' + g.progress + '/' + g.target + '</span>';
+            }
+            html += '</div>'
+                + '<div style="height: 4px; background: #EEE; border-radius: 2px; overflow: hidden;">'
+                + '<div style="height: 100%; width: ' + pct + '%; background: ' + (done ? 'var(--color-primary)' : '#FFB3C1') + '; border-radius: 2px; transition: width 0.3s;"></div>'
+                + '</div>'
+                + '<div style="font-size: 10px; color: var(--color-text-light); margin-top: 4px;">奖励：' + (g.reward.money ? g.reward.money.toLocaleString() + '金币 ' : '') + (g.reward.fame ? '+' + g.reward.fame + '名气 ' : '') + (g.reward.fans ? '+' + g.reward.fans + '粉丝' : '') + '</div>'
+                + '</div>';
+        }
+        html += '</div>';
+    }
+    if (gameState._todayEvents && gameState._todayEvents.length > 0) {
+        html += '<div style="margin-bottom: 16px;">'
+            + '<div style="font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 10px;">今日事件</div>';
+        for (var j = 0; j < gameState._todayEvents.length; j++) {
+            var ev = gameState._todayEvents[j];
+            var rewardParts = [];
+            if (ev.reward.money) rewardParts.push('+' + ev.reward.money.toLocaleString() + '金币');
+            if (ev.reward.fame) rewardParts.push('+' + ev.reward.fame + '名气');
+            if (ev.reward.fans) rewardParts.push('+' + ev.reward.fans + '粉丝');
+            if (ev.reward.stamina) rewardParts.push('+' + ev.reward.stamina + '体力');
+            html += '<div style="background: linear-gradient(135deg, #FFF8FA, #FFF0F5); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;">'
+                + '<div style="font-size: 13px; font-weight: 600; color: var(--color-text);">' + ev.desc + '</div>'
+                + '<div style="font-size: 11px; color: var(--color-primary); margin-top: 4px; font-weight: 600;">' + rewardParts.join('  ') + '</div>'
+                + '</div>';
+        }
+        html += '</div>';
+    }
+    var achieveDone = 0;
+    var achieveTotal = ACHIEVEMENTS ? ACHIEVEMENTS.length : 0;
+    if (gameState.achievements) achieveDone = gameState.achievements.length;
+    if (achieveTotal > 0) {
+        html += '<div style="margin-bottom: 16px;">'
+            + '<div style="font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 10px;">成就进度</div>'
+            + '<div style="background: var(--bg-card); border-radius: 12px; padding: 14px;">'
+            + '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">'
+            + '<div style="font-size: 13px; color: var(--color-text);">已解锁 ' + achieveDone + ' / ' + achieveTotal + '</div>'
+            + '<div style="font-size: 13px; font-weight: 700; color: var(--color-primary);">' + Math.floor(achieveDone / achieveTotal * 100) + '%</div>'
+            + '</div>'
+            + '<div style="height: 6px; background: #EEE; border-radius: 3px; overflow: hidden;">'
+            + '<div style="height: 100%; width: ' + Math.floor(achieveDone / achieveTotal * 100) + '%; background: linear-gradient(90deg, #FF8FA3, #FF6B8A); border-radius: 3px; transition: width 0.3s;"></div>'
+            + '</div>'
+            + '</div>'
+            + '</div>';
+    }
+    html += '<div style="margin-bottom: 16px;">'
+        + '<div style="font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 10px;">快捷操作</div>'
+        + '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">'
+        + '<div onclick="goToPage(&#39;work&#39;)" style="background: var(--bg-card); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer;">'
+        + '<div style="font-size: 13px; font-weight: 600; color: var(--color-text);">去通告</div>'
+        + '<div style="font-size: 11px; color: var(--color-text-light); margin-top: 2px;">赚金币+名气</div></div>'
+        + '<div onclick="goToPage(&#39;debut&#39;)" style="background: var(--bg-card); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer;">'
+        + '<div style="font-size: 13px; font-weight: 600; color: var(--color-text);">去训练</div>'
+        + '<div style="font-size: 11px; color: var(--color-text-light); margin-top: 2px;">提升实力</div></div>'
+        + '<div onclick="goToPage(&#39;live&#39;)" style="background: var(--bg-card); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer;">'
+        + '<div style="font-size: 13px; font-weight: 600; color: var(--color-text);">去直播</div>'
+        + '<div style="font-size: 11px; color: var(--color-text-light); margin-top: 2px;">吸粉+互动</div></div>'
+        + '<div onclick="goToPage(&#39;kakaotalk&#39;)" style="background: var(--bg-card); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer;">'
+        + '<div style="font-size: 13px; font-weight: 600; color: var(--color-text);">聊天</div>'
+        + '<div style="font-size: 11px; color: var(--color-text-light); margin-top: 2px;">和队友互动</div></div>'
+        + '</div></div>';
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
 var WEEKLY_GOALS = [
     { id: 'train3', desc: '训练3次', target: 3, type: 'train', reward: { money: 5000, fame: 5 } },
     { id: 'earn50k', desc: '赚50,000金币', target: 50000, type: 'earn', reward: { money: 10000, fame: 3 } },
@@ -14289,6 +14465,7 @@ function _endDay() {
     _initCalendarState();
     var summary = _buildDaySummary();
     gameState.gameDay++;
+    _triggerDailyEvent();
     var newMonth = Math.floor((gameState.gameDay - 1) / 30) + 1;
     var isNewMonth = newMonth > gameState.gameMonth;
     if (isNewMonth) {
