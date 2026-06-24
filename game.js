@@ -1261,7 +1261,7 @@ var SCENES = {
         ]
     },
     bedroom: {
-        name: '卧室', img: 'imgs/scenes/bedroom.jpg', role: 'Idol',
+        name: '卧室', img: 'imgs/scenes/bedroom_luxury.jpg', role: 'Idol',
         hotspots: [
             {x:50,y:55,icon:'bed',label:'睡觉',action:'sleep'},
             {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'home_corridor'}
@@ -1569,6 +1569,7 @@ function _showSceneNavModal() {
 function _showElevatorModal() {
     var m = document.getElementById('elevatorModal'); if (m) { m.remove(); return; }
     var floors = [
+        {id:'company',name:'1F \u661f\u5149\u5927\u5385',desc:'\u5496\u5561\u5427 \u00b7 \u51fa\u5165\u53e3'},
         {id:'floor2',name:'2F \u521b\u4f5c\u5c42',desc:'\u5f55\u97f3\u5ba4 \u00b7 \u5199\u6b4c\u533a'},
         {id:'floor3',name:'3F \u8bad\u7ec3\u5c42',desc:'\u821e\u8e48\u5ba4 \u00b7 \u58f0\u4e50\u5ba4 \u00b7 \u5f62\u4f53\u5ba4'},
         {id:'floor4',name:'4F \u8fd0\u8425\u5c42',desc:'\u7ecf\u7eaa\u90e8 \u00b7 \u516c\u5173\u90e8 \u00b7 \u4f1a\u8bae\u5ba4'},
@@ -1653,7 +1654,7 @@ function _buildPhoneModal() {
     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
     var h = '<div id="phoneModal" style="position:fixed;bottom:0;left:0;right:0;height:75vh;background:var(--bg-card);border-radius:20px 20px 0 0;z-index:9998;display:flex;flex-direction:column;box-shadow:0 -4px 20px rgba(0,0,0,0.3);">';
     h += '<div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-border);">';
-    h += '<div style="font-size:15px;font-weight:700;color:var(--color-text);">\u624b\u673a</div>';
+    h += '<div style="display:flex;align-items:center;gap:8px;"><div onclick="_closePhoneAndReturn()" style="cursor:pointer;color:var(--color-text-light);font-size:18px;line-height:1;">\u2715</div><div style="font-size:15px;font-weight:700;color:var(--color-text);">\u624b\u673a</div></div>';
     h += '<div onclick="_showPhoneModal()" style="color:var(--color-text-light);cursor:pointer;font-size:13px;">\u5173\u95ed</div>';
     h += '</div>';
     h += '<div style="flex:1;overflow-y:auto;padding:10px 14px;padding-bottom:20px;">';
@@ -1722,7 +1723,7 @@ function renderScenePage(container) {
         + '<div class="scene-day">\u7b2c' + dayInfo.day + '\u5929 ' + dayInfo.weekDay + '</div>'
         + '<div class="scene-loc">' + locationName + '</div>'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
-        + '</div>';
+        + '</div>'; + '<div style="position:absolute;bottom:max(6px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:16px;background:rgba(0,0,0,0.35);backdrop-filter:blur(8px);border-radius:20px;padding:5px 14px;">' + '<div onclick="_showPhoneModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>\u624b\u673a</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>\u5bfc\u822a</div>' + '<div onclick="goToPage(\'me\')" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>\u6211\u7684</div>' + '</div>'
 }
 
 // ==================== TRAINING PAGE ====================
