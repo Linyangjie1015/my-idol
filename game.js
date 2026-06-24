@@ -1594,9 +1594,12 @@ function _showElevatorModal() {
 var _phoneModalVisible = false;
 function _exitSceneToUI() {
     window._inSceneMode = true;
-    var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
+    _showPhoneModal();
+}
+function _closePhoneAndReturn() {
+    var pm = document.getElementById('phoneModal');
+    if (pm) pm.style.display = 'none';
     _phoneModalVisible = false;
-    goToPage('home');
 }
 
 function _showPhoneModal() {

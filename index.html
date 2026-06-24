@@ -1574,7 +1574,7 @@ function __loadScript(src, cb) {
             __diag('Retry #' + __loadRetries + '...');
             __updateLoad('Retrying... (' + __loadRetries + ')');
             setTimeout(function() {
-                __loadScript('game.js?v=1.7.20&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
+                __loadScript('game.js?v=1.7.21&_bust=' + Date.now() + '&_r=' + __loadRetries, cb);
             }, 2000);
         } else {
             __diag('All retries failed');
@@ -1587,7 +1587,7 @@ function __loadScript(src, cb) {
 
 // Start loading v1.6.js
 __updateLoad('Loading game...');
-__loadScript('game.js?v=1.7.20&_bust=' + Date.now(), function() {
+__loadScript('game.js?v=1.7.21&_bust=' + Date.now(), function() {
     // Integrity check: verify critical functions exist
     if (typeof render !== 'function' || typeof render恋爱Page !== 'function') {
         __diag('CRITICAL: Missing functions after JS load - possible truncated file');
@@ -1609,7 +1609,7 @@ __loadScript('game.js?v=1.7.20&_bust=' + Date.now(), function() {
     __diag('render exists: ' + (typeof render === 'function'));
 });
 </script>
-<script src="npc-data.js?v=1.7.20&_b=3" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
+<script src="npc-data.js?v=1.7.21&_b=3" onload="__diag('npc-data.js loaded');window.__npcDataLoaded=true;if(window.COMPANIES&&Object.keys(window.COMPANIES).length>0){COMPANIES=window.COMPANIES;__diag('COMPANIES filled');}if(window.CARD_IMG_MAP){CARD_IMG_MAP=window.CARD_IMG_MAP;CARD_IMG_BASE=window.CARD_IMG_BASE||'imgs/cards/';_getCardImgUrl=window._getCardImgUrl||_getCardImgUrl;}if(typeof _buildHiddenDialogues==='function'){_buildHiddenDialogues();__diag('HIDDEN_DIALOGUES built');}if(typeof render==='function'&&typeof gameState!=='undefined'){__diag('rendering from npc-data callback');try{render();}catch(e){__diag('render error: '+e.message);}}"  onerror="__diag('npc-data.js FAILED')" async></script>
 <script>
 function showNpcCard(npcName) {
   var npc = null;
@@ -1721,7 +1721,7 @@ if ("serviceWorker" in navigator) {
                 clearInterval(_ri);
                 __diag('JS failed, trying one more time...');
                 var _ns = document.createElement('script');
-                _ns.src = 'game.js?v=1.7.20&_final=' + Date.now();
+                _ns.src = 'game.js?v=1.7.21&_final=' + Date.now();
                 _ns.onload = function() {
                     __diag('Final retry loaded');
                     if (typeof render === 'function') { try { render(); } catch(e) { __diag('Final render error'); } }
