@@ -1,878 +1,147 @@
 // ==================== CARD IMAGE MAPPING ====================
 var CARD_IMG_BASE = 'imgs/cards/';
 var CARD_IMG_MAP = {
-    '金始源': 'card_haeoreum_leader.jpg',
-    '崔娜恩': 'card_haeoreum_main_vocal.jpg',
-    '朴智宇': 'card_haeoreum_main_dancer.jpg',
-    '李贤珍': 'card_haeoreum_lead_vocal.jpg',
-    '郑瑞夏': 'card_haeoreum_maknae.jpg',
-    '洪秀贤': 'card_haeoreum_sub_vocal.jpg',
-    '姜正勋': 'card_nuriwave_leader.jpg',
-    '韩有珍': 'card_nuriwave_main_rapper.jpg',
-    '文采媛': 'card_nuriwave_main_dancer.jpg',
-    '裴成雅': 'card_nuriwave_main_vocal.jpg',
-    '安敏宇': 'card_nuriwave_maknae.jpg',
-    '刘泰民': 'card_nuriwave_sub_dancer.jpg',
-    '李承宇': 'card_starapex_leader.jpg',
-    '金秀珍': 'card_starapex_main_vocal.jpg',
-    '朴贤浩': 'card_starapex_main_rapper.jpg',
-    '崔允成': 'card_starapex_main_dancer.jpg',
-    '姜世夏': 'card_starapex_maknae.jpg',
-    '申惠珍': 'card_starapex_sub_vocal.jpg',
-    '张太宇': 'card_taegiflow_leader.jpg',
-    '柳夏俊': 'card_taegiflow_main_rapper.jpg',
-    '徐俊浩': 'card_taegiflow_main_dancer.jpg',
-    '元宇英': 'card_taegiflow_main_vocal.jpg',
-    '田大贤': 'card_taegiflow_maknae.jpg',
-    '朴瑞俊': 'card_taegiflow_lead_rapper.jpg',
-    '金娜里': 'card_blackluna_leader.jpg',
-    '尹世珍': 'card_blackluna_main_vocal.jpg',
-    '洪智延': 'card_blackluna_main_rapper.jpg',
-    '林昭恩': 'card_blackluna_main_dancer.jpg',
-    '采有珍': 'card_blackluna_maknae.jpg',
-    '崔恩雅': 'card_blackluna_sub_vocal.jpg',
-    '金熙仙': 'card_wavebright_leader.jpg',
-    '朴都贤': 'card_wavebright_main_vocal.jpg',
-    '刘光民': 'card_wavebright_main_rapper.jpg',
-    '申延宇': 'card_wavebright_main_dancer.jpg',
-    '韩承雅': 'card_wavebright_maknae.jpg',
-    '韩俊书': 'card_wavebright_lead_vocal.jpg',
-    '李光翼': 'card_funkyglow_leader.jpg',
-    '崔成烈': 'card_funkyglow_main_rapper.jpg',
-    '刘泰珍': 'card_funkyglow_main_vocal.jpg',
-    '元智恩': 'card_funkyglow_main_dancer.jpg',
-    '裴敏宰': 'card_funkyglow_maknae.jpg',
-    '崔敏赫': 'card_funkyglow_sub_rapper.jpg',
-    '田锡珍': 'card_mythecho_leader.jpg',
-    '金智勋': 'card_mythecho_main_rapper.jpg',
-    '朴熙英': 'card_mythecho_main_vocal.jpg',
-    '郑泽均': 'card_mythecho_main_dancer.jpg',
-    '姜柔娜': 'card_mythecho_maknae.jpg',
-    '郑浩镇': 'card_mythecho_sub_vocal.jpg',
-    '金茶媛': 'card_crushaura_leader.jpg',
-    '郑瑞妍': 'card_crushaura_main_dancer.jpg',
-    '洪恩智': 'card_crushaura_main_rapper.jpg',
-    '林娜延': 'card_crushaura_main_vocal.jpg',
-    '裴秀珍': 'card_crushaura_maknae.jpg',
-    '李泰永': 'card_crushaura_lead_dancer.jpg'
+    '夏恩': 'card_haeoreum_leader.jpg',
+    '俊昊': 'card_haeoreum_lead_vocal.jpg',
+    '智媛': 'card_haeoreum_maknae.jpg',
+    '素雅': 'card_haeoreum_main_vocal.jpg',
+    '瑞贤': 'card_haeoreum_main_rapper.jpg'
 };
 
-function _getCardImgUrl(cardName) {
-    var cn = cardName.replace(/\(.*?\)/, '').replace(/[\s\u3000]/g, '');
-    if (CARD_IMG_MAP[cn]) return CARD_IMG_BASE + CARD_IMG_MAP[cn];
-    return '';
-}
+var _getCardImgUrl = function(charName) {
+    if (CARD_IMG_MAP[charName]) return CARD_IMG_BASE + CARD_IMG_MAP[charName];
+    var names = Object.keys(CARD_IMG_MAP);
+    for (var i = 0; i < names.length; i++) {
+        if (charName.indexOf(names[i]) >= 0 || names[i].indexOf(charName) >= 0) {
+            return CARD_IMG_BASE + CARD_IMG_MAP[names[i]];
+        }
+    }
+    return CARD_IMG_BASE + 'card_default.jpg';
+};
 
 // ==================== GAME DATA ====================
 var COMPANIES = {
-    "SN Entertainment": {
-        name: "SN Entertainment",
-        desc: "韩国最大型经纪公司，以精致标准化著称。旗下艺人以出众的颜值、完美的舞台展现和强大的综合实力闻名。",
-        tags: ["精致标准化", "颜值担当", "综合实力"],
+    "SEONGWOO ENT": {
+        name: "SEONGWOO ENT 星隅娱乐",
+        desc: "韩娱圈新晋势力，以温暖治愈与舞台实力并重著称。旗下唯一团体Haeoreum，正在书写属于自己的传奇。",
+        tags: ["温暖治愈", "舞台实力", "星隅之光"],
         groups: {
             "Haeoreum": {
                 name: "Haeoreum（해오름）曙光纯白治愈团",
-                desc: "曙光纯白治愈团，以温暖治愈风格著称",
+                desc: "曙光纯白治愈团，以温暖治愈风格与真挚情感著称。五个人，一个家。",
                 tier: "S",
                 members: [
-                    { name: "金始源(Kim Siwon)", personality: ["认真", "自信", "上进"], position: "Leader",
-                      bio: "金始源扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
+                    { name: "夏恩(Ha Eun)", personality: ["认真", "温柔", "上进"], position: "Leader",
+                      bio: "夏恩扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。作为队长，她永远站在最前面替成员挡风。",
                       quote: "我带大家走的方向，是对的方向。",
                       hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "崔娜恩(Choi Naeun)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal",
-                      bio: "崔娜恩的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
+                    { name: "俊昊(Junho)", personality: ["开朗", "热情", "幽默"], position: "Lead Vocal",
+                      bio: "俊昊的音色是团最温暖的底色。他看起来总是笑嘻嘻的，但练歌时对自己最狠——一首歌唱到嗓子哑了才肯停下，然后在空练习室小声哼儿歌放松。",
+                      quote: "你闭上眼睛听的时候，是我最幸福的时刻。",
                       hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "朴智宇(Park Jiwoo)", personality: ["开朗", "幽默", "热情"], position: "Main Dancer",
-                      bio: "朴智宇的身体像是为舞台而生。学舞时最痛苦的不是动作，是要一遍遍磨到能表达情绪为止。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "李贤珍(Lee Hyunjin)", personality: ["冷静", "认真", "上进"], position: "Lead Vocal",
-                      bio: "李贤珍的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "我想做那种'闭上眼睛也认得出'的声音。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "郑瑞夏(Jung Seoha)", personality: ["温柔", "冷静", "认真"], position: "Maknae",
-                      bio: "郑瑞夏是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
+                    { name: "智媛(Jiwon)", personality: ["活泼", "好奇", "热情"], position: "Maknae",
+                      bio: "智媛是队内的团宠，谁都不准凶忙内是她的护身符。但其实她比谁都更想快点长大，证明自己不只是可爱。给每个成员都记了小本本，记得所有人的生日和喜好。",
                       quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "洪秀贤(Hong Soohyun)", personality: ["温柔", "认真"], position: "Sub Vocal",
-                      bio: "洪秀贤是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "我的声音不抢戏，但不会缺席。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Nuriwave": {
-                name: "Nuriwave（누리웨이브）未来赛博舞台团",
-                desc: "未来赛博舞台团，先锋大胆的舞台创意",
-                tier: "S",
-                members: [
-                    { name: "姜正勋(Kang Junghoon)", personality: ["自信", "上进", "热情"], position: "Leader",
-                      bio: "作为团的精神支柱，姜正勋常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "韩有珍(Han Yujin)", personality: ["冷静", "认真", "上进"], position: "Main Rapper",
-                      bio: "韩有珍的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
+                      hidden: "给每个成员都记了小本本（生日/喜好）" },
+                    { name: "素雅(Sua)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal",
+                      bio: "素雅的声线温柔但有韧劲，高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的。她是最安静的人，但她的声音你闭上眼睛能认出来。",
+                      quote: "我想做那种闭上眼睛也认得出的声音。",
+                      hidden: "会偷偷研究其他主唱的换气技巧" },
+                    { name: "瑞贤(Seohyun)", personality: ["沉默", "酷", "认真"], position: "Main Rapper",
+                      bio: "瑞贤话少到让人以为他在生气，其实他只是不知道怎么开口。递水、让座、默默帮你收东西——他的关心从来不用说的。写rap时关灯戴耳机，反复听beat到自己开始笑才算到位。",
                       quote: "我写的不是rap，是日记。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "文采媛(Moon Chaewon)", personality: ["自信", "幽默", "热情"], position: "Main Dancer",
-                      bio: "舞台上文采媛是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "裴成雅(Bae Seongah)", personality: ["开朗", "幽默", "自信"], position: "Main Vocal",
-                      bio: "主唱的位置是裴成雅用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "安敏宇(Ahn Minwoo)", personality: ["温柔", "认真", "上进"], position: "Maknae",
-                      bio: "安敏宇是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "刘泰民(Yoo Taemin)", personality: ["自信", "上进"], position: "Main Dancer",
-                      bio: "舞台上刘泰民是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" }]
-            },
-            "Saeunlyric": {
-                name: "Saeunlyric（새은리릭）清吟抒情主唱团",
-                desc: "清吟抒情主唱团，以感性深情歌声著称",
-                tier: "A",
-                members: [
-                    { name: "林宇珍(Im Woojin)", personality: ["温柔", "自信", "上进"], position: "Leader",
-                      bio: "作为团的精神支柱，林宇珍常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我们一起，就是最好的样子。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "刘敏宰(Yoo Minjae)", personality: ["冷静", "认真", "上进"], position: "Main Vocal",
-                      bio: "别人羡慕刘敏宰的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "车希媛(Cha Heewon)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer",
-                      bio: "主舞的位置背后是车希媛数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞台上的每一秒都是真的。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "申柔娜(Shin Yuna)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal",
-                      bio: "申柔娜的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "我想做那种'闭上眼睛也认得出'的声音。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "吴承泰(Oh Seungtae)", personality: ["温柔", "冷静", "认真"], position: "Maknae",
-                      bio: "吴承泰是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "韩艺琳(Han Yerin)", personality: ["开朗", "温柔"], position: "Lead Vocal",
-                      bio: "作为领唱，韩艺琳负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "我想做那种'闭上眼睛也认得出'的声音。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" }]
-            },
-            "Gaeulvibe": {
-                name: "Gaeulvibe（가을바이브）秋日复古清新团",
-                desc: "秋日复古清新团，阳光友善路人好感极高",
-                tier: "A",
-                members: [
-                    { name: "郑多彬(Jeong Dabin)", personality: ["开朗", "热情", "温柔"], position: "Leader",
-                      bio: "作为团的精神支柱，郑多彬常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "宋韩星(Song Hanbyul)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal",
-                      bio: "主唱的位置是宋韩星用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "南智浩(Nam Jiho)", personality: ["自信", "开朗", "上进"], position: "Main Rapper",
-                      bio: "南智浩的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "我写的不是rap，是日记。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "高恩智(Go Eunji)", personality: ["温柔", "认真", "冷静"], position: "Main Dancer",
-                      bio: "舞台上高恩智是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞台上的每一秒都是真的。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "黄茶媛(Hwang Chawon)", personality: ["冷静", "自信", "认真"], position: "Maknae",
-                      bio: "作为忙内，黄茶媛被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "徐道允(Seo Doyun)", personality: ["幽默", "冷静"], position: "Sub Rapper",
-                      bio: "作为副rapper，徐道允的verse虽然短，但每句都让人想循环。她说'十秒也是十分钟的练习'。",
-                      quote: "十秒的verse，我也当solo来写。",
-                      hidden: "verse会反复录到自己想笑" }]
-            },
-            "Star Apex": {
-                name: "Star Apex（스타에이펙스）星巅全能王牌团",
-                desc: "星巅全能王牌团，强力队长与顶尖实力",
-                tier: "S",
-                members: [
-                    { name: "李承宇(Lee Seungwoo)", personality: ["上进", "自信", "认真"], position: "Leader",
-                      bio: "作为团的精神支柱，李承宇常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我们一起，就是最好的样子。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "金秀珍(Kim Soojin)", personality: ["自信", "冷静", "开朗"], position: "Main Vocal",
-                      bio: "金秀珍的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "朴贤浩(Park Hyunho)", personality: ["上进", "自信", "热情"], position: "Main Rapper",
-                      bio: "朴贤浩的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "Flow是肌肉，故事才是灵魂。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "崔允成(Choi Yoonsung)", personality: ["冷静", "认真", "上进"], position: "Main Dancer",
-                      bio: "主舞的位置背后是崔允成数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "姜世夏(Kang Saeha)", personality: ["开朗", "温柔", "冷静"], position: "Maknae",
-                      bio: "作为忙内，姜世夏被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "申惠珍(Shin Hyejin)", personality: ["上进", "自信"], position: "Main Vocal",
-                      bio: "别人羡慕申惠珍的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" }]
-            }
-        }
-    },
-    "YK Entertainment": {
-        name: "YK Entertainment",
-        desc: "以嘻哈和Swag风格闻名，打造了多个现象级团体。注重艺人的个性与舞台感染力。",
-        tags: ["嘻哈Swag", "个性鲜明", "舞台感染力"],
-        groups: {
-            "Taegiflow": {
-                name: "Taegiflow（태기플로우）不羁黑泡王牌团",
-                desc: "不羁黑泡王牌团，霸气领袖与创作极强",
-                tier: "S",
-                members: [
-                    { name: "张太宇(Jang Taewoo)", personality: ["自信", "上进", "热情"], position: "Leader",
-                      bio: "队长身份让张太宇比同龄人更早熟。偶尔也想耍赖休息，但看到成员们期待的眼神，又会咬着牙继续冲。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "柳夏俊(Ryu Hajun)", personality: ["冷静", "自信", "上进"], position: "Main Rapper",
-                      bio: "柳夏俊的rap本子上写满了被否掉的词。灵感来自凌晨三点的便利店、错过末班车的地铁站、写了一半扔掉的歌词。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "徐俊浩(Seo Junho)", personality: ["热情", "自信", "认真"], position: "Main Dancer",
-                      bio: "舞台上徐俊浩是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞台上的每一秒都是真的。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "元宇英(Won Wooyoung)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal",
-                      bio: "别人羡慕元宇英的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "田大贤(Jeon Daehyun)", personality: ["开朗", "幽默", "热情"], position: "Maknae",
-                      bio: "田大贤是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "朴瑞俊(Park Seojun)", personality: ["热情", "认真"], position: "Lead Rapper",
-                      bio: "朴瑞俊的rap风格比较chill。她说'愤怒是创作的一部分，但不是全部'。",
-                      quote: "短短一段verse，要让人记得我一辈子。",
-                      hidden: "在浴室rap最多" }]
-            },
-            "Black Luna": {
-                name: "Black Luna（블랙루나）暗夜高级氛围团",
-                desc: "暗夜高级氛围团，冷艳疏离高级氛围",
-                tier: "S",
-                members: [
-                    { name: "金娜里(Kim Nari)", personality: ["自信", "冷静", "上进"], position: "Leader",
-                      bio: "金娜里扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "尹世珍(Yoon Sejin)", personality: ["冷静", "认真", "上进"], position: "Main Vocal",
-                      bio: "主唱的位置是尹世珍用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "洪智延(Hong Jiyeon)", personality: ["热情", "自信", "开朗"], position: "Main Rapper",
-                      bio: "写词是洪智延的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "我写的不是rap，是日记。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "林昭恩(Lim Soeun)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer",
-                      bio: "主舞的位置背后是林昭恩数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞台上的每一秒都是真的。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "采有珍(Chae Yujin)", personality: ["自信", "上进", "认真"], position: "Maknae",
-                      bio: "采有珍是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "崔恩雅(Choi Euna)", personality: ["冷静", "自信"], position: "Sub Vocal",
-                      bio: "崔恩雅是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "我的声音不抢戏，但不会缺席。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Artist Moon": {
-                name: "Artist Moon（아티스트문）月光全员创作团",
-                desc: "月光全员创作团，文艺浪漫灵感充沛",
-                tier: "A",
-                members: [
-                    { name: "文俊熙(Moon Junhee)", personality: ["开朗", "自信", "上进"], position: "Leader",
-                      bio: "队长身份让文俊熙比同龄人更早熟。偶尔也想耍赖休息，但看到成员们期待的眼神，又会咬着牙继续冲。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "权限宰(Kwon Minjae)", personality: ["认真", "上进", "冷静"], position: "Main Vocal",
-                      bio: "权限宰的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "吴泰京(Oh Taekyung)", personality: ["开朗", "幽默", "自信"], position: "Main Rapper",
-                      bio: "吴泰京的rap本子上写满了被否掉的词。灵感来自凌晨三点的便利店、错过末班车的地铁站、写了一半扔掉的歌词。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "李诗妍(Lee Siyeon)", personality: ["冷静", "认真", "温柔"], position: "Main Dancer",
-                      bio: "李诗妍的身体像是为舞台而生。学舞时最痛苦的不是动作，是要一遍遍磨到能表达情绪为止。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "朴惠媛(Park Hyewon)", personality: ["温柔", "开朗", "冷静"], position: "Maknae",
-                      bio: "作为忙内，朴惠媛被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "金秀彬(Kim Soobin)", personality: ["温柔", "开朗"], position: "Visual",
-                      bio: "门面担当金秀彬其实更想用实力说话。她说'被夸好看很开心，但被夸努力更开心'。",
-                      quote: "被夸漂亮是运气，被夸努力是本事。",
-                      hidden: "会偷偷关掉滤镜看自己的素颜" }]
-            },
-            "Cloud Echo": {
-                name: "Cloud Echo（클라우드에코）云雾治愈抒情团",
-                desc: "云雾治愈抒情团，温柔绵软治愈音色",
-                tier: "A",
-                members: [
-                    { name: "郑银河(Jung Eunha)", personality: ["温柔", "开朗", "热情"], position: "Leader",
-                      bio: "郑银河扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "孙宰雅(Son Jaeah)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal",
-                      bio: "孙宰雅的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "范锡民(Bum Seokmin)", personality: ["开朗", "温柔", "热情"], position: "Main Dancer",
-                      bio: "主舞的位置背后是范锡民数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "刘彩恩(Yoo Chaeun)", personality: ["认真", "温柔", "冷静"], position: "Lead Vocal",
-                      bio: "作为领唱，刘彩恩负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "副歌之后的那口气，是我留给你们喘的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "安承烨(Ahn Seungyeop)", personality: ["冷静", "认真", "上进"], position: "Maknae",
-                      bio: "安承烨是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "李多顺(Lee Dasun)", personality: ["认真", "上进"], position: "Sub Vocal",
-                      bio: "李多顺是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "和声是歌的呼吸。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Odd Muse": {
-                name: "Odd Muse（오드뮤즈）小众艺术概念团",
-                desc: "小众艺术概念团，特立独行审美超前",
-                tier: "A",
-                members: [
-                    { name: "李泰民(Lee Taemin)", personality: ["自信", "上进", "开朗"], position: "Leader",
-                      bio: "李泰民扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "崔圭珍(Choi Kyujin)", personality: ["冷静", "认真", "上进"], position: "Main Dancer",
-                      bio: "主舞的位置背后是崔圭珍数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "郑多恩(Jung Daeun)", personality: ["开朗", "温柔", "热情"], position: "Main Vocal",
-                      bio: "别人羡慕郑多恩的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "南基贤(Nam Kihyun)", personality: ["认真", "上进", "自信"], position: "Main Rapper",
-                      bio: "南基贤的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "金宰运(Kim Jaewoon)", personality: ["冷静", "认真", "温柔"], position: "Maknae",
-                      bio: "作为忙内，金宰运被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "郑彩润(Jung Chaeyun)", personality: ["幽默", "自信"], position: "Main Dancer",
-                      bio: "舞台上郑彩润是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞台上的每一秒都是真的。",
-                      hidden: "休息日经常在宿舍楼下压腿" }]
-            }
-        }
-    },
-    "JYP+ Entertainment": {
-        name: "JYP+ Entertainment",
-        desc: "以亲和力和国民度见长，旗下团体以整齐划一的刀群舞和洗脑旋律著称。",
-        tags: ["国民亲和", "刀群舞", "洗脑旋律"],
-        groups: {
-            "Wave Bright": {
-                name: "Wave Bright（웨이브브라이트）晴空元气王牌团",
-                desc: "晴空元气王牌团，阳光亲和感染力满格",
-                tier: "S",
-                members: [
-                    { name: "金熙仙(Kim Heesun)", personality: ["开朗", "热情", "自信"], position: "Leader",
-                      bio: "队长身份让金熙仙比同龄人更早熟。偶尔也想耍赖休息，但看到成员们期待的眼神，又会咬着牙继续冲。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "朴都贤(Park Dohyun)", personality: ["认真", "温柔", "上进"], position: "Main Vocal",
-                      bio: "别人羡慕朴都贤的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "刘光民(Yoo Kwangmin)", personality: ["开朗", "幽默", "热情"], position: "Main Rapper",
-                      bio: "刘光民的rap本子上写满了被否掉的词。灵感来自凌晨三点的便利店、错过末班车的地铁站、写了一半扔掉的歌词。",
-                      quote: "Flow是肌肉，故事才是灵魂。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "申延宇(Shin Yeonwoo)", personality: ["温柔", "冷静", "认真"], position: "Main Dancer",
-                      bio: "主舞的位置背后是申延宇数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞台上的每一秒都是真的。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "韩承雅(Han Seungah)", personality: ["温柔", "开朗", "冷静"], position: "Maknae",
-                      bio: "作为忙内，韩承雅被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "韩俊书(Han Junseo)", personality: ["热情", "上进"], position: "Lead Vocal",
-                      bio: "作为领唱，韩俊书负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "副歌之后的那口气，是我留给你们喘的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" }]
-            },
-            "Melody Pitch": {
-                name: "Melody Pitch（멜로디피치）和声主唱团",
-                desc: "和声主唱团，稳重大气零失误唱功",
-                tier: "A",
-                members: [
-                    { name: "林在贤(Im Jaehyun)", personality: ["认真", "自信", "上进"], position: "Leader",
-                      bio: "作为团的精神支柱，林在贤常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我们一起，就是最好的样子。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "郑秀民(Jung Soomin)", personality: ["自信", "开朗", "热情"], position: "Main Vocal",
-                      bio: "别人羡慕郑秀民的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "崔宇珍(Choi Woojin)", personality: ["冷静", "认真", "上进"], position: "Main Dancer",
-                      bio: "舞台上崔宇珍是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "文瑞恩(Moon Seoeun)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal",
-                      bio: "作为领唱，文瑞恩负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "我想做那种'闭上眼睛也认得出'的声音。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "裴镇宇(Bae Jinwoo)", personality: ["温柔", "开朗", "热情"], position: "Maknae",
-                      bio: "作为忙内，裴镇宇被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "申敏浩(Shin Minho)", personality: ["冷静", "认真"], position: "Main Rapper",
-                      bio: "申敏浩的rap本子上写满了被否掉的词。灵感来自凌晨三点的便利店、错过末班车的地铁站、写了一半扔掉的歌词。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" }]
-            },
-            "Beat Motion": {
-                name: "Beat Motion（비트모션）刀群舞蹈团",
-                desc: "刀群舞蹈团，自律带队舞蹈天花板",
-                tier: "A",
-                members: [
-                    { name: "姜贤泰(Kang Hyuntae)", personality: ["上进", "认真", "自信"], position: "Leader",
-                      bio: "队长身份让姜贤泰比同龄人更早熟。偶尔也想耍赖休息，但看到成员们期待的眼神，又会咬着牙继续冲。",
-                      quote: "我们一起，就是最好的样子。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "吴正贤(Oh Junghyun)", personality: ["冷静", "认真", "上进"], position: "Main Dancer",
-                      bio: "主舞的位置背后是吴正贤数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "南永浩(Nam Youngho)", personality: ["开朗", "热情", "上进"], position: "Main Rapper",
-                      bio: "写词是南永浩的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "孙智勋(Son Jihoon)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal",
-                      bio: "孙智勋的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "李灿宇(Lee Chanwoo)", personality: ["温柔", "开朗", "认真"], position: "Maknae",
-                      bio: "李灿宇是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "金夏妍(Kim Hayeon)", personality: ["开朗", "自信"], position: "Sub Dancer",
-                      bio: "金夏妍是团的舞蹈辅助担当。别人跳全场，她负责把队形串起来。",
-                      quote: "我让队形流动起来。",
-                      hidden: "私下是个宅女" }]
-            },
-            "Warm Horizon": {
-                name: "Warm Horizon（웜호라이즌）温柔治愈团",
-                desc: "温柔治愈团，恬静温柔治愈气质",
-                tier: "A",
-                members: [
-                    { name: "采秀允(Chae Sooyun)", personality: ["温柔", "冷静", "认真"], position: "Leader",
-                      bio: "采秀允扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "尹智惠(Yoon Jihae)", personality: ["温柔", "开朗", "认真"], position: "Main Vocal",
-                      bio: "尹智惠的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "朴宣宇(Park Sunwoo)", personality: ["开朗", "热情", "上进"], position: "Main Dancer",
-                      bio: "主舞的位置背后是朴宣宇数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "金惠琳(Kim Hyerin)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal",
-                      bio: "作为领唱，金惠琳负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "副歌之后的那口气，是我留给你们喘的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "郑海仁(Jung Haein)", personality: ["冷静", "认真", "温柔"], position: "Maknae",
-                      bio: "作为忙内，郑海仁被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我想快点长大，替哥哥姐姐们扛一点。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "朴智安(Park Jiah)", personality: ["温柔", "上进"], position: "Lead Vocal",
-                      bio: "朴智安的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "副歌之后的那口气，是我留给你们喘的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" }]
-            },
-            "Funky Glow": {
-                name: "Funky Glow（펑키글로우）综艺人气团",
-                desc: "综艺人气团，反应超快临场梗王",
-                tier: "S",
-                members: [
-                    { name: "李光翼(Lee Kwangi)", personality: ["开朗", "幽默", "自信"], position: "Leader",
-                      bio: "李光翼扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "崔成烈(Choi Sungyul)", personality: ["开朗", "热情", "幽默"], position: "Main Rapper",
-                      bio: "写词是崔成烈的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "我写的不是rap，是日记。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "刘泰珍(Yoo Taejin)", personality: ["冷静", "幽默", "认真"], position: "Main Vocal",
-                      bio: "刘泰珍的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "元智恩(Won Jieun)", personality: ["热情", "温柔", "开朗"], position: "Main Dancer",
-                      bio: "舞台上元智恩是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "裴敏宰(Bae Minjae)", personality: ["自信", "冷静", "认真"], position: "Maknae",
-                      bio: "作为忙内，裴敏宰被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "崔敏赫(Choi Minhyuk)", personality: ["幽默", "开朗"], position: "Main Rapper",
-                      bio: "写词是崔敏赫的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" }]
-            }
-        }
-    },
-    "HYBE+": {
-        name: "HYBE+",
-        desc: "多厂牌运营的新生代巨头，以全球化视野和多元厂牌体系持续引领行业浪潮。",
-        tags: ["全球影响力", "多厂牌", "现象级"],
-        groups: {
-            "Myth Echo": {
-                name: "Myth Echo（미스에코）全球顶级概念王牌团",
-                desc: "全球顶级概念王牌团，格局大抗压极强",
-                tier: "S",
-                members: [
-                    { name: "田锡珍(Jeon Seokjin)", personality: ["上进", "自信", "认真"], position: "Leader",
-                      bio: "田锡珍扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我们一起，就是最好的样子。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "金智勋(Kim Jihoon)", personality: ["上进", "自信", "热情"], position: "Main Rapper",
-                      bio: "写词是金智勋的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "Flow是肌肉，故事才是灵魂。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "朴熙英(Park Heeyoung)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal",
-                      bio: "朴熙英的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "郑泽均(Jung Taekyun)", personality: ["开朗", "自信", "幽默"], position: "Main Dancer",
-                      bio: "主舞的位置背后是郑泽均数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "姜柔娜(Kang Yuna)", personality: ["冷静", "认真", "上进"], position: "Maknae",
-                      bio: "姜柔娜是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "郑浩镇(Jung Hojin)", personality: ["认真", "上进"], position: "Sub Vocal",
-                      bio: "郑浩镇是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "我的声音不抢戏，但不会缺席。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Teen Nova": {
-                name: "Teen Nova（틴노바）少年养成成长团",
-                desc: "少年养成成长团，青涩上进拼命努力",
-                tier: "A",
-                members: [
-                    { name: "崔宣宇(Choi Sunwoo)", personality: ["上进", "认真", "热情"], position: "Leader",
-                      bio: "队长身份让崔宣宇比同龄人更早熟。偶尔也想耍赖休息，但看到成员们期待的眼神，又会咬着牙继续冲。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "李正汉(Lee Junghan)", personality: ["开朗", "热情", "温柔"], position: "Main Vocal",
-                      bio: "主唱的位置是李正汉用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "刘智勋(Yoo Jihoon)", personality: ["认真", "上进", "冷静"], position: "Main Dancer",
-                      bio: "主舞的位置背后是刘智勋数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "宋大贤(Song Daehyun)", personality: ["冷静", "温柔", "认真"], position: "Main Rapper",
-                      bio: "宋大贤的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "吴承镇(Oh Seungjin)", personality: ["认真", "上进", "冷静"], position: "Maknae",
-                      bio: "作为忙内，吴承镇被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "金素恩(Kim Soeun)", personality: ["开朗", "温柔"], position: "Sub Vocal",
-                      bio: "金素恩是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "我的声音不抢戏，但不会缺席。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Crush Aura": {
-                name: "Crush Aura（크러쉬오라）炽飒Girl Crush团",
-                desc: "炽飒Girl Crush团，气场王者舞台统治力MAX",
-                tier: "S",
-                members: [
-                    { name: "金茶媛(Kim Chawon)", personality: ["自信", "上进", "热情"], position: "Leader",
-                      bio: "作为团的精神支柱，金茶媛常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我们一起，就是最好的样子。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "郑瑞妍(Jung Seoyeon)", personality: ["自信", "热情", "上进"], position: "Main Dancer",
-                      bio: "舞台上郑瑞妍是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "洪恩智(Hong Eunji)", personality: ["热情", "温柔", "认真"], position: "Main Rapper",
-                      bio: "洪恩智的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "林娜延(Lim Nayeon)", personality: ["冷静", "认真", "上进"], position: "Main Vocal",
-                      bio: "林娜延的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "裴秀珍(Bae Soojin)", personality: ["开朗", "自信", "幽默"], position: "Maknae",
-                      bio: "裴秀珍是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "李泰永(Lee Taeyoung)", personality: ["自信", "热情"], position: "Lead Dancer",
-                      bio: "李泰永的舞蹈风格比主舞更细腻。她说'主舞负责炸场，我负责让你看第二遍还想看'。",
-                      quote: "我帮主舞擦汗的节奏，比我自己跳还准。",
-                      hidden: "给主舞买饮料时会数她今天跳了多少遍" }]
-            },
-            "Moon Lyric": {
-                name: "Moon Lyric（문리릭）月光叙事抒情团",
-                desc: "月光叙事抒情团，忧郁浪漫电影感歌声",
-                tier: "A",
-                members: [
-                    { name: "朴宇珍(Park Woojin)", personality: ["温柔", "认真", "冷静"], position: "Leader",
-                      bio: "作为团的精神支柱，朴宇珍常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "金瑞夏(Kim Seoha)", personality: ["冷静", "认真", "温柔"], position: "Main Vocal",
-                      bio: "主唱的位置是金瑞夏用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "崔智宇(Choi Jiwoo)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer",
-                      bio: "舞台上崔智宇是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "尹彩恩(Yoon Chaeun)", personality: ["温柔", "认真", "冷静"], position: "Lead Vocal",
-                      bio: "作为领唱，尹彩恩负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "高音不是我的，但情绪是我的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "郑贤圭(Jung Hyunkyu)", personality: ["冷静", "认真", "上进"], position: "Maknae",
-                      bio: "作为忙内，郑贤圭被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "姜书妍(Kang Seoyeon)", personality: ["温柔", "认真"], position: "Sub Vocal",
-                      bio: "姜书妍是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "我的声音不抢戏，但不会缺席。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Secret Verse": {
-                name: "Secret Verse（시크릿버스）悬疑小众概念团",
-                desc: "悬疑小众概念团，神秘内敛思维深邃",
-                tier: "A",
-                members: [
-                    { name: "安圭珍(Ahn Kyujin)", personality: ["冷静", "认真", "上进"], position: "Leader",
-                      bio: "作为团的精神支柱，安圭珍常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "孙泰容(Son Taeyong)", personality: ["自信", "开朗", "上进"], position: "Main Dancer",
-                      bio: "孙泰容的身体像是为舞台而生。学舞时最痛苦的不是动作，是要一遍遍磨到能表达情绪为止。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "李恩秀(Lee Eunsoo)", personality: ["温柔", "开朗", "热情"], position: "Main Vocal",
-                      bio: "别人羡慕李恩秀的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "南在贤(Nam Jaehyun)", personality: ["认真", "上进", "自信"], position: "Main Rapper",
-                      bio: "写词是南在贤的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "韩承烨(Han Seungyeop)", personality: ["冷静", "温柔", "开朗"], position: "Maknae",
-                      bio: "韩承烨是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "申东贤(Shin Donghyun)", personality: ["冷静", "上进"], position: "Main Rapper",
-                      bio: "申东贤的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "我的词不押韵也行，但得是真的。",
-                      hidden: "随身带个小本子记灵感" }]
-            }
-        }
-    },
-    "SEONGWOO ENT": {
-        name: "SEONGWOO ENT",
-        desc: "涵盖众多中大型经纪公司的爱豆，实力与潜力并存，是韩娱不可忽视的力量。",
-        tags: ["百花齐放", "实力派", "潜力无限"],
-        groups: {
-            "Sky Hush": {
-                name: "Sky Hush（스카이허쉬）空寂星语王牌团",
-                desc: "空寂星语王牌团，清冷文艺安静温柔",
-                tier: "A",
-                members: [
-                    { name: "文俊熙(Moon Junhee)", personality: ["冷静", "温柔", "认真"], position: "Leader",
-                      bio: "队长身份让文俊熙比同龄人更早熟。偶尔也想耍赖休息，但看到成员们期待的眼神，又会咬着牙继续冲。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "朴思恩(Park Saeun)", personality: ["温柔", "认真", "开朗"], position: "Main Vocal",
-                      bio: "主唱的位置是朴思恩用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "金泰珍(Kim Taejin)", personality: ["上进", "开朗", "热情"], position: "Main Rapper",
-                      bio: "写词是金泰珍的呼吸方式。她说'每首歌都是我某段人生的替身'。",
-                      quote: "我写的不是rap，是日记。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "郑智媛(Jung Jiwon)", personality: ["冷静", "自信", "认真"], position: "Main Dancer",
-                      bio: "舞台上郑智媛是绝对的焦点，但排练时她经常忘了吃饭。被成员笑称为'不需要食物的舞蹈机器'。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "崔海琳(Choi Haerin)", personality: ["冷静", "温柔", "认真"], position: "Maknae",
-                      bio: "作为忙内，崔海琳被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "韩瑞琳(Han Serin)", personality: ["开朗", "温柔"], position: "Lead Vocal",
-                      bio: "韩瑞琳的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "高音不是我的，但情绪是我的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" }]
-            },
-            "Little Glow": {
-                name: "Little Glow（리틀글로우）微光元气小众团",
-                desc: "微光元气小众团，元气纯粹感染力超强",
-                tier: "B",
-                members: [
-                    { name: "刘秀妍(Yoo Sooyeon)", personality: ["开朗", "热情", "温柔"], position: "Leader",
-                      bio: "作为团的精神支柱，刘秀妍常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "裴大贤(Bae Daehyun)", personality: ["认真", "上进", "冷静"], position: "Main Vocal",
-                      bio: "别人羡慕裴大贤的高音，但她更珍惜的是那种用歌声讲故事的瞬间。这是她爱上唱歌的初心。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "吴采珍(Oh Chaejin)", personality: ["开朗", "幽默", "自信"], position: "Main Dancer",
-                      bio: "吴采珍的身体像是为舞台而生。学舞时最痛苦的不是动作，是要一遍遍磨到能表达情绪为止。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "孙惠媛(Son Hyewon)", personality: ["温柔", "认真", "开朗"], position: "Lead Vocal",
-                      bio: "孙惠媛的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "副歌之后的那口气，是我留给你们喘的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "林智浩(Im Jiho)", personality: ["冷静", "开朗", "温柔"], position: "Maknae",
-                      bio: "林智浩是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "林俊赫(Lim Junhyuk)", personality: ["热情", "上进"], position: "Sub Rapper",
-                      bio: "作为副rapper，林俊赫的verse虽然短，但每句都让人想循环。她说'十秒也是十分钟的练习'。",
-                      quote: "短不是少，是浓缩。",
-                      hidden: "verse会反复录到自己想笑" }]
-            },
-            "Wind Ballad": {
-                name: "Wind Ballad（윈드발라드）风吟治愈民谣团",
-                desc: "风吟治愈民谣团，温柔质朴治愈声线",
-                tier: "B",
-                members: [
-                    { name: "采恩宇(Chae Eunwoo)", personality: ["温柔", "冷静", "认真"], position: "Leader",
-                      bio: "采恩宇扛下了团初期最艰难的日子。性格看似刚强，私下其实是会为了一碗妈妈寄来的辣酱汤哭鼻子的人。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "宋智汉(Song Jihan)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal",
-                      bio: "宋智汉的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "这首歌的高音，是我替你们唱的。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "姜多恩(Kang Daeun)", personality: ["开朗", "温柔", "上进"], position: "Main Dancer",
-                      bio: "主舞的位置背后是姜多恩数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "金瑞允(Kim Seoyun)", personality: ["温柔", "热情", "认真"], position: "Lead Vocal",
-                      bio: "金瑞允的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "我想做那种'闭上眼睛也认得出'的声音。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "朴贤宇(Park Hyunwoo)", personality: ["冷静", "温柔", "开朗"], position: "Maknae",
-                      bio: "作为忙内，朴贤宇被整个团宠着长大。但私下她比谁都努力，'我不想一直被当成小妹妹'。",
-                      quote: "我是最小的，但也是最会观察的。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "文恩菲(Moon Eunbi)", personality: ["温柔", "开朗"], position: "Sub Vocal",
-                      bio: "文恩菲是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "我的声音不抢戏，但不会缺席。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
-            },
-            "Wild Edge": {
-                name: "Wild Edge（와일드엣지）野锐摇滚个性团",
-                desc: "野锐摇滚个性团，桀骜自由热爱真我",
-                tier: "B",
-                members: [
-                    { name: "郑太宇(Jung Taewoo)", personality: ["自信", "热情", "上进"], position: "Leader",
-                      bio: "作为团的精神支柱，郑太宇常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我带大家走的方向，是对的方向。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "李光民(Lee Kwangmin)", personality: ["自信", "开朗", "认真"], position: "Main Rapper",
-                      bio: "李光民的flow看似随性其实算过拍子。录rap时习惯关灯，戴着耳机反复听beat到自己开始笑才算到位。",
-                      quote: "Flow是肌肉，故事才是灵魂。",
-                      hidden: "随身带个小本子记灵感" },
-                    { name: "刘承雅(Yoo Seungah)", personality: ["温柔", "冷静", "认真"], position: "Main Vocal",
-                      bio: "刘承雅的音色是团最鲜明的标志。小时候其实很怕在人前唱歌，第一次公演时手抖得连麦克风都握不稳。",
-                      quote: "我这一辈子，就想把歌唱好。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "崔敏宰(Choi Minjae)", personality: ["认真", "上进", "冷静"], position: "Main Dancer",
-                      bio: "主舞的位置背后是崔敏宰数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "动作只是壳，情绪才是核。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "安镇宇(Ahn Jinwoo)", personality: ["开朗", "冷静", "温柔"], position: "Maknae",
-                      bio: "安镇宇是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "金泰宪(Kim Taheun)", personality: ["自信", "认真"], position: "Lead Vocal",
-                      bio: "金泰宪的声线温柔但有韧劲。她说'高音不是用来炫技的，是用来在情绪最满的时候替观众喊出来的'。",
-                      quote: "高音不是我的，但情绪是我的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" }]
-            },
-            "Dream Loop": {
-                name: "Dream Loop（드림루프）梦环空灵仙气团",
-                desc: "梦环空灵仙气团，浪漫梦幻想象力爆棚",
-                tier: "B",
-                members: [
-                    { name: "文秀珍(Moon Soojin)", personality: ["开朗", "自信", "上进"], position: "Leader",
-                      bio: "作为团的精神支柱，文秀珍常在后台默默协调成员关系。训练时最严格的是自己，公演时最累的也是自己。",
-                      quote: "我会一直站在最前面替你们挡风。",
-                      hidden: "深夜会一个人看练习视频到凌晨" },
-                    { name: "朴智惠(Park Jihae)", personality: ["冷静", "温柔", "认真"], position: "Main Vocal",
-                      bio: "主唱的位置是朴智惠用无数个练习室的凌晨换来的。录demo时习惯一口气录三遍，结束后才发现自己已经哑了。",
-                      quote: "你们闭眼听的时候，是我最幸福的时刻。",
-                      hidden: "录完歌会在空练习室小声唱儿歌" },
-                    { name: "金多恩(Kim Daeun)", personality: ["温柔", "开朗", "热情"], position: "Main Dancer",
-                      bio: "主舞的位置背后是金多恩数不清的淤青和扭伤。休息日她也常常泡在练习室，假装在玩，其实是在加练。",
-                      quote: "舞蹈不会说谎。",
-                      hidden: "休息日经常在宿舍楼下压腿" },
-                    { name: "郑瑞京(Jung Seokyung)", personality: ["认真", "冷静", "上进"], position: "Lead Vocal",
-                      bio: "作为领唱，郑瑞京负责在主唱休息时撑起高音区。习惯站在舞台最左侧，喜欢用余光看主唱的表情来调节自己。",
-                      quote: "副歌之后的那口气，是我留给你们喘的。",
-                      hidden: "会偷偷研究其他主唱的换气技巧" },
-                    { name: "韩采媛(Han Chaewon)", personality: ["开朗", "冷静", "温柔"], position: "Maknae",
-                      bio: "韩采媛是队内的团宠，吵架时被点名'不准凶忙内'。但她自己说'其实我比谁都更想快点长大'。",
-                      quote: "忙内的特权是撒娇，忙内的义务是更努力。",
-                      hidden: "给每个成员都记了小本本（生日/喜好）" }
-                ,
-                    { name: "郑诗雅(Jung Siya)", personality: ["温柔", "幽默"], position: "Sub Vocal",
-                      bio: "郑诗雅是团里最被低估的声音。她说'副唱不抢戏，但我的和声你闭上眼睛能听出来'。",
-                      quote: "和声是歌的呼吸。",
-                      hidden: "总在合唱时悄悄帮主唱垫高一点点" }]
+                      hidden: "随身带个小本子记灵感" }
+                ]
             }
         }
     }
 };
+
+// ==================== HIDDEN DIALOGUES ====================
+var HIDDEN_DIALOGUES = {};
+var _buildHiddenDialogues = function() {
+    HIDDEN_DIALOGUES = {};
+    var npcNames = ['夏恩', '俊昊', '智媛', '素雅', '瑞贤'];
+    for (var i = 0; i < npcNames.length; i++) {
+        var n = npcNames[i];
+        HIDDEN_DIALOGUES[n] = [
+            { req: 20, text: '最近感觉你好像变了一个人似的，是好事。' },
+            { req: 40, text: '有你在的时候，练习室好像都不那么冷了。' },
+            { req: 60, text: '我好像……有点习惯你在身边了。' },
+            { req: 80, text: '如果有一天你要走，我会很难过的。' },
+            { req: 100, text: '谢谢你来到我身边。真的。' }
+        ];
+    }
+};
+_buildHiddenDialogues();
+
+// ==================== NPC PERSONALITY DATA ====================
+// Used by AI chat system to generate character-appropriate responses
+var NPC_PROFILES = {
+    '夏恩': {
+        personality: '认真、温柔、上进',
+        position: 'Leader',
+        speakingStyle: '温柔但坚定，像姐姐一样照顾人，偶尔会露出脆弱的一面',
+        likes: '看练习视频、喝辣酱汤、照顾成员',
+        background: '扛下团初期最艰难日子的队长，外表刚强内心柔软'
+    },
+    '俊昊': {
+        personality: '开朗、热情、幽默',
+        position: 'Lead Vocal',
+        speakingStyle: '爱开玩笑、喜欢逗人笑，但聊到认真的话题会突然变得很真诚',
+        likes: '唱歌、逗成员笑、深夜录歌',
+        background: '表面笑嘻嘻，对自己最狠的练歌狂人'
+    },
+    '智媛': {
+        personality: '活泼、好奇、热情',
+        position: 'Maknae',
+        speakingStyle: '说话快、用很多感叹号、喜欢问问题、偶尔撒娇',
+        likes: '记成员小本本、追番、吃零食',
+        background: '团宠忙内，想快点长大证明自己不只是可爱'
+    },
+    '素雅': {
+        personality: '冷静、温柔、认真',
+        position: 'Main Vocal',
+        speakingStyle: '话不多但每句都很走心，会突然说出让人感动的话',
+        likes: '研究唱功、安静的地方、下雨天',
+        background: '最安静的人，但声音最让人认得出'
+    },
+    '瑞贤': {
+        personality: '沉默、酷、认真',
+        position: 'Main Rapper',
+        speakingStyle: '话很少、短句为主、偶尔冒出一句让人心跳的话',
+        likes: '写rap、关灯听beat、记灵感小本子',
+        background: '把关心藏在行动里的人，不用说的那种温柔'
+    }
+};
+
+// ==================== AFFINITY LEVEL DEFINITIONS ====================
+var AFFINITY_LEVELS = [
+    { min: 0, max: 19, label: '陌生', style: '礼貌客气，像刚认识的人' },
+    { min: 20, max: 39, label: '熟悉', style: '偶尔开玩笑，开始放下防备' },
+    { min: 40, max: 59, label: '朋友', style: '自然随意，会分享日常' },
+    { min: 60, max: 79, label: '亲密', style: '语气暧昧，会主动关心你的情绪' },
+    { min: 80, max: 100, label: '专属', style: '只对你说的温柔，偶尔害羞，会吃醋' }
+];
+
+var getAffinityLevel = function(affinity) {
+    for (var i = AFFINITY_LEVELS.length - 1; i >= 0; i--) {
+        if (affinity >= AFFINITY_LEVELS[i].min) return AFFINITY_LEVELS[i];
+    }
+    return AFFINITY_LEVELS[0];
+};
+
+if (typeof window !== 'undefined') {
+    window.COMPANIES = COMPANIES;
+    window.CARD_IMG_MAP = CARD_IMG_MAP;
+    window.CARD_IMG_BASE = CARD_IMG_BASE;
+    window._getCardImgUrl = _getCardImgUrl;
+    window.HIDDEN_DIALOGUES = HIDDEN_DIALOGUES;
+    window.NPC_PROFILES = NPC_PROFILES;
+    window.AFFINITY_LEVELS = AFFINITY_LEVELS;
+    window.getAffinityLevel = getAffinityLevel;
+    window.__npcDataLoaded = true;
+    if (typeof COMPANIES !== 'undefined' && Object.keys(COMPANIES).length > 0) {
+        if (typeof __diag === 'function') __diag('npc-data.js: COMPANIES loaded (' + Object.keys(COMPANIES).length + ' companies)');
+    }
+}
