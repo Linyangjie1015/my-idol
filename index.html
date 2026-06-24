@@ -22,36 +22,36 @@ window.addEventListener('error', function(e) {
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="My Idol">
-    <meta name="theme-color" content="#FF8FA3">
+    <meta name="theme-color" content="#1E293B">
     <style>
     /* ==================== CSS VARIABLES ==================== */
     :root {
-        --bg-main: #FFF5F7;
+        --bg-main: #F8FAFC;
         --bg-card: #FFFFFF;
-        --color-primary: #FF8FA3;
-        --color-secondary: #FFCCD8;
-        --color-accent: #FFB3C1;
-        --color-text: #2D2D2D;
-        --color-text-light: #8E8E93;
-        --color-border: #F0F0F0;
-        --color-danger: #FF6B8A;
+        --color-primary: #1E293B;
+        --color-secondary: #64748B;
+        --color-accent: #1A2A3A;
+        --color-text: #1F2937;
+        --color-text-light: #6B7280;
+        --color-border: #E2E8F0;
+        --color-danger: #EF4444;
         --color-success: #4CD964;
-        --shadow: 0 2px 12px rgba(255,143,163,0.15);
-        --radius-sm: 8px;
-        --radius-md: 12px;
-        --radius-lg: 16px;
+        --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
         --radius-pill: 50px;
     }
     /* V1.7: Time-of-Day Themes */
     .time-day {
-        --bg-main: #FFF8F0;
+        --bg-main: #F8FAFC;
         --bg-card: #FFFFFF;
         --glass-bg: rgba(255,255,255,0.7);
     }
     .time-dusk {
-        --bg-main: #FFF0E6;
-        --bg-card: #FFF5EE;
-        --glass-bg: rgba(255,228,196,0.5);
+        --bg-main: #F1F5F9;
+        --bg-card: #FFFFFF;
+        --glass-bg: rgba(241,245,249,0.7);
     }
     .time-night {
         --bg-main: #1A1A2E;
@@ -159,12 +159,12 @@ window.addEventListener('error', function(e) {
     }
     @media (hover: hover) and (pointer: fine) {
         .btn:hover { opacity: 0.9; }
-        .card:hover { box-shadow: 0 4px 16px rgba(255,143,163,0.25); }
+        .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
     }
     
     body {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #FFF5F7 0%, #FFE4EC 100%);
+        background: #F8FAFC;
         min-height: 100vh;
         display: flex;
         justify-content: center;
@@ -180,7 +180,7 @@ window.addEventListener('error', function(e) {
         border-radius: 45px;
         overflow: hidden;
         position: relative;
-        box-shadow: 0 25px 80px rgba(255,143,163,0.3);
+        box-shadow: 0 25px 80px rgba(0,0,0,0.12);
         border: 2px solid rgba(255,255,255,0.9);
         display: flex;
         flex-direction: column;
@@ -280,8 +280,8 @@ window.addEventListener('error', function(e) {
     }
 
     .card.selected {
-        border: 2px solid var(--color-primary);
-        background: linear-gradient(135deg, rgba(255,143,163,0.05), rgba(255,179,193,0.1));
+        border: 2px solid #CBD5E1;
+        background: #F1F5F9;
     }
 
     /* ==================== INPUTS ==================== */
@@ -422,7 +422,7 @@ window.addEventListener('error', function(e) {
         transition: all 0.2s;
     }
     .nav-item.active .nav-icon {
-        background: linear-gradient(135deg, #FFF5F7, #FFCCD8);
+        background: linear-gradient(135deg, #F8FAFC, #CBD5E1);
     }
     .nav-item.active .nav-icon svg {
         stroke: var(--color-primary);
@@ -454,7 +454,7 @@ window.addEventListener('error', function(e) {
     }
 
     .stat-fill.体力 { background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); }
-    .stat-fill.life { background: linear-gradient(90deg, var(--color-danger), #FF8FA3); }
+    .stat-fill.life { background: linear-gradient(90deg, var(--color-danger), #1A2A3A); }
     .stat-fill.credit { background: linear-gradient(90deg, #FFD700, #FFE566); }
     .stat-fill.danger { background: linear-gradient(90deg, #FF4757, var(--color-danger)); }
 
@@ -566,7 +566,7 @@ window.addEventListener('error', function(e) {
 
     .company-card.selected {
         border-color: var(--color-primary);
-        background: linear-gradient(135deg, rgba(255,143,163,0.05), rgba(255,179,193,0.1));
+        background: #F1F5F9;
     }
 
     .company-name { font-size: 16px; font-weight: 600; color: var(--color-text); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -623,23 +623,23 @@ window.addEventListener('error', function(e) {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #FFF5F7, #FFCCD8);
+        background: linear-gradient(135deg, #F8FAFC, #CBD5E1);
         margin-bottom: 6px;
         position: relative;
-        box-shadow: 0 2px 8px rgba(255,143,163,0.18);
+        box-shadow: 0 2px 8px rgba(26,42,58,0.18);
     }
     .app-icon-wrap svg {
         width: 26px;
         height: 26px;
-        stroke: #FF8FA3 !important;
+        stroke: #1A2A3A !important;
         fill: none;
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;
-        color: #FF8FA3;
+        color: #1A2A3A;
     }
     .app-icon-wrap svg [fill="currentColor"] {
-        fill: #FF8FA3 !important;
+        fill: #1A2A3A !important;
     }
     .app-icon-wrap svg.kakao-icon {
         stroke: none;
@@ -705,7 +705,7 @@ window.addEventListener('error', function(e) {
         display: flex;
         align-items: center;
         padding: 20px;
-        background: linear-gradient(135deg, #FFF5F7, #FFE4EC);
+        background: linear-gradient(135deg, #F8FAFC, #E2E8F0);
     }
     .my-stat-bar {
         display: flex;
@@ -716,7 +716,7 @@ window.addEventListener('error', function(e) {
     .my-stat-label { font-size: 12px; color: var(--color-text-light); width: 36px; }
     .my-stat-track { flex: 1; height: 5px; background: var(--color-border); border-radius: 3px; overflow: hidden; }
     .my-stat-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-    .my-stat-fill.dance { background: linear-gradient(90deg, #FF8FA3, #FFB3C1); }
+    .my-stat-fill.dance { background: linear-gradient(90deg, #1A2A3A, #94A3B8); }
     .my-stat-fill.vocal { background: linear-gradient(90deg, #7EC8E3, #B8E6F0); }
     .my-stat-fill.rap { background: linear-gradient(90deg, #FFD700, #FFE566); }
     .my-stat-fill.acting { background: linear-gradient(90deg, #C9A0FF, #DFC4FF); }
@@ -741,7 +741,7 @@ window.addEventListener('error', function(e) {
         border-radius: 50px;
         margin-right: 4px;
     }
-    .schedule-tag.notice { background: #FFE4EC; color: #FF8FA3; }
+    .schedule-tag.notice { background: #E2E8F0; color: #1A2A3A; }
     .schedule-tag.practice { background: #E4F5FF; color: #5BB8E8; }
     .schedule-tag.show { background: #FFF4E0; color: #F0A030; }
     .schedule-tag.interview { background: #F0E4FF; color: #A070E0; }
@@ -785,7 +785,7 @@ window.addEventListener('error', function(e) {
         border: 1px solid var(--color-primary);
         border-radius: 4px;
     }
-    .translate-btn:hover { background: rgba(255,143,163,0.08); }
+    .translate-btn:hover { background: rgba(26,42,58,0.08); }
 
     /* ==================== INVENTORY ==================== */
     .inventory-item {
@@ -855,7 +855,7 @@ window.addEventListener('error', function(e) {
     /* ==================== EXAM SYSTEM ==================== */
     .exam-cert-card {
         background: var(--bg-card);
-        border-radius: 16px;
+        border-radius: 12px;
         padding: 14px 12px;
         text-align: center;
         border: 2px solid var(--color-border);
@@ -863,7 +863,7 @@ window.addEventListener('error', function(e) {
     }
     .exam-cert-card.obtained {
         border-color: var(--color-primary);
-        background: linear-gradient(135deg, rgba(255,143,163,0.08), rgba(255,179,193,0.15));
+        background: linear-gradient(135deg, rgba(26,42,58,0.08), rgba(148,163,184,0.15));
     }
     .exam-cert-card .cert-icon {
         width: 32px; height: 32px; border-radius: 50%;
@@ -884,7 +884,7 @@ window.addEventListener('error', function(e) {
     .exam-subject-row .exam-cert-card { min-width: 0; }
     .exam-entry {
         display: flex; align-items: center; justify-content: space-between;
-        padding: 14px 16px; background: var(--bg-card); border-radius: 16px;
+        padding: 14px 16px; background: var(--bg-card); border-radius: 12px;
         margin-bottom: 10px; border: 1.5px solid var(--color-border); cursor: pointer;
         transition: all 0.2s;
     }
@@ -895,8 +895,8 @@ window.addEventListener('error', function(e) {
     .exam-entry .exam-entry-sub { font-size: 12px; color: var(--color-text-light); margin-top: 2px; }
     .exam-entry .exam-entry-right { font-size: 12px; color: var(--color-primary); font-weight: 600; white-space: nowrap; }
     .exam-comprehensive-entry {
-        padding: 20px; background: linear-gradient(135deg, #FFF5F7, #FFE4EC);
-        border-radius: 16px; margin-top: 12px; text-align: center;
+        padding: 20px; background: linear-gradient(135deg, #F8FAFC, #E2E8F0);
+        border-radius: 12px; margin-top: 12px; text-align: center;
         border: 2px dashed var(--color-primary);
     }
     .exam-comprehensive-entry.unlocked { border-style: solid; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -912,7 +912,7 @@ window.addEventListener('error', function(e) {
     }
     .rhythm-dot.lit {
         background: var(--color-primary);
-        box-shadow: 0 0 12px rgba(255,143,163,0.5);
+        box-shadow: 0 0 12px rgba(26,42,58,0.5);
         transform: scale(1.2);
     }
     .rhythm-dot.hit {
@@ -936,13 +936,13 @@ window.addEventListener('error', function(e) {
 
     /* Quiz options */
     .quiz-option {
-        padding: 14px 16px; background: var(--bg-card); border-radius: 16px;
+        padding: 14px 16px; background: var(--bg-card); border-radius: 12px;
         margin-bottom: 10px; border: 1.5px solid var(--color-border); cursor: pointer;
         font-size: 14px; transition: all 0.2s;
     }
     .quiz-option:active { transform: scale(0.98); }
     .quiz-option.selected-correct { background: rgba(76,217,100,0.15); border-color: var(--color-success); color: var(--color-success); }
-    .quiz-option.selected-wrong { background: rgba(255,107,138,0.15); border-color: var(--color-danger); color: var(--color-danger); }
+    .quiz-option.selected-wrong { background: rgba(239,68,68,0.12); border-color: var(--color-danger); color: var(--color-danger); }
 
     /* Exam result overlay */
     .exam-result-overlay {
@@ -987,7 +987,7 @@ window.addEventListener('error', function(e) {
         border: 1px solid var(--color-border); position: relative;
     }
     .debut-dialog-bubble.manager {
-        background: linear-gradient(135deg, rgba(255,143,163,0.08), rgba(255,204,216,0.15));
+        background: linear-gradient(135deg, rgba(26,42,58,0.08), rgba(255,204,216,0.15));
         border-color: var(--color-secondary);
     }
     .debut-dialog-speaker {
@@ -1016,7 +1016,7 @@ window.addEventListener('error', function(e) {
         font-size: 11px; color: var(--color-primary); font-weight: 600; margin-top: 4px;
     }
     .earn-tab-bar {
-        display: flex; gap: 0; margin: 12px 0 14px 0; border-radius: 20px;
+        display: flex; gap: 0; margin: 12px 0 14px 0; border-radius: 12px;
         background: var(--color-border); padding: 3px; overflow: hidden;
     }
     .earn-tab {
@@ -1070,7 +1070,7 @@ window.addEventListener('error', function(e) {
     width: 90%;
     max-width: 360px;
     background: rgba(255,255,255,0.97);
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     padding: 14px 16px;
     z-index: 99999;
@@ -1095,7 +1095,7 @@ window.addEventListener('error', function(e) {
         position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
         background: var(--color-primary); color: white; padding: 8px 20px;
         border-radius: var(--radius-pill); font-size: 13px; z-index: 9999;
-        box-shadow: 0 4px 12px rgba(255,143,163,0.3); white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(26,42,58,0.3); white-space: nowrap;
         animation: toastIn 0.3s ease;
     }
     @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
@@ -1104,7 +1104,7 @@ window.addEventListener('error', function(e) {
     .welcome-account {
         height: 100%; display: flex; flex-direction: column; justify-content: center;
         align-items: center; padding: 40px 24px;
-        background: linear-gradient(180deg, #FFF5F7 0%, #FFCCD8 100%);
+        background: linear-gradient(180deg, #F8FAFC 0%, #CBD5E1 100%);
     }
     .welcome-account-title {
         font-size: 48px; font-weight: 800;
@@ -1193,10 +1193,10 @@ window.addEventListener('error', function(e) {
         word-break: break-word;
     }
     .kakao-msg-bubble.me {
-        background: #FFE0E6; color: var(--color-text); border-radius: 16px 16px 4px 16px;
+        background: #64748B; color: var(--color-text); border-radius: 8px 8px 4px 16px;
     }
     .kakao-msg-bubble.npc {
-        background: white; color: #333; border-radius: 16px 16px 16px 4px;
+        background: white; color: #333; border-radius: 8px 8px 16px 4px;
         box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
     .kakao-msg-time { font-size: 10px; color: var(--color-text-light); margin-top: 4px; }
@@ -1207,7 +1207,7 @@ window.addEventListener('error', function(e) {
     }
     .kakao-input {
         flex: 1; padding: 10px 16px; border: 1.5px solid var(--color-secondary);
-        border-radius: 20px; font-size: 14px; outline: none; background: white;
+        border-radius: 12px; font-size: 14px; outline: none; background: white;
         -webkit-appearance: none;
     }
     .kakao-input:focus { border-color: var(--color-primary); }
@@ -1262,7 +1262,7 @@ window.addEventListener('error', function(e) {
 /* Gacha Card Tier Designs */
 .gacha-card-display {
     position: relative;
-    border-radius: 16px;
+    border-radius: 12px;
     overflow: hidden;
 }
 .gacha-card-display .card-bg {
@@ -1326,37 +1326,37 @@ window.addEventListener('error', function(e) {
     /* ===== INVITE CODE GATE ===== */
     #inviteGate {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: linear-gradient(180deg, #FFF5F7, #FFE4EC);
+        background: linear-gradient(180deg, #F8FAFC, #E2E8F0);
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         z-index: 999999; padding: 32px 20px; text-align: center;
     }
     #inviteGate.hidden { display: none; }
     .gate-logo {
-        width: 80px; height: 80px; border-radius: 20px;
-        background: linear-gradient(135deg, #FF8FA3, #FF6B8A);
+        width: 80px; height: 80px; border-radius: 12px;
+        background: linear-gradient(135deg, #1A2A3A, #1E293B);
         display: flex; align-items: center; justify-content: center;
         margin-bottom: 20px; font-size: 36px; color: white; font-weight: 800;
-        box-shadow: 0 8px 32px rgba(255,143,163,0.3);
+        box-shadow: 0 8px 32px rgba(26,42,58,0.3);
     }
     .gate-title { font-size: 20px; color: #2D2D2D; font-weight: 700; margin-bottom: 6px; }
     .gate-desc { font-size: 14px; color: #8E8E93; margin-bottom: 24px; line-height: 1.6; }
     .gate-card {
-        background: white; border-radius: 20px; padding: 24px 20px;
+        background: white; border-radius: 12px; padding: 24px 20px;
         width: 100%; max-width: 360px; box-shadow: 0 2px 16px rgba(0,0,0,0.06);
     }
     .gate-input {
-        width: 100%; padding: 14px 16px; border: 2px solid #FFD5DE; border-radius: 12px;
+        width: 100%; padding: 14px 16px; border: 2px solid #E2E8F0; border-radius: 12px;
         font-size: 16px; outline: none; background: #FAFAFA; margin-bottom: 12px;
         -webkit-appearance: none; text-transform: uppercase; letter-spacing: 2px;
         text-align: center;
     }
-    .gate-input:focus { border-color: #FF8FA3; background: white; }
+    .gate-input:focus { border-color: #1A2A3A; background: white; }
     .gate-input::placeholder { color: #C7C7CC; text-transform: none; letter-spacing: 0; }
     .gate-btn {
         display: block; width: 100%; padding: 14px; border-radius: 50px;
         font-size: 17px; font-weight: 600; border: none; cursor: pointer;
-        background: linear-gradient(135deg, #FF8FA3, #FF6B8A); color: white;
-        box-shadow: 0 4px 16px rgba(255,107,138,0.3);
+        background: linear-gradient(135deg, #1A2A3A, #1E293B); color: white;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
     }
     .gate-btn:active { transform: scale(0.97); opacity: 0.85; }
     .gate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -1372,7 +1372,7 @@ window.addEventListener('error', function(e) {
     .npc-card-overlay.show { display: flex; }
     @keyframes npcFadeIn { from { opacity: 0; } to { opacity: 1; } }
     .npc-card {
-        background: white; border-radius: 20px; width: 100%; max-width: 360px;
+        background: white; border-radius: 12px; width: 100%; max-width: 360px;
         max-height: 80vh; overflow-y: auto; position: relative;
         box-shadow: 0 20px 60px rgba(0,0,0,0.25); animation: npcSlideUp 0.25s ease;
     }
@@ -1399,7 +1399,7 @@ window.addEventListener('error', function(e) {
     .npc-card-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
     .npc-card-tag {
         font-size: 11px; padding: 3px 10px; border-radius: 12px;
-        background: #FFF0F3; color: #FF6B8A; font-weight: 500;
+        background: #F1F5F9; color: #1E293B; font-weight: 500;
     }
     .npc-card-tag.position { background: #E8F0FE; color: #4A90D9; }
     .npc-card-section { padding: 16px 24px; border-top: 1px solid #F0F0F0; }
@@ -1415,7 +1415,7 @@ window.addEventListener('error', function(e) {
     .npc-card-hidden {
         font-size: 13px; line-height: 1.7; color: #666;
         background: #FAFAFA; padding: 12px 14px; border-radius: 10px;
-        border-left: 3px solid #FF6B8A;
+        border-left: 3px solid #1E293B;
     }
     .npc-card-empty { color: #999; font-size: 12px; text-align: center; padding: 20px 0; }
     .kakao-avatar.clickable { cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -1446,7 +1446,7 @@ window.addEventListener('error', function(e) {
 <div class="gate-footer">没有邀请码？参与摇号获取</div>
 </div>
 
-<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#FFF5F7,#FFD5DE);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#FF8FA3;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #FFD5DE;border-top-color:#FF8FA3;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div id="loadMsg" style="margin-top:12px;font-size:12px;color:#FFB3C1;">Loading...</div><div id="diagLog" style="margin-top:16px;padding:8px 16px;max-width:80%;max-height:200px;overflow-y:auto;background:rgba(255,255,255,0.7);border-radius:8px;font-size:10px;color:#888;line-height:1.4;text-align:left;word-break:break-all;"></div></div>
+<div id="loadingScreen" style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#F8FAFC,#E2E8F0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;"><div style="font-size:28px;font-weight:700;color:#1A2A3A;">My Idol</div><div style="margin-top:16px;width:40px;height:40px;border:3px solid #E2E8F0;border-top-color:#1A2A3A;border-radius:50%;animation:spin 0.8s linear infinite;"></div><div id="loadMsg" style="margin-top:12px;font-size:12px;color:#94A3B8;">Loading...</div><div id="diagLog" style="margin-top:16px;padding:8px 16px;max-width:80%;max-height:200px;overflow-y:auto;background:rgba(255,255,255,0.7);border-radius:8px;font-size:10px;color:#888;line-height:1.4;text-align:left;word-break:break-all;"></div></div>
 
 <div class="phone-frame">
     <!-- Status Bar -->
@@ -1641,7 +1641,7 @@ function showNpcCard(npcName) {
   var cnOnly = parenIdx > 0 ? cn.substring(0, parenIdx).trim() : cn;
   var enOnly = parenIdx > 0 ? cn.substring(parenIdx + 1, cn.length - 1).trim() : (npc.nameEn || '');
   var firstChar = cnOnly.charAt(0) || '?';
-  html2 += '<div class="npc-card-avatar" style="background:' + (npc.avatarColor || '#FF6B8A') + ';">' + firstChar + '</div>';
+  html2 += '<div class="npc-card-avatar" style="background:' + (npc.avatarColor || '#1E293B') + ';">' + firstChar + '</div>';
   html2 += '<div class="npc-card-name">' + cnOnly + '</div>';
   if (enOnly) html2 += '<div class="npc-card-name-en">' + enOnly + '</div>';
   html2 += '<div class="npc-card-tags">';
@@ -1715,7 +1715,7 @@ if ("serviceWorker" in navigator) {
                 } catch(e) {
                     __diag('render() ERROR: ' + (e.message || e));
                     var _app = document.getElementById('app');
-                    if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载出错</div><div style="font-size:12px;margin-top:8px;word-break:break-all">' + (e.message||'') + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">重试</button></div>';
+                    if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#1E293B"><div style="font-size:18px;font-weight:700">加载出错</div><div style="font-size:12px;margin-top:8px;word-break:break-all">' + (e.message||'') + '</div><button onclick="location.reload()" style="margin-top:16px;padding:8px 20px;background:#1A2A3A;color:white;border:none;border-radius: 12px">重试</button></div>';
                 }
             } else if (__jsLoadFailed && attempts > 10) {
                 clearInterval(_ri);
@@ -1745,7 +1745,7 @@ if ("serviceWorker" in navigator) {
         var ls = document.getElementById('loadingScreen');
         if (ls) ls.style.display = 'none';
         var _app = document.getElementById('app');
-        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请截图此页面发给我，然后尝试：</div><div style="font-size:11px;margin-top:4px;color:#999">设置 > Safari > 清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
+        if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#1E293B"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请截图此页面发给我，然后尝试：</div><div style="font-size:11px;margin-top:4px;color:#999">设置 > Safari > 清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#1A2A3A;color:white;border:none;border-radius: 12px">清除缓存重试</button></div>';
     }
 
     if (localStorage.getItem(VERIFIED_KEY) === '1') {

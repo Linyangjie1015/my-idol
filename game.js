@@ -12,13 +12,13 @@ var ADMIN_EMAIL = 'linyangjie10152008@qq.com';
 function _showMaintenancePage() {
     var phoneFrame = document.querySelector('.phone-frame');
     if (!phoneFrame) return;
-    phoneFrame.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 24px;text-align:center;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);">'
-        + '<div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:36px;color:white;font-weight:700;">M</div>'
+    phoneFrame.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 24px;text-align:center;background:linear-gradient(180deg,#F8FAFC,#E2E8F0);">'
+        + '<div style="width:80px;height:80px;border-radius: 12px;background:linear-gradient(135deg,#1A2A3A,#1E293B);display:flex;align-items:center;justify-content:center;margin-bottom:24px;font-size:36px;color:white;font-weight:700;">M</div>'
         + '<h1 style="font-size:22px;color:#333;font-weight:700;margin-bottom:8px;">My Idol V1.6 更新中</h1>'
         + '<p style="font-size:15px;color:#8E8E93;margin-bottom:32px;line-height:1.6;">全新版本即将上线，敬请期待</p>'
-        + '<div style="background:white;border-radius:16px;padding:24px;width:100%;max-width:360px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">'
+        + '<div style="background:white;border-radius: 8px;padding:24px;width:100%;max-width:360px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">'
         + '<p style="font-size:14px;color:#666;line-height:1.8;">预计上线时间</p>'
-        + '<p style="font-size:18px;color:#FF6B8A;font-weight:600;margin-top:8px;">2026年6月17日 12:00</p>'
+        + '<p style="font-size:18px;color:#1E293B;font-weight:600;margin-top:8px;">2026年6月17日 12:00</p>'
         + '</div>'
         + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;">感谢你的耐心等待</div>'
         + '</div>';
@@ -239,15 +239,15 @@ var creationStep = 1;
 var INVITE_CODES = ['LOVE7286', 'DREAM4886', 'DREAM5305', 'DREAM6461', 'DEBUT3677', 'V162877', 'MYIDOL5203', 'V165678', 'V164720', 'FAN3082'];
 
 function renderInviteCodePage(app) {
-    app.innerHTML = '<div class="page active"><div class="page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 30px;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);">'
-        + '<div style="font-size:32px;font-weight:800;color:#FF6B8A;margin-bottom:8px;">My Idol</div>'
+    app.innerHTML = '<div class="page active"><div class="page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 30px;background:linear-gradient(180deg,#F8FAFC,#E2E8F0);">'
+        + '<div style="font-size:32px;font-weight:800;color:#1E293B;margin-bottom:8px;">My Idol</div>'
         + '<div style="font-size:13px;color:#8E8E93;margin-bottom:40px;">韩娱爱豆模拟器</div>'
-        + '<div style="width:100%;max-width:300px;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
+        + '<div style="width:100%;max-width:300px;background:white;border-radius: 8px;padding:28px 24px;box-shadow:0 2px 12px rgba(30,41,59,0.1);">'
         + '<div style="font-size:16px;font-weight:600;color:#333;text-align:center;margin-bottom:6px;">内测邀请码</div>'
         + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
-        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="handleInviteCodeInput(this)" onkeydown="if(event.key===\'Enter\')checkInviteCode()">'
+        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="handleInviteCodeInput(this)" onkeydown="if(event.key===\'Enter\')checkInviteCode()">'
         + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
-        + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
+        + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#1A2A3A,#1E293B);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
         + '</div>'
         + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;text-align:center;">没有邀请码？敬请期待正式上线</div>'
         + '</div></div>';
@@ -292,7 +292,7 @@ function checkInviteCode() {
         errEl.style.display = 'block';
         errEl.textContent = '邀请码无效，请检查后重试';
         var inpEl = document.getElementById('inviteCodeInput');
-        if(inpEl) { inpEl.style.borderColor = '#FF3B30'; inpEl.style.animation = 'shake 0.3s'; setTimeout(function(){ inpEl.style.borderColor = '#FFD5DE'; inpEl.style.animation = ''; }, 1500); }
+        if(inpEl) { inpEl.style.borderColor = '#FF3B30'; inpEl.style.animation = 'shake 0.3s'; setTimeout(function(){ inpEl.style.borderColor = '#E2E8F0'; inpEl.style.animation = ''; }, 1500); }
     }
 }
 
@@ -504,7 +504,7 @@ function render() {
         }
     } catch(e) {
         console.error('render error:', e);
-        app.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">渲染出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '未知错误') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
+        app.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#1E293B;">渲染出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '未知错误') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#1A2A3A;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
     }
 }
 
@@ -611,11 +611,11 @@ function renderCreationStep0() {
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="page-content" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:30px 24px;">'
-        + '<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;margin-bottom:24px;">'
+        + '<div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#1E293B);display:flex;align-items:center;justify-content:center;margin-bottom:24px;">'
         + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/><path d="M2 12h20"/><path d="M12 2c3 3 4.5 7 4.5 10s-1.5 7-4.5 10"/><path d="M12 2c-3 3-4.5 7-4.5 10s1.5 7 4.5 10"/></svg>'
         + '</div>'
-        + '<div style="font-size:22px;font-weight:700;color:#FF8FA3;text-align:center;margin-bottom:12px;">\u6b22\u8fce\u6765\u5230\u661f\u9699</div>'
-        + '<div style="background:white;border-radius:16px;padding:24px;width:100%;max-width:320px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
+        + '<div style="font-size:22px;font-weight:700;color:#1A2A3A;text-align:center;margin-bottom:12px;">\u6b22\u8fce\u6765\u5230\u661f\u9699</div>'
+        + '<div style="background:white;border-radius: 8px;padding:24px;width:100%;max-width:320px;box-shadow:0 2px 12px rgba(30,41,59,0.1);">'
         + '<div style="font-size:14px;color:#333;line-height:1.8;text-align:center;">'
         + 'SEONGWOO ENT \u661f\u9699\u5a31\u4e50\uff0c\u97e9\u5a31\u5708\u65b0\u664b\u52bf\u529b\u3002<br>'
         + '\u4f60\u5c06\u4f5c\u4e3a\u5176\u65d7\u4e0b\u552f\u4e00\u56e2\u4f53Haeoreum\u7684\u6210\u5458\uff0c<br>'
@@ -655,7 +655,7 @@ function renderCreationStep4() {
     COMPANIES = window.COMPANIES;
     var company = _getCompany(gameState.player.company);
     
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 4 \u6b65 / \u5171 4 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">\u786e\u8ba4\u5e76\u5f00\u59cb</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--color-primary);">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '\u5973' : '\u7537') + ' | ' + (gameState.player.age) + '\u5c81</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u516c\u53f8</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u8eab\u4efd</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '\u7ec3\u4e60\u751f' : '\u51fa\u9053\u7231\u8c46') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u56e2\u4f53</span>\n                            <span style="font-weight: 600;">Haeoreum</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u961f\u5185\u5b9a\u4f4d</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' / ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">\u6027\u683c</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('\u3001')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">\u51fa\u751f\u65e5\u671f</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">\u5f00\u59cb\u6e38\u620f</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">\u2039 \u4e0a\u4e00\u6b65</div>\n                <div class="page-title">\u7b2c 4 \u6b65 / \u5171 4 \u6b65</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">\u786e\u8ba4\u5e76\u5f00\u59cb</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid #CBD5E1;">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '\u5973' : '\u7537') + ' | ' + (gameState.player.age) + '\u5c81</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u516c\u53f8</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u8eab\u4efd</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '\u7ec3\u4e60\u751f' : '\u51fa\u9053\u7231\u8c46') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u56e2\u4f53</span>\n                            <span style="font-weight: 600;">Haeoreum</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">\u961f\u5185\u5b9a\u4f4d</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' / ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">\u6027\u683c</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('\u3001')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">\u51fa\u751f\u65e5\u671f</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">\u5f00\u59cb\u6e38\u620f</button>\n            </div>\n        </div>\n    ';
 }
 function renderCreationStep5() {
     var positions = ['主唱', '主舞', '主Rapper', '门面', '中心位', '队长', '忙内'];
@@ -676,7 +676,7 @@ function renderCreationStep6() {
     COMPANIES = window.COMPANIES;
     var company = _getCompany(gameState.player.company);
     
-    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--color-primary);">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=_getCompany(); return c&&c.groups&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
+    return '\n        <div class="page active" style="display: flex; flex-direction: column; height: 100%;">\n            <div class="page-header">\n                <div class="back-btn" onclick="prevCreationStep()">‹ 上一步</div>\n                <div class="page-title">第 6 步 / 共 6 步</div>\n                <div style="width: 32px;"></div>\n            </div>\n            \n            <div class="page-content" style="flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;">\n                <h2 style="font-size: 24px; font-weight: 700; color: var(--color-text); margin-bottom: 24px; text-align: center;">确认并开始</h2>\n                \n                <div class="card">\n                    <div style="display: flex; align-items: center; margin-bottom: 16px;">\n                        <div style="width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid #CBD5E1;">' + (gameState.player.avatar) + '</div>\n                        <div style="margin-left: 16px;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                            <div style="color: var(--color-text-light);">' + (gameState.player.gender === 'F' ? '女' : '男') + ' | ' + (gameState.player.age) + '岁</div>\n                        </div>\n                    </div>\n                    \n                    <div class="section-divider" style="height: 1px; margin: 16px 0;"></div>\n                    \n                    <div style="font-size: 13px;">\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">公司</span>\n                            <span style="font-weight: 600;">' + (company.name) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">身份</span>\n                            <span style="font-weight: 600;">' + (gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆') + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">志愿团</span>\n                            <span style="font-weight: 600;">' + (gameState.player.groups.map(function(gk){ var c=_getCompany(); return c&&c.groups&&c.groups[gk]?c.groups[gk].name:gk; }).join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                            <span style="color: var(--color-text-light);">队内定位</span>\n                            <span style="font-weight: 600;">' + (gameState.player.positions.join(' > ')) + '</span>\n                        </div>\n                        <div style="display: flex; justify-content: space-between;">\n                            <span style="color: var(--color-text-light);">性格</span>\n                            <span style="font-weight: 600;">' + (gameState.player.personality.join('、')) + '</span>\n' + (gameState.player.birthDate ? '<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:var(--color-text-light);">出生日期</span><span style="font-weight:600;">' + gameState.player.birthDate + '</span></div>' : '') + '\n                        </div>\n                    </div>\n                </div>\n            </div>\n            \n            <div style="padding: 16px 20px; background: var(--bg-card); border-top: 1px solid var(--color-border); flex-shrink: 0;">\n                <button id="startGameBtn" class="btn btn-primary btn-lg" style="width: 100%; min-height: 50px; font-size: 18px;">开始游戏</button>\n            </div>\n        </div>\n    ';
 }
 
 function genBirthOptions(start, count, part) {
@@ -1020,7 +1020,7 @@ function getAppLinkHtml(currentAppId) {
     for (var li = 0; li < links.length; li++) {
         var appId = links[li];
         var appName = APP_NAMES[appId] || appId;
-        html += '<div onclick="goToPage(\'' + appId + '\')" style="padding:6px 12px;background:var(--color-bg);border:1px solid var(--color-border);border-radius:16px;font-size:11px;color:var(--color-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + appName + '</div>';
+        html += '<div onclick="goToPage(\'' + appId + '\')" style="padding:6px 12px;background:var(--color-bg);border:1px solid var(--color-border);border-radius: 8px;font-size:11px;color:var(--color-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + appName + '</div>';
     }
     html += '</div></div>';
     return html;
@@ -1169,7 +1169,7 @@ function renderHomePage(container) {
         homeSubInfo = '<div style="font-size:11px;color:var(--color-text-light);">' + ((company && company.name) || '') + '</div>' + (_hGroup ? '<div style="font-size:12px;font-weight:700;color:var(--color-primary);">' + _hGroup + '</div>' : '') + '<div style="font-size:10px;color:var(--color-text-light);">' + (_hPos ? _hPos + ' | ' : '') + '出道爱豆</div>' + '<div style="font-size:11px;color:var(--color-primary);font-weight:600;">' + timeLabel + '</div>';
     }
     
-    if (window._inSceneMode) { var _sb = document.createElement('div'); _sb.id='backToSceneBtn'; _sb.style.cssText='position:fixed;top:max(10px,env(safe-area-inset-top));right:12px;z-index:100;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);color:white;padding:5px 10px;border-radius:14px;font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent;'; _sb.textContent='回到场景'; _sb.onclick=function(){window._inSceneMode=true;var app=document.getElementById('app');if(app&&typeof renderScenePage==='function'){renderScenePage(app);}else{render();}}; document.body.appendChild(_sb); }
+    if (window._inSceneMode) { var _sb = document.createElement('div'); _sb.id='backToSceneBtn'; _sb.style.cssText='position:fixed;top:max(10px,env(safe-area-inset-top));right:12px;z-index:100;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);color:white;padding:5px 10px;border-radius: 8px;font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent;'; _sb.textContent='回到场景'; _sb.onclick=function(){window._inSceneMode=true;var app=document.getElementById('app');if(app&&typeof renderScenePage==='function'){renderScenePage(app);}else{render();}}; document.body.appendChild(_sb); }
     container.innerHTML = '\n        <div class="page active">\n            <div style="padding: 16px 20px; display: flex; align-items: center; background: var(--bg-card); border-bottom: 1px solid var(--color-border);">\n                <div class="avatar" style="width: 40px; height: 40px; font-size: 16px;">' + (gameState.player.avatar) + '</div>\n                <div style="margin-left: 10px; flex: 1;">\n                    <div style="font-size: 16px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    ' + homeSubInfo + '\n                </div>\n                <div class="back-btn" onclick="showShareCard()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></div><div class="back-btn" onclick="showNotifCenter()" style="color: var(--color-text-light); font-size: 13px; margin-right: 8px; position: relative;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>' + ((gameState._notifUnread || 0) > 0 ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;"></div>' : '') + '</div><div class="back-btn" onclick="goToPage(\'settings\')" style="color: var(--color-text-light); font-size: 13px;">\n                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>\n                </div>\n            </div>\n            <div class="page-content" style="padding: 16px 20px; padding-bottom: 100px;">\n                ' + _renderDayBar() + '\n                ' + (_safeTriggerDailyEvent(), renderWeeklyGoals()) + '\n                ' + (function() {
     var ci = getCheckInInfo();
     if (ci.checkedIn) {
@@ -1178,7 +1178,7 @@ function renderHomePage(container) {
             + '<div style="font-size:11px;color:var(--color-text-light);">连续' + ci.streak + '天</div></div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">明天继续加油</div></div>';
     }
-    return '<div onclick="doDailyCheckIn()" style="background:linear-gradient(135deg,#FF8FA3,#FF6B8A);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">'
+    return '<div onclick="doDailyCheckIn()" style="background:linear-gradient(135deg,#1A2A3A,#1E293B);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">'
         + '<div><div style="font-size:13px;font-weight:600;color:white;">签到领金币</div>'
         + '<div style="font-size:11px;color:rgba(255,255,255,0.8);">连续签到奖励更多</div></div>'
         + '<div style="font-size:13px;font-weight:600;color:white;">签到 ></div></div>';
@@ -1534,7 +1534,7 @@ function _showSceneNavModal() {
     var m = document.getElementById('sceneNavModal'); if (m) { m.remove(); return; }
     var isT = gameState.player.role === 'Trainee';
     var h = '<div id="sceneNavModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:flex-end;justify-content:center;" onclick="if(event.target===this)this.remove()">';
-    h += '<div style="background:var(--bg-card);border-radius:20px 20px 0 0;padding:20px 16px 24px;width:100%;max-width:420px;max-height:60vh;overflow-y:auto;">';
+    h += '<div style="background:var(--bg-card);border-radius: 12px 20px 0 0;padding:20px 16px 24px;width:100%;max-width:420px;max-height:60vh;overflow-y:auto;">';
     h += '<div style="font-size:16px;font-weight:700;color:var(--color-text);margin-bottom:14px;text-align:center;">\u53bb\u54ea\u91cc\uff1f</div>';
     h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
     for (var i = 0; i < SCENE_NAV_OPTIONS.length; i++) {
@@ -1560,7 +1560,7 @@ function _showElevatorModal() {
         {id:'floor5',name:'5F \u9876\u5c42',desc:'\u793e\u957f\u5ba4 \u00b7 VIP\u5165\u7761\u5ba4'}
     ];
     var h = '<div id="elevatorModal" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">';
-    h += '<div style="background:#1a1a2e;border-radius:16px;padding:20px;width:85%;max-width:320px;">';
+    h += '<div style="background:#1a1a2e;border-radius: 8px;padding:20px;width:85%;max-width:320px;">';
     h += '<div style="font-size:15px;font-weight:700;color:white;margin-bottom:4px;text-align:center;">\u7535\u68af</div>';
     h += '<div style="font-size:11px;color:#888;margin-bottom:14px;text-align:center;">1F \u661f\u5149\u5927\u5385</div>';
     for (var i = 0; i < floors.length; i++) {
@@ -1635,7 +1635,7 @@ function _buildPhoneModal() {
     ];
     var appMap = {};
     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
-    var h = '<div id="phoneModal" style="position:fixed;bottom:0;left:0;right:0;height:75vh;background:var(--bg-card);border-radius:20px 20px 0 0;z-index:9998;display:flex;flex-direction:column;box-shadow:0 -4px 20px rgba(0,0,0,0.3);">';
+    var h = '<div id="phoneModal" style="position:fixed;bottom:0;left:0;right:0;height:75vh;background:var(--bg-card);border-radius: 12px 20px 0 0;z-index:9998;display:flex;flex-direction:column;box-shadow:0 -4px 20px rgba(0,0,0,0.3);">';
     h += '<div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-border);">';
     h += '<div style="display:flex;align-items:center;gap:8px;"><div onclick="_closePhoneAndReturn()" style="cursor:pointer;color:var(--color-text-light);font-size:18px;line-height:1;">\u2715</div><div style="font-size:15px;font-weight:700;color:var(--color-text);">\u624b\u673a</div></div>';
     h += '<div onclick="_exitSceneToUI()" style="color:var(--color-text-light);cursor:pointer;font-size:13px;">\u5173\u95ed</div>';
@@ -1707,7 +1707,7 @@ function renderScenePage(container) {
         + '<div class="scene-day">\u7b2c' + dayInfo.day + '\u5929 ' + dayInfo.weekDay + '</div>'
         + '<div class="scene-loc">' + locationName + '</div>'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
-        + '<div style="position:absolute;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:14px;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius:20px;padding:6px 16px;">' + '<div onclick="_exitSceneToUI()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>手机</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>导航</div>' + '<div onclick="goToPage(&#39;me&#39;)" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>我的</div>' + '</div>'
+        + '<div style="position:absolute;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:14px;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius: 12px;padding:6px 16px;">' + '<div onclick="_exitSceneToUI()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>手机</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>导航</div>' + '<div onclick="goToPage(&#39;me&#39;)" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>我的</div>' + '</div>'
         + '</div>'
 }
 
@@ -1864,7 +1864,7 @@ var varietyQuestions = [
     { host: '主持人：出道至今最后悔的事是什么？', options: ['没有后悔的事', '分享一个真实的遗憾并表达成长', '后悔当爱豆', '后悔没多吃点'], answer: 1 }
 ];
 
-var simonColors = ['#FF8FA3', '#FFD700', '#87CEEB', '#98FB98'];
+var simonColors = ['#1A2A3A', '#FFD700', '#87CEEB', '#98FB98'];
 var simonColorNames = ['粉', '金', '蓝', '绿'];
 
 function _ensureExamState() {
@@ -1890,7 +1890,7 @@ function render考核Page(container) {
     _ensureExamState();
     var certs = gameState.certificates;
     var subjects = [
-        { key: 'dance', name: '舞蹈', icon: 'D', color: '#FF6B8A' },
+        { key: 'dance', name: '舞蹈', icon: 'D', color: '#1E293B' },
         { key: 'vocal', name: '声乐', icon: 'V', color: '#7EB6FF' },
         { key: 'rap', name: '说唱', icon: 'R', color: '#FFBE5C' },
         { key: 'acting', name: '表演', icon: 'A', color: '#B88AFF' },
@@ -1918,7 +1918,7 @@ function render考核Page(container) {
             }
         }
         var progressPct = Math.floor(obtainedCount / 3 * 100);
-        var certBg = allObtained ? 'background:linear-gradient(135deg,rgba(255,143,163,0.12),rgba(255,179,193,0.08));border:1.5px solid var(--color-primary);' : 'background:var(--bg-card);border:1.5px solid var(--color-border);';
+        var certBg = allObtained ? 'background:linear-gradient(135deg,rgba(26,42,58,0.12),rgba(148,163,184,0.08));border:1.5px solid var(--color-primary);' : 'background:var(--bg-card);border:1.5px solid var(--color-border);';
         certCardsHtml += '<div class="exam-cert-card ' + (allObtained ? 'obtained' : '') + '" style="' + certBg + 'border-radius:12px;padding:12px;">'
             + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
             + '<div class="cert-icon" style="background:' + (allObtained ? 'linear-gradient(135deg,#FFD700,#FFA500)' : s.color) + ';color:white;font-weight:700;font-size:14px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;">' + s.icon + '</div>'
@@ -1978,13 +1978,13 @@ function render考核Page(container) {
         var nextComp = gameState.examResult.comprehensive[0] ? 1 : 0;
         var needScore = nextComp === 0 ? '3/5' : '4/5';
         compHtml = '<div class="exam-comprehensive-entry unlocked" data-nextComp="' + nextComp + '" onclick="startComprehensiveExam(parseInt(this.dataset.nextComp))">'
-            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
+            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
             + '<div style="font-size:16px;font-weight:700;color:var(--color-primary);">综合考试 - 第' + (nextComp + 1) + '次</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">5科各出1题，需答对' + needScore + '以上 · 300金币</div>'
             + '</div>';
     } else {
         compHtml = '<div class="exam-comprehensive-entry locked">'
-            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
+            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
             + '<div style="font-size:16px;font-weight:700;color:var(--color-text-light);">综合考试</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">需5科三级合格证全部获得后解锁</div>'
             + '</div>';
@@ -2553,7 +2553,7 @@ function renderComprehensiveExam(container, attempt) {
     var subjects = ['dance', 'vocal', 'rap', 'acting', 'variety'];
     var subjectNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     var subjectIcons = { dance: 'D', vocal: 'V', rap: 'R', acting: 'A', variety: 'S' };
-    var subjectColors = { dance: '#FF6B8A', vocal: '#7EB6FF', rap: '#FFBE5C', acting: '#B88AFF', variety: '#5CC9A7' };
+    var subjectColors = { dance: '#1E293B', vocal: '#7EB6FF', rap: '#FFBE5C', acting: '#B88AFF', variety: '#5CC9A7' };
     var mixedQuestions = [];
 
     for (var si = 0; si < subjects.length; si++) {
@@ -2805,7 +2805,7 @@ function render我的Page(container) {
     var company = _getCompany(gameState.player.company);
     var genderText = gameState.player.gender === 'F' ? '女' : '男';
     
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>' + (gameState.equippedOutfit ? '<div style="font-size:10px;color:var(--color-primary);margin-top:4px;">' + _getOutfitName() + '</div>' : '') + '\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color:#FF69B4;">颜值</span>\n                        <div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.looks || 0) / 2) + '%;background:linear-gradient(90deg,#FF69B4,#FFB6C1);"></div></div>\n                        <span class="stat-value" style="color:#FF69B4;">' + (gameState.looks || 0) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
+    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>' + (gameState.equippedOutfit ? '<div style="font-size:10px;color:var(--color-primary);margin-top:4px;">' + _getOutfitName() + '</div>' : '') + '\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color:#94A3B8;">颜值</span>\n                        <div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.looks || 0) / 2) + '%;background:linear-gradient(90deg,#94A3B8,#CBD5E1);"></div></div>\n                        <span class="stat-value" style="color:#94A3B8;">' + (gameState.looks || 0) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
                     }).join('')) + '\n                </div>\n                \n                <!-- 经济卡 -->\n                <div class="section-title">经济</div>\n                <div class="card">\n                    <div style="display: flex; justify-content: space-around;">\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.money || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">金币</div>\n                        </div>\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.fans || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">粉丝</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <!-- 背包卡 -->\n                <div class="section-title">背包</div>\n                <div class="card">\n                    ' + (gameState.inventory.length === 0 ? '\n                        <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>\n                    ' : gameState.inventory.map(function(item, i) { return '\n                        <div class="inventory-item">\n                            <span class="item-name">' + (item.name) + '</span>\n                            <button class="item-use" onclick="useItem(' + (i) + ')">使用</button>\n                        </div>\n                    '}).join('')) + '\n                </div>\n                \n                <!-- 账号操作 -->\n                <div class="section-title" style="margin-top:16px;">账号</div>\n                <div class="card" onclick="_doLogout()" style="cursor:pointer;">\n                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>\n                </div>\n            </div>\n        </div>\n    ';
@@ -2843,12 +2843,12 @@ var HIDDEN_DIALOGUES = {};
 // V1.7: Love relationship 5-node system (20/40/60/80/100)
 var LOVE_NODES = [20, 40, 60, 80, 100];
 var LOVE_STATUS = [
-  { min: 0, max: 19, label: "陌生", color: "#CCC", icon: "" },
-  { min: 20, max: 39, label: "熟悉", color: "#B388FF", icon: "" },
+  { min: 0, max: 19, label: "陌生", color: "#9CA3AF", icon: "" },
+  { min: 20, max: 39, label: "熟悉", color: "#3B82F6", icon: "" },
   { min: 40, max: 59, label: "暧昧", color: "#FF9500", icon: "" },
-  { min: 60, max: 79, label: "恋人", color: "#FF6B8A", icon: "" },
-  { min: 80, max: 99, label: "挚爱", color: "#FF2D55", icon: "" },
-  { min: 100, max: 100, label: "灵魂伴侣", color: "#E040FB", icon: "" }
+  { min: 60, max: 79, label: "恋人", color: "#F43F5E", icon: "" },
+  { min: 80, max: 99, label: "挚爱", color: "#8B5CF6", icon: "" },
+  { min: 100, max: 100, label: "灵魂伴侣", color: "#F59E0B", icon: "" }
 ];
 
 function getLoveStatus(love) {
@@ -3083,7 +3083,7 @@ function isVipUser(minTier) {
 function showVipPage() {
     var currentTier = getVipTier();
     var tierCard = function(key, t, isCurrent) {
-        return '<div class="card" style="margin-bottom:12px;' + (isCurrent ? 'border:2px solid var(--color-primary);' : '') + '">'
+        return '<div class="card" style="margin-bottom:12px;' + (isCurrent ? 'border:2px solid #CBD5E1;' : '') + '">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
             + '<div style="font-weight:600;font-size:16px;">' + t.name + '</div>'
             + '<span style="font-weight:700;font-size:18px;color:var(--color-primary);">' + t.price + '元/月</span></div>'
@@ -3292,7 +3292,7 @@ function _renderToneSelector() {
     for (var i = 0; i < TONE_STYLES.length; i++) {
         var t = TONE_STYLES[i];
         var active = t.id === current.id;
-        html += '<div onclick="_setTone(\'' + t.id + '\')" style="flex-shrink:0;padding:5px 10px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;'
+        html += '<div onclick="_setTone(\'' + t.id + '\')" style="flex-shrink:0;padding:5px 10px;border-radius: 8px;font-size:11px;font-weight:600;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;'
             + (active ? 'background:var(--color-primary);color:white;' : 'background:var(--bg-card);color:var(--color-text);border:1px solid var(--color-border);')
             + '">' + t.icon + ' ' + t.name + '</div>';
     }
@@ -3308,7 +3308,7 @@ var WARDROBE_ITEMS = [
     { id: 'practice', name: '练习服', price: 10000, looksVal: 5, desc: '简单舒适，适合日常训练', color: '#7EC8E3', icon: 'T' },
     { id: 'daily', name: '日常穿搭', price: 15000, looksVal: 8, desc: '休闲时尚，出街必备', color: '#98D8AA', icon: 'D' },
     { id: 'stage', name: '舞台服装', price: 35000, looksVal: 18, desc: '华丽闪耀，舞台焦点', color: '#FFD700', icon: 'S' },
-    { id: 'brand', name: '品牌联名款', price: 50000, looksVal: 25, desc: '顶奢联名，潮流巅峰', color: '#FF8FA3', icon: 'B' },
+    { id: 'brand', name: '品牌联名款', price: 50000, looksVal: 25, desc: '顶奢联名，潮流巅峰', color: '#1A2A3A', icon: 'B' },
     { id: 'couple', name: '情侣卫衣', price: 22000, looksVal: 10, loveVal: 8, desc: '和恋人的甜蜜穿搭', color: '#C8A2C8', icon: 'C' },
     { id: 'airport', name: '机场穿搭', price: 28000, looksVal: 15, desc: '机场时尚，镜头焦点', color: '#45B7D1', icon: 'A' }
 ];
@@ -3337,7 +3337,7 @@ function showWardrobe() {
         var equipped = current === item.id;
         var canAfford = gameState.money >= item.price;
         html += '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;border-radius:10px;'
-            + (equipped ? 'background:var(--color-secondary);border:2px solid var(--color-primary);' : 'background:var(--bg-card);border:1px solid var(--color-border);')
+            + (equipped ? 'background:var(--color-secondary);border:2px solid #CBD5E1;' : 'background:var(--bg-card);border:1px solid var(--color-border);')
             + '">'
             + '<div style="width:36px;height:36px;border-radius:50%;background:' + item.color + ';display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;flex-shrink:0;">' + item.icon + '</div>'
             + '<div style="flex:1;">'
@@ -3416,7 +3416,7 @@ function buyAndEquipOutfit(itemId) {
 
 function renderWardrobePage(container) {
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">换装</div><div style="width:32px;"></div></div><div class="page-content">';
-    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#C8A2C8);color:white;padding:16px;">';
+    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1A2A3A,#C8A2C8);color:white;padding:16px;">';
     html += '<div style="font-size:28px;font-weight:700;">' + (gameState.equippedOutfit ? _getOutfitIcon() : '?') + '</div>';
     html += '<div style="font-size:15px;font-weight:600;margin-top:4px;">' + (_getOutfitName() || '未穿着') + '</div>';
     html += '<div style="font-size:12px;opacity:0.8;margin-top:2px;">颜值 +' + (gameState.equippedOutfit ? (function(){ for(var i=0;i<WARDROBE_ITEMS.length;i++){if(WARDROBE_ITEMS[i].id===gameState.equippedOutfit)return WARDROBE_ITEMS[i].looksVal;} return 0; })() : 0) + '</div>';
@@ -3428,18 +3428,18 @@ function renderWardrobePage(container) {
         var owned = gameState.ownedClothes && gameState.ownedClothes.indexOf(item.id) > -1;
         var equipped = current === item.id;
         var canAfford = gameState.money >= item.price;
-        html += '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;border-radius:10px;' + (equipped ? 'background:var(--color-secondary);border:2px solid var(--color-primary);' : 'background:var(--bg-card);border:1px solid var(--color-border);') + '">';
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;border-radius:10px;' + (equipped ? 'background:var(--color-secondary);border:2px solid #CBD5E1;' : 'background:var(--bg-card);border:1px solid var(--color-border);') + '">';
         html += '<div style="width:40px;height:40px;border-radius:50%;background:' + item.color + ';display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + item.icon + '</div>';
         html += '<div style="flex:1;">';
         html += '<div style="font-weight:600;font-size:13px;color:var(--color-text);">' + item.name + (equipped ? ' <span style="font-size:10px;color:var(--color-primary);">(穿着中)</span>' : '') + '</div>';
         html += '<div style="font-size:11px;color:var(--color-text-light);">' + item.desc + ' | +' + item.looksVal + '颜值' + (item.loveVal ? ' +' + item.loveVal + '好感' : '') + '</div>';
         html += '</div>';
         if (equipped) {
-            html += '<button onclick="unequipOutfitFromPage()" style="padding:6px 14px;border-radius:14px;border:1px solid var(--color-border);background:var(--bg-card);font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">脱下</button>';
+            html += '<button onclick="unequipOutfitFromPage()" style="padding:6px 14px;border-radius: 8px;border:1px solid var(--color-border);background:var(--bg-card);font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">脱下</button>';
         } else if (owned) {
-            html += '<button onclick="equipOutfitFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius:14px;border:none;background:var(--color-primary);color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">穿上</button>';
+            html += '<button onclick="equipOutfitFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius: 8px;border:none;background:var(--color-primary);color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">穿上</button>';
         } else {
-            html += '<button onclick="buyAndEquipFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius:14px;border:none;background:' + (canAfford ? 'var(--color-primary)' : '#CCC') + ';color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + item.price.toLocaleString() + '</button>';
+            html += '<button onclick="buyAndEquipFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius: 8px;border:none;background:' + (canAfford ? 'var(--color-primary)' : '#CCC') + ';color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + item.price.toLocaleString() + '</button>';
         }
         html += '</div>';
     }
@@ -4200,7 +4200,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
         currentPage = 'home';
         try {
             var _app = document.getElementById('app');
-            if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;"><div style="font-size:18px;color:#FF6B8A;margin-bottom:8px;">页面加载出错</div><button onclick="goToPage(\'home\')" style="padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;font-size:14px;cursor:pointer;">返回首页</button></div>';
+            if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;"><div style="font-size:18px;color:#1E293B;margin-bottom:8px;">页面加载出错</div><button onclick="goToPage(\'home\')" style="padding:12px 24px;background:#1A2A3A;color:white;border:none;border-radius:50px;font-size:14px;cursor:pointer;">返回首页</button></div>';
             renderBottomNav();
         } catch(e2) {}
     }
@@ -4268,7 +4268,7 @@ function getIcon(name) {
         'more': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>',
         'lock': '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>',
         'members': '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>',
-        'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#FF8FA3" stroke="none"></circle></svg>',
+        'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#1A2A3A" stroke="none"></circle></svg>',
         'kakaotalk': '<svg class="kakao-icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="3" ry="3" fill="#FAE100" stroke="none"></rect><path d="M7 10h4M13 10h4M9 13h6" stroke="#392020" stroke-width="1.5" stroke-linecap="round" fill="none"></path><polygon points="8,18 10,22 12,18" fill="#FAE100" stroke="none"></polygon></svg>',
         'debut': '<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></polygon><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle></svg>',
         'gacha': '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle><path d="M12 9v6M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
@@ -4292,7 +4292,7 @@ function getIcon(name) {
         'phone': '<svg viewBox="0 0 24 24"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>',
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
         'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
-        'daily': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M8 14l2 2 4-4" fill="none" stroke="#FF8FA3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+        'daily': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M8 14l2 2 4-4" fill="none" stroke="#1A2A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
         'bed': '<svg viewBox="0 0 24 24"><path d="M2 4v16" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M2 8h5a3 3 0 0 1 3 3v1H2V8z" fill="currentColor" opacity="0.3"></path><path d="M10 12h10a2 2 0 0 1 2 2v6H10v-8z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M10 14h2v2h-2z" fill="currentColor" opacity="0.2"></path></svg>',
         'door': '<svg viewBox="0 0 24 24"><path d="M5 2h14a1 1 0 0 1 1 1v18H4V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="12" x2="12.01" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg>',
         'shirt': '<svg viewBox="0 0 24 24"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a1 1 0 0 0-.73 1.09L4 10h3l1 12h8l1-12h3l1.11-5.45a1 1 0 0 0-.73-1.09z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
@@ -4725,12 +4725,12 @@ function render工作Page(container) {
     for (var i = 0; i < items.length; i++) {
         var n = items[i];
         var typeBg = '';
-        if (n.type === 'musicshow') typeBg = 'background:#FFE4EC;color:#FF8FA3;';
+        if (n.type === 'musicshow') typeBg = 'background:#E2E8F0;color:#1A2A3A;';
         else if (n.type === 'mcountdown') typeBg = 'background:#E4F5FF;color:#5BB8E8;';
         else if (n.type === 'inkigayo') typeBg = 'background:#FFF4E0;color:#F0A030;';
         else if (n.type === 'musiccore') typeBg = 'background:#E8FFE4;color:#4CAF50;';
         else if (n.type === 'fanmeet') typeBg = 'background:#F0E4FF;color:#A070E0;';
-        else if (n.type === 'concert') typeBg = 'background:#FFE4EC;color:#FF6B8A;';
+        else if (n.type === 'concert') typeBg = 'background:#E2E8F0;color:#1E293B;';
         else typeBg = 'background:#E4F5FF;color:#5BB8E8;';
         itemsHtml += '<div class="notice-card" data-i="' + i + '" onclick="viewNoticeDetail(parseInt(this.dataset.i))">'
             + '<div class="notice-type" style="' + typeBg + '">' + n.typeName + '</div>'
@@ -4785,12 +4785,12 @@ function render通告详情Page(container) {
     if (!n) { goToPage('work'); return; }
 
     var typeBg = '';
-    if (n.type === 'musicshow') typeBg = 'background:#FFE4EC;color:#FF8FA3;';
+    if (n.type === 'musicshow') typeBg = 'background:#E2E8F0;color:#1A2A3A;';
     else if (n.type === 'mcountdown') typeBg = 'background:#E4F5FF;color:#5BB8E8;';
     else if (n.type === 'inkigayo') typeBg = 'background:#FFF4E0;color:#F0A030;';
     else if (n.type === 'musiccore') typeBg = 'background:#E8FFE4;color:#4CAF50;';
     else if (n.type === 'fanmeet') typeBg = 'background:#F0E4FF;color:#A070E0;';
-    else if (n.type === 'concert') typeBg = 'background:#FFE4EC;color:#FF6B8A;';
+    else if (n.type === 'concert') typeBg = 'background:#E2E8F0;color:#1E293B;';
     else typeBg = 'background:#E4F5FF;color:#5BB8E8;';
 
     container.innerHTML = '<div class="page active">'
@@ -4927,8 +4927,8 @@ function acceptNotice() {
         + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>名气</span><span style="color:#4CD964;font-weight:600;">+' + fameGain + '</span></div>'
         + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>影响力</span><span style="color:#4CD964;font-weight:600;">+' + influenceGain + '</span></div>'
         + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>粉丝</span><span style="color:#4CD964;font-weight:600;">+' + fansGain + '</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>体力</span><span style="color:#FF6B8A;font-weight:600;">-' + n.体力 + '</span></div>'
-        + (dangerGain > 0 ? '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>危险值</span><span style="color:#FF6B8A;font-weight:600;">+' + dangerGain + '</span></div>' : '')
+        + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>体力</span><span style="color:#1E293B;font-weight:600;">-' + n.体力 + '</span></div>'
+        + (dangerGain > 0 ? '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>危险值</span><span style="color:#1E293B;font-weight:600;">+' + dangerGain + '</span></div>' : '')
         + '</div>'
         + '<button class="btn btn-primary btn-lg" onclick="goToPage(\'work\')" style="margin-top:8px;">返回通告</button>'
         + '</div></div>';
@@ -5100,7 +5100,7 @@ function render恋爱Page(container) {
     }
     } catch(e) {
         console.error('Love app render error:', e); // debug overlay disabled for love app errors
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(&#39;home&#39;)">‹ 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-primary);font-size:15px;font-weight:600;">加载遇到问题</div><div style="color:var(--color-text-light);font-size:12px;margin-top:8px;">点击返回首页</div><button onclick="currentPage=&#39;home&#39;;window._loveView=&#39;list&#39;;window._loveChatTarget=&#39;&#39;;render();renderBottomNav()" style="margin-top:16px;padding:10px 24px;background:var(--color-primary);color:white;border:none;border-radius:20px;font-size:14px;">返回首页</button></div></div>';
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(&#39;home&#39;)">‹ 首页</div><div class="page-title">恋爱</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-primary);font-size:15px;font-weight:600;">加载遇到问题</div><div style="color:var(--color-text-light);font-size:12px;margin-top:8px;">点击返回首页</div><button onclick="currentPage=&#39;home&#39;;window._loveView=&#39;list&#39;;window._loveChatTarget=&#39;&#39;;render();renderBottomNav()" style="margin-top:16px;padding:10px 24px;background:var(--color-primary);color:white;border:none;border-radius: 12px;font-size:14px;">返回首页</button></div></div>';
     }
 }
 
@@ -5137,7 +5137,7 @@ function _renderLoveListView(container, npcs) {
             var unreadBadge = c.unread > 0 ? '<div style="min-width:16px;height:16px;border-radius:8px;background:var(--color-primary);color:white;font-size:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;">' + c.unread + '</div>' : '';
             var datingTag = c.isDating ? '<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:var(--color-primary);color:white;margin-left:4px;">恋人</span>' : '';
             bodyHtml += '<div class="card" style="cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:10px;" onclick="openLoveChat(&#39;' + c.name + '&#39;)">'
-                + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + c.name.charAt(0) + '</div>'
+                + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + c.name.charAt(0) + '</div>'
                 + '<div style="flex:1;overflow:hidden;">'
                 + '<div style="display:flex;align-items:center;justify-content:space-between;">'
                 + '<div style="display:flex;align-items:center;"><span style="font-weight:600;font-size:14px;">' + c.name + '</span>' + datingTag + '</div>'
@@ -5161,7 +5161,7 @@ function _renderLoveListView(container, npcs) {
             var pStatus = getLoveStatus(p好感);
             bodyHtml += '<div class="card" style="background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="openLoveChat(&#39;' + gameState.dating + '&#39;)"'
                 + '<div style="display:flex;align-items:center;gap:12px;">'
-                + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
+                + '<div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;">' + gameState.dating.charAt(0) + '</div>'
                 + '<div style="flex:1;">'
                 + '<div style="display:flex;align-items:center;"><span style="font-weight:700;font-size:15px;color:' + pStatus.color + ';">' + gameState.dating + '</span><span style="font-size:9px;padding:1px 4px;border-radius:3px;background:' + pStatus.color + ';color:white;margin-left:6px;">' + pStatus.label + '</span></div>'
                 + _renderLoveProgressBar(p好感, true)
@@ -5243,7 +5243,7 @@ function _renderLoveChatView(container, targetName, npcs) {
                 + '</div></div>';
         } else {
             bubbles += '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:8px;">'
-                + '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FFB3C1);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;flex-shrink:0;">' + targetName.charAt(0) + '</div>'
+                + '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:11px;flex-shrink:0;">' + targetName.charAt(0) + '</div>'
                 + '<div style="max-width:70%;">'
                 + '<div style="background:var(--bg-card);padding:8px 12px;border-radius:2px 12px 12px 12px;font-size:13px;line-height:1.5;word-break:break-all;box-shadow:0 1px 2px rgba(0,0,0,0.04);">' + msg.text + '</div>'
                 + '<div style="font-size:9px;color:var(--color-text-light);margin-top:1px;">' + (msg.time || '') + '</div>'
@@ -5300,7 +5300,7 @@ function showLoveSecrets() {
     for (var i = 0; i < dialogues.length; i++) {
         var d = dialogues[i];
         var unlocked = 好感 >= d.level;
-        html += '<div style="padding:8px;margin-bottom:6px;border-radius:8px;background:'+(unlocked?'linear-gradient(135deg,#FFF5F7,#FFE4EC)':'#F5F5F5')+';'+(unlocked?'':'opacity:0.6;')+'">'
+        html += '<div style="padding:8px;margin-bottom:6px;border-radius:8px;background:'+(unlocked?'linear-gradient(135deg,#F8FAFC,#E2E8F0)':'#F5F5F5')+';'+(unlocked?'':'opacity:0.6;')+'">'
             + '<div style="font-weight:600;font-size:12px;color:'+(unlocked?'var(--color-primary)':'var(--color-text-light)')+';margin-bottom:4px;">'+d.title+' (好感'+d.level+')</div>'
             + (unlocked ? '<div style="color:var(--color-text);">'+d.dialogue+'</div>' : '<div style="color:var(--color-text-light);">好感度'+d.level+'解锁 (还差'+Math.max(0,d.level-好感)+')</div>')
             + '</div>';
@@ -5656,7 +5656,7 @@ function _doLoveDate() {
         for (var si = 0; si < _secretDateLocations.length; si++) {
             var sloc = _secretDateLocations[si];
             var scanAfford = gameState.money >= sloc.cost && gameState.体力 >= sloc.stamina;
-            locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));border:1px solid #FFD0D9;border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (scanAfford ? '' : 'opacity:0.5;') + '"'
+            locHtml += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px;margin-bottom:6px;background:linear-gradient(135deg,var(--bg-card),var(--color-secondary));border:1px solid #E2E8F0;border-radius:8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + (scanAfford ? '' : 'opacity:0.5;') + '"'
                 + (scanAfford ? ' onclick="loveDateStep2(' + si + ',true)"' : '') + '>'
                 + '<div><div style="font-weight:600;font-size:13px;color:#FF2D55;">' + sloc.name + '</div>'
                 + '<div style="font-size:11px;color:var(--color-text-light);">' + sloc.desc + '</div></div>'
@@ -5923,7 +5923,7 @@ function render泡泡Page(container) {
         for (var i = 0; i < messages.length; i++) {
             var m = messages[i];
             var langTag = m.lang === 'ko' ? 'KO' : m.lang === 'ja' ? 'JP' : m.lang === 'zh' ? 'CN' : 'EN';
-            var langColor = m.lang === 'ko' ? '#FF8FA3' : m.lang === 'ja' ? '#7EC8E3' : m.lang === 'zh' ? '#4CD964' : '#FFD700';
+            var langColor = m.lang === 'ko' ? '#1A2A3A' : m.lang === 'ja' ? '#7EC8E3' : m.lang === 'zh' ? '#4CD964' : '#FFD700';
             allMsgs.push({ type: 'fan', idx: i, from: m.from, text: m.orig, zhText: m.zh, langTag: langTag, langColor: langColor, time: m.time });
         }
         if (gameState.bubble已发送) {
@@ -5936,7 +5936,7 @@ function render泡泡Page(container) {
             var msg = allMsgs[i];
             if (msg.type === 'fan') {
                 var isSelected = gameState._bubbleReplyTo === msg.idx;
-                contentHtml += '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:8px;padding:2px 0;cursor:pointer;' + (isSelected ? 'background:rgba(255,143,163,0.08);border-radius:8px;' : '') + '" onclick="gameState._bubbleReplyTo=' + msg.idx + ';render();">'
+                contentHtml += '<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:8px;padding:2px 0;cursor:pointer;' + (isSelected ? 'background:rgba(26,42,58,0.08);border-radius:8px;' : '') + '" onclick="gameState._bubbleReplyTo=' + msg.idx + ';render();">'
                     + '<div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,' + msg.langColor + ',rgba(255,255,255,0.3));display:flex;align-items:center;justify-content:center;font-size:9px;color:white;font-weight:700;flex-shrink:0;">' + msg.from.charAt(0).toUpperCase() + '</div>'
                     + '<div style="flex:1;max-width:72%;">'
                     + '<div style="display:flex;align-items:center;gap:3px;margin-bottom:2px;">'
@@ -5971,11 +5971,11 @@ function render泡泡Page(container) {
         if (!contentHtml) contentHtml = '<p style="text-align:center;color:var(--color-text-light);padding:40px 20px;">暂无已发送消息</p>';
     } else if (currentTab === 'stickers') {
         var stickerPacks = [
-            { name: '可爱猫咪', price: 3000, count: 8, color: '#FF8FA3', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_0.jpg' },
+            { name: '可爱猫咪', price: 3000, count: 8, color: '#1A2A3A', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_0.jpg' },
             { name: '韩系表情', price: 5000, count: 12, color: '#7C4DFF', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_1.jpg' },
             { name: '爱豆日常', price: 8000, count: 16, color: '#4CD964', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_2.jpg' },
             { name: '粉丝应援', price: 6000, count: 10, color: '#FFD700', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_3.jpg' },
-            { name: '泡泡专属', price: 10000, count: 20, color: '#FF69B4', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_4.jpg' }
+            { name: '泡泡专属', price: 10000, count: 20, color: '#94A3B8', icon: 'https://linyangjie1015.github.io/my-idol/imgs/sticker_icon_4.jpg' }
         ];
         for (var pi = 0; pi < stickerPacks.length; pi++) {
             var sp = stickerPacks[pi];
@@ -5997,13 +5997,13 @@ function render泡泡Page(container) {
         var replyTarget = gameState._bubbleReplyTo;
         var replyLabel = '';
         if (replyTarget !== undefined && replyTarget !== null && bubbleMultilangMessages[replyTarget]) {
-            replyLabel = '<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,143,163,0.1);border-radius:8px 8px 0 0;font-size:11px;color:var(--color-primary);"><span>回复 ' + bubbleMultilangMessages[replyTarget].from + '</span><span onclick="gameState._bubbleReplyTo=null;render();" style="margin-left:auto;cursor:pointer;color:var(--color-text-light);font-size:14px;">X</span></div>';
+            replyLabel = '<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(26,42,58,0.1);border-radius:8px 8px 0 0;font-size:11px;color:var(--color-primary);"><span>回复 ' + bubbleMultilangMessages[replyTarget].from + '</span><span onclick="gameState._bubbleReplyTo=null;render();" style="margin-left:auto;cursor:pointer;color:var(--color-text-light);font-size:14px;">X</span></div>';
         }
         replyBar = '<div style="flex-shrink:0;padding:8px 12px;background:var(--color-bg);border-top:1px solid var(--color-border);">'
             + replyLabel
             + '<div style="display:flex;gap:8px;">'
-            + '<input type="text" id="bubbleFixedInput" placeholder="输入消息..." style="flex:1;font-size:13px;padding:10px 14px;border:1px solid var(--color-border);border-radius:20px;background:var(--bg-main);" onkeydown="if(event.key===\'Enter\')sendBubbleFixedReply()">'
-            + '<button class="btn btn-sm btn-primary" onclick="sendBubbleFixedReply()" style="padding:10px 16px;border-radius:20px;font-size:13px;">发送</button>'
+            + '<input type="text" id="bubbleFixedInput" placeholder="输入消息..." style="flex:1;font-size:13px;padding:10px 14px;border:1px solid var(--color-border);border-radius: 12px;background:var(--bg-main);" onkeydown="if(event.key===\'Enter\')sendBubbleFixedReply()">'
+            + '<button class="btn btn-sm btn-primary" onclick="sendBubbleFixedReply()" style="padding:10px 16px;border-radius: 12px;font-size:13px;">发送</button>'
             + '</div></div>';
     }
     container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
@@ -6116,7 +6116,7 @@ function renderWeversePage(container) {
     for (var i = 0; i < weverseMultilangPosts.length; i++) {
         var p = weverseMultilangPosts[i];
         var langTag = p.lang === 'ko' ? '韩' : p.lang === 'ja' ? '日' : 'EN';
-        var langColor = p.lang === 'ko' ? '#FF8FA3' : p.lang === 'ja' ? '#7EC8E3' : '#FFD700';
+        var langColor = p.lang === 'ko' ? '#1A2A3A' : p.lang === 'ja' ? '#7EC8E3' : '#FFD700';
         postsHtml += '<div class="card bubble-msg-anim" style="animation-delay:' + (i * 0.1) + 's;">'
             + '<div style="display:flex;align-items:center;margin-bottom:10px;">'
             + '<div class="avatar-sm">' + p.avatar + '</div>'
@@ -6144,7 +6144,7 @@ function renderWeversePage(container) {
         + getAppLinkHtml('weverse') + '</div></div>';
     } catch(e) {
         console.error('Weverse render error:', e);
-        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">Weverse页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
+        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#1E293B;">Weverse页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#1A2A3A;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
     }
 }
 
@@ -6391,7 +6391,7 @@ function renderInsPage(container) {
     container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">INS</div><div style="width:32px;"></div></div>' + tabBar + tabContent + getAppLinkHtml('ins') + '</div>';
     } catch(e) {
         console.error('INS render error:', e);
-        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">INS页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
+        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#1E293B;">INS页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#1A2A3A;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
     }
 }
 
@@ -6474,17 +6474,17 @@ function renderTiktokPage(container) {
     var tabContent = '';
     if (tiktokTab === 'home') {
         var videos = [
-            { user: 'kim_nari_', avatar: 'K', plays: '100万', likes: '23.4万', comments: '5000', desc: 'New choreography practice! #kpop #fyp', color1: '#FFF5F7', color2: '#FFCCD8' },
+            { user: 'kim_nari_', avatar: 'K', plays: '100万', likes: '23.4万', comments: '5000', desc: 'New choreography practice! #kpop #fyp', color1: '#F8FAFC', color2: '#CBD5E1' },
             { user: 'park_jiwoo', avatar: 'P', plays: '85万', likes: '18.7万', comments: '3200', desc: 'Vocal cover of our new song! #vocal #cover', color1: '#E4F5FF', color2: '#B8E6F0' },
             { user: 'lee_hyunjin', avatar: 'L', plays: '72万', likes: '15.2万', comments: '2800', desc: 'Dance challenge with members! #challenge', color1: '#FFF4E0', color2: '#FFE0A0' },
             { user: 'choi_naeun', avatar: 'C', plays: '60万', likes: '12.1万', comments: '1900', desc: 'Backstage moments before the show #bts', color1: '#F0E4FF', color2: '#DFC4FF' },
             { user: 'aurora_dawn_official', avatar: 'A', plays: '200万', likes: '45.6万', comments: '8900', desc: 'Official MV teaser! #comingsoon', color1: '#E8F5E9', color2: '#C8E6C9' },
-            { user: 'yg_newface', avatar: 'Y', plays: '50万', likes: '9.8万', comments: '1500', desc: 'Rap verse practice #hiphop #yg', color1: '#FFF5F7', color2: '#FFB3C1' }
+            { user: 'yg_newface', avatar: 'Y', plays: '50万', likes: '9.8万', comments: '1500', desc: 'Rap verse practice #hiphop #yg', color1: '#F8FAFC', color2: '#94A3B8' }
         ];
         tabContent = '<div style="flex:1;overflow-y:auto;"><div style="display:flex;justify-content:flex-end;padding:8px 16px;"><button class="btn btn-sm btn-primary" onclick="postToTiktok()">+ 上传视频</button></div>';
         for (var vi = 0; vi < videos.length; vi++) {
             var v = videos[vi];
-            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + v.user + \'\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this, parseInt(this.dataset.vi))"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="_translateTtDesc(' + vi + ')">翻译</span></p></div>';
+            tabContent += '<div class="card" style="margin-bottom:16px;"><div style="display:flex;align-items:center;margin-bottom:10px;"><div class="avatar-sm" style="cursor:pointer;" onclick="gameState.insProfileView=\'\' + v.user + \'\';goToPage(\'insprofile\')">' + v.avatar + '</div><div style="margin-left:8px;flex:1;"><div style="font-weight:600;">' + v.user + '</div><div style="font-size:11px;color:var(--color-text-light);">' + v.plays + ' 播放</div></div></div><div style="background:linear-gradient(135deg,' + v.color1 + ',' + v.color2 + ');height:180px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;cursor:pointer;position:relative;" data-vi="' + vi + '" onclick="simulateVideoPlay(this, parseInt(this.dataset.vi))"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><div style="position:absolute;bottom:8px;right:8px;display:flex;flex-direction:column;gap:12px;align-items:center;"><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A2A3A" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.likes + '</div></div><div style="text-align:center;cursor:pointer;" onclick="event.stopPropagation();showTiktokComment()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1A2A3A" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><div style="font-size:10px;color:var(--color-text-light);">' + v.comments + '</div></div></div></div><p style="font-size:14px;margin-bottom:0;" id="ttDesc' + vi + '">' + v.desc + ' <span class="translate-btn" onclick="_translateTtDesc(' + vi + ')">翻译</span></p></div>';
         }
         for (var upi = 0; upi < gameState.tiktokPosts.length; upi++) {
             var up = gameState.tiktokPosts[upi];
@@ -6500,7 +6500,7 @@ function renderTiktokPage(container) {
             if (up.desc && up.video) {
                 tabContent += '<p style="font-size:14px;margin-top:10px;margin-bottom:0;">' + up.desc + '</p>';
             }
-            tabContent += '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF8FA3" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span style="font-size:12px;color:var(--color-text-light);">' + up.likes + '</span></div>';
+            tabContent += '<div style="display:flex;align-items:center;gap:6px;margin-top:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A2A3A" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg><span style="font-size:12px;color:var(--color-text-light);">' + up.likes + '</span></div>';
             tabContent += '</div>';
         }
         tabContent += '</div>';
@@ -6599,7 +6599,7 @@ function sendTiktokChat() {
 
 function simulateVideoPlay(el, index) {
     if (!el) return;
-    var colors = ['#FF8FA3','#7EC8E3','#FFD700','#C9A0FF','#4CD964','#FF6B8A'];
+    var colors = ['#1A2A3A','#7EC8E3','#FFD700','#C9A0FF','#4CD964','#1E293B'];
     var step = 0;
     var interval = setInterval(function() {
         step++;
@@ -6986,7 +6986,7 @@ function renderCrisisPage(container) {
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="page-content">'
-        + '<div class="card" style="background:linear-gradient(135deg,var(--color-danger),#FF8FA3);color:white;">'
+        + '<div class="card" style="background:linear-gradient(135deg,var(--color-danger),#1A2A3A);color:white;">'
         + '<div style="font-size:12px;opacity:0.8;">危险等级</div>'
         + '<div style="font-size:32px;font-weight:700;">' + gameState.danger + '</div>'
         + '<div class="progress-bar" style="margin-top:8px;">'
@@ -7120,7 +7120,7 @@ function addDanmaku() {
     if (container) {
         var div = document.createElement('div');
         div.textContent = (isVip ? '[VIP] ' : '') + msg;
-        var danmakuColors = ['white', '#FFD700', '#FF69B4', '#7EC8E3', '#FF8FA3', '#4CD964'];
+        var danmakuColors = ['white', '#FFD700', '#94A3B8', '#7EC8E3', '#1A2A3A', '#4CD964'];
         var dColor = isVip ? '#FFD700' : danmakuColors[Math.floor(Math.random() * danmakuColors.length)];
         div.style.cssText = 'position:absolute;white-space:nowrap;color:' + dColor + ';font-size:' + (isVip ? '15px' : '13px') + ';font-weight:' + (isVip ? '700' : '400') + ';text-shadow:0 0 4px rgba(0,0,0,0.8);top:' + (Math.random() * 75) + '%;right:-200px;transition:right 4s linear;';
         container.appendChild(div);
@@ -7727,7 +7727,7 @@ function renderInsProfilePage(container) {
         + '</div></div>';
     } catch(e) {
         console.error('INS profile render error:', e);
-        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">页面加载出错</div><button onclick="goToPage(\'ins\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回INS</button></div>';
+        container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#1E293B;">页面加载出错</div><button onclick="goToPage(\'ins\')" style="margin-top:16px;padding:12px 24px;background:#1A2A3A;color:white;border:none;border-radius:50px;cursor:pointer;">返回INS</button></div>';
     }
 }
 
@@ -8225,7 +8225,7 @@ function _addNotifLog(source, title, text, iconBg) {
         source: source,
         title: title,
         text: text,
-        iconBg: iconBg || '#FF8FA3',
+        iconBg: iconBg || '#1A2A3A',
         time: day + ' ' + ts,
         read: false
     });
@@ -8279,10 +8279,10 @@ var _phoneNotifShowing = false;
 
 function showPhoneNotification(appName, title, text, iconBg, duration) {
     if (!duration) duration = 2500;
-    _phoneNotifQueue.push({ appName: appName, title: title, text: text, iconBg: iconBg || '#FF8FA3', duration: duration });
+    _phoneNotifQueue.push({ appName: appName, title: title, text: text, iconBg: iconBg || '#1A2A3A', duration: duration });
     if (!_phoneNotifShowing) _processPhoneNotif();
     // V1.7: Log to notification center
-    _addNotifLog(appName || 'System', title, text, iconBg || '#FF8FA3');
+    _addNotifLog(appName || 'System', title, text, iconBg || '#1A2A3A');
 }
 
 function _processPhoneNotif() {
@@ -8321,7 +8321,7 @@ function notifyTiktok(title, text) { showPhoneNotification('TikTok', title, text
 function notifyKakao(title, text) { showPhoneNotification('KakaoTalk', title, text, '#FEE500'); }
 function notifyBubble(title, text) { showPhoneNotification('Bubble', title, text, '#7C4DFF'); }
 function notifyWeverse(title, text) { showPhoneNotification('Weverse', title, text, '#00C853'); }
-function notifySystem(title, text) { showPhoneNotification('System', title, text, '#FF8FA3'); }
+function notifySystem(title, text) { showPhoneNotification('System', title, text, '#1A2A3A'); }
 function notifySchedule(title, text) { showPhoneNotification('Schedule', title, text, '#4A90D9'); }
 function notifyNews(title, text) { showPhoneNotification('News', title, text, '#FF6B6B'); }
 function notifyMusic(title, text) { showPhoneNotification('Music', title, text, '#5BB8E8'); }
@@ -8386,14 +8386,14 @@ function renderAchievementsPage(container) {
         + '<div style="font-size:36px;font-weight:700;color:var(--color-primary);">' + unlocked + '/' + total + '</div>'
         + '<div style="font-size:12px;color:var(--color-text-light);">已解锁成就</div>'
         + '<div style="width:80%;height:6px;background:var(--color-border);border-radius:3px;margin:12px auto 0;overflow:hidden;">'
-        + '<div style="width:' + (total > 0 ? Math.round(unlocked/total*100) : 0) + '%;height:100%;background:linear-gradient(90deg,#FF8FA3,#FF6B8A);border-radius:3px;"></div>'
+        + '<div style="width:' + (total > 0 ? Math.round(unlocked/total*100) : 0) + '%;height:100%;background:linear-gradient(90deg,#1A2A3A,#1E293B);border-radius:3px;"></div>'
         + '</div></div>';
     
     for (var i = 0; i < ACHIEVEMENTS.length; i++) {
         var a = ACHIEVEMENTS[i];
         var done = gameState.achievements.indexOf(a.id) !== -1;
         html += '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;' + (done ? '' : 'opacity:0.5;') + '">'
-            + '<div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;background:' + (done ? 'linear-gradient(135deg,#FF8FA3,#FF6B8A)' : '#ddd') + ';">' + a.icon + '</div>'
+            + '<div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;background:' + (done ? 'linear-gradient(135deg,#1A2A3A,#1E293B)' : '#ddd') + ';">' + a.icon + '</div>'
             + '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + a.name + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);">' + a.desc + '</div></div>'
             + (done ? '<div style="color:var(--color-success);font-weight:700;">✓</div>' : '')
@@ -8444,7 +8444,7 @@ function renderFanChatPage(container) {
     if (!gameState.fanChatReplies) gameState.fanChatReplies = {};
     var selectedFan = window._selectedFanChat || null;
     var langLabels = { ko: 'KO', ja: 'JP', en: 'EN', zh: '中' };
-    var langColors = { ko: '#FF8FA3', ja: '#7EC8E3', en: '#FFD700', zh: '#4CD964' };
+    var langColors = { ko: '#1A2A3A', ja: '#7EC8E3', en: '#FFD700', zh: '#4CD964' };
 
     if (selectedFan) {
         var fan = null;
@@ -8475,8 +8475,8 @@ function renderFanChatPage(container) {
             + '</div>'
             + '<div style="flex:1;overflow-y:auto;padding:12px 16px;">' + chatHtml + '</div>'
             + '<div style="display:flex;gap:6px;padding:8px 12px 68px 12px;background:var(--bg-card);border-top:1px solid var(--color-border);flex-shrink:0;">'
-            + '<input type="text" id="fanChatInput" placeholder="回复' + fan.name + '..." style="flex:1;font-size:13px;padding:8px 12px;border:1px solid var(--color-border);border-radius:16px;" onkeydown="if(event.key===\'Enter\')sendFanChatReply(\'' + fan.id + '\')">'
-            + '<button class="btn btn-sm btn-primary" onclick="sendFanChatReply(\'' + fan.id + '\')" style="padding:8px 14px;border-radius:16px;">发送</button>'
+            + '<input type="text" id="fanChatInput" placeholder="回复' + fan.name + '..." style="flex:1;font-size:13px;padding:8px 12px;border:1px solid var(--color-border);border-radius: 8px;" onkeydown="if(event.key===\'Enter\')sendFanChatReply(\'' + fan.id + '\')">'
+            + '<button class="btn btn-sm btn-primary" onclick="sendFanChatReply(\'' + fan.id + '\')" style="padding:8px 14px;border-radius: 8px;">发送</button>'
             + '</div></div>';
         setTimeout(function(){ var inp = document.getElementById('fanChatInput'); if(inp) inp.focus(); }, 100);
         return;
@@ -8663,7 +8663,7 @@ var MUSIC_SHOWS = [
     { id: 'theshow', name: 'The Show', channel: 'SBS MTV', day: '周二', time: '18:00', venue: 'SBS Prism Tower',
       mc: '待定MC', feature: '新人最友好的节目，出道首次打歌首选', atmosphere: '小规模温馨',
       scoring: { digital: 0.40, album: 0.20, mv: 0.15, prevote: 0.15, livevote: 0.10 },
-      difficulty: 0.75, color: '#FF6B8A' },
+      difficulty: 0.75, color: '#1E293B' },
     { id: 'showchampion', name: 'Show Champion', channel: 'MBC M', day: '周三', time: '18:00', venue: 'MBC Dream Center',
       mc: '待定MC', feature: '应援氛围最好，粉丝互动环节多', atmosphere: '热血应援',
       scoring: { digital: 0.45, album: 0.15, mv: 0.15, prevote: 0.15, livevote: 0.10 },
@@ -8683,7 +8683,7 @@ var MUSIC_SHOWS = [
     { id: 'inkigayo', name: 'Inkigayo', channel: 'SBS', day: '周日', time: '15:20', venue: 'SBS Hall',
       mc: '待定MC', feature: '三连冠制度，同一首歌最多赢3次，含金量极高', atmosphere: '顶流对决',
       scoring: { digital: 0.55, album: 0.15, mv: 0.10, prevote: 0.10, livevote: 0.10 },
-      difficulty: 1.15, color: '#FF8FA3' }
+      difficulty: 1.15, color: '#1A2A3A' }
 ];
 
 var MUSIC_SHOW_STEPS = [
@@ -8886,7 +8886,7 @@ function renderComebackReportCard(container, cb) {
     var report = generateComebackReport(cb);
     if (!report) { container.innerHTML = '<div>数据异常</div>'; return; }
     
-    var gradeColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#FF8FA3', D: '#999' };
+    var gradeColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#1A2A3A', D: '#999' };
     var gradeLabels = { S: '大获全胜', A: '成绩优异', B: '表现不错', C: '中规中矩', D: '需要努力' };
     var gColor = gradeColors[report.grade] || '#999';
     var gLabel = gradeLabels[report.grade] || '';
@@ -9145,7 +9145,7 @@ function renderComebackPage(container) {
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelComeback()">‹ 取消</div><div class="page-title">回归计划</div><div style="width:32px;"></div></div><div class="page-content">';
     
     if (cb.phase === 'concept') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1A2A3A,#1E293B);color:white;"><div style="font-size:16px;font-weight:700;">选择回归概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">概念决定打歌加成方向</div></div>';
         for (var i = 0; i < COMEBACK_CONCEPTS.length; i++) {
             var c = COMEBACK_CONCEPTS[i];
             html += '<div class="card" data-i="' + i + '" onclick="selectComebackConcept(parseInt(this.dataset.i))" style="cursor:pointer;">'
@@ -9165,7 +9165,7 @@ function renderComebackPage(container) {
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + t.genre + ' / 加成: ' + statNames[t.bestStat] + '</div></div>';
         }
     } else if (cb.phase === 'songprod') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
             + '<div style="font-size:13px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div>'
             + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div></div>';
@@ -9189,7 +9189,7 @@ function renderComebackPage(container) {
                 + '</div>';
         }
     } else if (cb.phase === 'mvselect') {
-        html += '<div class="card" style="background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择歌曲拍MV</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲制作完成！选择一首歌拍摄MV</div></div>';
+        html += '<div class="card" style="background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">选择歌曲拍MV</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲制作完成！选择一首歌拍摄MV</div></div>';
         if (gameState.songs && gameState.songs.length > 0) {
             for (var msi = 0; msi < gameState.songs.length; msi++) {
                 var ms = gameState.songs[msi];
@@ -9199,7 +9199,7 @@ function renderComebackPage(container) {
             html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有制作歌曲，请先进行歌曲制作</div><button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
         }
     } else if (cb.phase === 'mv') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>';
         if (gameState.mvs && gameState.mvs.length > 0) {
             html += '<div class="section-title">已拍摄MV</div>';
             for (var mvi = 0; mvi < gameState.mvs.length; mvi++) {
@@ -9246,7 +9246,7 @@ function renderComebackPage(container) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5BB8E8,#7C4DFF);color:white;">'
             + '<div style="font-size:16px;font-weight:700;">打歌期</div>'
             + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">已完成 ' + doneShows.length + '/6 个节目</div></div>';
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FFD5DE);color:white;">'
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1A2A3A,#E2E8F0);color:white;">'
             + '<div style="font-size:14px;font-weight:600;">预计专辑销量</div>'
             + '<div style="font-size:22px;font-weight:700;margin-top:4px;">' + estimatedAlbumSales.toLocaleString() + ' 张</div>'
             + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">基于粉丝量 + 团体人气</div></div>';
@@ -9345,7 +9345,7 @@ function renderSongProdPage(container) {
             var g = SONG_GENRES[gi];
             var statNames = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演' };
             var gSel = sp.selectedGenre && sp.selectedGenre.name === g.name;
-            html += '<div class="card" onclick="selectSongGenre(' + gi + ')" style="cursor:pointer;' + (gSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+            html += '<div class="card" onclick="selectSongGenre(' + gi + ')" style="cursor:pointer;' + (gSel ? 'border:2px solid #CBD5E1;' : '') + '">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div><div style="font-weight:600;">' + g.name + ' (' + g.genre + ')</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">加成: ' + statNames[g.bestStat] + ' | ' + g.energy + '体力 + ' + g.cost + '金币</div></div>'
@@ -9355,11 +9355,11 @@ function renderSongProdPage(container) {
             html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="gameState.songProd.step=1;render();">下一步</button>';
         }
     } else if (sp.step === 1) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">Step 2: 选择歌曲概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + '</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">Step 2: 选择歌曲概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">曲风: ' + sp.selectedGenre.name + '</div></div>';
         for (var ci = 0; ci < SONG_CONCEPTS.length; ci++) {
             var co = SONG_CONCEPTS[ci];
             var cSel = sp.selectedConcept && sp.selectedConcept.name === co.name;
-            html += '<div class="card" onclick="selectSongConcept(' + ci + ')" style="cursor:pointer;' + (cSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+            html += '<div class="card" onclick="selectSongConcept(' + ci + ')" style="cursor:pointer;' + (cSel ? 'border:2px solid #CBD5E1;' : '') + '">'
                 + '<div style="font-weight:600;">' + co.name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);">品质倍率: x' + co.qualityBonus + '</div></div>';
         }
@@ -9690,7 +9690,7 @@ function renderMVShootPage(container) {
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV拍摄</div><div style="width:32px;"></div></div><div class="page-content">';
 
     if (ms.step === 0) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;"><div style="font-size:16px;font-weight:700;">选择MV概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲: ' + ms.song.name + '</div></div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">选择MV概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲: ' + ms.song.name + '</div></div>';
         for (var mci = 0; mci < MV_SHOOT_CONCEPTS.length; mci++) {
             var mc = MV_SHOOT_CONCEPTS[mci];
             html += '<div class="card" data-mci="' + mci + '" onclick="selectMVConcept(parseInt(this.dataset.mci))" style="cursor:pointer;">'
@@ -9933,7 +9933,7 @@ function initTeammates() {
     }
     if (!group) return;
     var positions = ['主唱', '主舞', 'Rapper', '门面', '领唱', '领舞'];
-    var colors = ['#FF8FA3', '#7C4DFF', '#4CD964', '#FF9500', '#5BB8E8', '#FF6B8A'];
+    var colors = ['#1A2A3A', '#7C4DFF', '#4CD964', '#FF9500', '#5BB8E8', '#1E293B'];
     gameState.teammates = [];
     var members = group.members || [];
     for (var i = 0; i < members.length; i++) {
@@ -10092,16 +10092,16 @@ function renderFanClubPage(container) {
             members: Math.floor(gameState.fans * 0.1),
             funds: 0,
             projects: [],
-            color: '#FF8FA3'
+            color: '#1A2A3A'
         };
     }
     var fc = gameState.fanClub;
     if (!fc.name) fc.name = gameState.player.group ? gameState.player.group + '后援会' : '个人后援会';
-    if (!fc.color) fc.color = '#FF8FA3';
+    if (!fc.color) fc.color = '#1A2A3A';
     fc.members = Math.floor(gameState.fans * 0.1);
     var levelNames = ['', '初创', '成长', '活跃', '壮大', '明星', '传奇'];
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">后援会</div><div style="width:32px;"></div></div><div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + fc.color + ',#FF6B8A);color:white;padding:24px;">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + fc.color + ',#1E293B);color:white;padding:24px;">'
         + '<div style="font-size:18px;font-weight:700;">' + fc.name + '</div>'
         + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">Lv.' + fc.level + ' ' + (levelNames[fc.level] || '') + '</div>'
         + '<div style="display:flex;justify-content:center;gap:20px;margin-top:10px;">'
@@ -10111,7 +10111,7 @@ function renderFanClubPage(container) {
         + '</div></div>'
         + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">后援会等级</div>'
         + '<div style="width:100%;height:8px;background:var(--color-border);border-radius:4px;overflow:hidden;">'
-        + '<div style="width:' + (fc.level * 20) + '%;height:100%;background:linear-gradient(90deg,' + fc.color + ',#FF6B8A);border-radius:4px;"></div></div>'
+        + '<div style="width:' + (fc.level * 20) + '%;height:100%;background:linear-gradient(90deg,' + fc.color + ',#1E293B);border-radius:4px;"></div></div>'
         + '<div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">下一级需要' + (fc.level * 10000) + '粉丝</div></div>'
         + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">应援项目</div>';
     var projects = [
@@ -10129,8 +10129,8 @@ function renderFanClubPage(container) {
     html += '</div>';
     // V1.7: 粉丝名 & 应援色
     var currentFanName = (fc.fanName || '');
-    var currentCheerColor = (fc.cheerColor || fc.color || '#FF8FA3');
-    var cheerColors = ['#FF8FA3','#FF6B6B','#FF9500','#FFCC02','#4CD964','#5AC8FA','#007AFF','#5856D6','#AF52DE','#FF2D55'];
+    var currentCheerColor = (fc.cheerColor || fc.color || '#1A2A3A');
+    var cheerColors = ['#1A2A3A','#FF6B6B','#FF9500','#FFCC02','#4CD964','#5AC8FA','#007AFF','#5856D6','#AF52DE','#FF2D55'];
     html += '<div class="card"><div style="font-weight:600;margin-bottom:12px;">粉丝名 & 应援色</div>';
     html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
     html += '<div style="font-size:13px;color:var(--color-text-light);white-space:nowrap;">粉丝名</div>';
@@ -10262,7 +10262,7 @@ function renderMusicPage(container) {
             var isDone = si < stepIdx;
             var isCurrent = si === stepIdx;
             var stepColor = isDone ? 'var(--color-success)' : isCurrent ? show.color : 'var(--color-text-light)';
-            html += '<div style="display:flex;align-items:center;padding:6px 0;' + (isCurrent ? 'background:rgba(255,143,163,0.08);border-radius:8px;padding:6px 8px;' : '') + '">'
+            html += '<div style="display:flex;align-items:center;padding:6px 0;' + (isCurrent ? 'background:rgba(26,42,58,0.08);border-radius:8px;padding:6px 8px;' : '') + '">'
                 + '<div style="width:20px;height:20px;border-radius:50%;background:' + stepColor + ';color:white;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;">'
                 + (isDone ? '\u2713' : (si + 1)) + '</div>'
                 + '<div style="margin-left:8px;flex:1;"><div style="font-size:12px;font-weight:' + (isCurrent ? '600' : '400') + ';color:' + (isDone || isCurrent ? 'var(--color-text)' : 'var(--color-text-light)') + ';">' + st.name + '</div>'
@@ -10287,7 +10287,7 @@ function renderMusicPage(container) {
         }
         html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:12px;" onclick="_advanceShowStep()">' + step.name + '</button>';
     } else {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;">'
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1A2A3A,#1E293B);color:white;">'
             + '<div style="font-size:16px;font-weight:700;">音乐放送</div>'
             + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">选择节目出演打歌</div></div>';
         var inComeback = gameState.comeback && (gameState.comeback.phase === 'musicshow' || gameState.comeback.phase === 'musicShow');
@@ -10591,7 +10591,7 @@ function renderMVProductionPage(container) {
         for (var ci = 0; ci < MV_CONCEPTS.length; ci++) {
             var c = MV_CONCEPTS[ci];
             var sel = ms.concept && ms.concept.name === c.name;
-            html += '<div class="card" onclick="selectMVProdConcept(' + ci + ')" style="cursor:pointer;' + (sel ? 'border:2px solid var(--color-primary);' : '') + '">'
+            html += '<div class="card" onclick="selectMVProdConcept(' + ci + ')" style="cursor:pointer;' + (sel ? 'border:2px solid #CBD5E1;' : '') + '">'
                 + '<div style="display:flex;justify-content:space-between;align-items:center;">'
                 + '<div style="font-weight:600;">' + c.name + '</div>'
                 + '<div style="font-size:12px;color:' + c.color + ';font-weight:600;">x' + c.bonus + '</div></div>'
@@ -10601,14 +10601,14 @@ function renderMVProductionPage(container) {
             html += '<button class="btn btn-primary btn-lg" style="width:100%;margin-top:8px;" onclick="mvProdNext(2)">下一步</button>';
         }
     } else if (ms.step === 2) {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF6B8A,#FF8FA3);color:white;">'
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;">'
             + '<div style="font-size:16px;font-weight:700;">Step 2: 选择歌曲</div>'
             + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">选择拍摄MV的歌曲</div></div>';
         if (gameState.songs && gameState.songs.length > 0) {
             for (var si = 0; si < gameState.songs.length; si++) {
                 var s = gameState.songs[si];
                 var sSel = ms.song && ms.song.name === s.name;
-                html += '<div class="card" onclick="selectMVProdSong(' + si + ')" style="cursor:pointer;' + (sSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+                html += '<div class="card" onclick="selectMVProdSong(' + si + ')" style="cursor:pointer;' + (sSel ? 'border:2px solid #CBD5E1;' : '') + '">'
                     + '<div style="font-weight:600;">' + s.name + '</div>'
                     + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + s.genre + ' | 品质: ' + s.quality + '分</div></div>';
             }
@@ -10623,7 +10623,7 @@ function renderMVProductionPage(container) {
             for (var di = 0; di < defaultSongs.length; di++) {
                 var ds = defaultSongs[di];
                 var dSel = ms.song && ms.song.name === ds.name;
-                html += '<div class="card" onclick="selectMVProdDefaultSong(' + di + ')" style="cursor:pointer;' + (dSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+                html += '<div class="card" onclick="selectMVProdDefaultSong(' + di + ')" style="cursor:pointer;' + (dSel ? 'border:2px solid #CBD5E1;' : '') + '">'
                     + '<div style="font-weight:600;">' + ds.name + '</div>'
                     + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ds.genre + ' | 品质: ' + ds.quality + '分</div></div>';
             }
@@ -10668,7 +10668,7 @@ function renderMVProductionPage(container) {
         ];
         for (var es = 0; es < editStyles.length; es++) {
             var esSel = ms.editStyle && ms.editStyle.name === editStyles[es].name;
-            html += '<div class="card" onclick="selectMVEditStyle(' + es + ')" style="cursor:pointer;' + (esSel ? 'border:2px solid var(--color-primary);' : '') + '">'
+            html += '<div class="card" onclick="selectMVEditStyle(' + es + ')" style="cursor:pointer;' + (esSel ? 'border:2px solid #CBD5E1;' : '') + '">'
                 + '<div style="font-weight:600;">' + editStyles[es].name + '</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + editStyles[es].desc + '</div></div>';
         }
@@ -11085,29 +11085,29 @@ function renderGuidePage(container) {
         var _sec = _guideSections[_si];
         var _isHighlight = _sec.highlight;
         if (_isHighlight) {
-            _bodyHtml += '<div style="margin:0 8px 20px;background:linear-gradient(135deg,#FFF5F7,#FFE4EC);border-radius:16px;padding:16px 18px;">'
-                + '<div style="font-size:16px;font-weight:700;color:#FF6B8A;margin-bottom:4px;">' + _sec.title + '</div>';
+            _bodyHtml += '<div style="margin:0 8px 20px;background:linear-gradient(135deg,#F8FAFC,#E2E8F0);border-radius: 8px;padding:16px 18px;">'
+                + '<div style="font-size:16px;font-weight:700;color:#1E293B;margin-bottom:4px;">' + _sec.title + '</div>';
             if (_sec.subtitle) {
-                _bodyHtml += '<div style="font-size:11px;color:#FFB3C1;margin-bottom:14px;">' + _sec.subtitle + '</div>';
+                _bodyHtml += '<div style="font-size:11px;color:#94A3B8;margin-bottom:14px;">' + _sec.subtitle + '</div>';
             } else {
                 _bodyHtml += '<div style="height:10px;"></div>';
             }
             for (var _ii = 0; _ii < _sec.items.length; _ii++) {
                 var _it = _sec.items[_ii];
                 _bodyHtml += '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">'
-                    + '<div style="width:5px;height:5px;border-radius:50%;background:#FF8FA3;flex-shrink:0;margin-top:1px;"></div>'
+                    + '<div style="width:5px;height:5px;border-radius:50%;background:#1A2A3A;flex-shrink:0;margin-top:1px;"></div>'
                     + '<div><span style="font-weight:600;font-size:13px;color:#333;">' + _it.name + '</span>'
                     + '<span style="font-size:12px;color:#999;margin-left:4px;">' + _it.desc + '</span></div></div>';
             }
             _bodyHtml += '</div>';
         } else {
             _bodyHtml += '<div style="margin:0 8px 20px;">'
-                + '<div style="font-size:13px;font-weight:700;color:#FF8FA3;margin-bottom:10px;padding-left:4px;">' + _sec.title + '</div>'
+                + '<div style="font-size:13px;font-weight:700;color:#1A2A3A;margin-bottom:10px;padding-left:4px;">' + _sec.title + '</div>'
                 + '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
             for (var _ji = 0; _ji < _sec.items.length; _ji++) {
                 var _jt = _sec.items[_ji];
-                _bodyHtml += '<div style="background:#FFF5F7;border-radius:10px;padding:8px 12px;min-width:80px;">'
-                    + '<div style="font-weight:600;font-size:12px;color:#FF6B8A;">' + _jt.name + '</div>'
+                _bodyHtml += '<div style="background:#F8FAFC;border-radius:10px;padding:8px 12px;min-width:80px;">'
+                    + '<div style="font-weight:600;font-size:12px;color:#1E293B;">' + _jt.name + '</div>'
                     + '<div style="font-size:10px;color:#BBB;margin-top:2px;">' + _jt.desc + '</div></div>';
             }
             _bodyHtml += '</div></div>';
@@ -11115,15 +11115,15 @@ function renderGuidePage(container) {
     }
 
     container.innerHTML = '<div class="page active">'
-        + '<div class="page-header" style="background:linear-gradient(180deg,#FFF0F3,var(--bg-card));">'
+        + '<div class="page-header" style="background:linear-gradient(180deg,#F8FAFC,var(--bg-card));">'
         + '<div class="back-btn" onclick="goToPage(\'home\')" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">&#8249; 首页</div>'
-        + '<div class="page-title" style="color:#FF6B8A;">新手指南</div>'
+        + '<div class="page-title" style="color:#1E293B;">新手指南</div>'
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="page-content" style="padding:20px 12px 80px;">'
         + '<div style="text-align:center;margin-bottom:24px;">'
-        + '<div style="font-size:24px;font-weight:800;color:#FF6B8A;letter-spacing:1px;">My Idol</div>'
-        + '<div style="font-size:11px;color:#FFB3C1;margin-top:6px;">韩娱爱豆模拟器</div>'
+        + '<div style="font-size:24px;font-weight:800;color:#1E293B;letter-spacing:1px;">My Idol</div>'
+        + '<div style="font-size:11px;color:#94A3B8;margin-top:6px;">韩娱爱豆模拟器</div>'
         + '</div>'
         + _bodyHtml
         + '</div></div>';
@@ -11141,9 +11141,9 @@ function renderCompanyDetailPage(container) {
 if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div></div>'; __waitForCOMPANIES(function() { render(); }); return; }
     
     var companyColors = {
-        'SEONGWOO ENT': '#FF8FA3'
+        'SEONGWOO ENT': '#1A2A3A'
     };
-    var color = companyColors[companyKey] || '#FF8FA3';
+    var color = companyColors[companyKey] || '#1A2A3A';
     
     var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + color + ',' + color + 'aa);color:white;padding:24px;">'
@@ -11160,7 +11160,7 @@ if (!company) { container.innerHTML = '<div class="page active"><div class="page
     for (var gi = 0; gi < groupKeys.length; gi++) {
         var g = company.groups[groupKeys[gi]];
         var isMyGroup = (gameState.player.group === g.name);
-        html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);cursor:pointer;' + (isMyGroup ? 'background:rgba(255,143,163,0.08);margin:0 -16px;padding:10px 16px;' : '') + '" onclick="showGroupDetail(\'' + groupKeys[gi] + '\',\'' + companyKey + '\')">'
+        html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);cursor:pointer;' + (isMyGroup ? 'background:rgba(26,42,58,0.08);margin:0 -16px;padding:10px 16px;' : '') + '" onclick="showGroupDetail(\'' + groupKeys[gi] + '\',\'' + companyKey + '\')">'
             + '<div style="display:flex;justify-content:space-between;align-items:center;">'
             + '<div><div style="font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">' + g.name + (isMyGroup ? ' <span style="font-size:11px;color:var(--color-primary);">我的团</span>' : '') + '</div>'
             + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + g.desc + '</div></div>'
@@ -11169,7 +11169,7 @@ if (!company) { container.innerHTML = '<div class="page active"><div class="page
     html += '</div>'
         + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">公司资源</div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
-        + '<div style="text-align:center;padding:12px;border-radius:12px;background:rgba(255,143,163,0.08);"><div style="font-size:18px;font-weight:700;color:var(--color-primary);">' + groupKeys.length + '</div><div style="font-size:11px;color:var(--color-text-light);">团体数</div></div>'
+        + '<div style="text-align:center;padding:12px;border-radius:12px;background:rgba(26,42,58,0.08);"><div style="font-size:18px;font-weight:700;color:var(--color-primary);">' + groupKeys.length + '</div><div style="font-size:11px;color:var(--color-text-light);">团体数</div></div>'
         + '<div style="text-align:center;padding:12px;border-radius:12px;background:rgba(92,216,100,0.08);"><div style="font-size:18px;font-weight:700;color:#4CD964;">' + (gameState.fame || 30) + '</div><div style="font-size:11px;color:var(--color-text-light);">公司声望</div></div></div></div>';
     
     html += '</div></div>';
@@ -11187,7 +11187,7 @@ function showGroupDetail(groupKey, companyKey) {
         + '<div class="page-title">团体详情</div>'
         + '<div style="width:32px;"></div></div>'
         + '<div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;padding:24px;">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1A2A3A,#1E293B);color:white;padding:24px;">'
         + '<div style="font-size:18px;font-weight:700;">' + g.name + '</div>'
         + '<div style="font-size:12px;opacity:0.8;margin-top:6px;">' + g.desc + '</div>'
         + '<div style="display:inline-block;margin-top:8px;background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:12px;font-size:11px;">等级: ' + (g.tier || 'B') + '</div>'
@@ -11201,7 +11201,7 @@ function showGroupDetail(groupKey, companyKey) {
         var isMe = (memberName === gameState.player.name);
         html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);">'
             + '<div style="display:flex;align-items:center;gap:10px;">'
-            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;">' + memberName.charAt(0) + '</div>'
+            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#1E293B);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;">' + memberName.charAt(0) + '</div>'
             + '<div><div style="font-weight:600;font-size:13px;">' + memberName + (isMe ? ' <span style="font-size:10px;color:var(--color-primary);">我</span>' : '') + '</div>'
             + '<div style="font-size:11px;color:var(--color-text-light);">' + memberPosition + '</div></div></div></div>';
     }
@@ -11383,15 +11383,15 @@ function renderWeeklyMonthlyExamSection() {
         gameState.randomInspection.passed = false;
         gameState.randomInspection.lastDay = todayStr;
     }
-    html += '<div class="card" style="margin-top:8px;border-left:4px solid #FF69B4;">'
+    html += '<div class="card" style="margin-top:8px;border-left:4px solid #94A3B8;">'
         + '<div style="display:flex;justify-content:space-between;align-items:center;">'
         + '<div>'
-        + '<div style="font-weight:600;color:#FF69B4;">随机检测</div>'
+        + '<div style="font-weight:600;color:#94A3B8;">随机检测</div>'
         + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">每日不定时检查，通过全能力+15</div>'
         + '</div>'
         + '<div>'
         + (gameState.randomInspection.done ? (gameState.randomInspection.passed ? '<span style="color:var(--color-success);font-weight:600;font-size:13px;">已通过</span>' : '<span style="color:var(--color-danger);font-weight:600;font-size:13px;">未通过</span>')
-           : '<button class="btn btn-sm btn-primary" style="background:#FF69B4;border-color:#FF69B4;" onclick="takeRandomInspection()">接受检测</button>')
+           : '<button class="btn btn-sm btn-primary" style="background:#94A3B8;border-color:#94A3B8;" onclick="takeRandomInspection()">接受检测</button>')
         + '</div></div></div>';
     return html;
 }
@@ -11831,7 +11831,7 @@ function showCardDetail(pool, cardId) {
     var _detailImgUrl = _getCardImgUrl(card.name);
     var _detailCardInner = '';
     if (_detailImgUrl) {
-        _detailCardInner = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:16px;overflow:hidden;"><img src="' + _detailImgUrl + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.parentNode.style.display=\'none\'"></div>'
+        _detailCardInner = '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius: 8px;overflow:hidden;"><img src="' + _detailImgUrl + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;" onerror="this.parentNode.style.display=\'none\'"></div>'
             + '<div style="font-size:16px;font-weight:600;position:relative;z-index:1;">' + t + '\u7ea7</div>'
             + '<div style="font-size:11px;opacity:0.8;margin-top:2px;position:relative;z-index:1;">' + (tierNames[t] || '') + '</div>';
     } else {
@@ -11840,7 +11840,7 @@ function showCardDetail(pool, cardId) {
             + '<div style="font-size:11px;opacity:0.8;margin-top:2px;">' + (tierNames[t] || '') + '</div>';
     }
     var html = '<div style="text-align:center;">'
-        + '<div style="width:120px;height:160px;border-radius:16px;background:linear-gradient(135deg,' + color + ',' + color + '66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;margin:0 auto 16px;position:relative;' + (card.isHidden ? 'border:2px solid #FFD700;box-shadow:0 0 12px rgba(255,215,0,0.5);' : '') + '">'
+        + '<div style="width:120px;height:160px;border-radius: 8px;background:linear-gradient(135deg,' + color + ',' + color + '66);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;margin:0 auto 16px;position:relative;' + (card.isHidden ? 'border:2px solid #FFD700;box-shadow:0 0 12px rgba(255,215,0,0.5);' : '') + '">'
         + _detailCardInner
         + (card.isHidden ? '<div style="position:absolute;top:4px;right:6px;font-size:9px;color:#FFD700;">HIDDEN</div>' : '')
         + '<div style="position:absolute;top:4px;left:6px;font-size:11px;font-weight:700;text-shadow:0 0 4px rgba(0,0,0,0.5);color:' + color + ';">' + t + '</div>'
@@ -12098,8 +12098,8 @@ function _buildSingleCardHTML(c, t, tierColors, tierBg, tierBorder, isDramatic) 
             + '<div style="font-size:11px;opacity:0.8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;">' + c.group + '</div>'
             + '</div>';
     }
-    return '<div class="' + animClass + '" style="width:170px;height:230px;border-radius:16px;background:' + tierBg[t] + ';border:' + tierBorder[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;' + glowShadow + '">'
-        + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:16px;' + shimmerBg + '"></div>'
+    return '<div class="' + animClass + '" style="width:170px;height:230px;border-radius: 8px;background:' + tierBg[t] + ';border:' + tierBorder[t] + ';display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;overflow:hidden;' + glowShadow + '">'
+        + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius: 8px;' + shimmerBg + '"></div>'
         + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;">' + cardInner + '</div>'
         + '<div style="position:absolute;top:8px;right:8px;font-size:10px;font-weight:700;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;z-index:2;">' + (tierLabel[t] || t) + '</div>'
         + (c.isDuplicate ? '<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;opacity:0.9;z-index:2;background:rgba(0,0,0,0.3);padding:2px 8px;border-radius:8px;">碎片+1</div>' : '<div style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-size:11px;opacity:0.9;z-index:2;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:8px;">NEW!</div>')
@@ -12178,7 +12178,7 @@ function _ensureKakaoState() {
                         else if (_mPersStr.indexOf('神秘') > -1) _mPers = 'backstabber';
                         else if (_mPersStr.indexOf('温柔') > -1 || _mPersStr.indexOf('认真') > -1) _mPers = 'protective';
                         else if (_mPersStr.indexOf('调皮') > -1 || _mPersStr.indexOf('幽默') > -1 || _mPersStr.indexOf('开朗') > -1) _mPers = 'prankster';
-                        var _colors = ['#FF8FA3','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1'];
+                        var _colors = ['#1A2A3A','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1'];
                         var _mColor = _colors[Math.floor(Math.random() * _colors.length)];
                         var _isTeammate = (_grp.name === gameState.player.group);
                         gameState.kakaoFriends.push({
@@ -12197,7 +12197,7 @@ function _ensureKakaoState() {
         var _traineeNames = ['练习生小美', '练习生俊宇', '练习生秀贤', '练习生恩菲'];
         var _traineePers = ['helpful', 'prankster', 'protective', 'helpful'];
         var _traineeSpec = ['声乐', '舞蹈', '说唱', '表演'];
-        var _traineeColors = ['#FF8FA3', '#7EC8E3', '#C8A2C8', '#98D8AA'];
+        var _traineeColors = ['#1A2A3A', '#7EC8E3', '#C8A2C8', '#98D8AA'];
         for (var ti = 0; ti < _traineeNames.length; ti++) {
             var _texists = false;
             for (var tfi = 0; tfi < gameState.kakaoFriends.length; tfi++) {
@@ -12271,7 +12271,7 @@ function _ensureV16Fields() {
     if (!gameState.fanClub) {
         gameState.fanClub = {
             name: gameState.player.group ? gameState.player.group + '后援会' : '个人后援会',
-            level: 1, members: 0, funds: 0, color: '#FF8FA3',
+            level: 1, members: 0, funds: 0, color: '#1A2A3A',
             projects: [
                 { name: '应援棒', cost: 10000, done: false },
                 { name: '生日应援', cost: 50000, done: false },
@@ -12280,7 +12280,7 @@ function _ensureV16Fields() {
         };
     }
     if (!gameState.fanClub.name) gameState.fanClub.name = gameState.player.group ? gameState.player.group + '后援会' : '个人后援会';
-    if (!gameState.fanClub.color) gameState.fanClub.color = '#FF8FA3';
+    if (!gameState.fanClub.color) gameState.fanClub.color = '#1A2A3A';
     if (!gameState.vipTier) gameState.vipTier = null;
     if (!gameState.aiBoostPacks) gameState.aiBoostPacks = [];
     // Preserve gacha collection before initGachaPool potentially resets it
@@ -12451,7 +12451,7 @@ function _doAddFriend() {
     var name = nameInput ? nameInput.value.trim() : '';
     if (!name) { showToast('请输入好友名字'); return; }
     if (!_kakaoAddPersonality) { showToast('请选择性格'); return; }
-    var colors = ['#FF8FA3','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#F7DC6F','#BB8FCE'];
+    var colors = ['#1A2A3A','#7EC8E3','#C8A2C8','#98D8AA','#FFD700','#FF6B6B','#4ECDC4','#45B7D1','#F7DC6F','#BB8FCE'];
     var color = colors[Math.floor(Math.random() * colors.length)];
     var personalityMap = { 'protective': '保护型', 'helpful': '帮助型', 'hostile': '讨厌型', 'backstabber': '背刺型', 'prankster': '整蛊型' };
     gameState.kakaoFriends.push({
@@ -12607,14 +12607,14 @@ function renderDailyPage(container) {
     html += '<div style="margin-bottom: 16px;">'
         + '<div style="font-size: 14px; font-weight: 700; color: var(--color-text); margin-bottom: 10px;">每日签到</div>';
     if (ci.checkedIn) {
-        html += '<div style="background: linear-gradient(135deg, #FFF5F7, #FFE4EC); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">'
+        html += '<div style="background: linear-gradient(135deg, #F8FAFC, #E2E8F0); border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between;">'
             + '<div><div style="font-size: 15px; font-weight: 700; color: var(--color-primary);">今日已签到</div>'
             + '<div style="font-size: 12px; color: var(--color-text-light); margin-top: 4px;">连续签到 ' + ci.streak + ' 天</div></div>'
             + '<div style="width: 36px; height: 36px; border-radius: 50%; background: var(--color-primary); display: flex; align-items: center; justify-content: center;">'
             + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>'
             + '</div>';
     } else {
-        html += '<div onclick="doDailyCheckIn()" style="background: linear-gradient(135deg, #FF8FA3, #FF6B8A); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">'
+        html += '<div onclick="doDailyCheckIn()" style="background: linear-gradient(135deg, #1A2A3A, #1E293B); border-radius: 8px; padding: 16px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">'
             + '<div><div style="font-size: 15px; font-weight: 700; color: white;">签到领金币</div>'
             + '<div style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px;">连续签到奖励更多</div></div>'
             + '<div style="font-size: 15px; font-weight: 700; color: white;">签到 &#8250;</div>'
@@ -12631,7 +12631,7 @@ function renderDailyPage(container) {
             var g = gameState.weeklyGoals[i];
             var pct = Math.min(100, Math.floor((g.progress / g.target) * 100));
             var done = g.progress >= g.target;
-            html += '<div style="background: ' + (g.claimed ? '#F5F5F5' : done ? 'linear-gradient(135deg, #FFF5F7, #FFE4EC)' : 'var(--bg-card)') + '; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;' + (g.claimed ? 'opacity: 0.6;' : '') + '">'
+            html += '<div style="background: ' + (g.claimed ? '#F5F5F5' : done ? 'linear-gradient(135deg, #F8FAFC, #E2E8F0)' : 'var(--bg-card)') + '; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;' + (g.claimed ? 'opacity: 0.6;' : '') + '">'
                 + '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">'
                 + '<div style="font-size: 13px; font-weight: 600; color: ' + (done ? 'var(--color-primary)' : 'var(--color-text)') + ';">' + g.desc + '</div>';
             if (g.claimed) {
@@ -12643,7 +12643,7 @@ function renderDailyPage(container) {
             }
             html += '</div>'
                 + '<div style="height: 4px; background: #EEE; border-radius: 2px; overflow: hidden;">'
-                + '<div style="height: 100%; width: ' + pct + '%; background: ' + (done ? 'var(--color-primary)' : '#FFB3C1') + '; border-radius: 2px; transition: width 0.3s;"></div>'
+                + '<div style="height: 100%; width: ' + pct + '%; background: ' + (done ? 'var(--color-primary)' : '#94A3B8') + '; border-radius: 2px; transition: width 0.3s;"></div>'
                 + '</div>'
                 + '<div style="font-size: 10px; color: var(--color-text-light); margin-top: 4px;">奖励：' + (g.reward.money ? g.reward.money.toLocaleString() + '金币 ' : '') + (g.reward.fame ? '+' + g.reward.fame + '名气 ' : '') + (g.reward.fans ? '+' + g.reward.fans + '粉丝' : '') + '</div>'
                 + '</div>';
@@ -12660,7 +12660,7 @@ function renderDailyPage(container) {
             if (ev.reward.fame) rewardParts.push('+' + ev.reward.fame + '名气');
             if (ev.reward.fans) rewardParts.push('+' + ev.reward.fans + '粉丝');
             if (ev.reward.stamina) rewardParts.push('+' + ev.reward.stamina + '体力');
-            html += '<div style="background: linear-gradient(135deg, #FFF8FA, #FFF0F5); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;">'
+            html += '<div style="background: linear-gradient(135deg, #F8FAFC, #F8FAFC); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;">'
                 + '<div style="font-size: 13px; font-weight: 600; color: var(--color-text);">' + ev.desc + '</div>'
                 + '<div style="font-size: 11px; color: var(--color-primary); margin-top: 4px; font-weight: 600;">' + rewardParts.join('  ') + '</div>'
                 + '</div>';
@@ -12679,7 +12679,7 @@ function renderDailyPage(container) {
             + '<div style="font-size: 13px; font-weight: 700; color: var(--color-primary);">' + Math.floor(achieveDone / achieveTotal * 100) + '%</div>'
             + '</div>'
             + '<div style="height: 6px; background: #EEE; border-radius: 3px; overflow: hidden;">'
-            + '<div style="height: 100%; width: ' + Math.floor(achieveDone / achieveTotal * 100) + '%; background: linear-gradient(90deg, #FF8FA3, #FF6B8A); border-radius: 3px; transition: width 0.3s;"></div>'
+            + '<div style="height: 100%; width: ' + Math.floor(achieveDone / achieveTotal * 100) + '%; background: linear-gradient(90deg, #1A2A3A, #1E293B); border-radius: 3px; transition: width 0.3s;"></div>'
             + '</div>'
             + '</div>'
             + '</div>';
@@ -12810,13 +12810,13 @@ function renderWeeklyGoals() {
         var g = gameState.weeklyGoals[i];
         var pct = Math.min(100, Math.floor((g.progress / g.target) * 100));
         var done = g.progress >= g.target;
-        html += '<div style="background:' + (g.claimed ? '#F5F5F5' : done ? 'linear-gradient(135deg,#FFF5F7,#FFE4EC)' : 'var(--bg-card)') + ';border-radius:10px;padding:10px 12px;margin-bottom:6px;' + (g.claimed ? 'opacity:0.6;' : '') + '">'
+        html += '<div style="background:' + (g.claimed ? '#F5F5F5' : done ? 'linear-gradient(135deg,#F8FAFC,#E2E8F0)' : 'var(--bg-card)') + ';border-radius:10px;padding:10px 12px;margin-bottom:6px;' + (g.claimed ? 'opacity:0.6;' : '') + '">'
             + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">'
             + '<div style="font-size:12px;font-weight:600;color:' + (done ? 'var(--color-primary)' : 'var(--color-text)') + ';">' + g.desc + '</div>'
             + (g.claimed ? '<span style="font-size:10px;color:var(--color-text-light);">已领取</span>' : done ? '<button style="font-size:10px;padding:2px 8px;border-radius:6px;border:none;background:var(--color-primary);color:white;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;" onclick="claimWeeklyGoal(' + i + ')">领取</button>' : '<span style="font-size:10px;color:var(--color-text-light);">' + g.progress + '/' + g.target + '</span>')
             + '</div>'
             + '<div style="height:4px;background:#EEE;border-radius:2px;overflow:hidden;">'
-            + '<div style="height:100%;width:' + pct + '%;background:' + (done ? 'var(--color-primary)' : '#FFB3C1') + ';border-radius:2px;transition:width 0.3s;"></div>'
+            + '<div style="height:100%;width:' + pct + '%;background:' + (done ? 'var(--color-primary)' : '#94A3B8') + ';border-radius:2px;transition:width 0.3s;"></div>'
             + '</div>'
             + '<div style="font-size:9px;color:var(--color-text-light);margin-top:3px;">奖励：' + (g.reward.money ? g.reward.money.toLocaleString() + '金币 ' : '') + (g.reward.fame ? '+' + g.reward.fame + '名气 ' : '') + (g.reward.fans ? '+' + g.reward.fans + '粉丝' : '') + '</div>'
             + '</div>';
@@ -12833,7 +12833,7 @@ function showShareCard() {
     var groupLabel = gameState.player.group || '';
     var positionLabel = (gameState.player.positions && gameState.player.positions.length > 0) ? gameState.player.positions.join(' / ') : '';
     var fanName = (gameState.fanClub && gameState.fanClub.name) || '';
-    var cheerColor = (gameState.fanClub && gameState.fanClub.color) || '#FF8FA3';
+    var cheerColor = (gameState.fanClub && gameState.fanClub.color) || '#1A2A3A';
     var fans = (gameState.fans || 0).toLocaleString();
     var fame = gameState.fame || 30;
     var money = (gameState.money || 0).toLocaleString();
@@ -12847,12 +12847,12 @@ function showShareCard() {
 
     var statsHtml = '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
     var statItems = [
-        { label: '粉丝', value: fans, color: '#FF8FA3' },
+        { label: '粉丝', value: fans, color: '#1A2A3A' },
         { label: '名气', value: fame, color: '#FFB347' },
         { label: '金币', value: money, color: '#FFD700' }
     ];
     if (datingLabel) {
-        statItems.push({ label: '恋人', value: datingLabel, color: '#FF6B8A' });
+        statItems.push({ label: '恋人', value: datingLabel, color: '#1E293B' });
     }
     if (topAchievement) {
         statItems.push({ label: '成就', value: topAchievement, color: '#7C4DFF' });
@@ -12883,7 +12883,7 @@ function showShareCard() {
     var cardHtml = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">'
         + '<div style="width:85%;max-width:320px;" onclick="event.stopPropagation()">'
         // The share card
-        + '<div style="background:linear-gradient(145deg,' + cheerColor + ',' + cheerColor + 'CC,#FF8FA3);border-radius:20px;padding:24px 20px 16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;overflow:hidden;">'
+        + '<div style="background:linear-gradient(145deg,' + cheerColor + ',' + cheerColor + 'CC,#1A2A3A);border-radius: 12px;padding:24px 20px 16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;overflow:hidden;">'
         // Watermark
         + '<div style="position:absolute;top:8px;right:12px;font-size:8px;color:rgba(255,255,255,0.5);font-weight:600;letter-spacing:1px;">MY IDOL</div>'
         // Avatar + Name
@@ -12935,7 +12935,7 @@ function showNpcCard(npcName) {
     var 好感 = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
     var hiddenOk = 好感 >= 30;
     var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;" onclick="if(event.target===this)this.remove()">'
-        + '<div style="background:var(--bg-card);border-radius:20px;width:85%;max-width:340px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">'
+        + '<div style="background:var(--bg-card);border-radius: 12px;width:85%;max-width:340px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,0.3);" onclick="event.stopPropagation()">'
         + '<div style="display:flex;align-items:center;margin-bottom:16px;">'
         + '<div style="width:56px;height:56px;border-radius:50%;background:'+npc.avatarColor+';display:flex;align-items:center;justify-content:center;font-size:22px;color:white;font-weight:700;">'+npc.name.charAt(0)+'</div>'
         + '<div style="margin-left:14px;flex:1;">'
@@ -12950,7 +12950,7 @@ function showNpcCard(npcName) {
             + '<div style="font-size:13px;color:var(--color-text);line-height:1.6;">'+npc.bio+'</div></div>';
     }
     if (npc.quote) {
-        html += '<div style="margin-bottom:12px;padding:10px 14px;background:#FFF5F7;border-radius:10px;">'
+        html += '<div style="margin-bottom:12px;padding:10px 14px;background:#F8FAFC;border-radius:10px;">'
             + '<div style="font-size:11px;color:var(--color-primary);margin-bottom:4px;">招牌语</div>'
             + '<div style="font-size:13px;color:var(--color-text);font-style:italic;">\u201c'+npc.quote+'\u201d</div></div>';
     }
@@ -12961,8 +12961,8 @@ function showNpcCard(npcName) {
         var ms = milestones[mi];
         var msReached = 好感 >= ms.level;
         var msLeft = Math.max(0, ms.level - 好感);
-        milestoneHtml += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:6px 8px;border-radius:8px;background:'+(msReached?'linear-gradient(135deg,#FFF5F7,#FFE4EC)':'#F5F5F5')+';'+(msReached?'cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;':'')+'"'+(msReached?' onclick="viewHiddenDialogue(\''+npcName.replace(/'/g,"\\'")+'\','+ms.level+')"':'')+'>'
-            + '<div style="width:18px;height:18px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;flex-shrink:0;background:'+(msReached?'linear-gradient(135deg,#FF8FA3,#FF6B8A)':'#CCC')+';">'+ms.level+'</div>'
+        milestoneHtml += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;padding:6px 8px;border-radius:8px;background:'+(msReached?'linear-gradient(135deg,#F8FAFC,#E2E8F0)':'#F5F5F5')+';'+(msReached?'cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;':'')+'"'+(msReached?' onclick="viewHiddenDialogue(\''+npcName.replace(/'/g,"\\'")+'\','+ms.level+')"':'')+'>'
+            + '<div style="width:18px;height:18px;border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;flex-shrink:0;background:'+(msReached?'linear-gradient(135deg,#1A2A3A,#1E293B)':'#CCC')+';">'+ms.level+'</div>'
             + '<div style="flex:1;">'
             + '<div style="font-size:11px;color:'+(msReached?'var(--color-primary)':'var(--color-text-light)')+';font-weight:'+(msReached?'600':'400')+';">'+ms.title+'</div>'
             + (msReached ? '<div style="font-size:10px;color:var(--color-text-light);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+ms.dialogue.substring(0,25)+'...</div>' : '<div style="font-size:10px;color:var(--color-text-light);margin-top:1px;">还需'+msLeft+'好感度</div>')
@@ -13927,7 +13927,7 @@ function render出道DialogPage(container) {
     } else if (step === 2) {
         var stats = gameState.stats;
         var reportHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">'
-            + '<div style="padding:6px 12px;background:#FFE4EC;border-radius:50px;font-size:12px;font-weight:600;color:#FF8FA3;">舞蹈 ' + stats.dance + '</div>'
+            + '<div style="padding:6px 12px;background:#E2E8F0;border-radius:50px;font-size:12px;font-weight:600;color:#1A2A3A;">舞蹈 ' + stats.dance + '</div>'
             + '<div style="padding:6px 12px;background:#E4F5FF;border-radius:50px;font-size:12px;font-weight:600;color:#5BB8E8;">声乐 ' + stats.vocal + '</div>'
             + '<div style="padding:6px 12px;background:#FFF4E0;border-radius:50px;font-size:12px;font-weight:600;color:#F0A030;">说唱 ' + stats.rap + '</div>'
             + '<div style="padding:6px 12px;background:#F0E4FF;border-radius:50px;font-size:12px;font-weight:600;color:#A070E0;">表演 ' + stats.acting + '</div>'
@@ -14529,10 +14529,10 @@ window.onerror = function(msg, url, line) {
     // Last resort: show error page with recovery
     var _app = document.getElementById('app');
     if (_app) {
-        _app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-primary, #FF6B8A);">' +
+        _app.innerHTML = '<div style="padding:40px;text-align:center;color:var(--color-primary, #1E293B);">' +
             '<div style="font-size:18px;font-weight:700;">出了点问题</div>' +
             '<div style="font-size:12px;margin-top:8px;color:var(--color-text-light, #999);">' + (msg || '').substring(0, 50) + '</div>' +
-            '<button onclick="currentPage=&#39;home&#39;;render();renderBottomNav()" style="margin-top:16px;padding:8px 20px;background:var(--color-primary, #FF8FA3);color:white;border:none;border-radius:20px;">返回首页</button>' +
+            '<button onclick="currentPage=&#39;home&#39;;render();renderBottomNav()" style="margin-top:16px;padding:8px 20px;background:var(--color-primary, #1A2A3A);color:white;border:none;border-radius: 12px;">返回首页</button>' +
             '</div>';
     }
     return true;
@@ -14724,7 +14724,7 @@ function _renderDayBar() {
     for (var ci = 0; ci < cdKeys.length; ci++) {
         var cdVal = gameState.cooldowns[cdKeys[ci]] || 0;
         if (cdVal > 0) {
-            cdHtml += '<span style="font-size:10px;background:#FFE4EC;color:#FF6B8A;padding:2px 6px;border-radius:4px;margin-left:4px;">' + cdNames[cdKeys[ci]] + ' ' + cdVal + '\u5929</span>';
+            cdHtml += '<span style="font-size:10px;background:#E2E8F0;color:#1E293B;padding:2px 6px;border-radius:4px;margin-left:4px;">' + cdNames[cdKeys[ci]] + ' ' + cdVal + '\u5929</span>';
         }
     }
     if (cdHtml) {
@@ -14741,7 +14741,7 @@ function _renderDayBar() {
     }
     html += '</div>';
     // End day button
-    html += '<div onclick="_endDay()" style="background:linear-gradient(135deg,#FF8FA3,#FF6B8A);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">';
+    html += '<div onclick="_endDay()" style="background:linear-gradient(135deg,#1A2A3A,#1E293B);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">';
     html += '<div>';
     html += '<div style="font-size:13px;font-weight:600;color:white;">\u7ed3\u675f\u4eca\u5929</div>';
     html += '<div style="font-size:11px;color:rgba(255,255,255,0.8);">\u4f53\u529b\u6062\u590d + \u65e5\u7ed3\u7b97</div>';
