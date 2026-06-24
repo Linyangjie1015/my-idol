@@ -1002,15 +1002,6 @@ function syncFromApp(sourceApp, data) {
             gameState.comeback.musicResults.push(data);
         }
     }
-    if (sourceApp === 'meeting' && data && data.action === 'concept_decided') {
-        if (gameState.comeback) {
-            gameState.comeback.concept = data.concept;
-            gameState.comeback.conceptFromMeeting = true;
-        }
-        if (gameState.mvProd) {
-            gameState.mvProd.meetingConcept = data.concept;
-        }
-    }
     if (sourceApp === 'dating' && data && data.action === 'exposed') {
         addDanger(30, 'dating');
         if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
@@ -1349,7 +1340,7 @@ var SCENES = {
     meeting_room: {
         name: '会议室', img: 'imgs/scenes/meeting.jpg', floor: 4,
         hotspots: [
-            {x:50,y:50,icon:'meeting',label:'开会',action:'app',target:'meeting'},
+            {x:50,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'},
             {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'}
         ]
     },
@@ -7321,11 +7312,6 @@ function do训练() {
     render();
 }
 
-function showMail() {
-    currentPage = 'mail';
-    render();
-    renderBottomNav();
-}
 
 // ==================== REST FUNCTIONS ====================
 var _isResting = false;
