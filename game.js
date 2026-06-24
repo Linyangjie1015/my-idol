@@ -347,20 +347,8 @@ function render() {
             case 'me':
                 render我的Page(app);
                 break;
-            case 'hotsearch':
-                renderHotsearchPage(app);
-                break;
-            case 'ranking':
-                renderRankingPage(app);
-                break;
             case 'schedule':
                 render行程表Page(app);
-                break;
-            case 'meeting':
-                render会议Page(app);
-                break;
-            case 'mail':
-                renderMailPage(app);
                 break;
             case 'work':
                 render工作Page(app);
@@ -404,9 +392,6 @@ function render() {
             case 'members':
                 render成员信息Page(app);
                 break;
-            case 'updates':
-                render更新通知Page(app);
-                break;
             case 'phone':
                 renderPhonePage(app);
                 break;
@@ -444,9 +429,6 @@ function render() {
             case 'contract':
                 renderContractPage(app);
                 break;
-            case 'relation':
-                renderRelationPage(app);
-                break;
             case 'management':
                 renderManagementPage(app);
                 break;
@@ -458,9 +440,6 @@ function render() {
                 break;
             case 'pr':
                 renderPROfficePage(app);
-                break;
-            case 'kpopwiki':
-                renderKpopWikiPage(app);
                 break;
             case 'achievement':
                 renderAchievementsPage(app);
@@ -478,9 +457,6 @@ function render() {
                 renderCompanyDetailPage(app);
                 break;
                 break;
-            case 'guide':
-                renderGuidePage(app);
-                break;
             case 'daily':
                 renderDailyPage(app);
                 break;
@@ -492,12 +468,6 @@ function render() {
                 break;
             case 'insprofile':
                 renderInsProfilePage(app);
-                break;
-            case 'meetingdialog':
-                render会议DialogPage(app);
-                break;
-            case 'hotsearchdetail':
-                renderHotsearchDetailPage(app);
                 break;
             default:
                 app.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;"><div style="font-size:18px;color:var(--color-text-light);">页面不存在</div><button class="btn btn-primary" onclick="goToPage(\'home\')" style="margin-top:16px;">返回首页</button></div></div>';
@@ -873,7 +843,6 @@ function completeCreation() {
         
         renderBottomNav();
         initScheduleItems();
-        initMeetings();
         startAutoSave();
         triggerSilentSave();
     } catch(e) {
@@ -956,59 +925,46 @@ function initAsIdol() {
 
 // ==================== APP ECOSYSTEM LINKS ====================
 var APP_LINKS = {
-    'mvstudio': ['comeback', 'songprod', 'meeting'],
-    'comeback': ['music', 'mvstudio', 'songprod', 'meeting', 'management'],
-    'songprod': ['comeback', 'mvstudio', 'meeting'],
-    'music': ['hotsearch', 'ins', 'ranking', 'comeback', 'schedule'],
-    'meeting': ['comeback', 'mvstudio', 'music', 'songprod', 'members', 'management'],
-    'hotsearch': ['ins', 'tiktok', 'pr', 'antiblack', 'music', 'dating'],
-    'ins': ['tiktok', 'bubble', 'weverse', 'hotsearch', 'fanclub', 'live'],
-    'tiktok': ['ins', 'hotsearch', 'live'],
+    'mvstudio': ['comeback', 'songprod'],
+    'comeback': ['music', 'mvstudio', 'songprod', 'management'],
+    'songprod': ['comeback', 'mvstudio'],
+    'music': ['ins', 'comeback', 'schedule'],
+    'ins': ['tiktok', 'bubble', 'weverse', 'fanclub', 'live'],
+    'tiktok': ['ins', 'live'],
     'bubble': ['ins', 'weverse', 'fanchat', 'fanclub', 'live'],
     'weverse': ['ins', 'bubble', 'fanclub'],
     'fanchat': ['bubble', 'weverse', 'fanclub'],
     'live': ['ins', 'tiktok', 'bubble', 'fanclub', 'earn'],
-    'fanclub': ['bubble', 'weverse', 'fanchat', 'ranking', 'live', 'ins'],
-    'ranking': ['music', 'fanclub', 'training'],
+    'fanclub': ['bubble', 'weverse', 'fanchat', 'live', 'ins'],
     'earn': ['loan', 'food', 'delivery', 'work', 'schedule'],
     'loan': ['earn', 'contract'],
     'food': ['earn', 'training'],
     'delivery': ['earn', 'training'],
-    'work': ['earn', 'hotsearch', 'ins', 'schedule'],
-    'schedule': ['work', 'music', 'meeting', 'earn'],
-    'crisis': ['pr', 'hotsearch'],
-    'antiblack': ['pr', 'hotsearch'],
-    'pr': ['hotsearch', 'crisis', 'antiblack', 'dating', 'management'],
-    'dating': ['pr', 'hotsearch', 'bubble', 'weverse'],
-    'members': ['relation', 'meeting', 'kakaotalk', 'company'],
-    'relation': ['members', 'kakaotalk'],
-    'kakaotalk': ['relation', 'members', 'meeting'],
-    'management': ['meeting', 'work', 'pr', 'comeback', 'company'],
-    'mail': ['work', 'meeting', 'loan', 'contract'],
-    'contract': ['company', 'earn', 'mail'],
+    'work': ['earn', 'ins', 'schedule'],
+    'schedule': ['work', 'music', 'earn'],
+    'crisis': ['pr'],
+    'antiblack': ['pr'],
+    'pr': ['crisis', 'antiblack', 'dating', 'management'],
+    'dating': ['pr', 'bubble', 'weverse'],
+    'members': ['kakaotalk', 'company'],
+    'kakaotalk': ['members'],
+    'management': ['work', 'pr', 'comeback', 'company'],
+    'contract': ['company', 'earn'],
     'company': ['contract', 'members', 'management', 'comeback'],
     'debut': ['members', 'training', 'achievement'],
-    'training': ['earn', 'work', 'ranking', 'debut'],
-    'achievement': ['debut', 'ranking'],
+    'training': ['earn', 'work', 'debut'],
+    'achievement': ['debut'],
     'gacha': ['members', 'vip'],
     'vip': ['gacha', 'live', 'training', 'food', 'delivery'],
-    'kpopwiki': [],
-    'updates': []
 };
 
 var APP_NAMES = {
-    'debut': '出道企划', 'earn': '赚钱中心', 'hotsearch': '热搜', 'ranking': '排行榜',
-    'schedule': '行程表', 'meeting': '会议', 'mail': '邮箱', 'work': '通告',
     'ins': 'INS', 'tiktok': 'TikTok', 'food': '外卖', 'delivery': '快递',
     'loan': '贷款', 'live': '直播', 'dating': '恋爱', 'bubble': '泡泡',
     'fanchat': '粉丝私聊', 'weverse': 'Weverse', 'crisis': '私生危机',
-    'members': '成员信息', 'kakaotalk': 'KakaoTalk', 'updates': '更新通知',
     'achievement': '成就', 'gacha': '抽卡', 'vip': '会员', 'company': '我的公司',
     'comeback': '回归计划', 'songprod': '歌曲制作', 'music': '音乐放送',
-    'mvstudio': 'MV工作室', 'contract': '合约', 'relation': '队友关系',
     'management': '经纪团队', 'antiblack': '反黑中心', 'fanclub': '后援会',
-    'pr': '公关室', 'kpopwiki': 'Kpop百科',
-    'guide': '新手指南'
 };
 
 function getAppLinkHtml(currentAppId) {
@@ -4089,12 +4045,6 @@ function getAppRedDot(appId) {
     if (!gameState || !gameState.player || !gameState.player.name) return null;
     var count = 0;
     switch(appId) {
-        case 'mail':
-            if (gameState.emails) { for (var i = 0; i < gameState.emails.length; i++) { if (!gameState.emails[i].read) count++; } }
-            break;
-        case 'meeting':
-            if (gameState.meetings) { for (var i = 0; i < gameState.meetings.length; i++) { if (!gameState.meetings[i].read) count++; } }
-            break;
         case 'kakaotalk':
             if (gameState.kakaoChats) { var _kkeys = Object.keys(gameState.kakaoChats); for (var ki = 0; ki < _kkeys.length; ki++) { var _kmsgs = gameState.kakaoChats[_kkeys[ki]]; for (var kj = 0; kj < _kmsgs.length; kj++) { if (_kmsgs[kj].from !== 'me' && !_kmsgs[kj].read) count++; } } }
             if (count === 0 && !canUseAIToday()) count = 1;
@@ -4110,9 +4060,6 @@ function getAppRedDot(appId) {
             break;
         case 'weverse':
             if (gameState.weverseUnread) count += gameState.weverseUnread;
-            break;
-        case 'updates':
-            if (!gameState.lastReadVersion || gameState.lastReadVersion !== 'V1.5.2') count = 1;
             break;
         case 'schedule':
             if (gameState.schedule) { for (var i = 0; i < gameState.schedule.length; i++) { if (!gameState.schedule[i].done) count++; } }
@@ -4178,12 +4125,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
         return;
     }
     _clearPageTimers();
-    try {
-        if (page === 'mail' && gameState.emails) { for (var _mi = 0; _mi < gameState.emails.length; _mi++) gameState.emails[_mi].read = true; }
-        if (page === 'meeting' && gameState.meetings) { for (var _mi2 = 0; _mi2 < gameState.meetings.length; _mi2++) gameState.meetings[_mi2].read = true; }
-        /* KakaoTalk unread cleared per-chat when entering specific chat */
-        if (page === 'updates') { gameState.lastReadVersion = 'V1.5.2'; }
-        if (page === 'work') { gameState.newNotice = false; }
+    try {        /* KakaoTalk unread cleared per-chat when entering specific chat */        if (page === 'work') { gameState.newNotice = false; }
         if (page === 'live') { gameState.livePendingReward = false; }
         if (page === 'ins') { gameState.insUnread = 0; }
         if (page === 'tiktok') { gameState.tiktokUnread = 0; }
@@ -4337,157 +4279,6 @@ function generateHotsearchList() {
     }
 }
 
-function renderHotsearchPage(container) {
-    if (hotsearchList.length === 0) generateHotsearchList();
-    
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
-        + '<div class="page-title">热搜榜</div>'
-        + '<div style="width:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="generateHotsearchList();render();">'
-        + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>'
-        + '</div>'
-        + '</div>'
-        + '<div class="page-content">'
-        + hotsearchList.map(function(t) {
-            return '<div class="list-item" onclick="hotsearchDetailIdx=' + (t.rank - 1) + ';goToPage(\'hotsearchdetail\');" style="cursor:pointer;">'
-                + '<div style="display:flex;align-items:center;">'
-                + '<span style="font-size:16px;font-weight:700;color:' + (t.hot ? 'var(--color-danger)' : 'var(--color-text-light)') + ';margin-right:12px;">' + t.rank + '</span>'
-                + '<div>'
-                + '<div style="font-weight:600;color:var(--color-text);">' + t.topic + (t.hot ? ' <span style="font-size:10px;color:var(--color-danger);">HOT</span>' : '') + '</div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);">' + t.posts + ' 讨论</div>'
-                + '</div></div></div>';
-        }).join('')
-        + getAppLinkHtml('hotsearch') + '</div></div>';
-}
-
-function renderHotsearchDetailPage(container) {
-    var t = hotsearchList[hotsearchDetailIdx];
-    if (!t) { goToPage('hotsearch'); return; }
-    var paragraphs = (t.detail || '暂无详情').split('\n');
-    var detailHtml = '';
-    for (var i = 0; i < paragraphs.length; i++) {
-        if (paragraphs[i].trim()) detailHtml += '<p style="font-size:14px;color:var(--color-text);line-height:1.8;margin-bottom:12px;">' + paragraphs[i] + '</p>';
-    }
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'hotsearch\')">‹ 热搜</div>'
-        + '<div class="page-title">热搜详情</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content">'
-        + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-        + '<div style="font-size:12px;opacity:0.8;">热搜排名 #' + t.rank + '</div>'
-        + '<div style="font-size:20px;font-weight:700;margin-top:4px;">' + t.topic + '</div>'
-        + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">' + t.posts + ' 讨论</div>'
-        + '</div>'
-        + '<div class="card">' + detailHtml + '</div>'
-        + '</div></div>';
-}
-
-function renderRankingPage(container) {
-    if (!window._rankingTab) window._rankingTab = 'idol';
-    var tab = window._rankingTab;
-    var selectedGroup = window._rankingGroup || null;
-
-    var GROUP_DETAILS = {
-        'Star Apex': { members: ['Lee Seungwoo','Kim Soojin','Park Hyunho','Choi Yoonsung','Kang Saeha'], avgAbility: 92, fans: 100000, revenue: 2500000, concept: '实力派' },
-        'Black Luna': { members: ['Kim Nari','Yoon Sejin','Hong Jiyeon','Lim Soeun','Chae Yujin'], avgAbility: 88, fans: 85000, revenue: 1800000, concept: 'Girl Crush' },
-        'Myth Echo': { members: ['Jeon Seokjin','Kim Jihoon','Park Heeyoung','Jung Taekyun','Kang Yuna'], avgAbility: 85, fans: 70000, revenue: 1500000, concept: '全能偶像' },
-        'Gaeulvibe': { members: ['Jeong Dabin','Song Hanbyul','Nam Jiho','Go Eunji','Hwang Chawon'], avgAbility: 79, fans: 55000, revenue: 900000, concept: '复古清新' },
-        'Wave Bright': { members: ['Kim Heesun','Park Dohyun','Yoo Kwangmin','Shin Yeonwoo','Han Seungah'], avgAbility: 75, fans: 40000, revenue: 700000, concept: '元气' },
-        'Taegiflow': { members: ['Jang Taewoo','Ryu Hajun','Seo Junho','Won Wooyoung','Jeon Daehyun'], avgAbility: 70, fans: 25000, revenue: 500000, concept: '嘻哈' },
-        'Dream Loop': { members: ['Moon Soojin','Park Jihae','Kim Daeun','Jung Seokyung','Han Chaewon'], avgAbility: 65, fans: 10000, revenue: 300000, concept: '新人' }
-    };
-
-    var idolRanking = [
-        { name: 'Star Apex', val: 100000, unit: '粉丝' },
-        { name: 'Black Luna', val: 85000, unit: '粉丝' },
-        { name: 'Myth Echo', val: 70000, unit: '粉丝' },
-        { name: 'Gaeulvibe', val: 55000, unit: '粉丝' },
-        { name: 'Wave Bright', val: 40000, unit: '粉丝' },
-        { name: 'Taegiflow', val: 25000, unit: '粉丝' },
-        { name: 'Dream Loop', val: 10000, unit: '粉丝' }
-    ];
-    var powerRanking = [
-        { name: 'Star Apex', val: 92, unit: '综合能力' },
-        { name: 'Black Luna', val: 88, unit: '综合能力' },
-        { name: 'Myth Echo', val: 85, unit: '综合能力' },
-        { name: 'Gaeulvibe', val: 79, unit: '综合能力' },
-        { name: 'Wave Bright', val: 75, unit: '综合能力' },
-        { name: 'Taegiflow', val: 70, unit: '综合能力' },
-        { name: 'Dream Loop', val: 65, unit: '综合能力' }
-    ];
-    var fanRanking = idolRanking.slice();
-    var wealthRanking = [
-        { name: 'Star Apex', val: 2500000, unit: '金币' },
-        { name: 'Black Luna', val: 1800000, unit: '金币' },
-        { name: 'Myth Echo', val: 1500000, unit: '金币' },
-        { name: 'Gaeulvibe', val: 900000, unit: '金币' },
-        { name: 'Wave Bright', val: 700000, unit: '金币' },
-        { name: 'Taegiflow', val: 500000, unit: '金币' },
-        { name: 'Dream Loop', val: 300000, unit: '金币' }
-    ];
-
-    // Show group detail page if selected
-    if (selectedGroup && GROUP_DETAILS[selectedGroup]) {
-        var g = GROUP_DETAILS[selectedGroup];
-        var memHtml = '';
-        for (var mi = 0; mi < g.members.length; mi++) {
-            var mAbility = Math.max(50, g.avgAbility + Math.floor(Math.random() * 20) - 10);
-            var posArr = ['主唱','领舞','Rapper','副唱','门面','忙内'];
-            var pos = posArr[mi % posArr.length];
-            memHtml += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);">'
-                + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));display:flex;align-items:center;justify-content:center;font-size:12px;color:white;font-weight:600;">' + g.members[mi].charAt(0) + '</div>'
-                + '<div style="flex:1;"><div style="font-weight:600;font-size:13px;">' + g.members[mi] + '</div><div style="font-size:11px;color:var(--color-text-light);">' + pos + '</div></div>'
-                + '<div style="text-align:right;"><div style="font-weight:600;font-size:13px;color:var(--color-primary);">' + mAbility + '</div><div style="font-size:10px;color:var(--color-text-light);">能力值</div></div>'
-                + '</div>';
-        }
-        container.innerHTML = '<div class="page active">'
-            + '<div class="page-header"><div class="back-btn" onclick="window._rankingGroup=null;render();">\u2039 返回</div><div class="page-title">' + selectedGroup + '</div><div style="width:32px;"></div></div>'
-            + '<div class="page-content">'
-            + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;text-align:center;padding:16px;">'
-            + '<div style="font-size:20px;font-weight:700;">' + selectedGroup + '</div>'
-            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">' + g.concept + ' | ' + g.members.length + '人</div>'
-            + '</div>'
-            + '<div style="display:flex;gap:8px;margin-bottom:16px;">'
-            + '<div class="card" style="flex:1;text-align:center;padding:12px;"><div style="font-size:18px;font-weight:700;color:var(--color-primary);">' + (g.fans > 10000 ? (g.fans/10000).toFixed(1) + '万' : g.fans) + '</div><div style="font-size:10px;color:var(--color-text-light);">粉丝</div></div>'
-            + '<div class="card" style="flex:1;text-align:center;padding:12px;"><div style="font-size:18px;font-weight:700;color:var(--color-primary);">' + g.avgAbility + '</div><div style="font-size:10px;color:var(--color-text-light);">均能力</div></div>'
-            + '<div class="card" style="flex:1;text-align:center;padding:12px;"><div style="font-size:18px;font-weight:700;color:var(--color-primary);">' + (g.revenue/10000).toFixed(0) + '万</div><div style="font-size:10px;color:var(--color-text-light);">金币</div></div>'
-            + '</div>'
-            + '<div class="section-title">成员列表</div>'
-            + memHtml
-            + '</div></div>';
-        return;
-    }
-
-    var tabs = [
-        { id: 'idol', label: '偶像' },
-        { id: 'power', label: '实力' },
-        { id: 'fan', label: '人气' },
-        { id: 'wealth', label: '财富' }
-    ];
-    var dataMap = { idol: idolRanking, power: powerRanking, fan: fanRanking, wealth: wealthRanking };
-    var rankings = dataMap[tab] || idolRanking;
-
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">排行榜</div><div style="width:32px;"></div></div>'
-        + '<div class="page-content">'
-        + '<div style="display:flex;gap:6px;margin-bottom:16px;">'
-        + (tabs.map(function(t) { return '<button class="btn btn-sm '+(tab===t.id?'btn-primary':'btn-secondary')+'" data-tab="' + t.id + '" onclick="window._rankingTab=this.dataset.tab;render();" style="flex:1;">'+t.label+'</button>'; }).join(''))
-        + '</div>'
-        + (rankings.map(function(r, i) { return '<div class="card" style="display:flex;align-items:center;cursor:pointer;" onclick="window._rankingGroup=\'' + r.name + '\';render();">'
-            + '<div style="font-size:24px;font-weight:700;color:' + (i < 3 ? 'var(--color-primary)' : 'var(--color-text-light)') + ';width:40px;">' + (i + 1) + '</div>'
-            + '<div class="avatar-sm" style="margin:0 12px;">' + (r.name.charAt(0)) + '</div>'
-            + '<div style="flex:1;">'
-            + '<div style="font-weight:600;">' + (r.name) + '</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);">' + (typeof r.val === 'number' && r.val > 10000 ? r.val.toLocaleString() : r.val) + ' ' + (r.unit) + '</div>'
-            + '</div>'
-            + '<div style="font-size:10px;color:var(--color-text-light);">详情 \u203A</div>'
-            + '</div>'; }).join(''))
-        + getAppLinkHtml('ranking') + '</div></div>';
-}
-
 function render行程表Page(container) {
     if (!gameState.scheduleItems || gameState.scheduleItems.length === 0) {
         initScheduleItems();
@@ -4601,107 +4392,6 @@ function skipSchedule(index) {
     if (!item || item.status !== 'todo') return;
     item.status = 'skip';
     render();
-}
-
-function render会议Page(container) {
-    try {
-        if (!gameState.meetings || gameState.meetings.length === 0) {
-            initMeetings();
-        }
-        var unread = 0;
-        for (var ui = 0; ui < gameState.meetings.length; ui++) {
-            if (!gameState.meetings[ui].read) unread++;
-        }
-        var meetingsHtml = '';
-        for (var mi = 0; mi < gameState.meetings.length; mi++) {
-            var mt = gameState.meetings[mi];
-            meetingsHtml += '<div class="card" data-mi="' + mi + '" onclick="readMeeting(parseInt(this.dataset.mi))">'
-                + '<div style="display:flex;align-items:flex-start;">'
-                + '<div class="meeting-dot ' + (mt.read ? 'read' : '') + '" style="margin-top:5px;"></div>'
-                + '<div style="flex:1;">'
-                + '<div style="font-weight:600;margin-bottom:4px;">' + mt.title + '</div>'
-                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:4px;">' + mt.preview + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);">' + mt.time + '</div>'
-                + '</div></div></div>';
-        }
-        container.innerHTML = '<div class="page active">'
-            + '<div class="page-header">'
-            + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
-            + '<div class="page-title">会议 ' + (unread > 0 ? '(' + unread + ')' : '') + '</div>'
-            + '<div style="width:32px;"></div>'
-            + '</div>'
-            + '<div class="page-content">'
-            + meetingsHtml
-            + '<div style="margin-top:12px;">'
-            + '<button class="btn btn-primary" style="width:100%;" onclick="show会议Minutes()">会议纲要</button>'
-            + '</div>'
-            + getAppLinkHtml('meeting') + '</div></div>';
-    } catch(e) {
-        console.error('render会议Page error:', e);
-        container.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:var(--color-text-light);">会议页面加载出错</div><button class="btn btn-primary" onclick="goToPage(\'home\')" style="margin-top:16px;">返回首页</button></div></div>';
-    }
-}
-
-function initMeetings() {
-    gameState.meetings = [
-        { title: '明天9点练习室集合', preview: '经纪人通知：所有练习生明天上午9点准时到达B2练习室，迟到者将扣除信誉分。', content: '经纪人通知：\n\n所有练习生明天上午9点准时到达B2练习室，进行本月综合考核准备训练。\n\n请携带个人训练日志，迟到者将扣除信誉分。\n\n——经纪部', time: '今天 18:30', read: false },
-        { title: '本月考核安排', preview: '月末考核将于28日进行，包含舞蹈、声乐和综合表现三个部分。', content: '月末考核通知\n\n考核日期：本月28日\n考核内容：\n1. 舞蹈表现（自选曲目）\n2. 声乐展示（指定曲目）\n3. 综合表现评估\n\n请各位认真准备，考核结果将影响出道排名。\n\n——训练管理部', time: '今天 15:00', read: false },
-        { title: '新专辑概念会议', preview: '新专辑概念确定会议将于下周三举行，请相关成员准时参加。', content: '新专辑概念会议通知\n\n时间：下周三 14:00\n地点：公司5楼会议室\n\n议程：\n1. 新专辑概念提案\n2. 收录曲确认\n3. MV拍摄计划\n\n请提前准备创意方案。\n\n——企划部', time: '昨天 10:00', read: false },
-        { title: '粉丝见面会安排', preview: '下月粉丝见面会地点已确定，请确认出席。', content: '粉丝见面会安排\n\n时间：下月15日 14:00\n地点：首尔COEX D厅\n\n活动流程：\n1. 开场表演（15分钟）\n2. 互动游戏（30分钟）\n3. 签名合影（45分钟）\n4. 结束致辞（10分钟）\n\n请确认出席。\n\n——运营部', time: '2天前', read: true },
-        { title: '健康检查提醒', preview: '年度健康检查将于下周进行，请提前安排时间。', content: '年度健康检查通知\n\n检查时间：下周一至周五\n地点：公司指定医院\n\n请提前预约时间段，检查当天需空腹。\n\n——人事部', time: '3天前', read: true }
-    ];
-}
-
-function readMeeting(index) {
-    try {
-        var m = gameState.meetings[index];
-        if (!m) { goToPage('meeting'); return; }
-        m.read = true;
-        var savedIdx = index;
-        showModal(m.title || '会议通知', m.content || '暂无内容', [
-            { text: '关闭', action: closeModal },
-            { text: '参加会议', action: function() { closeModal(); start会议Dialog(savedIdx); } }
-        ]);
-        render();
-    } catch(e) {
-        console.error('readMeeting error:', e);
-        goToPage('meeting');
-    }
-}
-
-function show会议Minutes() {
-    try {
-        if (!gameState.meetingMinutes || gameState.meetingMinutes.length === 0) {
-            showModal('会议纲要', '暂无会议记录\n完成会议后会自动记录');
-            return;
-        }
-        var html = '';
-        for (var i = gameState.meetingMinutes.length - 1; i >= 0; i--) {
-            var m = gameState.meetingMinutes[i];
-            html += '[' + m.type + '] ' + m.date + ' ' + m.time + '\n';
-            for (var j = 0; j < m.decisions.length; j++) {
-                html += '  - ' + m.decisions[j] + '\n';
-            }
-            html += '  参会: ' + m.attendees + '\n';
-            if (i > 0) html += '\n';
-        }
-        showModal('会议纲要 (' + gameState.meetingMinutes.length + '条)', html.trim());
-    } catch(e) {
-        console.error('show会议Minutes error:', e);
-        showModal('会议纲要', '加载出错');
-    }
-}
-
-function renderMailPage(container) {
-    var 未读 = gameState.emails.filter(function(e) { return !e.read; }).length;
-    
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">邮箱 ' + (未读 > 0 ? '(' + 未读 + ')' : '') + '</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                ' + (gameState.emails.length === 0 ? '\n                    <div style="text-align: center; padding: 40px; color: var(--color-text-light);">\n                        <div style="font-size: 48px; margin-bottom: 12px;">\n                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>\n                        </div>\n                        <div>暂无邮件</div>\n                    </div>\n                ' : gameState.emails.map(function(email, i) { return '\n                    <div class="card ' + (email.read ? '' : 'selected') + '" onclick="readEmail(' + (i) + ')">\n                        <div style="font-weight: 600; margin-bottom: 4px;">' + (email.title) + '</div>\n                        <div style="font-size: 12px; color: var(--color-text-light);">' + (email.from) + ' - ' + (email.time) + '</div>\n                    </div>\n                '}).join('')) + '\n            </div>\n        </div>\n    ';
-}
-
-function readEmail(index) {
-    var email = gameState.emails[index];
-    email.read = true;
-    showModal(email.title, email.content.replace(/\\n/g, '\n'));
 }
 
 function render工作Page(container) {
@@ -7385,301 +7075,6 @@ function render成员信息Page(container) {
     }
 }
 
-function render更新通知Page(container) {
-    var versionLogs = [
-        { ver: 'V1.6', date: '2026年6月14日 20:00', title: 'My Idol V1.6', content: 'V1.6 大版本更新内容:\n\n【核心系统】\n• 回归打歌系统 - 选择概念/主打歌/MV拍摄/宣传期/3轮打歌/回归评级\n• 合约系统 - 查看经纪合约/续约/离开公司\n• 队友关系网 - 好感度系统/聊天送礼合练\n• 经纪团队 - 经纪人/造型师/司机/培训提升\n• 黑粉反黑 - 5种黑粉事件/声明/法律手段/忽略\n• 粉丝团后援会 - 等级系统/应援项目\n• 成就系统 - 14个成就解锁/进度追踪\n\n【新增APP】\n• 回归打歌 - 完整回归流程\n• 音乐放送 - 6大音乐节目信息\n• MV工作室 - MV收藏与回看\n• 合约 - 经纪合约管理\n• 队友关系 - 队友好感互动\n• 经纪团队 - 团队管理\n• 反黑中心 - 黑粉事件处理\n• 后援会 - 粉丝应援\n• 公关室 - 形象管理\n• Kpop百科 - 韩团知识\n• 成就 - 成就追踪\n\n【系统优化】\n• 手机通知弹窗 - 8种通知类型/顶部滑入动画\n• NPC改名 - 中文名(英文名)格式\n• 存档名闪烁修复\n• 危险值即时更新' },
-    { ver: 'V1.5.2', date: '2026年6月13日 18:00', title: 'My Idol V1.5.2', content: 'V1.5 系列更新内容：\n\n【新增功能】\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等7个APP的NPC可真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\n【V1.5.1 修复】\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题\n\n【V1.5.2 修复】\n• 邀请码错误提示 - 空输入/错误码红字提示+回车提交支持\n• 性格/定位3项硬限制 - 超出自动截断，不可无限勾选\n• 创建返回确认 - 返回时弹窗确认，防止误清空\n• 体力负数修复 - 切换APP时强制修正体力下限\n• 训练防连点 - 时间戳防重复扣费+能力值150封顶\n• 自动存档9处关键节点 - 创建角色/入团/出道/行程完成/工作完成/考核通过/贷款申请等全覆盖\n• 退出保存提醒 - 关闭/刷新页面弹窗提醒+手机Safari后台静默保存\n• 商业贷款降出道概率 - 贷款后40%概率分配不到志愿团+申请弹窗警告+出道企划页警告条\n• 生日下拉适配 - 加大触控区域，解决小屏遮挡\n• 长名溢出修复 - 团名文字截断省略号\n• 提示弹窗时间加长 - 从1.5秒延长至2.5秒' },
-        { ver: 'V1.4.3.1', date: '2026年6月13日 14:30', title: 'My Idol V1.4.3.1', content: 'My Idol V1.4.3.1 更新内容：\n\n• 团体人气系统 - 出道爱豆新增团体人气数值，不同公司基数不同\n• INS私信优化 - 私信列表显示所有有对话的联系人\n• TikTok私信优化 - 私信列表显示所有有对话的联系人\n• APP首页分类排版 - 按工作/赚钱/社交/娱乐/其他分类展示\n• 成员信息团队介绍 - 查看团体时显示韩文名和概念描述\n\nBug修复：\n• 修复INS/TikTok对方主动发来的消息不出现在聊天列表的问题' },
-        { ver: 'V1.4.3', date: '2026年6月13日 12:00', title: 'My Idol V1.4.3', content: 'My Idol V1.4.3 更新内容：\n\n• 出道企划APP - 练习生查看出道要求，满足条件触发出道流程\n• Direct Selection - 能力均分140+可自选团队踢人出道\n• 赚钱中心APP - 练习生/爱豆专属打工和赚钱工作\n• 通告APP全面升级 - 打歌/演唱会/粉丝见面会等7种通告类型\n• 通告剧情触发 - 打歌一位上热搜、演唱会安可、S级庆祝\n• 考核系统升级 - 舞蹈12圆点5轮、声乐序列6-8、更多题目\n• 综合考试7题制，通过标准5/7\n• 出道流程 - 5步对话式出道，成功转正为出道爱豆\n\nBug修复：\n• 修复性格/定位多选可超限的问题\n• 修复体力归零后回血偶尔失效\n• 修复体力切APP后出现负数\n• 修复训练付费重复扣款\n• 修复外卖快递道具效果不即时生效\n• 修复存档覆盖数据丢失\n• 修复退出保存提醒弹窗重复弹出' },
-        { ver: 'V1.4.2', date: '2026年6月13日 11:00', title: 'My Idol V1.4.2', content: 'My Idol V1.4.2 热修复：\n\n• 修复会议系统崩溃问题\n• 修复退出登录无效的问题\n• 修复外卖/快递购买报错的问题\n• 修复KakaoTalk聊天框被底部导航遮挡\n• 所有APP子页面全屏显示，底部导航仅主页面显示\n• 优化系统稳定性' },
-        { ver: 'V1.4.1', date: '2026年6月13日 10:00', title: 'My Idol V1.4.1', content: 'My Idol V1.4.1 更新内容：\n\n• 新增KakaoTalk聊天APP，可以和练习生NPC聊天\n• 新增6位AI练习生和经纪人\n• 新增自动存档功能，再也不怕忘记保存\n• 新增账号注册系统，保护你的游戏进度\n• 考核系统上线！5科考试+综合考核\n• 外卖扩充到18种美食\n• 快递升级22种商品6大分类\n• 会议系统修复+新增剧情' },
-        { ver: 'V1.4', date: '2026年6月13日 00:05', title: 'My Idol V1.4', content: 'My Idol V1.4 更新内容：\n\n• 考核系统上线 - 5科3级考试+综合考试，通过后预备出道\n• 舞蹈考试 - 节奏点击小游戏\n• 声乐考试 - 音高记忆小游戏\n• 说唱考试 - 词语接龙\n• 表演考试 - 表情选择\n• 综艺考试 - 即兴回应\n• 综合考试 - 混合挑战，5科全三级后解锁\n• 会议系统修复+新增剧情\n• 外卖快递全面升级' },
-        { ver: 'V1.3.1', date: '2026年6月12日 22:52', title: 'My Idol V1.3.1', content: 'My Idol V1.3.1 更新内容：\n\n• INS图片上传 - 发动态支持选择图片并预览\n• TikTok视频上传 - 上传视频支持选择文件并预览\n• 外卖快递购买确认 - 购买前增加确认弹窗\n• 训练页体力恢复 - 新增30秒休息恢复体力功能' },
-        { ver: 'V1.3', date: '2026年6月12日 22:33', title: 'My Idol V1.3', content: 'My Idol V1.3 更新内容：\n\n• 会议系统修复 - 修复Safari兼容性，稳定运行\n• INS关注+私聊 - 关注互动、智能私信聊天\n• TikTok关注+私信 - 关注互动、智能回复\n• 直播实时转述改为中文\n• INS/TikTok翻译功能恢复\n• 主页数值分组 - 状态(生命/体力/信誉)与声望(危险/影响力/名气)分开展示' },
-        { ver: 'V1.2', date: '2026年6月12日 20:35', title: 'My Idol V1.2', content: 'My Idol V1.2 更新内容：\n\n• 删除测试模式 - 粉丝解锁条件已恢复\n• iPad稳定性优化 - 修复Safari兼容性问题\n• 热搜详情+刷新 - 点击热搜查看详情，支持刷新\n• 行程表交互优化 - 参加消耗体力获属性，不参加不可更改\n• 会议沉浸式对话 - 流畅对话体验\n• INS/TikTok消息系统 - Tab移至顶部\n• 直播实时转述+双模式 - 视频/语音直播\n• 成员信息APP - 浏览所有公司和团体成员\n• 影响力/名气系统 - 更多属性影响游戏体验\n• 泡泡/Weverse多语言翻译 - 韩语/日语/英语随机消息\n• 私生危机循环 - 处理后自动生成新事件' },
-        { ver: 'V1.0', date: '2026年6月12日 18:00', title: 'My Idol V1.0', content: 'My Idol 韩娱爱豆模拟器内测版本。\n包含练习生/出道爱豆双路线、25个团体、5大经纪公司、INS/TikTok/泡泡/Weverse等社交平台。' }
-    ];
-    var sysNotices = [];
-    
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">更新通知</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="section-title">版本更新</div>\n                ' + (versionLogs.map(function(v) { return '\n                    <div class="card">\n                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">\n                            <div style="font-weight: 600;">' + (v.title) + '</div>\n                            <span class="badge badge-primary">' + (v.ver) + '</span>\n                        </div>\n                        <div style="font-size: 11px; color: var(--color-text-light); margin-bottom: 8px;">' + (v.date) + '</div>\n                        <div style="font-size: 13px; color: var(--color-text-light); line-height: 1.6; white-space: pre-line;">' + (v.content) + '</div>\n                    </div>\n                '}).join('')) + '\n                \n                <div class="section-title" style="margin-top: 16px;">系统通知</div>\n                ' + (sysNotices.map(function(n) { return '\n                    <div class="card" onclick="showModal(\'' + (n.title) + '\',\'' + (n.content) + '\')">\n                        <div style="font-weight: 600; margin-bottom: 4px;">' + (n.title) + '</div>\n                        <div style="font-size: 12px; color: var(--color-text-light);">' + (n.time) + '</div>\n                    </div>\n                '}).join('')) + '\n            </div>\n        </div>\n    ';
-    var _uEl = container.querySelector('.page-content'); if (_uEl) _uEl.innerHTML += getAppLinkHtml('updates');
-}
-
-// ==================== MEETING DIALOG PAGE ====================
-function render会议DialogPage(container) {
-    try {
-        var ds = gameState.meetingDialogState;
-        if (!ds) { goToPage('meeting'); return; }
-        
-        var optionsHtml = '';
-        for (var i = 0; i < ds.options.length; i++) {
-            optionsHtml += '<div class="card" data-i="' + i + '" onclick="choose会议Option(parseInt(this.dataset.i))" style="cursor:pointer;">'
-                + '<div style="font-size:14px;">' + ds.options[i].text + '</div>'
-                + '</div>';
-        }
-        
-        container.innerHTML = '<div class="page active">'
-            + '<div class="page-header">'
-            + '<div class="back-btn" onclick="goToPage(\'meeting\')">‹ 会议</div>'
-            + '<div class="page-title">' + ds.title + '</div>'
-            + '<div style="width:32px;"></div>'
-            + '</div>'
-            + '<div class="page-content">'
-            + '<div class="card" style="background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-            + '<div style="font-size:12px;opacity:0.8;">对话进度</div>'
-            + '<div style="font-size:14px;margin-top:4px;">第 ' + ds.round + ' / ' + ds.totalRounds + ' 轮</div>'
-            + '</div>'
-            + '<div class="card">'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">' + ds.speaker + '</div>'
-            + '<div style="font-size:15px;line-height:1.6;">' + ds.dialog + '</div>'
-            + '</div>'
-            + '<div class="section-title">你的回应</div>'
-            + optionsHtml
-            + '</div></div>';
-    } catch(e) {
-        console.error('render会议DialogPage error:', e);
-        gameState.meetingDialogState = null;
-        container.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;">'
-            + '<div style="font-size:16px;color:var(--color-danger);">会议页面加载出错</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:8px;">' + (e.message || '未知错误') + '</div>'
-            + '<button class="btn btn-primary" onclick="goToPage(\'meeting\')" style="margin-top:16px;">返回会议</button>'
-            + '</div></div>';
-    }
-}
-
-function start会议Dialog(meetingIndex) {
-    try {
-        var m = gameState.meetings[meetingIndex];
-        if (!m) return;
-    
-    var npcs = getSameCompanyNPCs();
-    var member1 = npcs.length > 0 ? npcs[0].name : '队友';
-    var member2 = npcs.length > 1 ? npcs[1].name : '前辈';
-    var dialogs;
-    
-    if (m.title.indexOf('专辑') > -1 || m.title.indexOf('概念') > -1) {
-        dialogs = [
-            { round: 1, speaker: '经纪人 李秀珍', dialog: '今天召集大家来，主要是讨论新专辑的方向。' + gameState.player.name + '，你对新概念有什么想法？', options: [
-                { text: '我想尝试暗黑概念，展现不同面貌', effect: { credit: 5, fame: 3 } },
-                { text: '延续之前的风格，保持稳定', effect: { credit: 3, fame: 1 } },
-                { text: '可以融合多种元素，做混搭概念', effect: { credit: 4, influence: 2 } }
-            ]},
-            { round: 2, speaker: member1, dialog: '我觉得编舞方面可以加入更多自由发挥的部分，让舞台更有张力。你怎么看？', options: [
-                { text: '完全同意！我也想挑战更难的编舞', effect: { credit: 4, influence: 3, '体力': -10 } },
-                { text: '编舞还是稳定一些好，减少失误风险', effect: { credit: 2 } },
-                { text: '可以部分自由发挥，部分走既定编排', effect: { credit: 3, influence: 1 } }
-            ]},
-            { round: 3, speaker: '经纪人 李秀珍', dialog: '关于MV拍摄计划，需要大家全力配合。公司对你们期望很高。最后你有什么想说的？', options: [
-                { text: '我会全力以赴，不辜负公司的期待', effect: { credit: 8, influence: 4, '体力': -15 } },
-                { text: '希望拍摄期间能注意大家的身体状况', effect: { credit: 5, fame: 2 } },
-                { text: '我会带动团队气氛，让大家保持最佳状态', effect: { credit: 6, fame: 3, influence: 2 } }
-            ]}
-        ];
-    } else if (m.title.indexOf('粉丝') > -1 || m.title.indexOf('见面') > -1) {
-        dialogs = [
-            { round: 1, speaker: '经纪人 李秀珍', dialog: '粉丝见面会的流程需要最终确认。' + gameState.player.name + '，你对互动环节有什么建议？', options: [
-                { text: '增加即兴表演环节，和粉丝近距离互动', effect: { credit: 4, fans: 20, fame: 3 } },
-                { text: '保持原流程，安全第一', effect: { credit: 3 } },
-                { text: '加一个粉丝点歌环节', effect: { credit: 5, fans: 15 } }
-            ]},
-            { round: 2, speaker: member1, dialog: '听说这次见面会人数很多，安保方面有点担心...你怎么看？', options: [
-                { text: '安全确实重要，提前和安保团队确认方案', effect: { credit: 5, danger: -5 } },
-                { text: '粉丝热情是好事，不用太紧张', effect: { credit: 2, fame: 2 } },
-                { text: '做好应急预案就行，别因噎废食', effect: { credit: 3, danger: -3 } }
-            ]},
-            { round: 3, speaker: '运营部负责人', dialog: '最后确认一下，见面会当天的行程很满，你能坚持下来吗？', options: [
-                { text: '没问题，为粉丝再累也值得', effect: { credit: 6, fans: 25, '体力': -20, fame: 4 } },
-                { text: '会合理安排体力，确保全程状态在线', effect: { credit: 5, fans: 15 } },
-                { text: '希望中间能有短暂休息', effect: { credit: 3, '体力': -5 } }
-            ]}
-        ];
-    } else if (m.title.indexOf('练习') > -1 || m.title.indexOf('训练') > -1 || m.title.indexOf('集合') > -1) {
-        dialogs = [
-            { round: 1, speaker: '经纪人 李秀珍', dialog: '今天的训练安排需要调整一下。' + gameState.player.name + '，你觉得自己哪方面最需要加强？', options: [
-                { text: '舞蹈还需要更多练习', effect: { credit: 3, '体力': -5 } },
-                { text: '声乐是我最想提升的', effect: { credit: 3, '体力': -5 } },
-                { text: '我想全面提升，不偏科', effect: { credit: 5, '体力': -8 } }
-            ]},
-            { round: 2, speaker: member1, dialog: '最近训练强度确实很大，你还好吗？', options: [
-                { text: '还好，我能撑住', effect: { credit: 4, influence: 2 } },
-                { text: '有点累，但会坚持', effect: { credit: 3, fame: 1 } },
-                { text: '确实需要调整一下节奏', effect: { credit: 2, '体力': 10 } }
-            ]},
-            { round: 3, speaker: '训练指导老师', dialog: '接下来一周要加练，你能配合吗？', options: [
-                { text: '没问题，全力配合', effect: { credit: 7, '体力': -15, influence: 3 } },
-                { text: '可以，但希望合理安排休息', effect: { credit: 5, fame: 2 } },
-                { text: '我会尽最大努力', effect: { credit: 6, influence: 2, '体力': -10 } }
-            ]}
-        ];
-    } else if (m.title.indexOf('健康') > -1 || m.title.indexOf('检查') > -1) {
-        dialogs = [
-            { round: 1, speaker: '经纪人 李秀珍', dialog: '健康管理是很重要的事情。' + gameState.player.name + '，你最近身体状态怎么样？', options: [
-                { text: '状态很好，精力充沛', effect: { credit: 3, fame: 1 } },
-                { text: '有点疲惫，需要休息', effect: { credit: 2, '体力': 15 } },
-                { text: '还行，但偶尔会感到压力', effect: { credit: 4, influence: 1 } }
-            ]},
-            { round: 2, speaker: '队医', dialog: '检查结果显示你需要多注意作息。有什么想问的吗？', options: [
-                { text: '有什么建议的恢复方法吗？', effect: { credit: 3, '体力': 20 } },
-                { text: '我会在意的，谢谢', effect: { credit: 2 } },
-                { text: '会不会影响接下来的行程？', effect: { credit: 4, fame: 1 } }
-            ]},
-            { round: 3, speaker: '经纪人 李秀珍', dialog: '身体是革命的本钱，一定要重视。', options: [
-                { text: '我会好好照顾自己的', effect: { credit: 5, '体力': 10, fame: 2 } },
-                { text: '知道了，我会调整作息', effect: { credit: 3, '体力': 15 } },
-                { text: '谢谢关心，我没事的', effect: { credit: 2, fame: 1 } }
-            ]}
-        ];
-    } else if (m.title.indexOf('考核') > -1 || m.title.indexOf('评估') > -1) {
-        dialogs = [
-            { round: 1, speaker: '经纪人 李秀珍', dialog: '考核结果出来了。' + gameState.player.name + '，你对这次考核有信心吗？', options: [
-                { text: '有信心，我准备得很充分', effect: { credit: 5, fame: 2 } },
-                { text: '有点紧张，但尽力了', effect: { credit: 3 } },
-                { text: '不管结果如何，我继续努力', effect: { credit: 4, influence: 2 } }
-            ]},
-            { round: 2, speaker: member2, dialog: '这次考核标准好像比以前严格了不少...', options: [
-                { text: '严格才能出精品，加油', effect: { credit: 5, influence: 2 } },
-                { text: '确实，压力好大', effect: { credit: 2, '体力': -5 } },
-                { text: '我们一起努力就好', effect: { credit: 4, fame: 1 } }
-            ]},
-            { round: 3, speaker: '训练指导老师', dialog: '考核只是过程，成长才是目的。继续加油！', options: [
-                { text: '我会更加努力的', effect: { credit: 6, influence: 3 } },
-                { text: '谢谢老师，我会保持谦虚', effect: { credit: 5, fame: 2 } },
-                { text: '下一次考核我一定表现更好', effect: { credit: 7, '体力': -10, fame: 3 } }
-            ]}
-        ];
-    } else {
-        dialogs = [
-            { round: 1, speaker: '经纪人 李秀珍', dialog: '今天的会议主题是' + m.title + '。' + gameState.player.name + '，你先说说你的想法？', options: [
-                { text: '我觉得应该大胆尝试新方向', effect: { credit: 5, influence: 2 } },
-                { text: '稳妥起见，按照原计划进行', effect: { credit: 3 } },
-                { text: '我需要更多信息才能判断', effect: { credit: 1 } }
-            ]},
-            { round: 2, speaker: member1, dialog: '关于接下来的安排，你有什么态度？', options: [
-                { text: '我愿意全力以赴配合', effect: { credit: 5, '体力': -10, influence: 2 } },
-                { text: '希望能有更多准备时间', effect: { credit: 2 } },
-                { text: '我有一些不同意见想提出', effect: { credit: -2, fame: 3 } }
-            ]},
-            { round: 3, speaker: '经纪人 李秀珍', dialog: '最后，你对团队有什么承诺？', options: [
-                { text: '我会以团队利益为优先', effect: { credit: 8, fans: 15, influence: 3 } },
-                { text: '我会努力做到最好', effect: { credit: 5, fans: 5 } },
-                { text: '希望大家互相支持', effect: { credit: 3, fans: 8, fame: 2 } }
-            ]}
-        ];
-    }
-    
-    var first = dialogs[0];
-    gameState.meetingDialogState = {
-        title: m.title,
-        meetingIndex: meetingIndex,
-        round: 1,
-        totalRounds: 3,
-        dialogIndex: 0,
-        speaker: first.speaker,
-        dialog: first.dialog,
-        options: first.options,
-        allDialogs: dialogs
-    };
-    goToPage('meetingdialog');
-    } catch(e) {
-        console.error('start会议Dialog error:', e);
-        gameState.meetingDialogState = null;
-        showModal('会议出错', '进入会议时发生错误：' + (e.message || '未知错误') + '\n请重新尝试');
-        goToPage('meeting');
-    }
-}
-
-function choose会议Option(optionIndex) {
-    try {
-        var ds = gameState.meetingDialogState;
-        if (!ds) return;
-        
-        var opt = ds.options[optionIndex];
-        
-        // Track all chosen option texts for meeting minutes
-        if (!ds.chosenOptions) ds.chosenOptions = [];
-        ds.chosenOptions.push(opt.text);
-        
-        // Track concept choice for concept/album meetings (round 1)
-        if (ds.round === 1 && (ds.title.indexOf('专辑') > -1 || ds.title.indexOf('概念') > -1)) {
-            var conceptChoices = [
-                { name: 'Fierce', style: '凶猛', stat: 'dance', mvQuality: 1.2, desc: '激烈强势概念，舞台炸裂' },
-                { name: 'Innocent', style: '清纯', stat: 'vocal', mvQuality: 1.0, desc: '清新甜美的概念，充满青春气息' },
-                { name: 'Fantasy', style: '奇幻', stat: 'acting', mvQuality: 1.3, desc: '奇幻冒险概念，充满想象力' }
-            ];
-            ds.chosenConcept = conceptChoices[optionIndex] || null;
-        }
-        
-        if (opt.effect) {
-            if (opt.effect.credit) gameState.credit = Math.max(0, Math.min(200, gameState.credit + opt.effect.credit));
-            if (opt.effect.fans) gameState.fans += opt.effect.fans;
-            if (opt.effect['体力']) gameState.体力 = Math.max(0, gameState.体力 + opt.effect['体力']);
-            if (opt.effect.influence) gameState.influence = (gameState.influence || 50) + opt.effect.influence;
-            if (opt.effect.fame) gameState.fame = (gameState.fame || 30) + opt.effect.fame;
-            if (opt.effect.danger) gameState.danger = Math.max(0, gameState.danger + opt.effect.danger);
-    if(typeof _updateDangerDisplay==='function') _updateDangerDisplay();
-        }
-        
-        if (ds.round >= ds.totalRounds) {
-            // Sync concept decision to comeback & MV system
-            if (ds.chosenConcept) {
-                syncFromApp('meeting', { action: 'concept_decided', concept: ds.chosenConcept });
-            }
-            
-            // Record meeting minutes
-            if (!gameState.meetingMinutes) gameState.meetingMinutes = [];
-            var meetingType = '团队会议';
-            if (ds.title.indexOf('专辑') > -1 || ds.title.indexOf('概念') > -1) meetingType = '概念会议';
-            else if (ds.title.indexOf('粉丝') > -1 || ds.title.indexOf('见面') > -1) meetingType = '回归会议';
-            else if (ds.title.indexOf('练习') > -1 || ds.title.indexOf('训练') > -1 || ds.title.indexOf('集合') > -1) meetingType = '团队会议';
-            else if (ds.title.indexOf('健康') > -1 || ds.title.indexOf('检查') > -1) meetingType = '健康会议';
-            else if (ds.title.indexOf('考核') > -1 || ds.title.indexOf('评估') > -1) meetingType = '考核会议';
-            
-            var decisions = [];
-            if (ds.chosenConcept) decisions.push('确定概念: ' + ds.chosenConcept.name + '(' + ds.chosenConcept.style + ')');
-            for (var di = 0; di < ds.chosenOptions.length; di++) {
-                decisions.push('第' + (di + 1) + '轮: ' + ds.chosenOptions[di]);
-            }
-            
-            gameState.meetingMinutes.push({
-                date: new Date().toLocaleDateString(),
-                time: new Date().toLocaleTimeString(),
-                type: meetingType,
-                decisions: decisions,
-                attendees: '全员'
-            });
-            triggerSilentSave();
-            
-            var summary = '会议圆满结束！\n';
-            if (ds.chosenConcept) summary += '概念已同步至回归企划: ' + ds.chosenConcept.name + '\n';
-            if (opt.effect) {
-                if (opt.effect.credit) summary += '信誉 +' + opt.effect.credit + '\n';
-                if (opt.effect.fans) summary += '粉丝 +' + opt.effect.fans + '\n';
-                if (opt.effect.influence) summary += '影响力 +' + opt.effect.influence + '\n';
-                if (opt.effect.fame) summary += '名气 +' + opt.effect.fame + '\n';
-                if (opt.effect['体力']) summary += '体力 ' + opt.effect['体力'] + '\n';
-                if (opt.effect.danger) summary += '危险值 ' + (opt.effect.danger > 0 ? '+' : '') + opt.effect.danger;
-            }
-            gameState.meetingDialogState = null;
-            showModal('会议结束', summary.trim());
-            goToPage('meeting');
-            return;
-        }
-        
-        var nextDialog = ds.allDialogs[ds.round];
-        ds.round++;
-        ds.speaker = nextDialog.speaker;
-        ds.dialog = nextDialog.dialog;
-        ds.options = nextDialog.options;
-        render();
-    } catch(e) {
-        console.error('choose会议Option error:', e);
-        gameState.meetingDialogState = null;
-        showModal('选择出错', '做出选择时发生错误：' + (e.message || '未知错误') + '\n已返回会议列表');
-        goToPage('meeting');
-    }
-}
-
-// ==================== INS PROFILE PAGE ====================
 function renderInsProfilePage(container) {
     var profileUser = gameState.insProfileView || gameState.player.name;
     try {
@@ -9861,45 +9256,6 @@ function leaveCompany() {
 }
 
 // ==================== TEAMMATE RELATIONSHIP NETWORK (队友关系网) ====================
-function renderRelationPage(container) {
-    if (!gameState.teammates || gameState.teammates.length === 0) {
-        if (!gameState.player.group || gameState.player.group === '') {
-            container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">队友关系</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="font-size:14px;color:var(--color-text-light);">还没有队友，出道后解锁</div></div></div>';
-            return;
-        }
-        initTeammates();
-        if (!gameState.teammates || gameState.teammates.length === 0) {
-            container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">队友关系</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="font-size:14px;color:var(--color-text-light);">队友数据加载失败，请尝试重新进入</div></div></div>';
-            return;
-        }
-    }
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">队友关系</div><div style="width:32px;"></div></div><div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-        + '<div style="font-size:14px;opacity:0.8;">' + gameState.player.group + '</div>'
-        + '<div style="font-size:18px;font-weight:700;margin-top:4px;">队友关系网</div></div>';
-    for (var i = 0; i < gameState.teammates.length; i++) {
-        var t = gameState.teammates[i];
-        var relColor = t.relationship >= 80 ? '#4CD964' : t.relationship >= 50 ? '#FFD700' : t.relationship >= 30 ? '#FF9500' : '#FF3B30';
-        var relLabel = t.relationship >= 80 ? '亲密' : t.relationship >= 50 ? '友好' : t.relationship >= 30 ? '普通' : '冷淡';
-        html += '<div class="card">'
-            + '<div style="display:flex;align-items:center;gap:12px;">'
-            + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,' + relColor + ',' + t.color + ');display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">' + t.name.charAt(0) + '</div>'
-            + '<div style="flex:1;">'
-            + '<div style="font-weight:600;">' + t.name + '</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);">' + t.position + '</div>'
-            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:6px;overflow:hidden;">'
-            + '<div style="width:' + t.relationship + '%;height:100%;background:' + relColor + ';border-radius:2px;"></div></div></div>'
-            + '<div style="font-size:12px;color:' + relColor + ';font-weight:600;">' + relLabel + '</div></div>'
-            + '<div style="display:flex;gap:6px;margin-top:10px;">'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'chat\')">聊天</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'gift\')">送礼</button>'
-            + '<button class="btn btn-sm" style="flex:1;font-size:11px;padding:6px;" onclick="interactTeammate(' + i + ',\'practice\')">合练</button></div></div>';
-    }
-    html += '</div></div>';
-    html += getAppLinkHtml('relation');
-    container.innerHTML = html;
-}
-
 function initTeammates() {
     if (!gameState.player.group) return;
     var group = null;
@@ -10916,52 +10272,6 @@ var REAL_KPOP_GROUPS = [
     }
 ]
 
-function renderKpopWikiPage(container) {
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">Kpop百科</div><div style="width:32px;"></div></div><div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#5BB8E8,#4A90D9);color:white;">'
-        + '<div style="font-size:16px;font-weight:700;">Kpop百科</div>'
-        + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">韩国偶像知识大全</div></div>';
-    var compKeys = Object.keys(COMPANIES);
-    for (var ci = 0; ci < compKeys.length; ci++) {
-        var company = COMPANIES[compKeys[ci]];
-        var gKeys = Object.keys(company.groups);
-        var totalMembers = 0;
-        for (var ti = 0; ti < gKeys.length; ti++) { totalMembers += company.groups[gKeys[ti]].members.length; }
-        html += '<div class="card" style="cursor:pointer;" onclick="toggleWikiCompany(this)">'
-            + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-            + '<div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:15px;color:var(--color-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + company.name + '</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + gKeys.length + '个团体 / ' + totalMembers + '名成员</div></div>'
-            + '<div class="wiki-arrow" style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
-            + '<div class="wiki-groups" style="display:none;margin-top:12px;overflow:hidden;">';
-        for (var gi = 0; gi < gKeys.length; gi++) {
-            var g = company.groups[gKeys[gi]];
-            html += '<div style="padding:10px 0;border-bottom:1px solid var(--color-border);line-height:1.6;">'
-                + '<div style="font-weight:600;font-size:13px;word-break:break-all;max-width:100%;box-sizing:border-box;padding-right:8px;line-height:1.4;">' + g.name + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);line-height:1.4;margin-top:2px;word-break:break-all;">' + g.desc + '</div>'
-                + '<div style="font-size:11px;color:var(--color-text-light);margin-top:2px;line-height:1.4;">成员: ' + g.members.length + '人</div></div>';
-        }
-        html += '</div></div>';
-    }
-        html += '<div class="section-title" style="margin-top:20px;">\u771f\u5b9e\u97e9\u56e2\u767e\u79d1</div>';
-    for (var ri = 0; ri < REAL_KPOP_GROUPS.length; ri++) {
-        var rg = REAL_KPOP_GROUPS[ri];
-        html += '<div class="card" style="cursor:pointer;margin-bottom:8px;" onclick="toggleWikiRealGroup(this)">'
-            + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-            + '<div style="flex:1;min-width:0;">'
-            + '<div style="font-weight:700;font-size:15px;color:var(--color-primary);">' + rg.name + '</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + rg.company + ' | ' + rg.debutYear + '\u5e74\u51fa\u9053</div>'
-            + '</div>'
-            + '<div class="wiki-arrow" style="font-size:18px;color:var(--color-text-light);transition:transform 0.3s;flex-shrink:0;margin-left:8px;">+</div></div>'
-            + '<div class="wiki-groups" style="display:none;margin-top:12px;">'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-bottom:6px;">' + rg.desc + '</div>'
-            + '<div style="font-size:12px;margin-bottom:6px;"><span style="color:var(--color-text-light);">\u6210\u5458:</span> ' + rg.members.join(', ') + '</div>'
-            + '<div style="font-size:12px;"><span style="color:var(--color-text-light);">\u4ee3\u8868\u66f2:</span> ' + rg.songs.join(', ') + '</div>'
-            + '</div></div>';
-    }
-html += '</div></div>';
-    html += getAppLinkHtml('kpopwiki');
-    container.innerHTML = html;
-}
 function toggleWikiCompany(el) {
     var groupsDiv = el.querySelector('.wiki-groups');
     var arrow = el.querySelector('.wiki-arrow');
@@ -10990,146 +10300,6 @@ function toggleWikiRealGroup(el) {
 
 // ==================== GUIDE PAGE (新手指南) ====================
 
-function renderGuidePage(container) {
-    var _guideSections = [
-        {
-            title: '开始游戏',
-            subtitle: '从练习生到出道爱豆',
-            highlight: true,
-            items: [
-                { name: '创建角色', desc: '输入艺名、选择性别和生日，挑选3个性格标签' },
-                { name: '选择公司', desc: '五大经纪公司各有风格' },
-                { name: '选择身份', desc: '练习生从零训练，出道爱豆直接进入团体' },
-                { name: '加入团体', desc: '和队友一起活动' }
-            ]
-        },
-        {
-            title: '核心循环',
-            subtitle: '每天该做什么',
-            highlight: true,
-            items: [
-                { name: '训练', desc: '提升唱跳rap实力' },
-                { name: '通告', desc: '接单赚钱+涨粉' },
-                { name: '考核', desc: '练习生月度考核，不合格会被淘汰' },
-                { name: '回归', desc: '出道后策划回归：歌曲+MV+打歌' }
-            ]
-        },
-        {
-            title: '工作',
-            items: [
-                { name: '出道企划', desc: '查看出道进度', small: true },
-                { name: '通告', desc: '综艺/代言/活动', small: true },
-                { name: '行程表', desc: '每日安排', small: true },
-                { name: '会议', desc: '讨论回归方案', small: true },
-                { name: '邮箱', desc: '公司通知', small: true },
-                { name: '成员信息', desc: '队友资料', small: true },
-                { name: '合约', desc: '经纪合约', small: true },
-                { name: '反黑/公关', desc: '维护风评', small: true }
-            ]
-        },
-        {
-            title: '赚钱',
-            items: [
-                { name: '赚钱中心', desc: '每日任务', small: true },
-                { name: '外卖', desc: '恢复体力', small: true },
-                { name: '快递', desc: '买道具礼物', small: true },
-                { name: '抽卡', desc: '收集S/A/B/C卡牌', small: true },
-                { name: '换装', desc: '6套风格服装', small: true },
-                { name: '会员', desc: 'AI额度加成', small: true }
-            ]
-        },
-        {
-            title: '社交',
-            items: [
-                { name: 'KakaoTalk', desc: '和队友AI聊天', small: true },
-                { name: 'INS / TikTok', desc: '发动态涨粉', small: true },
-                { name: '恋爱', desc: '好感60可交往', small: true },
-                { name: '泡泡/Weverse', desc: '粉丝1k+解锁', small: true }
-            ]
-        },
-        {
-            title: '娱乐',
-            items: [
-                { name: '回归计划', desc: '歌曲+MV+打歌全流程', small: true },
-                { name: '直播', desc: '开直播赚金币', small: true },
-                { name: '热搜', desc: '你的事件可能上榜', small: true },
-                { name: '排行榜', desc: '各维度排名', small: true },
-                { name: '成就', desc: '解锁游戏成就', small: true }
-            ]
-        },
-        {
-            title: '重要数值',
-            highlight: true,
-            items: [
-                { name: '体力', desc: '活动消耗，外卖恢复，归零无法活动' },
-                { name: '金币', desc: '通告/签到/直播获得' },
-                { name: '粉丝', desc: '粉丝数决定解锁内容' },
-                { name: '危险值', desc: '过高会被暂停活动' },
-                { name: '好感度', desc: '聊天/送礼提升，60可恋爱' }
-            ]
-        },
-        {
-            title: '小技巧',
-            highlight: true,
-            items: [
-                { name: '每日签到', desc: '连续签到奖励递增，第3天+1AI额度，第7天+3AI额度' },
-                { name: '文案风格', desc: '聊天输入栏左侧可切换5种语气' },
-                { name: '云同步', desc: '注册账号自动保存进度' },
-                { name: '分享卡片', desc: '首页右上角可生成角色卡片' }
-            ]
-        }
-    ];
-
-    var _bodyHtml = '';
-    for (var _si = 0; _si < _guideSections.length; _si++) {
-        var _sec = _guideSections[_si];
-        var _isHighlight = _sec.highlight;
-        if (_isHighlight) {
-            _bodyHtml += '<div style="margin:0 8px 20px;background:linear-gradient(135deg,#F8FAFC,#E2E8F0);border-radius: 8px;padding:16px 18px;">'
-                + '<div style="font-size:16px;font-weight:700;color:#1E293B;margin-bottom:4px;">' + _sec.title + '</div>';
-            if (_sec.subtitle) {
-                _bodyHtml += '<div style="font-size:11px;color:#94A3B8;margin-bottom:14px;">' + _sec.subtitle + '</div>';
-            } else {
-                _bodyHtml += '<div style="height:10px;"></div>';
-            }
-            for (var _ii = 0; _ii < _sec.items.length; _ii++) {
-                var _it = _sec.items[_ii];
-                _bodyHtml += '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">'
-                    + '<div style="width:5px;height:5px;border-radius:50%;background:#1A2A3A;flex-shrink:0;margin-top:1px;"></div>'
-                    + '<div><span style="font-weight:600;font-size:13px;color:#333;">' + _it.name + '</span>'
-                    + '<span style="font-size:12px;color:#999;margin-left:4px;">' + _it.desc + '</span></div></div>';
-            }
-            _bodyHtml += '</div>';
-        } else {
-            _bodyHtml += '<div style="margin:0 8px 20px;">'
-                + '<div style="font-size:13px;font-weight:700;color:#1A2A3A;margin-bottom:10px;padding-left:4px;">' + _sec.title + '</div>'
-                + '<div style="display:flex;flex-wrap:wrap;gap:6px;">';
-            for (var _ji = 0; _ji < _sec.items.length; _ji++) {
-                var _jt = _sec.items[_ji];
-                _bodyHtml += '<div style="background:#F8FAFC;border-radius:10px;padding:8px 12px;min-width:80px;">'
-                    + '<div style="font-weight:600;font-size:12px;color:#1E293B;">' + _jt.name + '</div>'
-                    + '<div style="font-size:10px;color:#BBB;margin-top:2px;">' + _jt.desc + '</div></div>';
-            }
-            _bodyHtml += '</div></div>';
-        }
-    }
-
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header" style="background:linear-gradient(180deg,#F8FAFC,var(--bg-card));">'
-        + '<div class="back-btn" onclick="goToPage(\'home\')" style="touch-action:manipulation;-webkit-tap-highlight-color:transparent;">&#8249; 首页</div>'
-        + '<div class="page-title" style="color:#1E293B;">新手指南</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content" style="padding:20px 12px 80px;">'
-        + '<div style="text-align:center;margin-bottom:24px;">'
-        + '<div style="font-size:24px;font-weight:800;color:#1E293B;letter-spacing:1px;">My Idol</div>'
-        + '<div style="font-size:11px;color:#94A3B8;margin-top:6px;">韩娱爱豆模拟器</div>'
-        + '</div>'
-        + _bodyHtml
-        + '</div></div>';
-}
-
-// ==================== COMPANY DETAIL PAGE (公司详情) ====================
 function renderCompanyDetailPage(container) {
     var companyKey = gameState.player.company;
     if (!companyKey) {
