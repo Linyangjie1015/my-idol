@@ -348,11 +348,17 @@ function render() {
                 render我的Page(app);
                 break;
             case 'schedule':
-                render行程表Page(app);
+                renderSchedulePage(app);
                 break;
-            case 'work':
-                render工作Page(app);
+            case 'store':
+                renderStorePage(app);
                 break;
+            case 'prroom':
+                renderPrRoomPage(app);
+                break;
+
+
+
             case 'contacts':
                 renderContactsPage(app);
                 break;
@@ -365,18 +371,18 @@ function render() {
                         case 'more':
                 render更多服务Page(app);
                 break;
-            case 'food':
-                renderFoodPage(app);
-                break;
-            case 'delivery':
-                render快递服务Page(app);
-                break;
+
+
+
+
+
+
             case 'loan':
                 renderLoanPage(app);
                 break;
-            case 'crisis':
-                renderCrisisPage(app);
-                break;
+
+
+
             case 'live':
                 renderLivePage(app);
                 break;
@@ -417,15 +423,15 @@ function render() {
             case 'management':
                 renderManagementPage(app);
                 break;
-            case 'antiblack':
-                renderAntiBlackPage(app);
-                break;
+
+
+
             case 'fanclub':
                 renderFanClubPage(app);
                 break;
-            case 'pr':
-                renderPROfficePage(app);
-                break;
+
+
+
             case 'achievement':
                 renderAchievementsPage(app);
                 break;
@@ -445,9 +451,9 @@ function render() {
             case 'daily':
                 renderDailyPage(app);
                 break;
-            case 'earn':
-                render赚钱中心Page(app);
-                break;
+
+
+
             case 'noticedetail':
                 render通告详情Page(app);
                 break;
@@ -837,7 +843,7 @@ function completeCreation() {
 }
 
 function do工作() {
-    currentPage = 'work';
+    currentPage = 'schedule';
     render();
     renderBottomNav();
 }
@@ -917,36 +923,31 @@ var APP_LINKS = {
     'sns': ['fancommunity', 'fanclub', 'live'],
     'fancommunity': ['sns', 'fanchat', 'fanclub', 'live'],
     'fanchat': ['fancommunity', 'fanclub'],
-    'live': ['sns', 'fancommunity', 'fanclub', 'earn'],
+    'live': ['sns', 'fancommunity', 'fanclub', 'schedule'],
     'fanclub': ['fancommunity', 'fanchat', 'live', 'sns'],
-    'earn': ['loan', 'food', 'delivery', 'work', 'schedule'],
-    'loan': ['earn', 'contract'],
-    'food': ['earn', 'training'],
-    'delivery': ['earn', 'training'],
-    'work': ['earn', 'sns', 'schedule'],
-    'schedule': ['work', 'music', 'earn'],
-    'crisis': ['pr'],
-    'antiblack': ['pr'],
-    'pr': ['crisis', 'antiblack', 'contacts', 'management'],
-    'contacts': ['pr', 'members'],
+    'loan': ['schedule', 'contract'],
+    'schedule': ['loan', 'music', 'training'],
+    'store': ['schedule', 'vip'],
+    'prroom': ['contacts', 'management'],
+    'contacts': ['prroom', 'members'],
     'members': ['contacts', 'company'],
-    'management': ['work', 'pr', 'comeback', 'company'],
-    'contract': ['company', 'earn'],
+    'management': ['schedule', 'prroom', 'comeback', 'company'],
+    'contract': ['company', 'schedule'],
     'company': ['contract', 'members', 'management', 'comeback'],
     'debut': ['members', 'training', 'achievement'],
-    'training': ['earn', 'work', 'debut'],
+    'training': ['schedule', 'debut'],
     'achievement': ['debut'],
     'gacha': ['members', 'vip'],
-    'vip': ['gacha', 'live', 'training', 'food', 'delivery'],
+    'vip': ['gacha', 'live', 'training', 'store'],
 };
 
 var APP_NAMES = {
-    'sns': 'SNS', 'contacts': '通讯录', 'fancommunity': '粉丝社区', 'food': '外卖', 'delivery': '快递',
+    'sns': 'SNS', 'contacts': '通讯录', 'fancommunity': '粉丝社区', 'store': '便利店',
     'loan': '贷款', 'live': '直播',
-    'fanchat': '粉丝私聊', 'crisis': '私生危机',
+    'fanchat': '粉丝私聊', 'prroom': '公关室',
     'achievement': '成就', 'gacha': '抽卡', 'vip': '会员', 'company': '我的公司',
     'comeback': '回归计划', 'songprod': '歌曲制作', 'music': '音乐放送',
-    'management': '经纪团队', 'antiblack': '反黑中心', 'fanclub': '后援会',
+    'management': '经纪团队', 'fanclub': '后援会',
 };
 
 function getAppLinkHtml(currentAppId) {
@@ -989,18 +990,18 @@ function syncFromApp(sourceApp, data) {
         if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
         gameState.hotsearchTopics.unshift({ text: '恋情曝光!', type: 'bad', time: Date.now() });
     }
-    if (sourceApp === 'crisis' && data && data.action === 'incident') {
+    if (sourceApp === 'prroom' && data && data.action === 'incident') {
         addDanger(data.dangerGain, 'crisis');
         if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
         gameState.hotsearchTopics.unshift({ text: data.title, type: 'bad', time: Date.now() });
     }
-    if (sourceApp === 'pr' && data && data.action === 'action_done') {
+    if (sourceApp === 'prroom' && data && data.action === 'action_done') {
         if (data.dangerChange && data.dangerChange < 0) {
             if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
             gameState.hotsearchTopics.unshift({ text: data.title, type: 'good', time: Date.now() });
         }
     }
-    if (sourceApp === 'work' && data && data.action === 'complete') {
+    if (sourceApp === 'schedule' && data && data.action === 'complete') {
         if (data.fame > 0 && Math.random() < 0.3) {
             if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
             gameState.hotsearchTopics.unshift({ text: data.name + ' 表现出色', type: 'good', time: Date.now() });
@@ -1063,14 +1064,16 @@ function renderHomePage(container) {
         { id: 'schedule', icon: 'schedule', name: '日程', unlock: 0 },
         { id: 'fancommunity', icon: 'fancommunity', name: '粉丝社区', unlock: 1000 },
         { id: 'training', icon: 'training', name: '训练', unlock: 0 },
-        { id: 'work', icon: 'work', name: '通告', unlock: 0 },
+
         { id: 'music', icon: 'music', name: '音乐放送', unlock: 0 },
         { id: 'comeback', icon: 'comeback', name: '回归', unlock: 0 },
         { id: 'live', icon: 'live', name: '直播', unlock: 0 },
-        { id: 'earn', icon: 'earn', name: '赚钱', unlock: 0 },
+
         { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
         { id: 'wardrobe', icon: 'wardrobe', name: '换装', unlock: 0 },
         { id: 'debut', icon: 'debut', name: '出道企划', unlock: 0 },
+        { id: 'store', icon: 'store', name: '\u4fbf\u5229\u5e97', unlock: 0 },
+        { id: 'prroom', icon: 'prroom', name: '\u516c\u5173\u5ba4', unlock: 0 },
         { id: 'vip', icon: 'vip', name: '会员', unlock: 0 }
     ];
     
@@ -1116,7 +1119,7 @@ function renderHomePage(container) {
                     var homePageNum = gameState.homePageNum || 1;
                     var categories = [
                         { title: '日常', ids: ['daily', 'contacts', 'sns', 'schedule', 'fancommunity'], page: 1 },
-                        { title: '事业', ids: ['training', 'work', 'music', 'comeback', 'live', 'earn', 'debut'], page: 1 },
+                        { title: '事业', ids: ['training', 'schedule', 'music', 'comeback', 'live', 'debut'], page: 1 },
                         { title: '更多', ids: ['gacha', 'wardrobe', 'vip'], page: 2 }
                     ];
                     var catHtml = '';
@@ -1156,8 +1159,8 @@ var SCENES = {
             {x:50,y:60,icon:'phone',label:'手机',action:'phone'},
             {x:35,y:55,icon:'bed',label:'休息',action:'sleep'},
             {x:75,y:30,icon:'door',label:'走廊',action:'scene',target:'home_corridor'},
-            {x:25,y:70,icon:'food',label:'外卖',action:'app',target:'food'},
-            {x:80,y:75,icon:'delivery',label:'快递',action:'app',target:'delivery'},
+            {x:25,y:70,icon:'store',label:'便利店',action:'app',target:'store'},
+            {x:80,y:75,icon:'store',label:'便利店',action:'app',target:'store'},
             {x:88,y:45,icon:'door',label:'出门',action:'nav',target:'_nav'}
         ]
     },
@@ -1229,7 +1232,7 @@ var SCENES = {
         name: '公司大厅', img: 'imgs/scenes/company.jpg',
         hotspots: [
             {x:50,y:55,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'},
-            {x:20,y:65,icon:'food',label:'咖啡吧',action:'app',target:'food'},
+            {x:20,y:65,icon:'store',label:'便利店',action:'app',target:'store'},
             {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
@@ -1297,7 +1300,7 @@ var SCENES = {
         name: '走廊', img: 'imgs/scenes/company_corridor_f4.jpg', floor: 4,
         hotspots: [
             {x:25,y:45,icon:'management',label:'经纪部',action:'scene',target:'mgmt_office'},
-            {x:50,y:45,icon:'pr',label:'公关部',action:'scene',target:'pr_office'},
+            {x:50,y:45,icon:'prroom',label:'公关室',action:'scene',target:'pr_office'},
             {x:75,y:45,icon:'meeting',label:'会议室',action:'scene',target:'meeting_room'},
             {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
         ]
@@ -1312,7 +1315,7 @@ var SCENES = {
     pr_office: {
         name: '公关部', img: 'imgs/scenes/meeting.jpg', floor: 4,
         hotspots: [
-            {x:50,y:50,icon:'pr',label:'公关',action:'app',target:'pr'},
+            {x:50,y:50,icon:'prroom',label:'公关室',action:'app',target:'pr'},
             {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'}
         ]
     },
@@ -1388,7 +1391,7 @@ var SCENES = {
     restaurant: {
         name: '餐厅', img: 'imgs/scenes/restaurant.jpg',
         hotspots: [
-            {x:50,y:55,icon:'food',label:'菜单',action:'app',target:'food'},
+            {x:50,y:55,icon:'store',label:'便利店',action:'app',target:'store'},
             {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
@@ -1409,7 +1412,7 @@ var SCENES = {
     photoshoot: {
         name: '拍摄棚', img: 'imgs/scenes/photoshoot.jpg',
         hotspots: [
-            {x:50,y:45,icon:'camera',label:'拍摄',action:'app',target:'work'},
+            {x:50,y:45,icon:'camera',label:'拍摄',action:'app',target:'schedule'},
             {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     }
@@ -1541,19 +1544,21 @@ function _buildPhoneModal() {
         {id:'schedule',icon:'schedule',name:'\u65e5\u7a0b',unlock:0},
         {id:'fancommunity',icon:'fancommunity',name:'\u7c89\u4e1d\u793e\u533a',unlock:1000},
         {id:'training',icon:'training',name:'\u8bad\u7ec3',unlock:0},
-        {id:'work',icon:'work',name:'\u901a\u544a',unlock:0},
+
         {id:'music',icon:'music',name:'\u97f3\u4e50\u653e\u9001',unlock:0},
         {id:'comeback',icon:'comeback',name:'\u56de\u5f52',unlock:0},
         {id:'live',icon:'live',name:'\u76f4\u64ad',unlock:0},
-        {id:'earn',icon:'earn',name:'\u8d5a\u94b1',unlock:0},
+
         {id:'gacha',icon:'gacha',name:'\u62bd\u5361',unlock:0},
         {id:'wardrobe',icon:'wardrobe',name:'\u6362\u88c5',unlock:0},
         {id:'debut',icon:'debut',name:'\u51fa\u9053\u4f01\u5212',unlock:0},
+        {id:'store',icon:'store',name:'\u4fbf\u5229\u5e97',unlock:0},
+        {id:'prroom',icon:'prroom',name:'\u516c\u5173\u5ba4',unlock:0},
         {id:'vip',icon:'vip',name:'\u4f1a\u5458',unlock:0}
     ];
     var categories = [
-        {title:'\u65e5\u5e38',ids:['daily','contacts','sns','schedule','fancommunity']},
-        {title:'\u4e8b\u4e1a',ids:['training','work','music','comeback','live','earn','debut']},
+        {title:'\u65e5\u5e38',ids:['daily','contacts','sns','schedule','fancommunity','store','prroom']},
+        {title:'\u4e8b\u4e1a',ids:['training','music','comeback','live','debut']},
         {title:'\u66f4\u591a',ids:['gacha','wardrobe','vip']}
     ];
     var appMap = {};
@@ -4450,11 +4455,9 @@ function getAppRedDot(appId) {
             break;
         case 'schedule':
             if (gameState.schedule) { for (var i = 0; i < gameState.schedule.length; i++) { if (!gameState.schedule[i].done) count++; } }
+            if (gameState.newNotice) count = Math.max(count || 0, 1);
             break;
-        case 'work':
-            if (gameState.newNotice) count = 1;
-            break;
-        case 'crisis':
+        case 'prroom':
             if (gameState.crisis && gameState.crisis.length) count = gameState.crisis.length;
             break;
         case 'live':
@@ -4635,6 +4638,9 @@ function getIcon(name) {
         'sns': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="1.5"></line></svg>',
         'fancommunity': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
 
+        'store': '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 22V12h6v10" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M3 9h18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
+        'prroom': '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
+        'gift': '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline><rect x="2" y="7" width="20" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="12" y1="22" x2="12" y2="7" stroke="currentColor" stroke-width="1.5"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
     };
     return icons[name] || '';
 }
@@ -4661,6 +4667,538 @@ function generateHotsearchList() {
     for (var i = 0; i < 8; i++) {
         hotsearchList.push({ rank: i + 1, topic: shuffled[i].topic, posts: shuffled[i].posts, hot: i < 2, detail: shuffled[i].detail });
     }
+}
+
+function renderSchedulePage(container) {
+    var isIdol = gameState.player.role === 'Idol';
+    var html = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div>'
+        + '<div class="page-title">\u65e5\u7a0b</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">';
+
+    if (isIdol) {
+        // Idol: show schedule items + work notices
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+            + '<div style="font-size:12px;opacity:0.8;">\u4eca\u65e5\u884c\u7a0b</div>'
+            + '<div style="font-size:14px;margin-top:4px;">' + new Date().toLocaleDateString('zh-CN') + '</div>'
+            + '</div>';
+
+        // Schedule items section
+        if (!gameState.scheduleItems || gameState.scheduleItems.length === 0) {
+            initScheduleItems();
+        }
+        var items = gameState.scheduleItems;
+        html += '<div class="section-title" style="margin-top:16px;">\u884c\u7a0b\u5b89\u6392</div>';
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            if (item.status === 'done' && item._completed) continue;
+            var statusHtml = '';
+            if (item.status === 'done') {
+                statusHtml = '<span style="font-size:18px;color:var(--color-danger);font-weight:700;">\u2713</span>';
+            } else if (item.status === 'skip') {
+                statusHtml = '<span style="font-size:18px;color:#FF4757;font-weight:700;">\u2717</span>';
+            } else {
+                statusHtml = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#CCC;"></span>';
+            }
+            var actionsHtml = '';
+            if (item.status === 'todo') {
+                actionsHtml = '<div style="display:flex;gap:6px;align-items:center;">'
+                    + '<button class="btn btn-sm btn-primary" data-i="' + i + '" onclick="joinSchedule(parseInt(this.dataset.i))" style="font-size:11px;padding:4px 10px;">\u53c2\u52a0</button>'
+                    + '<button class="btn btn-sm btn-secondary" data-i="' + i + '" onclick="skipSchedule(parseInt(this.dataset.i))" style="font-size:11px;padding:4px 10px;color:var(--color-danger);border-color:var(--color-danger);">\u4e0d\u53c2\u52a0</button>'
+                    + '</div>';
+            } else {
+                actionsHtml = statusHtml;
+            }
+            html += '<div class="schedule-item">'
+                + '<div class="schedule-time">' + item.time + '</div>'
+                + '<div class="schedule-info">'
+                + '<div class="schedule-name">' + item.name + '</div>'
+                + '<span class="schedule-tag ' + item.tagType + '">' + item.tag + '</span>'
+                + '</div>'
+                + actionsHtml
+                + '</div>';
+        }
+
+        // Work notices section
+        _generateNoticeList();
+        var notices = gameState.noticeList;
+        html += '<div class="section-title" style="margin-top:16px;">\u901a\u544a\u5de5\u4f5c</div>';
+        for (var ni = 0; ni < notices.length; ni++) {
+            var n = notices[ni];
+            var typeBg = '';
+            if (n.type === 'musicshow') typeBg = 'background:#E2E8F0;color:#1A2A3A;';
+            else if (n.type === 'mcountdown') typeBg = 'background:#E4F5FF;color:#5BB8E8;';
+            else if (n.type === 'inkigayo') typeBg = 'background:#FFF4E0;color:#F0A030;';
+            else if (n.type === 'musiccore') typeBg = 'background:#E8FFE4;color:#4CAF50;';
+            else if (n.type === 'fanmeet') typeBg = 'background:#F0E4FF;color:#A070E0;';
+            else if (n.type === 'concert') typeBg = 'background:#E2E8F0;color:#1E293B;';
+            else typeBg = 'background:#E4F5FF;color:#5BB8E8;';
+            html += '<div class="notice-card" data-i="' + ni + '" onclick="viewNoticeDetail(parseInt(this.dataset.i))">'
+                + '<div class="notice-type" style="' + typeBg + '">' + n.typeName + '</div>'
+                + '<div class="notice-title">' + n.name + '</div>'
+                + '<div class="notice-sub">\u4f53\u529b -' + n['\u4f53\u529b'] + '</div>'
+                + '<div class="notice-reward">+' + n.reward.toLocaleString() + ' \u91d1\u5e01</div>'
+                + '</div>';
+        }
+    } else {
+        // Trainee: show schedule items + earn jobs
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+            + '<div style="font-size:12px;opacity:0.8;">\u8bad\u7ec3\u65e5\u7a0b</div>'
+            + '<div style="font-size:14px;margin-top:4px;">' + new Date().toLocaleDateString('zh-CN') + '</div>'
+            + '</div>';
+
+        // Schedule items section
+        if (!gameState.scheduleItems || gameState.scheduleItems.length === 0) {
+            initScheduleItems();
+        }
+        var tItems = gameState.scheduleItems;
+        html += '<div class="section-title" style="margin-top:16px;">\u8bad\u7ec3\u65e5\u7a0b</div>';
+        for (var ti = 0; ti < tItems.length; ti++) {
+            var tItem = tItems[ti];
+            if (tItem.status === 'done' && tItem._completed) continue;
+            var tStatusHtml = '';
+            if (tItem.status === 'done') {
+                tStatusHtml = '<span style="font-size:18px;color:var(--color-danger);font-weight:700;">\u2713</span>';
+            } else if (tItem.status === 'skip') {
+                tStatusHtml = '<span style="font-size:18px;color:#FF4757;font-weight:700;">\u2717</span>';
+            } else {
+                tStatusHtml = '<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#CCC;"></span>';
+            }
+            var tActionsHtml = '';
+            if (tItem.status === 'todo') {
+                tActionsHtml = '<div style="display:flex;gap:6px;align-items:center;">'
+                    + '<button class="btn btn-sm btn-primary" data-i="' + ti + '" onclick="joinSchedule(parseInt(this.dataset.i))" style="font-size:11px;padding:4px 10px;">\u53c2\u52a0</button>'
+                    + '<button class="btn btn-sm btn-secondary" data-i="' + ti + '" onclick="skipSchedule(parseInt(this.dataset.i))" style="font-size:11px;padding:4px 10px;color:var(--color-danger);border-color:var(--color-danger);">\u4e0d\u53c2\u52a0</button>'
+                    + '</div>';
+            } else {
+                tActionsHtml = tStatusHtml;
+            }
+            html += '<div class="schedule-item">'
+                + '<div class="schedule-time">' + tItem.time + '</div>'
+                + '<div class="schedule-info">'
+                + '<div class="schedule-name">' + tItem.name + '</div>'
+                + '<span class="schedule-tag ' + tItem.tagType + '">' + tItem.tag + '</span>'
+                + '</div>'
+                + tActionsHtml
+                + '</div>';
+        }
+
+        // Earn jobs section (inline simplified earn logic)
+        if (!gameState.earnCooldowns) gameState.earnCooldowns = {};
+        var traineeJobs = [
+            { id: 'magazine', name: '\u62cd\u6742\u5fd7', '\u4f53\u529b': 15, money: 2000, fame: 3, influence: 0, fans: 5, cooldown: 30000 },
+            { id: 'busking', name: '\u8def\u6f14', '\u4f53\u529b': 20, money: 1500, fame: 5, influence: 0, fans: 15, cooldown: 45000 },
+            { id: 'backup', name: '\u4f34\u821e', '\u4f53\u529b': 25, money: 3000, fame: 0, influence: 2, fans: 8, cooldown: 60000 },
+            { id: 'convenience', name: '\u4fbf\u5229\u5e97\u6253\u5de5', '\u4f53\u529b': 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
+            { id: 'cafe', name: '\u5496\u5561\u5e97\u517c\u804c', '\u4f53\u529b': 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
+            { id: 'street', name: '\u8857\u5934\u8868\u6f14', '\u4f53\u529b': 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45000 }
+        ];
+        var traineeSoloJobs = [
+            { id: 't_solo_dance', name: '\u4e2a\u4eba\u7ec3\u821e', '\u4f53\u529b': 15, money: 500, fame: 1, influence: 0, fans: 3, cooldown: 30000 },
+            { id: 't_solo_vocal', name: '\u4e2a\u4eba\u7ec3\u5531', '\u4f53\u529b': 10, money: 300, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
+            { id: 't_solo_cover', name: '\u7ffb\u5531\u6295\u7a3f', '\u4f53\u529b': 15, money: 1000, fame: 3, influence: 0, fans: 8, cooldown: 45000 },
+            { id: 't_solo_street', name: '\u8857\u5934solo', '\u4f53\u529b': 20, money: 1500, fame: 4, influence: 0, fans: 10, cooldown: 45000 }
+        ];
+        var traineeGroupJobs = [
+            { id: 't_group_harmony', name: '\u5408\u58f0\u7ec3\u4e60', '\u4f53\u529b': 10, money: 400, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
+            { id: 't_group_choreo', name: '\u7fa4\u821e\u7ec3\u4e60', '\u4f53\u529b': 20, money: 600, fame: 1, influence: 1, fans: 5, cooldown: 45000 },
+            { id: 't_group_eval', name: '\u5c0f\u7ec4\u8003\u6838', '\u4f53\u529b': 25, money: 2000, fame: 2, influence: 2, fans: 5, cooldown: 60000, interview: true }
+        ];
+        var allTraineeEarnings = traineeJobs.concat(traineeSoloJobs).concat(traineeGroupJobs);
+
+        html += '<div class="section-title" style="margin-top:16px;">\u6253\u5de5\u8d5a\u94b1</div>';
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+            + '<div style="font-size:12px;opacity:0.8;">\u5f53\u524d\u4f53\u529b</div>'
+            + '<div style="font-size:20px;font-weight:700;">' + gameState['\u4f53\u529b'] + ' / ' + gameState['max\u4f53\u529b'] + '</div>'
+            + '</div>';
+
+        for (var ei = 0; ei < allTraineeEarnings.length; ei++) {
+            var ej = allTraineeEarnings[ei];
+            var cd = gameState.earnCooldowns[ej.id] || 0;
+            var now = Date.now();
+            var isOnCd = cd > now;
+            var noStamina = gameState['\u4f53\u529b'] < ej['\u4f53\u529b'];
+            var isDisabled = isOnCd || noStamina;
+            var rewardText = '+' + ej.money.toLocaleString() + ' \u91d1\u5e01';
+            if (ej.fame > 0) rewardText += '  +' + ej.fame + ' \u540d\u6c14';
+            if (ej.influence > 0) rewardText += '  +' + ej.influence + ' \u5f71\u54cd\u529b';
+            if (ej.fans > 0) rewardText += '  +' + ej.fans + ' \u7c89\u4e1d';
+            var lockText = '';
+            if (isOnCd) {
+                var remain = Math.ceil((cd - now) / 1000);
+                lockText = '<div class="earn-job-cooldown">\u51b7\u5374\u4e2d ' + remain + 's</div>';
+            }
+            html += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="doEarnJob(\'' + ej.id + '\')"') + '>'
+                + '<div class="earn-job-name">' + ej.name + (ej.interview ? ' <span style="font-size:10px;color:var(--color-primary);font-weight:400;">\u9700\u9762\u8bd5</span>' : '') + '</div>'
+                + '<div class="earn-job-cost">\u4f53\u529b -' + ej['\u4f53\u529b'] + '</div>'
+                + '<div class="earn-job-reward">' + rewardText + '</div>'
+                + lockText
+                + '</div>';
+        }
+    }
+
+    html += getAppLinkHtml('schedule');
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function renderStorePage(container) {
+    var currentTab = gameState.storeTab || 'food';
+    gameState.storeTab = currentTab;
+
+    var tabs = [
+        { id: 'food', name: '\u5916\u5356' },
+        { id: 'delivery', name: '\u5feb\u9012' },
+        { id: 'gift', name: '\u793c\u7269' }
+    ];
+
+    // Tab bar SVG icons
+    var foodIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>';
+    var deliveryIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>';
+    var giftIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5" rx="1"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>';
+    var tabIcons = { food: foodIcon, delivery: deliveryIcon, gift: giftIcon };
+
+    var tabsHtml = '<div style="position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--bg-card);border-top:1px solid var(--color-border);display:flex;z-index:100;">';
+    for (var ti = 0; ti < tabs.length; ti++) {
+        var t = tabs[ti];
+        var isSelected = t.id === currentTab;
+        var tabColor = isSelected ? '#1E293B' : '#1F2937';
+        var tabWeight = isSelected ? '700' : '400';
+        tabsHtml += '<div onclick="gameState.storeTab=\'' + t.id + '\';render();" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">'
+            + '<div style="color:' + tabColor + ';">' + (tabIcons[t.id] || '') + '</div>'
+            + '<div style="font-size:10px;color:' + tabColor + ';font-weight:' + tabWeight + ';margin-top:2px;">' + t.name + '</div>'
+            + '</div>';
+    }
+    tabsHtml += '</div>';
+
+    var contentHtml = '';
+    if (currentTab === 'food') {
+        contentHtml = _renderStoreFoodTab();
+    } else if (currentTab === 'delivery') {
+        contentHtml = _renderStoreDeliveryTab();
+    } else if (currentTab === 'gift') {
+        contentHtml = _renderStoreGiftTab();
+    }
+
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div>'
+        + '<div class="page-title">\u4fbf\u5229\u5e97</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content" style="padding-bottom:70px;">'
+        + contentHtml
+        + getAppLinkHtml('store')
+        + '</div></div>'
+        + tabsHtml;
+}
+
+function _renderStoreFoodTab() {
+    var foods = [
+        { name: '\u70b8\u9e21', price: 8000, '\u4f53\u529b': 30, category: '\u5feb\u9910' },
+        { name: '\u62ab\u8428', price: 12000, '\u4f53\u529b': 45, category: '\u5feb\u9910' },
+        { name: '\u6c49\u5821', price: 7000, '\u4f53\u529b': 25, category: '\u5feb\u9910' },
+        { name: '\u7d2b\u83dc\u5305\u996d', price: 5000, '\u4f53\u529b': 20, category: '\u5feb\u9910' },
+        { name: '\u62c9\u9762', price: 4000, '\u4f53\u529b': 15, category: '\u5feb\u9910' },
+        { name: '\u7092\u5e74\u7cd5', price: 6000, '\u4f53\u529b': 22, category: '\u5feb\u9910' },
+        { name: '\u86cb\u7cd5', price: 5000, '\u4f53\u529b': 15, category: '\u751c\u70b9' },
+        { name: '\u5496\u5561', price: 4000, '\u4f53\u529b': 10, category: '\u751c\u70b9' },
+        { name: '\u5976\u8336', price: 4500, '\u4f53\u529b': 12, category: '\u751c\u70b9' },
+        { name: '\u9a6c\u5361\u9f99', price: 8000, '\u4f53\u529b': 18, category: '\u751c\u70b9' },
+        { name: '\u51b0\u6dc7\u6dcb', price: 3500, '\u4f53\u529b': 8, category: '\u751c\u70b9' },
+        { name: '\u6c99\u62c9', price: 10000, '\u4f53\u529b': 35, category: '\u8425\u517b\u9910' },
+        { name: '\u53c2\u9e21\u6c64', price: 15000, '\u4f53\u529b': 50, category: '\u8425\u517b\u9910' },
+        { name: '\u97e9\u5f0f\u5b9a\u98df', price: 12000, '\u4f53\u529b': 40, category: '\u8425\u517b\u9910' },
+        { name: '\u6392\u6bd2\u679c\u6c41', price: 8000, '\u4f53\u529b': 20, category: '\u8425\u517b\u9910' },
+        { name: '\u725b\u6392', price: 25000, '\u4f53\u529b': 80, category: '\u5962\u534e\u6599\u7406' },
+        { name: '\u97e9\u725b\u70e4\u8089', price: 35000, '\u4f53\u529b': 100, category: '\u5962\u534e\u6599\u7406' },
+        { name: '\u7c73\u5176\u6797\u5957\u9910', price: 50000, '\u4f53\u529b': 120, category: '\u5962\u534e\u6599\u7406' },
+        { name: '\u60c5\u4fa3\u5957\u9910', price: 20000, '\u4f53\u529b': 50, loveVal: 5, category: '\u60c5\u4fa3\u7f8e\u98df' },
+        { name: '\u7231\u5fc3\u4fbf\u5f53', price: 15000, '\u4f53\u529b': 30, loveVal: 8, category: '\u60c5\u4fa3\u7f8e\u98df' },
+        { name: '\u8349\u8393\u86cb\u7cd5', price: 10000, '\u4f53\u529b': 15, loveVal: 4, category: '\u60c5\u4fa3\u7f8e\u98df' },
+        { name: '\u7ea2\u9152\u5de7\u514b\u529b', price: 25000, '\u4f53\u529b': 20, loveVal: 10, category: '\u60c5\u4fa3\u7f8e\u98df' },
+        { name: '\u70db\u5149\u665a\u9910', price: 40000, '\u4f53\u529b': 60, loveVal: 12, category: '\u60c5\u4fa3\u7f8e\u98df' }
+    ];
+    var cats = ['\u5feb\u9910', '\u751c\u70b9', '\u8425\u517b\u9910', '\u5962\u534e\u6599\u7406', '\u60c5\u4fa3\u7f8e\u98df'];
+    var html = '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">\u4f59\u989d</div>'
+        + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
+        + '</div>';
+    for (var ci = 0; ci < cats.length; ci++) {
+        var cat = cats[ci];
+        html += '<div class="section-title">' + cat + '</div>';
+        for (var fi = 0; fi < foods.length; fi++) {
+            var f = foods[fi];
+            if (f.category !== cat) continue;
+            var effectText = '+' + f['\u4f53\u529b'] + ' \u4f53\u529b';
+            if (f.loveVal) effectText += ' +' + f.loveVal + ' \u597d\u611f\u5ea6';
+            html += '<div class="card" data-fname="' + f.name + '" data-fprice="' + f.price + '" data-fstamina="' + f['\u4f53\u529b'] + '" data-flove="' + (f.loveVal || 0) + '" onclick="orderFood(this.dataset.fname,Number(this.dataset.fprice),Number(this.dataset.fstamina),Number(this.dataset.flove))">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div>'
+                + '<div style="font-weight:600;">' + f.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);">' + effectText + '(\u5b58\u5165\u80cc\u5305)</div>'
+                + '</div>'
+                + '<div style="text-align:right;">'
+                + '<div style="font-weight:600;color:var(--color-primary);">' + (f.price || 0).toLocaleString() + '</div>'
+                + '</div>'
+                + '</div></div>';
+        }
+    }
+    return html;
+}
+
+function _renderStoreDeliveryTab() {
+    var deliveryItems = [
+        { name: '\u57fa\u7840\u62a4\u80a4\u5957\u88c5', price: 15000, lifeVal: 3, looksVal: 8, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
+        { name: '\u7cbe\u534e\u6db2', price: 25000, lifeVal: 5, looksVal: 12, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
+        { name: '\u9762\u819c\u5957\u88c5', price: 12000, lifeVal: 2, looksVal: 6, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
+        { name: '\u9632\u6652\u971c', price: 8000, lifeVal: 1, looksVal: 4, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
+        { name: '\u5316\u5986\u54c1\u5957\u88c5', price: 20000, looksVal: 10, category: '\u5316\u5986\u54c1', effect: '\u989c\u503c' },
+        { name: '\u53e3\u7ea2\u793c\u76d2', price: 18000, looksVal: 8, category: '\u5316\u5986\u54c1', effect: '\u989c\u503c' },
+        { name: '\u6c14\u57ab\u7c89\u5e95', price: 16000, looksVal: 7, category: '\u5316\u5986\u54c1', effect: '\u989c\u503c' },
+        { name: '\u7ec3\u4e60\u670d', price: 10000, looksVal: 5, category: '\u8863\u670d', effect: '\u989c\u503c' },
+        { name: '\u821e\u53f0\u670d\u88c5', price: 35000, looksVal: 18, category: '\u8863\u670d', effect: '\u989c\u503c' },
+        { name: '\u65e5\u5e38\u7a7f\u642d', price: 15000, looksVal: 8, category: '\u8863\u670d', effect: '\u989c\u503c' },
+        { name: '\u54c1\u724c\u8054\u540d\u6b3e', price: 50000, looksVal: 25, category: '\u8863\u670d', effect: '\u989c\u503c' },
+        { name: '\u7c89\u4e1d\u4fe1\u4ef6\u5408\u96c6', price: 5000, fameVal: 5, category: '\u7c89\u4e1d\u793c\u7269', effect: '\u540d\u6c14' },
+        { name: '\u7c89\u4e1d\u5e94\u63f4\u68d2', price: 8000, fameVal: 8, category: '\u7c89\u4e1d\u793c\u7269', effect: '\u540d\u6c14' },
+        { name: '\u7c89\u4e1d\u624b\u5de5\u793c\u7269', price: 12000, fameVal: 12, category: '\u7c89\u4e1d\u793c\u7269', effect: '\u540d\u6c14' },
+        { name: '\u9690\u79c1\u4fdd\u62a4\u5957\u88c5', price: 20000, dangerVal: -15, category: '\u79c1\u751f\u9632\u62a4', effect: '\u5371\u9669' },
+        { name: '\u9632\u8ddf\u8e2a\u5668', price: 30000, dangerVal: -20, category: '\u79c1\u751f\u9632\u62a4', effect: '\u5371\u9669' },
+        { name: '\u5b89\u5168\u8b66\u62a5\u5668', price: 15000, dangerVal: -10, category: '\u79c1\u751f\u9632\u62a4', effect: '\u5371\u9669' },
+        { name: '\u611f\u5192\u836f', price: 5000, lifeVal: 15, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
+        { name: '\u8425\u517b\u8865\u5145\u5242', price: 10000, lifeVal: 25, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
+        { name: '\u6b62\u75db\u8d34', price: 8000, lifeVal: 12, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
+        { name: '\u6025\u6551\u5305', price: 15000, lifeVal: 35, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
+        { name: '\u7ef4\u751f\u7d20\u5957\u88c5', price: 12000, lifeVal: 20, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' }
+    ];
+    var delCats = ['\u62a4\u80a4', '\u5316\u5986\u54c1', '\u8863\u670d', '\u7c89\u4e1d\u793c\u7269', '\u79c1\u751f\u9632\u62a4', '\u533b\u836f\u54c1'];
+    var html = '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">\u4f59\u989d</div>'
+        + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
+        + '</div>';
+    for (var dci = 0; dci < delCats.length; dci++) {
+        var delCat = delCats[dci];
+        html += '<div class="section-title">' + delCat + '</div>';
+        for (var dii = 0; dii < deliveryItems.length; dii++) {
+            var item = deliveryItems[dii];
+            if (item.category !== delCat) continue;
+            var effectText = '';
+            if (item.effect === '\u751f\u547d') effectText = '+' + item.lifeVal + ' \u751f\u547d';
+            else if (item.effect === '\u989c\u503c') effectText = '+' + (item.looksVal || 0) + ' \u989c\u503c';
+            else if (item.effect === '\u540d\u6c14') effectText = '+' + item.fameVal + ' \u540d\u6c14';
+            else if (item.effect === '\u5371\u9669') effectText = '-' + Math.abs(item.dangerVal) + ' \u5371\u9669\u503c';
+            var itemVal = item.looksVal || item.lifeVal || item.fameVal || Math.abs(item.dangerVal || 0);
+            html += '<div class="card" data-name="' + item.name + '" data-price="' + item.price + '" data-val="' + itemVal + '" data-effect="' + item.effect + '" onclick="order\u5feb\u9012\u670d\u52a1(this.dataset.name,Number(this.dataset.price),Number(this.dataset.val),this.dataset.effect)">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div>'
+                + '<div style="font-weight:600;">' + item.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-success);">' + effectText + '</div>'
+                + '</div>'
+                + '<div style="font-weight:600;color:var(--color-primary);">' + (item.price || 0).toLocaleString() + '</div>'
+                + '</div></div>';
+        }
+    }
+    return html;
+}
+
+function _renderStoreGiftTab() {
+    var gifts = [
+        { name: '\u7384\u53c2', price: 20000, lifeVal: 30, category: '\u6ecb\u8865' },
+        { name: '\u9e7f\u8338', price: 35000, lifeVal: 50, category: '\u6ecb\u8865' },
+        { name: '\u9ad8\u4e3d\u53c2', price: 50000, lifeVal: 80, category: '\u6ecb\u8865' },
+        { name: '\u7384\u725b', price: 28000, lifeVal: 40, category: '\u6ecb\u8865' },
+        { name: '\u7389\u955c', price: 15000, looksVal: 10, category: '\u7f8e\u5986' },
+        { name: '\u73e0\u5b9d\u5957\u88c5', price: 40000, looksVal: 20, category: '\u7f8e\u5986' },
+        { name: '\u9999\u6c34', price: 25000, looksVal: 15, category: '\u7f8e\u5986' },
+        { name: '\u7ea2\u82b1\u675f', price: 15000, loveVal: 8, category: '\u60c5\u4fa3\u793c\u7269' },
+        { name: '\u5de7\u514b\u529b\u793c\u76d2', price: 12000, loveVal: 6, category: '\u60c5\u4fa3\u793c\u7269' },
+        { name: '\u6bdb\u7ed2\u73a9\u5076', price: 10000, loveVal: 5, category: '\u60c5\u4fa3\u793c\u7269' },
+        { name: '\u60c5\u4fa3\u624b\u94fe', price: 30000, loveVal: 12, category: '\u60c5\u4fa3\u793c\u7269' },
+        { name: '\u5b9a\u5236\u9996\u9970', price: 50000, loveVal: 15, category: '\u60c5\u4fa3\u793c\u7269' },
+        { name: '\u6c38\u751f\u82b1', price: 25000, loveVal: 11, category: '\u60c5\u4fa3\u793c\u7269' },
+        { name: '\u60c5\u4fa3\u536b\u8863', price: 22000, loveVal: 8, category: '\u60c5\u4fa3\u793c\u7269' }
+    ];
+    var giftCats = ['\u6ecb\u8865', '\u7f8e\u5986', '\u60c5\u4fa3\u793c\u7269'];
+    var html = '<div class="card" style="text-align:center;background:linear-gradient(135deg,#E879A0,#F0A0C0);color:white;">'
+        + '<div style="font-size:12px;opacity:0.8;">\u9001\u793c\u4e0e\u6536\u793c</div>'
+        + '<div style="font-size:14px;margin-top:4px;">\u7528\u5fc3\u4e4b\u793c\u6e29\u6696\u4f34\u4fa3</div>'
+        + '</div>';
+    for (var gi = 0; gi < giftCats.length; gi++) {
+        var gCat = giftCats[gi];
+        html += '<div class="section-title">' + gCat + '</div>';
+        for (var gj = 0; gj < gifts.length; gj++) {
+            var g = gifts[gj];
+            if (g.category !== gCat) continue;
+            var gEffectText = '';
+            var gVal = 0;
+            var gEffect = '';
+            if (g.lifeVal) { gEffectText = '+' + g.lifeVal + ' \u751f\u547d'; gVal = g.lifeVal; gEffect = '\u751f\u547d'; }
+            else if (g.looksVal) { gEffectText = '+' + g.looksVal + ' \u989c\u503c'; gVal = g.looksVal; gEffect = '\u989c\u503c'; }
+            else if (g.loveVal) { gEffectText = '+' + g.loveVal + ' \u597d\u611f\u5ea6'; gVal = g.loveVal; gEffect = '\u597d\u611f'; }
+            html += '<div class="card" data-gname="' + g.name + '" data-gprice="' + g.price + '" data-gval="' + gVal + '" data-geffect="' + gEffect + '" onclick="_buyStoreGift(this.dataset.gname,Number(this.dataset.gprice),Number(this.dataset.gval),this.dataset.geffect)">'
+                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+                + '<div>'
+                + '<div style="font-weight:600;">' + g.name + '</div>'
+                + '<div style="font-size:12px;color:var(--color-success);">' + gEffectText + '</div>'
+                + '</div>'
+                + '<div style="font-weight:600;color:var(--color-primary);">' + (g.price || 0).toLocaleString() + '</div>'
+                + '</div></div>';
+        }
+    }
+    return html;
+}
+
+function _buyStoreGift(name, price, value, effect) {
+    if (gameState.money < price) {
+        showModal('\u91d1\u5e01\u4e0d\u8db3', '\u4f60\u7684\u91d1\u5e01\u4e0d\u591f\u652f\u4ed8');
+        return;
+    }
+    var effectDesc = '';
+    if (effect === '\u751f\u547d') effectDesc = '+' + value + ' \u751f\u547d';
+    else if (effect === '\u989c\u503c') effectDesc = '+' + value + ' \u989c\u503c';
+    else if (effect === '\u597d\u611f') effectDesc = '+' + value + ' \u597d\u611f\u5ea6';
+    showModal('\u786e\u8ba4\u8d2d\u4e70', '\u5546\u54c1\uff1a' + name + '\n\u4ef7\u683c\uff1a' + (price || 0).toLocaleString() + ' \u91d1\u5e01\n\u6548\u679c\uff1a' + effectDesc, [
+        { text: '\u53d6\u6d88', action: closeModal },
+        { text: '\u786e\u8ba4\u8d2d\u4e70', action: function() {
+            gameState.money -= price;
+            if (effect === '\u751f\u547d') {
+                gameState.life = Math.min(150, (gameState.life || 150) + value);
+            } else if (effect === '\u989c\u503c') {
+                if (!gameState.looks) gameState.looks = 50;
+                gameState.looks = gameState.looks + value;
+            } else if (effect === '\u597d\u611f') {
+                if (gameState.dating && gameState.npc好感度) {
+                    addLove(gameState.dating, value);
+                }
+            }
+            if (!gameState.inventory) gameState.inventory = [];
+            gameState.inventory.push({ name: name, effect: effect, value: value });
+            closeModal();
+            showToast(name + ' \u5df2\u5b58\u5165\u80cc\u5305');
+            render();
+        }}
+    ]);
+}
+
+function renderPrRoomPage(container) {
+    var danger = gameState.danger || 0;
+    var html = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div>'
+        + '<div class="page-title">\u516c\u5173\u5ba4</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">';
+
+    // Danger level card
+    var dangerColor = danger > 60 ? 'var(--color-danger)' : danger > 30 ? '#F0A030' : 'var(--color-success)';
+    var dangerLabel = danger > 60 ? '\u5371\u673a\u516c\u5173' : danger > 30 ? '\u53cd\u9ed1\u5904\u7406' : '\u65e5\u5e38PR';
+    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + (danger > 60 ? 'var(--color-danger),#1A2A3A' : danger > 30 ? '#333,#555' : '#2C2C2C,#444') + ');color:white;">'
+        + '<div style="font-size:11px;opacity:0.7;margin-bottom:4px;">\u5371\u9669\u7b49\u7ea7</div>'
+        + '<div style="font-size:32px;font-weight:700;">' + danger + '/100</div>'
+        + '<div class="progress-bar" style="margin-top:8px;">'
+        + '<div class="progress-fill" style="width:' + Math.min(100, danger) + '%;background:white;"></div>'
+        + '</div>'
+        + '<div style="font-size:11px;opacity:0.8;margin-top:4px;">\u5f53\u524d\u72b6\u6001: ' + dangerLabel + '</div>'
+        + '</div>';
+
+    // Conditionally render based on danger level
+    if (danger < 30) {
+        // Daily PR (from renderPROfficePage)
+        html += '<div class="section-title" style="margin-top:16px;">\u5f53\u524d\u5f62\u8c61</div>'
+            + '<div class="card">'
+            + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>\u5371\u9669\u503c</span><span style="color:' + (danger > 60 ? 'var(--color-danger)' : 'var(--color-success)') + ';font-weight:600;">' + danger + '/100</span></div>'
+            + '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:14px;"><span>\u540d\u58f0</span><span style="color:var(--color-success);font-weight:600;">' + (gameState.fame || 30) + '</span></div>'
+            + '</div>'
+            + '<div class="card">'
+            + '<div style="font-weight:600;margin-bottom:12px;">\u516c\u5173\u624b\u6bb5</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+            + '<div class="card" onclick="prAction(\'charity\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u6148\u5584\u6d3b\u52a8</div><div style="font-size:11px;color:var(--color-text-light);">-10\u5371\u9669/3\u4e07\u91d1\u5e01</div></div>'
+            + '<div class="card" onclick="prAction(\'interview\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u4e13\u8bbf</div><div style="font-size:11px;color:var(--color-text-light);">+5\u540d\u58f0/1\u4e07\u91d1\u5e01</div></div>'
+            + '<div class="card" onclick="prAction(\'apology\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u9053\u6b49\u58f0\u660e</div><div style="font-size:11px;color:var(--color-text-light);">-20\u5371\u9669/\u514d\u8d39</div></div>'
+            + '<div class="card" onclick="prAction(\'solo\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">Solo\u4f01\u5212</div><div style="font-size:11px;color:var(--color-text-light);">+10\u540d\u58f0/5\u4e07\u91d1\u5e01</div></div>'
+            + '</div></div>';
+    } else if (danger >= 30 && danger <= 60) {
+        // Anti-black (from renderAntiBlackPage)
+        if (!gameState.antiEvents) gameState.antiEvents = [];
+        html += '<div class="section-title" style="margin-top:16px;">\u53cd\u9ed1\u5904\u7406</div>';
+        if (gameState.antiEvents.length === 0) {
+            if (danger >= 30) {
+                if (typeof triggerAntiEvent === 'function') triggerAntiEvent();
+            }
+            if (gameState.antiEvents.length === 0) {
+                html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">\u6682\u65e0\u9ed1\u7c89\u4e8b\u4ef6</div><div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">\u5371\u9669\u503c\u8fbe\u523030\u65f6\u81ea\u52a8\u89e6\u53d1</div></div>';
+            }
+        }
+        for (var ai = 0; ai < gameState.antiEvents.length; ai++) {
+            var ae = gameState.antiEvents[ai];
+            html += '<div class="card" style="border-left:4px solid var(--color-danger);">'
+                + '<div style="font-weight:600;">' + ae.title + '</div>'
+                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + ae.desc + '</div>'
+                + '<div style="display:flex;gap:8px;margin-top:10px;">'
+                + '<button class="btn btn-sm btn-primary" style="flex:1;font-size:11px;" data-i="' + ai + '" data-action="statement" onclick="handleAnti(parseInt(this.dataset.i),this.dataset.action)">\u53d1\u58f0\u660e</button>'
+                + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + ai + '" data-action="legal" onclick="handleAnti(parseInt(this.dataset.i),this.dataset.action)">\u6cd5\u5f8b\u624b\u6bb5</button>'
+                + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + ai + '" data-action="ignore" onclick="handleAnti(parseInt(this.dataset.i),this.dataset.action)">\u5ffd\u7565</button>'
+                + '</div></div>';
+        }
+        // Also show PR options
+        html += '<div class="section-title" style="margin-top:16px;">\u516c\u5173\u624b\u6bb5</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+            + '<div class="card" onclick="prAction(\'charity\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u6148\u5584\u6d3b\u52a8</div><div style="font-size:11px;color:var(--color-text-light);">-10\u5371\u9669</div></div>'
+            + '<div class="card" onclick="prAction(\'apology\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u9053\u6b49\u58f0\u660e</div><div style="font-size:11px;color:var(--color-text-light);">-20\u5371\u9669</div></div>'
+            + '</div>';
+    } else {
+        // Crisis (from renderCrisisPage)
+        if (crisisEvents.length === 0) initCrisisEvents();
+        var activeEvents = crisisEvents.filter(function(e) { return !e.handled; });
+        html += '<div class="section-title" style="margin-top:16px;">\u5371\u673a\u516c\u5173</div>';
+        var eventsHtml = '';
+        for (var ci = 0; ci < crisisEvents.length; ci++) {
+            var ce = crisisEvents[ci];
+            if (ce.handled) continue;
+            eventsHtml += '<div class="card">'
+                + '<div style="font-weight:600;margin-bottom:4px;">' + ce.title + '</div>'
+                + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:4px;">' + ce.desc + '</div>'
+                + '<div style="font-size:11px;color:var(--color-text-light);margin-bottom:8px;line-height:1.4;">' + ce.detail + '</div>'
+                + '<div style="display:flex;gap:6px;">'
+                + '<button class="btn btn-sm btn-primary" data-i="' + ci + '" data-a="0" onclick="handleCrisis(parseInt(this.dataset.i),parseInt(this.dataset.a))">\u59a5\u5584\u5904\u7406</button>'
+                + '<button class="btn btn-sm btn-secondary" data-i="' + ci + '" data-a="1" onclick="handleCrisis(parseInt(this.dataset.i),parseInt(this.dataset.a))">\u65e0\u89c6</button>'
+                + '<button class="btn btn-sm btn-secondary" data-i="' + ci + '" data-a="2" onclick="handleCrisis(parseInt(this.dataset.i),parseInt(this.dataset.a))" style="color:var(--color-danger);border-color:var(--color-danger);">\u5904\u7406\u4e0d\u5f53</button>'
+                + '</div></div>';
+        }
+        if (!eventsHtml) eventsHtml = '<div style="text-align:center;color:var(--color-text-light);padding:40px;">\u6682\u65e0\u6d3b\u8dc3\u5371\u673a\u4e8b\u4ef6</div>';
+        html += eventsHtml;
+        // Also show anti events
+        if (!gameState.antiEvents) gameState.antiEvents = [];
+        if (gameState.antiEvents.length > 0) {
+            html += '<div class="section-title" style="margin-top:16px;">\u9ed1\u7c89\u4e8b\u4ef6</div>';
+            for (var ai2 = 0; ai2 < gameState.antiEvents.length; ai2++) {
+                var ae2 = gameState.antiEvents[ai2];
+                html += '<div class="card" style="border-left:4px solid var(--color-danger);">'
+                    + '<div style="font-weight:600;">' + ae2.title + '</div>'
+                    + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">' + ae2.desc + '</div>'
+                    + '<div style="display:flex;gap:8px;margin-top:10px;">'
+                    + '<button class="btn btn-sm btn-primary" style="flex:1;font-size:11px;" data-i="' + ai2 + '" data-action="statement" onclick="handleAnti(parseInt(this.dataset.i),this.dataset.action)">\u53d1\u58f0\u660e</button>'
+                    + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + ai2 + '" data-action="legal" onclick="handleAnti(parseInt(this.dataset.i),this.dataset.action)">\u6cd5\u5f8b\u624b\u6bb5</button>'
+                    + '<button class="btn btn-sm" style="flex:1;font-size:11px;" data-i="' + ai2 + '" data-action="ignore" onclick="handleAnti(parseInt(this.dataset.i),this.dataset.action)">\u5ffd\u7565</button>'
+                    + '</div></div>';
+            }
+        }
+        // PR options for crisis
+        html += '<div class="section-title" style="margin-top:16px;">\u7d27\u6025\u516c\u5173</div>'
+            + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
+            + '<div class="card" onclick="prAction(\'apology\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u9053\u6b49\u58f0\u660e</div><div style="font-size:11px;color:var(--color-text-light);">-20\u5371\u9669</div></div>'
+            + '<div class="card" onclick="prAction(\'charity\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">\u6148\u5584\u6d3b\u52a8</div><div style="font-size:11px;color:var(--color-text-light);">-10\u5371\u9669</div></div>'
+            + '</div>';
+    }
+
+    html += getAppLinkHtml('prroom');
+    html += '</div></div>';
+    container.innerHTML = html;
 }
 
 function render行程表Page(container) {
@@ -4827,7 +5365,7 @@ function render工作Page(container) {
         + '<div style="font-size:14px;margin-top:4px;">' + new Date().toLocaleDateString('zh-CN') + '</div>'
         + '</div>'
         + itemsHtml
-        + getAppLinkHtml('work') + '</div></div>';
+        + getAppLinkHtml('schedule') + '</div></div>';
 }
 
 function _generateNoticeList() {
@@ -4856,7 +5394,7 @@ function viewNoticeDetail(index) {
 
 function render通告详情Page(container) {
     var n = gameState.noticeDetail;
-    if (!n) { goToPage('work'); return; }
+    if (!n) { goToPage('schedule'); return; }
 
     var typeBg = '';
     if (n.type === 'musicshow') typeBg = 'background:#E2E8F0;color:#1A2A3A;';
@@ -4987,7 +5525,7 @@ function acceptNotice() {
 
     var fanComments = ['今天的表现太棒了！', '好期待下次活动！', '永远支持你！', '舞台太震撼了！', '今天状态超好！', '比心！', '太专业了，佩服！', '这就是实力！'];
     var comments = [];
-    syncFromApp('work', { action: 'complete', name: n.name, fame: fameGain });
+    syncFromApp('schedule', { action: 'complete', name: n.name, fame: fameGain });
     for (var ci = 0; ci < 3; ci++) { comments.push(fanComments[Math.floor(Math.random() * fanComments.length)]); }
 
     var summaryHtml = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'work\')">‹ 通告</div><div class="page-title">活动总结</div><div style="width:32px;"></div></div><div class="page-content">'
@@ -6737,7 +7275,7 @@ function selectTiktokVideo() {
 
 // ==================== MORE PAGE ====================
 function render更多服务Page(container) {
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">更多</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="section-title">服务项目</div>\n                \n                <div class="card" onclick="goToPage(\'food\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('food')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">外卖订餐</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">订餐恢复体力</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'delivery\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('delivery')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">快递服务</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">包裹与物品配送</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'loan\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('loan')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">贷款服务</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">申请贷款</div>\n                        </div>\n                    </div>\n                </div>\n                \n                ' + (gameState.fans >= 5000 ? '\n                <div class="card" onclick="goToPage(\'crisis\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('crisis')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">私生危机</div>\n                            <div style="font-size: 12px; color: var(--color-danger);">危险等级: ' + (gameState.danger) + '</div>\n                        </div>\n                    </div>\n                </div>\n                ' : '') + '\n                \n                <div class="card" onclick="goToPage(\'live\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('live')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">直播</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">开始直播</div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    ';
+    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div>\n                <div class="page-title">\u66f4\u591a</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="section-title">\u670d\u52a1\u9879\u76ee</div>\n                \n                <div class="card" onclick="goToPage(\'store\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('store')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u4fbf\u5229\u5e97</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">\u5916\u5356\u00b7\u5feb\u9012\u00b7\u793c\u7269</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'loan\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('loan')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u8d37\u6b3e\u670d\u52a1</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">\u7533\u8bf7\u8d37\u6b3e</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'prroom\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('prroom')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u516c\u5173\u5ba4</div>\n                            <div style="font-size: 12px; color: ' + (gameState.danger > 30 ? 'var(--color-danger)' : 'var(--color-text-light)') + ';">\u5371\u9669\u7b49\u7ea7: ' + (gameState.danger) + '</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'live\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('live')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u76f4\u64ad</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">\u5f00\u59cb\u76f4\u64ad</div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    ';
 }
 
 // ==================== FOOD APP ====================
@@ -6808,7 +7346,7 @@ function renderFoodPage(container) {
         + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
         + '</div>'
         + foodCardsHtml
-        + getAppLinkHtml('food') + '</div></div>';
+        + getAppLinkHtml('store') + '</div></div>';
 }
 
 function orderFood(name, price, 体力, loveVal) {
@@ -6917,7 +7455,7 @@ function render快递服务Page(container) {
         + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
         + '</div>'
         + delCardsHtml
-        + getAppLinkHtml('delivery') + '</div></div>';
+        + getAppLinkHtml('store') + '</div></div>';
 }
 
 function order快递服务(name, price, value, effect) {
@@ -7074,7 +7612,7 @@ function renderCrisisPage(container) {
         + '</div>'
         + '<div class="section-title" style="margin-top:16px;">活跃事件</div>'
         + eventsHtml
-        + getAppLinkHtml('crisis') + '</div></div>';
+        + getAppLinkHtml('prroom') + '</div></div>';
 }
 
 function handleCrisis(eventIdx, actionIdx) {
@@ -9783,7 +10321,7 @@ function renderAntiBlackPage(container) {
             + '<button class=\"btn btn-sm\" style=\"flex:1;font-size:11px;\" data-i=\"' + i + '\" data-action=\"ignore\" onclick=\"handleAnti(parseInt(this.dataset.i),this.dataset.action)\">忽略</button></div></div>';
     }
     html += '</div></div>';
-    html += getAppLinkHtml('antiblack');
+    html += getAppLinkHtml('prroom');
     container.innerHTML = html;
 }
 
@@ -9794,7 +10332,7 @@ function triggerAntiEvent() {
     gameState.antiEvents.push(event);
     addDanger(event.dangerAdd, 'anti');
     gameState.fans = Math.max(0, gameState.fans - event.fanLoss);
-    syncFromApp('crisis', { action: 'incident', title: event.title, dangerGain: event.dangerAdd });
+    syncFromApp('prroom', { action: 'incident', title: event.title, dangerGain: event.dangerAdd });
     notifySystem('反黑警告', event.title);
     triggerSilentSave();
 }
@@ -10608,7 +11146,7 @@ function renderPROfficePage(container) {
         + '<div class="card" onclick="prAction(\'apology\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">道歉声明</div><div style="font-size:11px;color:var(--color-text-light);">-20危险/免费</div></div>'
         + '<div class="card" onclick="prAction(\'solo\')" style="cursor:pointer;text-align:center;padding:12px;"><div style="font-weight:600;font-size:13px;">Solo企划</div><div style="font-size:11px;color:var(--color-text-light);">+10名声/5万金币</div></div>'
         + '</div></div></div></div>';
-    html += getAppLinkHtml('pr');
+    html += getAppLinkHtml('prroom');
     container.innerHTML = html;
 }
 
@@ -10620,21 +11158,21 @@ function prAction(type) {
     if (type === 'charity') {
         if (gameState.money < 30000) { showToast('金币不足'); return; }
         gameState.money -= 30000; gameState.danger = Math.max(0, gameState.danger - 10);
-        syncFromApp('pr', { action: 'action_done', title: '慈善活动', dangerChange: -10 });
+        syncFromApp('prroom', { action: 'action_done', title: '慈善活动', dangerChange: -10 });
         showToast('慈善活动完成，危险值-10');
     } else if (type === 'interview') {
         if (gameState.money < 10000) { showToast('金币不足'); return; }
         gameState.money -= 10000; gameState.fame = (gameState.fame || 30) + 5;
-        syncFromApp('pr', { action: 'action_done', title: '专访报道', dangerChange: 0 });
+        syncFromApp('prroom', { action: 'action_done', title: '专访报道', dangerChange: 0 });
         showToast('专访完成，名声+5');
     } else if (type === 'apology') {
         gameState.danger = Math.max(0, gameState.danger - 20); gameState.fans = Math.max(0, gameState.fans - 100);
-        syncFromApp('pr', { action: 'action_done', title: '道歉声明', dangerChange: -20 });
+        syncFromApp('prroom', { action: 'action_done', title: '道歉声明', dangerChange: -20 });
         showToast('已发布道歉声明');
     } else if (type === 'solo') {
         if (gameState.money < 50000) { showToast('金币不足'); return; }
         gameState.money -= 50000; gameState.fame = (gameState.fame || 30) + 10; gameState.fans += 500;
-        syncFromApp('pr', { action: 'action_done', title: 'Solo企划', dangerChange: 0 });
+        syncFromApp('prroom', { action: 'action_done', title: 'Solo企划', dangerChange: 0 });
         showToast('Solo企划启动，名声+10');
     }
     triggerSilentSave();
@@ -13879,7 +14417,7 @@ function render赚钱中心Page(container) {
         + '</div>'
         + tabsHtml
         + contentHtml
-        + getAppLinkHtml('earn') + '</div></div>';
+        + getAppLinkHtml('schedule') + '</div></div>';
 }
 
 function switchEarnTab(tabId) {
