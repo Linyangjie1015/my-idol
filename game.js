@@ -1592,6 +1592,13 @@ function _showElevatorModal() {
 }
 
 var _phoneModalVisible = false;
+function _exitSceneToUI() {
+    window._inSceneMode = true;
+    var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
+    _phoneModalVisible = false;
+    goToPage('home');
+}
+
 function _showPhoneModal() {
     _phoneModalVisible = !_phoneModalVisible;
     var pm = document.getElementById('phoneModal');
@@ -1704,7 +1711,7 @@ function renderScenePage(container) {
     for (var hi = 0; hi < scene.hotspots.length; hi++) {
         var hs = scene.hotspots[hi];
         var act = '';
-        if (hs.action === 'phone') act = '_showPhoneModal()';
+        if (hs.action === 'phone') act = '_exitSceneToUI()';
         else if (hs.action === 'sleep') act = '_endDay()';
         else if (hs.action === 'nav' && hs.target === '_nav') act = '_showSceneNavModal()';
         else if (hs.action === 'nav' && hs.target === '_elevator') act = '_showElevatorModal()';
