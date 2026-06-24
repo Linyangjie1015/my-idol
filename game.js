@@ -860,7 +860,8 @@ function completeCreation() {
         // 检查管理员模式
         _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
         
-        // 切换到首页
+        // 切换到首页 - 进入场景模式
+        window._inSceneMode = true;
         currentPage = 'home';
         render();
         
@@ -4189,11 +4190,13 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
         if (page === 'bubble') { gameState.bubbleUnread = 0; }
         if (page === 'weverse') { gameState.weverseUnread = 0; }
         if (page === 'dating') { gameState.datingUnread = 0; }
+        if (page === 'home') { window._inSceneMode = true; }
         currentPage = page;
         render();
         renderBottomNav();
     } catch(e) {
         console.error('goToPage error:', e);
+        window._inSceneMode = true;
         currentPage = 'home';
         try {
             var _app = document.getElementById('app');
@@ -7844,6 +7847,7 @@ function _doSwitchSlot(slot) {
             _migrateV2Save();
             _resetGlobalState();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
+            window._inSceneMode = true;
             currentPage = 'home';
             render();
             renderBottomNav();
@@ -8150,6 +8154,7 @@ function loadGame(slot) {
             _resetGlobalState();
             current存档 = slot;
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
+            window._inSceneMode = true;
             currentPage = 'home';
             document.getElementById('statusBar').style.display = 'flex';
             document.getElementById('restButtons').style.display = 'flex';
@@ -13640,6 +13645,7 @@ function _loadSlot(slot) {
             _resetGlobalState();
             _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
             current存档 = slot;
+            window._inSceneMode = true;
             currentPage = 'home';
             document.getElementById('statusBar').style.display = 'flex';
             document.getElementById('restButtons').style.display = 'flex';
@@ -14192,6 +14198,7 @@ function confirmKick() {
 
     _modalActions = [];
     showModal('出道成功', gameState.player.name + '，你以绝对实力加入了 ' + targetGroup + '！\n\n替换了 ' + kickedMember.name + ' 的位置。\n\n如需再次查看，请到邮箱查看正式出道通知书。');
+    window._inSceneMode = true;
     currentPage = 'home';
     render();
 }
@@ -14491,6 +14498,7 @@ goToPage = function(page) {
     _clearPageTimers();
     try { _origGoToPage(page); } catch(e) {
         console.error('goToPage error:', e);
+        window._inSceneMode = true;
         currentPage = 'home';
         try { render(); renderBottomNav(); } catch(e2) {}
     }
@@ -14511,6 +14519,7 @@ window.onerror = function(msg, url, line) {
     // For runtime errors, try to recover
     if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
         try {
+            window._inSceneMode = true;
             currentPage = 'home';
             if (typeof render === 'function') { render(); renderBottomNav(); }
             showToast('出了点问题: ' + (msg || '').substring(0,30));
