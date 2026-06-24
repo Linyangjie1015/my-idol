@@ -408,20 +408,11 @@ function render() {
             case 'songprod':
                 renderSongProdPage(app);
                 break;
-            case 'mvshoot':
-                renderMVShootPage(app);
-                break;
             case 'music':
                 renderMusicPage(app);
                 break;
             case 'mvstudio':
                 renderMVStudioPage(app);
-                break;
-            case 'contract':
-                renderContractPage(app);
-                break;
-            case 'management':
-                renderManagementPage(app);
                 break;
 
 
@@ -916,24 +907,22 @@ function initAsIdol() {
 
 // ==================== APP ECOSYSTEM LINKS ====================
 var APP_LINKS = {
-    'mvstudio': ['comeback', 'songprod'],
-    'comeback': ['music', 'mvstudio', 'songprod', 'management'],
-    'songprod': ['comeback', 'mvstudio'],
+    'mvstudio': ['comeback', 'songprod', 'company'],
+    'comeback': ['music', 'mvstudio', 'songprod', 'company'],
+    'songprod': ['comeback', 'mvstudio', 'company'],
     'music': ['sns', 'comeback', 'schedule'],
     'sns': ['fancommunity', 'fanclub', 'live'],
     'fancommunity': ['sns', 'fanchat', 'fanclub', 'live'],
     'fanchat': ['fancommunity', 'fanclub'],
     'live': ['sns', 'fancommunity', 'fanclub', 'schedule'],
     'fanclub': ['fancommunity', 'fanchat', 'live', 'sns'],
-    'loan': ['schedule', 'contract'],
+    'loan': ['schedule', 'company'],
     'schedule': ['loan', 'music', 'training'],
     'store': ['schedule', 'vip'],
-    'prroom': ['contacts', 'management'],
+    'prroom': ['contacts', 'company'],
     'contacts': ['prroom', 'members'],
     'members': ['contacts', 'company'],
-    'management': ['schedule', 'prroom', 'comeback', 'company'],
-    'contract': ['company', 'schedule'],
-    'company': ['contract', 'members', 'management', 'comeback'],
+    'company': ['members', 'comeback'],
     'debut': ['members', 'training', 'achievement'],
     'training': ['schedule', 'debut'],
     'achievement': ['debut'],
@@ -945,9 +934,9 @@ var APP_NAMES = {
     'sns': 'SNS', 'contacts': '通讯录', 'fancommunity': '粉丝社区', 'store': '便利店',
     'loan': '贷款', 'live': '直播',
     'fanchat': '粉丝私聊', 'prroom': '公关室',
-    'achievement': '成就', 'gacha': '抽卡', 'vip': '会员', 'company': '我的公司',
-    'comeback': '回归计划', 'songprod': '歌曲制作', 'music': '音乐放送',
-    'management': '经纪团队', 'fanclub': '后援会',
+    'achievement': '成就', 'gacha': '抽卡', 'vip': '会员', 'company': '公司',
+    'comeback': '回归计划', 'songprod': '录音室', 'music': '音乐放送',
+    'fanclub': '后援会',
 };
 
 function getAppLinkHtml(currentAppId) {
@@ -1308,7 +1297,7 @@ var SCENES = {
     mgmt_office: {
         name: '经纪部', img: 'imgs/scenes/meeting.jpg', floor: 4,
         hotspots: [
-            {x:50,y:50,icon:'management',label:'办公',action:'app',target:'management'},
+            {x:50,y:50,icon:'company',label:'办公',action:'app',target:'company'},
             {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor4'}
         ]
     },
@@ -1337,7 +1326,7 @@ var SCENES = {
     ceo_office: {
         name: '社长室', img: 'imgs/scenes/vip.jpg', floor: 5,
         hotspots: [
-            {x:50,y:50,icon:'company',label:'谈话',action:'app',target:'contract'},
+            {x:50,y:50,icon:'company',label:'谈话',action:'app',target:'company'},
             {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor5'}
         ]
     },
@@ -6799,6 +6788,7 @@ var restCountdown = null;
 var insTab = 'home';
 var contactsTab = 'chat';
 var snsTab = 'feed';
+var companyTab = 'info';
 var fanCommunityTab = 'posts';
 
 var insSelectedImage = '';
@@ -9481,7 +9471,7 @@ function renderComebackPage(container) {
                 + '<div style="font-size:12px;color:var(--color-text-light);">' + t.genre + ' / 加成: ' + statNames[t.bestStat] + '</div></div>';
         }
     } else if (cb.phase === 'songprod') {
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">歌曲制作</div></div>'
+        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">录音室</div></div>'
             + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">当前方案</div>'
             + '<div style="font-size:13px;">概念: ' + (cb.concept ? cb.concept.name : '未选择') + '</div>'
             + '<div style="font-size:13px;">主打歌: ' + (cb.titleTrack ? cb.titleTrack.name : '未选择') + '</div></div>';
@@ -9500,8 +9490,8 @@ function renderComebackPage(container) {
             html += '<div style="text-align:center;margin-top:8px;font-size:12px;color:var(--color-text-light);">点击可用歌曲进入下一步</div>';
         } else {
             html += '<div class="card" style="text-align:center;">'
-                + '<div style="color:var(--color-text-light);font-size:13px;">暂无歌曲，请到歌曲制作APP制作歌曲</div>'
-                + '<button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button>'
+                + '<div style="color:var(--color-text-light);font-size:13px;">暂无歌曲，请到录音室制作歌曲</div>'
+                + '<button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去录音室</button>'
                 + '</div>';
         }
     } else if (cb.phase === 'mvselect') {
@@ -9512,7 +9502,7 @@ function renderComebackPage(container) {
                 html += '<div class="card" style="cursor:pointer;" data-msi="' + msi + '" onclick="startMVShootFromComeback(parseInt(this.dataset.msi))"><div style="font-weight:600;">' + ms.name + '</div><div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + ms.genre + ' | 品质: ' + ms.quality + '分</div><div style="font-size:11px;color:var(--color-primary);margin-top:4px;">点击选择拍MV</div></div>';
             }
         } else {
-            html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有制作歌曲，请先进行歌曲制作</div><button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去制作歌曲</button></div>';
+            html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有制作歌曲，请先到录音室制作</div><button class="btn btn-primary" style="margin-top:8px;" onclick="goToSongProdFromComeback()">去录音室</button></div>';
         }
     } else if (cb.phase === 'mv') {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">MV拍摄</div></div>';
@@ -9607,7 +9597,7 @@ function goToMVSelectFromPromote() {
     render();
 }
 
-// ==================== SONG PRODUCTION APP (歌曲制作) ====================
+// ==================== SONG PRODUCTION / 录音室 ====================
 
 var SONG_GENRES = [
     { name: 'Pop', genre: '流行', bestStat: 'vocal', cost: 15000, energy: 10 },
@@ -9644,16 +9634,16 @@ function _shuffleArr(arr) {
 function renderSongProdPage(container) {
     var sp = gameState.songProd;
     if (!sp) {
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:40px;">'
-            + '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">歌曲制作工作室</div>'
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">录音室</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:40px;">'
+            + '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">录音室</div>'
             + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:24px;">创作属于你的音乐作品</div>'
             + '<button class="btn btn-primary btn-lg" onclick="startSongProduction()">开始制作</button>'
             + getAppLinkHtml('songprod') + '</div></div>';
         return;
     }
     var stepLabels = ['选择曲风', '选择概念', '作曲写词', '录音', '混音制作', '制作完成'];
-    var stepLabel = (sp.step >= 0 && sp.step <= 5) ? stepLabels[sp.step] : '歌曲制作';
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelSongProduction()">‹ 取消</div><div class="page-title">歌曲制作</div><div style="width:32px;"></div></div><div class="page-content">';
+    var stepLabel = (sp.step >= 0 && sp.step <= 5) ? stepLabels[sp.step] : '录音室';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="cancelSongProduction()">‹ 取消</div><div class="page-title">录音室</div><div style="width:32px;"></div></div><div class="page-content">';
 
     if (sp.step === 0) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;"><div style="font-size:16px;font-weight:700;">Step 1: 选择曲风</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">不同曲风影响歌曲品质和最佳属性</div></div>';
@@ -9823,7 +9813,7 @@ function cancelSongProduction() {
             { text: '确定取消', action: function() {
                 gameState.credit = Math.max(0, (gameState.credit || 150) - 10);
                 gameState.songProd = null;
-                notifySystem('歌曲制作取消', '信誉-10');
+                notifySystem('录音室取消', '信誉-10');
                 render();
             }},
             { text: '继续制作', action: closeModal }
@@ -9833,7 +9823,7 @@ function cancelSongProduction() {
             { text: '确定取消', action: function() {
                 gameState.credit = Math.max(0, (gameState.credit || 150) - 3);
                 gameState.songProd = null;
-                notifySystem('歌曲制作取消', '信誉-3');
+                notifySystem('录音室取消', '信誉-3');
                 render();
             }},
             { text: '继续制作', action: closeModal }
@@ -9983,7 +9973,7 @@ function finishSongProdComeback() {
     render();
 }
 
-// ==================== MV SHOOT PAGE (MV拍摄) ====================
+// ==================== MV SHOOT (merged into MV工作室) ====================
 
 var MV_SHOOT_CONCEPTS = [
     { name: '梦幻', style: 'dreamy', mvBonus: 1.0 },
@@ -9999,11 +9989,11 @@ var MV_SHOOT_CONCEPTS = [
 function renderMVShootPage(container) {
     var ms = gameState.mvShoot;
     if (!ms) {
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV拍摄</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:40px;">'
+        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:40px;">'
             + '<div style="color:var(--color-text-light);">请从歌曲列表选择拍摄MV</div></div></div>';
         return;
     }
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV拍摄</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content">';
 
     if (ms.step === 0) {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1E293B,#1A2A3A);color:white;"><div style="font-size:16px;font-weight:700;">选择MV概念</div><div style="font-size:12px;opacity:0.8;margin-top:4px;">歌曲: ' + ms.song.name + '</div></div>';
@@ -10045,7 +10035,7 @@ function startMVShoot(song) {
     if (gameState.player.role !== 'Idol') { showToast('只有出道爱豆才能拍摄MV'); return; }
     var isComeback = !!(gameState.comeback && gameState.comeback.phase === 'mvselect');
     gameState.mvShoot = { step: 0, song: song, comebackMode: isComeback };
-    currentPage = 'mvshoot';
+    currentPage = 'mvstudio';
     render();
 }
 
@@ -10121,43 +10111,6 @@ function startMVShootFromComeback(idx) {
 }
 
 // ==================== CONTRACT SYSTEM (合约系统) ====================
-function renderContractPage(container) {
-    if (!gameState.contract) {
-        gameState.contract = {
-            company: gameState.player.company || 'SEONGWOO ENT',
-            years: 7,
-            signed: gameState.player.debutYear || 2026,
-            revenue: { company: 70, artist: 30 },
-            clauses: ['独家经纪合约', '公司负责所有行程安排', '合约期内不可转签', '违约金: 剩余年限 x 1亿韩元']
-        };
-    }
-    var c = gameState.contract;
-    var yearsLeft = Math.max(0, c.years - (new Date().getFullYear() - c.signed));
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">合约</div><div style="width:32px;"></div></div><div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#2C2C2C,#444);color:white;">'
-        + '<div style="font-size:14px;opacity:0.7;">独家经纪合约</div>'
-        + '<div style="font-size:22px;font-weight:700;margin-top:8px;">' + c.company + '</div></div>'
-        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">合约条款</div>'
-        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>合约年限</span><span style="font-weight:600;">' + c.years + '年</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>剩余年限</span><span style="font-weight:600;color:' + (yearsLeft <= 2 ? 'var(--color-danger)' : 'var(--color-success)') + ';">' + yearsLeft + '年</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>收益分配(公司)</span><span style="font-weight:600;">' + c.revenue.company + '%</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;"><span>收益分配(艺人)</span><span style="font-weight:600;color:var(--color-success);">' + c.revenue.artist + '%</span></div></div>'
-        + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">合约条款</div>';
-    for (var i = 0; i < c.clauses.length; i++) {
-        html += '<div style="padding:6px 0;font-size:13px;color:var(--color-text-light);border-bottom:1px solid var(--color-border);">- ' + c.clauses[i] + '</div>';
-    }
-    html += '</div>';
-    if (yearsLeft <= 1) {
-        html += '<div class="card" style="border-left:4px solid var(--color-danger);"><div style="font-weight:600;color:var(--color-danger);">合约即将到期</div><div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">可以选择续约或离开公司</div></div>'
-            + '<div style="display:flex;gap:8px;margin-top:8px;">'
-            + '<button class="btn btn-primary btn-lg" style="flex:1;" onclick="renewContract()">续约</button>'
-            + '<button class="btn btn-secondary btn-lg" style="flex:1;" onclick="leaveCompany()">离开</button></div>';
-    }
-    html += '</div></div>';
-    html += getAppLinkHtml('contract');
-    container.innerHTML = html;
-}
-
 function renewContract() {
     gameState.contract.signed = new Date().getFullYear();
     gameState.contract.revenue.artist = Math.min(50, gameState.contract.revenue.artist + 5);
@@ -10247,37 +10200,6 @@ function interactTeammate(idx, type) {
 }
 
 // ==================== MANAGEMENT TEAM (经纪团队) ====================
-function renderManagementPage(container) {
-    if (!gameState.management) {
-        gameState.management = {
-            manager: { name: '朴正勋(Park Junghoon)', loyalty: 70, skill: 60 },
-            stylist: { name: '金美妍(Kim Miyeon)', loyalty: 50, skill: 40 },
-            driver: { name: '李大浩(Lee Daeho)', loyalty: 80, skill: 30 }
-        };
-    }
-    var m = gameState.management;
-    var roles = { manager: '经纪人', stylist: '造型师', driver: '司机' };
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">经纪团队</div><div style="width:32px;"></div></div><div class="page-content">';
-    var keys = Object.keys(m);
-    for (var i = 0; i < keys.length; i++) {
-        var role = keys[i];
-        var person = m[role];
-        var loyaltyColor = person.loyalty >= 70 ? '#4CD964' : person.loyalty >= 40 ? '#FFD700' : '#FF3B30';
-        html += '<div class="card">'
-            + '<div style="font-size:12px;color:var(--color-primary);font-weight:600;">' + roles[role] + '</div>'
-            + '<div style="font-weight:600;margin-top:4px;">' + person.name + '</div>'
-            + '<div style="display:flex;gap:16px;margin-top:8px;">'
-            + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">技能</div>'
-            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.skill + '%;height:100%;background:#5BB8E8;border-radius:2px;"></div></div></div>'
-            + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">忠诚</div>'
-            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.loyalty + '%;height:100%;background:' + loyaltyColor + ';border-radius:2px;"></div></div></div></div>'
-            + '<button class="btn btn-sm" style="margin-top:8px;font-size:11px;" data-role="' + role + '" onclick="upgradeStaff(this.dataset.role)">培训提升 (5千金币)</button></div>';
-    }
-    html += '</div></div>';
-    html += getAppLinkHtml('management');
-    container.innerHTML = html;
-}
-
 function upgradeStaff(role) {
     if (gameState.money < 5000) { showToast('金币不足'); return; }
     gameState.money -= 5000;
@@ -10813,27 +10735,30 @@ var MV_STORY_EVENTS = [
 ];
 
 function renderMVStudioPage(container) {
+    // If shooting flow is active, render shooting UI
+    if (gameState.mvShoot) {
+        renderMVShootPage(container);
+        return;
+    }
+    // If production flow is active, render production UI
     if (!gameState.mvCollection) gameState.mvCollection = [];
-
     var ms = gameState.mvProd;
     if (ms && ms.step > 0) {
         renderMVProductionPage(container);
         return;
     }
 
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content">';
+    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">MV工作室</div><div style="width:32px;"></div></div><div class="page-content">';
 
     if (gameState.player.role !== 'Idol') {
         html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">出道后解锁MV工作室</div></div>';
     } else {
         html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#7C4DFF,#536DFE);color:white;">'
             + '<div style="font-size:16px;font-weight:700;">MV工作室</div>'
-            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">创作、拍摄、制作你的MV</div></div>';
-
+            + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">拍摄、制作你的MV</div></div>';
         html += '<div class="card" style="text-align:center;">'
             + '<button class="btn btn-primary" style="margin-bottom:8px;" onclick="startMVProduction()">开始制作MV</button>'
             + '<div style="font-size:12px;color:var(--color-text-light);">需要30体力 + 3万金币</div></div>';
-
         if (gameState.mvCollection.length === 0) {
             html += '<div class="card" style="text-align:center;"><div style="color:var(--color-text-light);">还没有拍摄过MV</div>'
                 + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">点击上方按钮制作你的第一支MV</div></div>';
@@ -11222,21 +11147,48 @@ function toggleWikiRealGroup(el) {
 // ==================== GUIDE PAGE (新手指南) ====================
 
 function renderCompanyDetailPage(container) {
+    var tab = companyTab || 'info';
+    var tabBar = '<div style="display:flex;height:56px;background:white;border-top:1px solid var(--color-border);position:absolute;bottom:0;left:0;right:0;z-index:10;">'
+        + '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;' + (tab === 'info' ? 'color:#1E293B;font-weight:700;' : 'color:#1F2937;') + '" onclick="companyTab=\'info\';render();">'
+        + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>'
+        + '<div style="font-size:10px;margin-top:2px;">信息</div></div>'
+        + '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;' + (tab === 'contract' ? 'color:#1E293B;font-weight:700;' : 'color:#1F2937;') + '" onclick="companyTab=\'contract\';render();">'
+        + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>'
+        + '<div style="font-size:10px;margin-top:2px;">合约</div></div>'
+        + '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation;' + (tab === 'team' ? 'color:#1E293B;font-weight:700;' : 'color:#1F2937;') + '" onclick="companyTab=\'team\';render();">'
+        + '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>'
+        + '<div style="font-size:10px;margin-top:2px;">团队</div></div>'
+        + '</div>';
+
+    var contentHtml = '';
+    if (tab === 'info') {
+        contentHtml = _renderCompanyInfoTab();
+    } else if (tab === 'contract') {
+        contentHtml = _renderCompanyContractTab();
+    } else if (tab === 'team') {
+        contentHtml = _renderCompanyTeamTab();
+    }
+
+    container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+        + '<div class="page-header" style="flex-shrink:0;">'
+        + '<div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div>'
+        + '<div class="page-title">公司</div>'
+        + '<div style="width:32px;"></div></div>'
+        + '<div style="flex:1;overflow-y:auto;">' + contentHtml + '</div>'
+        + tabBar + '</div>';
+}
+
+function _renderCompanyInfoTab() {
     var companyKey = gameState.player.company;
     if (!companyKey) {
-        container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">尚未加入公司</div></div></div>';
-        return;
+        return '<div style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">尚未加入公司</div></div>';
     }
     var company = COMPANIES[companyKey];
     if (!company && window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; company = COMPANIES[companyKey]; }
-if (!company) { container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div></div>'; __waitForCOMPANIES(function() { render(); }); return; }
-    
-    var companyColors = {
-        'SEONGWOO ENT': '#1A2A3A'
-    };
+    if (!company) { return '<div style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">公司数据加载中...</div></div>'; }
+    var companyColors = { 'SEONGWOO ENT': '#1A2A3A' };
     var color = companyColors[companyKey] || '#1A2A3A';
-    
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">我的公司</div><div style="width:32px;"></div></div><div class="page-content">'
+    var html = '<div style="padding:0 16px 16px;">'
         + '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + color + ',' + color + 'aa);color:white;padding:24px;">'
         + '<div style="font-size:20px;font-weight:700;">' + company.name + '</div>'
         + '<div style="font-size:12px;opacity:0.8;margin-top:8px;line-height:1.5;">' + company.desc + '</div>'
@@ -11246,7 +11198,6 @@ if (!company) { container.innerHTML = '<div class="page active"><div class="page
     }
     html += '</div></div>'
         + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">旗下团体</div>';
-    
     var groupKeys = Object.keys(company.groups);
     for (var gi = 0; gi < groupKeys.length; gi++) {
         var g = company.groups[groupKeys[gi]];
@@ -11262,10 +11213,74 @@ if (!company) { container.innerHTML = '<div class="page active"><div class="page
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'
         + '<div style="text-align:center;padding:12px;border-radius:12px;background:rgba(26,42,58,0.08);"><div style="font-size:18px;font-weight:700;color:var(--color-primary);">' + groupKeys.length + '</div><div style="font-size:11px;color:var(--color-text-light);">团体数</div></div>'
         + '<div style="text-align:center;padding:12px;border-radius:12px;background:rgba(92,216,100,0.08);"><div style="font-size:18px;font-weight:700;color:#4CD964;">' + (gameState.fame || 30) + '</div><div style="font-size:11px;color:var(--color-text-light);">公司声望</div></div></div></div>';
-    
-    html += '</div></div>';
-    html += getAppLinkHtml('company');
-    container.innerHTML = html;
+    html += '</div>';
+    return html;
+}
+
+function _renderCompanyContractTab() {
+    if (!gameState.contract) {
+        gameState.contract = {
+            company: gameState.player.company || 'SEONGWOO ENT',
+            years: 7,
+            signed: gameState.player.debutYear || 2026,
+            revenue: { company: 70, artist: 30 },
+            clauses: ['独家经纪合约', '公司负责所有行程安排', '合约期内不可转签', '违约金: 剩余年限 x 1亿韩元']
+        };
+    }
+    var c = gameState.contract;
+    var yearsLeft = Math.max(0, c.years - (new Date().getFullYear() - c.signed));
+    var html = '<div style="padding:0 16px 16px;">'
+        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#2C2C2C,#444);color:white;">'
+        + '<div style="font-size:14px;opacity:0.7;">独家经纪合约</div>'
+        + '<div style="font-size:22px;font-weight:700;margin-top:8px;">' + c.company + '</div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">合约条款</div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>合约年限</span><span style="font-weight:600;">' + c.years + '年</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>剩余年限</span><span style="font-weight:600;color:' + (yearsLeft <= 2 ? 'var(--color-danger)' : 'var(--color-success)') + ';">' + yearsLeft + '年</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border);font-size:14px;"><span>收益分配(公司)</span><span style="font-weight:600;">' + c.revenue.company + '%</span></div>'
+        + '<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:14px;"><span>收益分配(艺人)</span><span style="font-weight:600;color:var(--color-success);">' + c.revenue.artist + '%</span></div></div>'
+        + '<div class="card"><div style="font-weight:600;margin-bottom:8px;">合约条款</div>';
+    for (var i = 0; i < c.clauses.length; i++) {
+        html += '<div style="padding:6px 0;font-size:13px;color:var(--color-text-light);border-bottom:1px solid var(--color-border);">- ' + c.clauses[i] + '</div>';
+    }
+    html += '</div>';
+    if (yearsLeft <= 1) {
+        html += '<div class="card" style="border-left:4px solid var(--color-danger);"><div style="font-weight:600;color:var(--color-danger);">合约即将到期</div><div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">可以选择续约或离开公司</div></div>'
+            + '<div style="display:flex;gap:8px;margin-top:8px;">'
+            + '<button class="btn btn-primary btn-lg" style="flex:1;" onclick="renewContract()">续约</button>'
+            + '<button class="btn btn-secondary btn-lg" style="flex:1;" onclick="leaveCompany()">离开</button></div>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function _renderCompanyTeamTab() {
+    if (!gameState.management) {
+        gameState.management = {
+            manager: { name: '朴正勋(Park Junghoon)', loyalty: 70, skill: 60 },
+            stylist: { name: '金美妍(Kim Miyeon)', loyalty: 50, skill: 40 },
+            driver: { name: '李大浩(Lee Daeho)', loyalty: 80, skill: 30 }
+        };
+    }
+    var m = gameState.management;
+    var roles = { manager: '经纪人', stylist: '造型师', driver: '司机' };
+    var html = '<div style="padding:0 16px 16px;">';
+    var keys = Object.keys(m);
+    for (var i = 0; i < keys.length; i++) {
+        var role = keys[i];
+        var person = m[role];
+        var loyaltyColor = person.loyalty >= 70 ? '#4CD964' : person.loyalty >= 40 ? '#FFD700' : '#FF3B30';
+        html += '<div class="card">'
+            + '<div style="font-size:12px;color:var(--color-primary);font-weight:600;">' + roles[role] + '</div>'
+            + '<div style="font-weight:600;margin-top:4px;">' + person.name + '</div>'
+            + '<div style="display:flex;gap:16px;margin-top:8px;">'
+            + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">技能</div>'
+            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.skill + '%;height:100%;background:#5BB8E8;border-radius:2px;"></div></div></div>'
+            + '<div style="flex:1;"><div style="font-size:11px;color:var(--color-text-light);">忠诚</div>'
+            + '<div style="width:100%;height:4px;background:var(--color-border);border-radius:2px;margin-top:4px;overflow:hidden;"><div style="width:' + person.loyalty + '%;height:100%;background:' + loyaltyColor + ';border-radius:2px;"></div></div></div></div>'
+            + '<button class="btn btn-sm" style="margin-top:8px;font-size:11px;" data-role="' + role + '" onclick="upgradeStaff(this.dataset.role)">培训提升 (5千金币)</button></div>';
+    }
+    html += '</div>';
+    return html;
 }
 
 function showGroupDetail(groupKey, companyKey) {
