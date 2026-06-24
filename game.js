@@ -1594,7 +1594,9 @@ function _showElevatorModal() {
 var _phoneModalVisible = false;
 function _exitSceneToUI() {
     window._inSceneMode = true;
-    _showPhoneModal();
+    var pm = document.getElementById('phoneModal'); if (pm) pm.remove();
+    _phoneModalVisible = false;
+    goToPage('home');
 }
 function _closePhoneAndReturn() {
     var pm = document.getElementById('phoneModal');
@@ -1666,7 +1668,7 @@ function _buildPhoneModal() {
     var h = '<div id="phoneModal" style="position:fixed;bottom:0;left:0;right:0;height:75vh;background:var(--bg-card);border-radius:20px 20px 0 0;z-index:9998;display:flex;flex-direction:column;box-shadow:0 -4px 20px rgba(0,0,0,0.3);">';
     h += '<div style="padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-border);">';
     h += '<div style="display:flex;align-items:center;gap:8px;"><div onclick="_closePhoneAndReturn()" style="cursor:pointer;color:var(--color-text-light);font-size:18px;line-height:1;">\u2715</div><div style="font-size:15px;font-weight:700;color:var(--color-text);">\u624b\u673a</div></div>';
-    h += '<div onclick="_showPhoneModal()" style="color:var(--color-text-light);cursor:pointer;font-size:13px;">\u5173\u95ed</div>';
+    h += '<div onclick="_exitSceneToUI()" style="color:var(--color-text-light);cursor:pointer;font-size:13px;">\u5173\u95ed</div>';
     h += '</div>';
     h += '<div style="flex:1;overflow-y:auto;padding:10px 14px;padding-bottom:20px;">';
     for (var ci = 0; ci < categories.length; ci++) {
