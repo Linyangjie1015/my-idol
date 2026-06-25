@@ -2521,7 +2521,7 @@ function render我的Page(container) {
     container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">我的</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <!-- 个人资料卡 -->\n                <div class="card" style="text-align: center; padding: 24px;">\n                    <div class="avatar" style="width: 64px; height: 64px; font-size: 24px; margin: 0 auto 12px;">' + (gameState.player.avatar) + '</div>' + (gameState.equippedOutfit ? '<div style="font-size:10px;color:var(--color-primary);margin-top:4px;">' + _getOutfitName() + '</div>' : '') + '\n                    <div style="font-size: 20px; font-weight: 700; color: var(--color-text);">' + (gameState.player.name) + '</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 4px;">' + (genderText) + ' | ' + (gameState.player.age) + '岁</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + ((company && company.name) || '') + ' | ' + (roleText) + '</div>\n                    ' + (gameState.player.group ? '<div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">' + gameState.player.group + '</div>' : '') + '\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-top: 2px;">定位: ' + (gameState.player.positions.join(' / ')) + '</div>\n                </div>\n                \n                <!-- 状态卡 -->\n                <div class="section-title">状态</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label">生命</span>\n                        <div class="stat-track"><div class="stat-fill life" style="width: ' + (gameState.life) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.life) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">体力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + ((gameState.体力 / gameState.max体力) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.体力) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">信誉</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + ((gameState.credit / 150) * 100) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.credit) + '</span>\n                    </div>\n                </div>\n                \n                <div class="section-title">声望</div>\n                <div class="card">\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color: var(--color-danger);">危险</span>\n                        <div class="stat-track"><div class="stat-fill danger" style="width: ' + (Math.min(100, gameState.danger)) + '%;"></div></div>\n                        <span class="stat-value" style="color: ' + (gameState.danger > 50 ? 'var(--color-danger)' : 'var(--color-text)') + ';">' + (gameState.danger) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">影响力</span>\n                        <div class="stat-track"><div class="stat-fill 体力" style="width: ' + (Math.min(100, (gameState.influence || 50) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.influence || 50) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label">名气</span>\n                        <div class="stat-track"><div class="stat-fill credit" style="width: ' + (Math.min(100, (gameState.fame || 30) / 2)) + '%;"></div></div>\n                        <span class="stat-value">' + (gameState.fame || 30) + '</span>\n                    </div>\n                    <div class="stat-bar">\n                        <span class="stat-label" style="color:#94A3B8;">颜值</span>\n                        <div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.looks || 0) / 2) + '%;background:linear-gradient(90deg,#94A3B8,#CBD5E1);"></div></div>\n                        <span class="stat-value" style="color:#94A3B8;">' + (gameState.looks || 0) + '</span>\n                    </div>\n                    ' + (gameState.player.role === 'Idol' ? '<div class="stat-bar"><span class="stat-label" style="color:#A070E0;">团体人气</span><div class="stat-track"><div class="stat-fill" style="width:' + Math.min(100, (gameState.groupPopularity || 0) / 2) + '%;background:linear-gradient(90deg,#A070E0,#C9A0FF);"></div></div><span class="stat-value" style="color:#A070E0;">' + (gameState.groupPopularity || 0) + '</span></div>' : '') + '\n                </div>\n                \n                <!-- 能力卡 -->\n                <div class="section-title">能力</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
-                    }).join('')) + '\n                </div>\n                \n                <!-- 经济卡 -->\n                <div class="section-title">经济</div>\n                <div class="card">\n                    <div style="display: flex; justify-content: space-around;">\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.money || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">金币</div>\n                        </div>\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.fans || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">粉丝</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <!-- 背包卡 -->\n                <div class="section-title">背包</div>\n                <div class="card">\n                    ' + (gameState.inventory.length === 0 ? '\n                        <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>\n                    ' : gameState.inventory.map(function(item, i) { return '\n                        <div class="inventory-item">\n                            <span class="item-name">' + (item.name) + '</span>\n                            <button class="item-use" onclick="useItem(' + (i) + ')">使用</button>\n                        </div>\n                    '}).join('')) + '\n                </div>\n                \n                <!-- 账号操作 -->\n                <div class="section-title" style="margin-top:16px;">账号</div>\n                <div class="card" onclick="_doLogout()" style="cursor:pointer;">\n                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>\n                </div>\n            </div>\n        </div>\n    ';
+                    }).join('')) + '\n                </div>\n                \n                <!-- 经济卡 -->\n                <div class="section-title">经济</div>\n                <div class="card">\n                    <div style="display: flex; justify-content: space-around;">\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.money || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">金币</div>\n                        </div>\n                        <div style="text-align: center;">\n                            <div style="font-size: 20px; font-weight: 700; color: var(--color-primary);">' + ((gameState.fans || 0).toLocaleString()) + '</div>\n                            <div style="font-size: 11px; color: var(--color-text-light);">粉丝</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <!-- 背包卡 -->\n                <div class="section-title">背包</div>\n                <div class="card">\n                    ' + (gameState.inventory.length === 0 ? '\n                        <div style="text-align: center; padding: 20px; color: var(--color-text-light); font-size: 13px;">暂无物品</div>\n                    ' : gameState.inventory.map(function(item, i) { return '\n                        <div class="inventory-item">\n                            <span class="item-name">' + (item.name) + '</span>\n                            <button class="item-use" onclick="useItem(' + (i) + ')">使用</button>\n                        </div>\n                    '}).join('')) + '\n                </div>\n                \n                <!-- 角色故事 -->\n                <div class="section-title">角色故事</div>\n                <div class="card" onclick="renderVipModal()" style="cursor:pointer;">\n                    <div style="display:flex;justify-content:space-between;align-items:center;">\n                        <div>\n                            <div style="font-weight:600;">角色支线剧情</div>\n                            <div style="font-size:12px;color:var(--color-text-light);">解锁他/她的专属故事</div>\n                        </div>\n                        <div style="font-size:13px;color:var(--color-primary);">查看 ›</div>\n                    </div>\n                </div>\n                \n                <!-- 账号操作 -->\n                <div class="section-title" style="margin-top:16px;">账号</div>\n                <div class="card" onclick="_doLogout()" style="cursor:pointer;">\n                    <div style="font-weight:600;color:var(--color-danger);">退出登录</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">退出当前账号</div>\n                </div>\n            </div>\n        </div>\n    ';
 }
 
 function useItem(index) {
@@ -2761,111 +2761,6 @@ function getAIMaxTotalToday() {
 
 function canUseAIToday() {
     return getAITotalUsageToday() < getAIMaxTotalToday();
-}
-
-// ===== VIP SYSTEM =====
-var VIP_TIERS = {
-    basic: { name: '基础版', price: 5, dailyLimit: 20, features: ['练习生路线', '基础社交互动', 'AI对话20条/天', '按月订阅'] },
-    advanced: { name: '进阶版', price: 9.9, dailyLimit: 50, features: ['出道爱豆路线', 'AI对话50条/天', '全部社交APP', '按月订阅'] },
-    premium: { name: '完整版', price: 19.9, dailyLimit: 120, features: ['全部APP解锁', 'AI对话120条/天', '直播功能', '优先体验新内容', '按月订阅'] }
-};
-var AFDIAN_URL = 'https://afdian.com/a/myidol';
-var WORKER_URL = 'https://myidol.asia';
-
-function getVipTier() {
-    try {
-        var saves = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}');
-        if (!saves.vipTier) return null;
-        var VIP_DURATION = 30 * 24 * 60 * 60 * 1000;
-        if (saves.vipVerifiedAt && (Date.now() - saves.vipVerifiedAt) > VIP_DURATION) {
-            saves.vipTier = null;
-            localStorage.setItem('myidol_saves_' + localStorage.getItem('myidol_current_account'), JSON.stringify(saves));
-            return null;
-        }
-        return saves.vipTier;
-    } catch(e) { return null; }
-}
-
-function isVipUser(minTier) {
-    var tier = getVipTier();
-    if (!tier) return false;
-    var order = { basic: 1, advanced: 2, premium: 3 };
-    return (order[tier] || 0) >= (order[minTier] || 0);
-}
-
-function showVipPage() {
-    var currentTier = getVipTier();
-    var tierCard = function(key, t, isCurrent) {
-        return '<div class="card" style="margin-bottom:12px;' + (isCurrent ? 'border:2px solid #CBD5E1;' : '') + '">'
-            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">'
-            + '<div style="font-weight:600;font-size:16px;">' + t.name + '</div>'
-            + '<span style="font-weight:700;font-size:18px;color:var(--color-primary);">' + t.price + '元/月</span></div>'
-            + '<div style="font-size:13px;color:var(--color-text-light);line-height:1.6;">'
-            + t.features.map(function(f) { return '- ' + f; }).join('<br>') + '</div>'
-            + (isCurrent ? '<div style="margin-top:10px;text-align:center;color:var(--color-primary);font-weight:600;">当前档位</div>' : '') + '</div>';
-    };
-    var html = '<div style="padding:8px 0;"><div style="text-align:center;margin-bottom:16px;">'
-        + '<div style="font-size:18px;font-weight:700;margin-bottom:4px;">开通会员</div>'
-        + '<div style="font-size:13px;color:var(--color-text-light);">解锁完整游戏体验</div>' + '<div style="font-size:12px;color:#FF6B6B;margin-top:6px;font-weight:600;">按月订阅，自动续费，随时可取消</div></div>'
-        + (function() {
-            if (!currentTier) return '';
-            var saves = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}');
-            if (saves.vipExpireAt) {
-                var d = new Date(saves.vipExpireAt);
-                return '\u003cdiv style="text-align:center;font-size:12px;color:var(--color-text-light);margin-bottom:12px;"\u003e当前会员有效期至 ' + d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate() + '\u003c/div\u003e';
-            }
-            return '';
-        })()
-        + tierCard('premium', VIP_TIERS.premium, currentTier === 'premium')
-        + tierCard('advanced', VIP_TIERS.advanced, currentTier === 'advanced')
-        + tierCard('basic', VIP_TIERS.basic, currentTier === 'basic')
-        + '<button onclick="window.open(\'https://afdian.com/a/myidol\',\'_blank\')" style="width:100%;padding:14px;background:var(--color-primary);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">前往爱发电开通</button>'
-        + '<button onclick="showVerifyOrder()" style="width:100%;padding:14px;background:transparent;color:var(--color-primary);border:1px solid var(--color-primary);border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;">已付费？输入订单号验证</button>'
-        + '<div style="text-align:center;margin-top:12px;font-size:12px;color:var(--color-text-light);">每月续费后需重新验证订单号以续期</div></div>';
-    showModal('开通会员', html);
-}
-
-function showVerifyOrder() {
-    var html = '<div style="padding:4px 0;">'
-        + '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:12px;">在爱发电"我的订单"中复制订单号</div>'
-        + '<input type="text" id="vipOrderNo" placeholder="粘贴订单号" style="width:100%;padding:12px;border:1px solid var(--color-border);border-radius:8px;font-size:14px;box-sizing:border-box;">'
-        + '<div id="vipVerifyMsg" style="margin-top:8px;font-size:13px;min-height:20px;"></div></div>';
-    showModal('验证订单', html, [
-        { text: '取消', action: function() { closeModal(); } },
-        { text: '验证', action: function() { verifyVipOrder(); } }
-    ]);
-}
-
-function verifyVipOrder() {
-    var orderNo = document.getElementById('vipOrderNo');
-    var msgEl = document.getElementById('vipVerifyMsg');
-    if (!orderNo || !orderNo.value.trim()) {
-        msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '请输入订单号'; return;
-    }
-    msgEl.style.color = 'var(--color-text-light)'; msgEl.textContent = '验证中...';
-    if (!WORKER_URL) {
-        msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '系统暂未开放，V1.6正式版上线后可用'; return;
-    }
-    var account = localStorage.getItem('myidol_current_account') || '';
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', WORKER_URL + '/verify-order', true);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onload = function() {
-        try {
-            var data = JSON.parse(xhr.responseText);
-            if (data.success) {
-                var saves = JSON.parse(localStorage.getItem('myidol_saves_' + account) || '{}');
-                saves.vipTier = data.tier; saves.vipOrderNo = data.orderNo; saves.vipVerifiedAt = Date.now(); saves.vipExpireAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
-                localStorage.setItem('myidol_saves_' + account, JSON.stringify(saves));
-                var expireDate = new Date(saves.vipExpireAt); var expireStr = expireDate.getFullYear() + '/' + (expireDate.getMonth()+1) + '/' + expireDate.getDate(); msgEl.style.color = '#4CD964'; msgEl.textContent = '验证成功！有效期至' + expireStr + '，每月续费后需重新验证';
-                setTimeout(function() { closeModal(); render(); notifySystem('会员', '会员权益已激活'); showToast('会员权益已激活！'); }, 800);
-            } else {
-                msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = data.message || '请检查订单号是否复制完整，或稍后重试';
-            }
-        } catch(e) { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '网络异常，请稍后重试'; }
-    };
-    xhr.onerror = function() { msgEl.style.color = 'var(--color-danger)'; msgEl.textContent = '网络错误'; };
-    xhr.send(JSON.stringify({ order_no: orderNo.value.trim(), account: account }));
 }
 
 function recordAIUsage(appId) {
@@ -14202,6 +14097,248 @@ function getCheckInInfo() {
 
 
 // ========== V2.0 CHAPTER SYSTEM ==========
+
+
+
+// ==================== VIP / PAYMENT SYSTEM ====================
+var VIP_TIERS = {
+    monthly: { name: '月度会员', price: '9.9', period: '/月', slots: 1 },
+    quarterly: { name: '季度会员', price: '25', period: '/季', slots: 3 },
+    yearly: { name: '年度会员', price: '99', period: '/年', slots: -1 }
+};
+
+var SIDELINE_CHARACTERS = [
+    { id: 'haeun', name: '\u590F\u6069', theme: '\u4E09\u6B21\u51FA\u9053\u5931\u8D25', chapters: 5 },
+    { id: 'soah', name: '\u7D20\u96C5', theme: '\u58F0\u97F3\u4E0E\u6C89\u9ED8', chapters: 5 },
+    { id: 'jiwon', name: '\u667A\u5A9B', theme: '\u56E2\u5BA0\u7684\u80CC\u9762', chapters: 5 },
+    { id: 'junho', name: '\u4FCA\u660A', theme: '\u7B11\u5BB9\u4E4B\u5916', chapters: 5 },
+    { id: 'seokhyun', name: '\u745E\u8D24', theme: '\u53E3\u5403\u4E0ERap', chapters: 5 }
+];
+
+function initVipState() {
+    if (!gameState.vipState) {
+        gameState.vipState = {
+            tier: null,
+            unlockedChapters: [],
+            availableSlots: 0,
+            usedSlots: 0,
+            activatedAt: null,
+            expiresAt: null,
+            lastOrderId: ''
+        };
+    }
+}
+
+function getVipTier() {
+    initVipState();
+    var vs = gameState.vipState;
+    if (!vs.tier) return null;
+    if (vs.expiresAt && Date.now() > vs.expiresAt) {
+        vs.tier = null;
+        vs.availableSlots = 0;
+        return null;
+    }
+    return vs.tier;
+}
+
+function activateVip(tier, orderId) {
+    initVipState();
+    var vs = gameState.vipState;
+    var now = Date.now();
+    var duration = 0;
+    if (tier === 'monthly') duration = 30 * 24 * 3600 * 1000;
+    else if (tier === 'quarterly') duration = 90 * 24 * 3600 * 1000;
+    else if (tier === 'yearly') duration = 365 * 24 * 3600 * 1000;
+
+    if (vs.tier && vs.tier !== tier) {
+        if (tier === 'yearly') {
+            vs.availableSlots = -1;
+            vs.usedSlots = 0;
+        } else if (tier === 'quarterly' && vs.tier === 'monthly') {
+            vs.availableSlots = 3;
+        }
+    } else {
+        if (tier === 'yearly') {
+            vs.availableSlots = -1;
+        } else {
+            vs.availableSlots += VIP_TIERS[tier].slots;
+        }
+    }
+
+    vs.tier = tier;
+    vs.activatedAt = now;
+    vs.expiresAt = now + duration;
+    vs.lastOrderId = orderId || '';
+
+    if (tier === 'yearly') {
+        var si, sci;
+        for (si = 0; si < SIDELINE_CHARACTERS.length; si++) {
+            for (sci = 1; sci <= SIDELINE_CHARACTERS[si].chapters; sci++) {
+                if (!isChapterUnlocked(SIDELINE_CHARACTERS[si].id, sci)) {
+                    vs.unlockedChapters.push({ character: SIDELINE_CHARACTERS[si].id, chapter: sci, unlockedAt: new Date(now).toISOString().slice(0, 10) });
+                }
+            }
+        }
+        vs.usedSlots = vs.unlockedChapters.length;
+    }
+
+    triggerSilentSave();
+}
+
+function isChapterUnlocked(characterId, chapterNum) {
+    initVipState();
+    var vs = gameState.vipState;
+    var i;
+    for (i = 0; i < vs.unlockedChapters.length; i++) {
+        if (vs.unlockedChapters[i].character === characterId && vs.unlockedChapters[i].chapter === chapterNum) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function unlockChapter(characterId, chapterNum) {
+    initVipState();
+    var vs = gameState.vipState;
+    if (isChapterUnlocked(characterId, chapterNum)) return false;
+    if (vs.availableSlots !== -1 && vs.usedSlots >= vs.availableSlots) return false;
+    vs.unlockedChapters.push({ character: characterId, chapter: chapterNum, unlockedAt: new Date().toISOString().slice(0, 10) });
+    if (vs.availableSlots !== -1) vs.usedSlots++;
+    triggerSilentSave();
+    return true;
+}
+
+function getUnlockedChaptersForCharacter(characterId) {
+    initVipState();
+    var vs = gameState.vipState;
+    var result = [];
+    var i;
+    for (i = 0; i < vs.unlockedChapters.length; i++) {
+        if (vs.unlockedChapters[i].character === characterId) {
+            result.push(vs.unlockedChapters[i].chapter);
+        }
+    }
+    return result.sort(function(a, b) { return a - b; });
+}
+
+function openAfdianPage() {
+    window.open('https://afdian.com/a/myidol', '_blank');
+}
+
+function renderVipModal() {
+    var existing = document.getElementById('vipModal');
+    if (existing) existing.remove();
+
+    var tier = getVipTier();
+    var tierInfo = tier ? VIP_TIERS[tier] : null;
+    var vs = gameState.vipState;
+
+    var overlay = document.createElement('div');
+    overlay.id = 'vipModal';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.96);z-index:9999;display:flex;flex-direction:column;align-items:center;overflow-y:auto;padding:20px 0;box-sizing:border-box;';
+
+    var inner = document.createElement('div');
+    inner.style.cssText = 'max-width:380px;width:90%;color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,sans-serif;';
+
+    // Title
+    var html = '<div style="text-align:center;margin-bottom:20px;">';
+    html += '<div style="font-size:22px;font-weight:700;margin-bottom:6px;">Haeoreum</div>';
+    html += '<div style="font-size:14px;color:#94A3B8;">\u89D2\u8272\u6545\u4E8B \u00B7 \u62A2\u5148\u89E3\u9501</div>';
+    html += '</div>';
+
+    // Current membership status
+    if (tier) {
+        html += '<div style="background:#1E293B;border-radius:10px;padding:14px;margin-bottom:16px;text-align:center;">';
+        html += '<div style="font-size:12px;color:#64748B;">\u5F53\u524D\u4F1A\u5458</div>';
+        html += '<div style="font-size:17px;font-weight:700;color:#F8FAFC;margin:4px 0;">' + tierInfo.name + '</div>';
+        if (vs.expiresAt) {
+            var ed = new Date(vs.expiresAt);
+            html += '<div style="font-size:12px;color:#94A3B8;">\u6709\u6548\u671F\u81F3' + ed.getFullYear() + '/' + (ed.getMonth()+1) + '/' + ed.getDate() + '</div>';
+        }
+        html += '</div>';
+    }
+
+    // Free tier description
+    html += '<div style="background:#1E293B;border-radius:10px;padding:14px;margin-bottom:10px;">';
+    html += '<div style="font-size:15px;font-weight:600;margin-bottom:8px;">\u514D\u8D39\u73A9\u5BB6</div>';
+    html += '<div style="font-size:13px;color:#94A3B8;line-height:1.6;">\u53EF\u4EE5\u5B8C\u6574\u4F53\u9A8C\u5168\u90E8\u4E3B\u7EBF\u5267\u60C5\uFF08\u7B2C1-3\u7AE0\uFF09\uFF0C\u81EA\u7531\u4F7F\u7528\u901A\u8BAF\u5F55\u3001SNS\u3001\u8BAD\u7EC3\u3001\u76F4\u64AD\u7B49\u6240\u6709\u6838\u5FC3\u529F\u80FD\uFF0C\u80FD\u529B\u503C\u53EF\u4EE5\u7EC3\u5230\u6EE1\u7EA7\uFF0C\u4E0D\u4F1A\u5728\u4E3B\u7EBF\u63A8\u8FDB\u8FC7\u7A0B\u4E2D\u9047\u5230\u4EFB\u4F55\u4ED8\u8D39\u5899\u3002</div>';
+    html += '</div>';
+
+    // Monthly
+    html += '<div style="background:#1E293B;border:1px solid #334155;border-radius:10px;padding:14px;margin-bottom:10px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html += '<div style="font-size:15px;font-weight:600;">\u6708\u5EA6\u4F1A\u5458</div>';
+    html += '<div style="font-size:19px;font-weight:700;">\u00A59.9<span style="font-size:12px;font-weight:400;color:#94A3B8;">/\u6708</span></div>';
+    html += '</div>';
+    html += '<div style="font-size:13px;color:#94A3B8;line-height:1.6;">\u6BCF\u6708\u53EF\u89E3\u95011\u4E2A\u89D2\u8272\u652F\u7EBF\u76841\u7AE0\uFF085\u4E2A\u89D2\u8272\u4EFB\u9009\uFF0C\u7AE0\u8282\u4EFB\u9009\uFF09\uFF0C\u8FDE\u7EED\u8BA2\u9605\u53EF\u9010\u6B65\u8BFB\u5B8C\u4E00\u4E2A\u89D2\u8272\u7684\u5B8C\u6574\u6545\u4E8B\u3002\u5F53\u6708\u8FD8\u53EF\u83B7\u5F971\u5F20\u4E13\u5C5E\u7ACB\u7ED8\u76AE\u80A4\u3002\u505C\u6B62\u7EED\u8D39\u540E\uFF0C\u5DF2\u89E3\u9501\u7684\u7AE0\u8282\u6C38\u4E45\u4FDD\u7559\u53EF\u8BFB\u3002</div>';
+    html += '</div>';
+
+    // Quarterly
+    html += '<div style="background:#1E293B;border:1px solid #334155;border-radius:10px;padding:14px;margin-bottom:10px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html += '<div style="font-size:15px;font-weight:600;">\u5B63\u5EA6\u4F1A\u5458</div>';
+    html += '<div style="font-size:19px;font-weight:700;">\u00A525<span style="font-size:12px;font-weight:400;color:#94A3B8;">/\u5B63</span></div>';
+    html += '</div>';
+    html += '<div style="font-size:13px;color:#94A3B8;line-height:1.6;">3\u4E2A\u6708\u5185\u53EF\u89E3\u95013\u4E2A\u89D2\u8272\u652F\u7EBF\u7684\u7AE0\u8282\uFF08\u53EF\u5206\u914D\u7ED9\u540C\u4E00\u89D2\u8272\u6216\u4E0D\u540C\u89D2\u8272\uFF09\uFF0C\u83B7\u5F97\u5F53\u5B63\u4E13\u5C5E\u7ACB\u7ED8\u76AE\u80A4\uFF0C\u5E76\u53EF\u63D0\u524D\u9605\u8BFB\u4E0B\u5B63\u9884\u544A\u3002</div>';
+    html += '</div>';
+
+    // Yearly
+    html += '<div style="background:#1E293B;border:1px solid #475569;border-radius:10px;padding:14px;margin-bottom:16px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+    html += '<div style="font-size:15px;font-weight:600;">\u5E74\u5EA6\u4F1A\u5458 <span style="font-size:11px;color:#64748B;">\u63A8\u8350</span></div>';
+    html += '<div style="font-size:19px;font-weight:700;">\u00A599<span style="font-size:12px;font-weight:400;color:#94A3B8;">/\u5E74</span></div>';
+    html += '</div>';
+    html += '<div style="font-size:13px;color:#94A3B8;line-height:1.6;">\u4E00\u6B21\u6027\u89E3\u9501\u5168\u90E85\u4E2A\u89D2\u8272\u7684\u6240\u6709\u5DF2\u53D1\u5E03\u652F\u7EBF\u7AE0\u8282\uFF0C\u83B7\u5F97\u5168\u5E74\u6240\u6709\u7ACB\u7ED8\u76AE\u80A4\u548C\u4E13\u5C5E\u89D2\u8272\u8868\u60C5\u5305\uFF0C\u662F\u6240\u6709\u5185\u5BB9\u7684\u5B8C\u6574\u901A\u884C\u8BC1\u3002</div>';
+    html += '</div>';
+
+    // Go to Afdian button
+    html += '<button onclick="openAfdianPage()" style="width:100%;padding:14px;background:#334155;color:#F8FAFC;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:8px;">\u524D\u5F80\u7231\u53D1\u7535\u8D2D\u4E70</button>';
+
+    // Order verification
+    html += '<div style="margin-top:12px;">';
+    html += '<div style="font-size:12px;color:#64748B;margin-bottom:8px;text-align:center;">\u4ED8\u6B3E\u540E\u7C98\u8D34\u8BA2\u5355\u53F7\u9A8C\u8BC1</div>';
+    html += '<input id="vipOrderIdInput" type="text" placeholder="\u7C98\u8D34\u7231\u53D1\u7535\u8BA2\u5355\u53F7" style="width:100%;padding:10px 14px;background:#1E293B;border:1px solid #334155;border-radius:8px;color:#F8FAFC;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">';
+    html += '<button onclick="verifyAfdianOrder()" style="width:100%;padding:10px;background:transparent;color:#94A3B8;border:1px solid #334155;border-radius:8px;font-size:14px;cursor:pointer;">\u9A8C\u8BC1\u8BA2\u5355</button>';
+    html += '</div>';
+
+    // Close
+    html += '<div onclick="document.getElementById(\'vipModal\').remove()" style="margin-top:16px;text-align:center;color:#64748B;font-size:14px;cursor:pointer;">\u5173\u95ED</div>';
+
+    inner.innerHTML = html;
+    overlay.appendChild(inner);
+    document.body.appendChild(overlay);
+}
+
+function verifyAfdianOrder() {
+    var input = document.getElementById('vipOrderIdInput');
+    if (!input || !input.value.trim()) {
+        alert('\u8BF7\u7C98\u8D34\u8BA2\u5355\u53F7');
+        return;
+    }
+    var orderId = input.value.trim();
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/verify-afdian', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            var resp = JSON.parse(xhr.responseText);
+            if (resp.success) {
+                activateVip(resp.tier, orderId);
+                alert('\u4F1A\u5458\u6FC0\u6D3B\u6210\u529F\uFF01');
+                var modal = document.getElementById('vipModal');
+                if (modal) modal.remove();
+                render();
+            } else {
+                alert(resp.message || '\u9A8C\u8BC1\u5931\u8D25\uFF0C\u8BF7\u68C0\u67E5\u8BA2\u5355\u53F7');
+            }
+        } else {
+            alert('\u7F51\u7EDC\u9519\u8BEF\uFF0C\u8BF7\u7A0D\u540E\u91CD\u8BD5');
+        }
+    };
+    xhr.onerror = function() { alert('\u7F51\u7EDC\u9519\u8BEF'); };
+    xhr.send(JSON.stringify({ orderId: orderId, userId: gameState.userId || '' }));
+}
+
 
 var CHAPTER_CONFIG = {
     1: {
