@@ -4123,6 +4123,33 @@ function getAppRedDot(appId) {
     if (typeof hasChapterRedDot === 'function') { if (hasChapterRedDot(appId)) count += 1; }
     return count > 0 ? count : null;
 }
+
+function _showSceneAtmosphere(page) {
+    var atmospheres = {
+        training: '\u7EC3\u4E60\u5BA4\u7684\u97F3\u4E50\u8FD8\u6CA1\u505C\u3002',
+        contacts: '\u624B\u673A\u4EAE\u4E86\u3002',
+        sns: '\u6709\u4EBA\u7ED9\u4F60\u70B9\u4E86\u8D5E\u3002',
+        live: '\u76F4\u64AD\u5F00\u542F\u4E86\u3002',
+        schedule: '\u4ECA\u5929\u7684\u65E5\u7A0B\u5F88\u6EE1\u3002',
+        fancommunity: '\u7C89\u4E1D\u4EEC\u5728\u7B49\u4F60\u3002',
+        music: '\u97F3\u4E50\u653E\u9001\u7684\u706F\u5149\u5F88\u4EAE\u3002',
+        debut: '\u51FA\u9053\u4F1A\u8BAE\u5BA4\uFF0C\u6C14\u6C1B\u51DD\u91CD\u3002',
+        prroom: '\u516C\u5173\u5BA4\u7684\u7535\u8BDD\u54CD\u4E86\u3002',
+        recording: '\u5F55\u97F3\u5BA4\u5F88\u5B89\u9759\u3002',
+        mvstudio: '\u6444\u5F71\u673A\u5DF2\u5C31\u4F4D\u3002',
+        comeback: '\u56DE\u5F52\u5012\u8BA1\u65F6\u5F00\u59CB\u3002'
+    };
+    var text = atmospheres[page];
+    if (!text) return;
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:15px;color:#94A3B8;font-family:-apple-system,BlinkMacSystemFont,sans-serif;z-index:9998;pointer-events:none;opacity:0;transition:opacity 0.5s;white-space:nowrap;';
+    el.textContent = text;
+    document.body.appendChild(el);
+    setTimeout(function() { el.style.opacity = '1'; }, 10);
+    setTimeout(function() { el.style.opacity = '0'; }, 2000);
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 2500);
+}
+
 function goToPage(page) {
         if (typeof gameState !== 'undefined' && gameState.体力 !== undefined) { if (gameState.体力 < 0) gameState.体力 = 0; if (gameState.体力 > gameState.max体力) gameState.体力 = gameState.max体力; }
 if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'create') {
@@ -4172,6 +4199,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
         if (page === 'dating') { gameState.datingUnread = 0; }
         if (page === 'home') { window._inSceneMode = true; }
         currentPage = page;
+        _showSceneAtmosphere(page);
         render();
         renderBottomNav();
     } catch(e) {
@@ -14817,6 +14845,12 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
         })(options[oi]);
     }
     inner.appendChild(optContainer);
+    if (typeof hint !== 'undefined' && hint) {
+        var hintEl = document.createElement('div');
+        hintEl.style.cssText = 'font-size:11px;color:#64748B;text-align:center;margin-top:8px;';
+        hintEl.textContent = '\u8FD9\u4E2A\u9009\u62E9\u5C06\u5F71\u54CD\u540E\u7EED\u5267\u60C5';
+        inner.appendChild(hintEl);
+    }
 }
 
 function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
