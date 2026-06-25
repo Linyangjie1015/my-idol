@@ -361,9 +361,6 @@ function render() {
             case 'me':
                 render我的Page(app);
                 break;
-            case 'vote':
-                renderVotingPage(app);
-                break;
             case 'schedule':
                 if (typeof markAppRead === 'function') markAppRead('schedule');
                 renderSchedulePage(app);
@@ -1041,7 +1038,6 @@ function renderHomePage(container) {
 
         { id: 'debut', icon: 'debut', name: '出道企划', unlock: 0 },
         { id: 'prroom', icon: 'prroom', name: '\u516c\u5173\u5ba4', unlock: 0 },
-        { id: 'vote', icon: 'vote', name: '\u6295\u7968', unlock: 0 }
     ];
     
     var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
@@ -4272,7 +4268,6 @@ function getIcon(name) {
         'sns': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="1.5"></line></svg>',
         'fancommunity': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
         'prroom': '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
-        'vote': '<svg viewBox="0 0 24 24">path d="M9 11l3 3L22 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
         'gift': '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline><rect x="2" y="7" width="20" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="12" y1="22" x2="12" y2="7" stroke="currentColor" stroke-width="1.5"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
     };
     return icons[name] || '';
@@ -14127,7 +14122,6 @@ var SIDELINE_CHARACTERS = [
 ];
 
 // Chapter counts by vote rank (index 0=1st place, etc.)
-var RANK_CHAPTERS = [8, 7, 6, 5, 4];
 
 function initVipState() {
     if (!gameState.vipState) {
@@ -14221,93 +14215,7 @@ function getUnlockedCharacterIds() {
     return gameState.vipState.pickedCharacters.slice();
 }
 
-// ==================== VOTING SYSTEM ====================
 
-var VOTE_DURATION_DAYS = 7;
-
-function initVoteState() {
-    if (!gameState.voteState) {
-        gameState.voteState = {
-            hasVoted: false,
-            votedFor: null,  // character ID
-            votedAt: null
-        };
-    }
-}
-
-function hasVoted() {
-    initVoteState();
-    return gameState.voteState.hasVoted;
-}
-
-function castVote(characterId) {
-    initVoteState();
-    if (gameState.voteState.hasVoted) return false;
-    gameState.voteState.hasVoted = true;
-    gameState.voteState.votedFor = characterId;
-    gameState.voteState.votedAt = Date.now();
-    triggerSilentSave();
-    return true;
-}
-
-function renderVotingPage(container) {
-    var html = '<div class="page active">';
-    html += '<div class="page-header">';
-    html += '<div class="back-btn" onclick="goToPage(\'home\')">&#8249; \u9996\u9875</div>';
-    html += '<div class="page-title">\u6295\u7968</div>';
-    html += '<div style="width:32px;"></div>';
-    html += '</div>';
-    html += '<div class="page-content">';
-
-    if (hasVoted()) {
-        // Already voted
-        html += '<div style="text-align:center;padding:40px 20px;">';
-        html += '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">\u6295\u7968\u6210\u529F</div>';
-        html += '<div style="font-size:14px;color:var(--color-text-light);">\u4F60\u5DF2\u4E3A\u201C' + _getCharName(gameState.voteState.votedFor) + '\u201D\u6295\u7968</div>';
-        html += '<div style="font-size:12px;color:var(--color-text-light);margin-top:12px;">V2.0\u4E0A\u7EBF\u65F6\u53EF\u83B7\u5F97\u989D\u59161\u7AE0\u62A2\u5148\u9605\u8BFB\u6743</div>';
-        html += '</div>';
-    } else {
-        // Vote form
-        html += '<div style="text-align:center;padding:20px 0 16px;">';
-        html += '<div style="font-size:20px;font-weight:700;margin-bottom:6px;">Haeoreum</div>';
-        html += '<div style="font-size:15px;color:var(--color-text-light);">\u89D2\u8272\u652F\u7EBF\u7BC7\u5E45\u6295\u7968</div>';
-        html += '</div>';
-
-        html += '<div style="text-align:center;font-size:13px;color:var(--color-text-light);margin-bottom:20px;line-height:1.6;">\u4F60\u5E0C\u671B\u8C01\u7684\u6545\u4E8B\u66F4\u957F\uFF1F<br>\u6295\u7968\u51B3\u5B9A\u6BCF\u4E2A\u89D2\u8272\u7684\u652F\u7EBF\u7AE0\u8282\u6570</div>';
-
-        // Character cards
-        var i;
-        for (i = 0; i < SIDELINE_CHARACTERS.length; i++) {
-            var ch = SIDELINE_CHARACTERS[i];
-            html += '<div class="card" onclick="castVote(\'' + ch.id + '\');render();" style="cursor:pointer;margin-bottom:10px;">';
-            html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
-            html += '<div>';
-            html += '<div style="font-size:16px;font-weight:600;">' + ch.name + '</div>';
-            html += '<div style="font-size:13px;color:var(--color-text-light);margin-top:2px;">' + ch.theme + '</div>';
-            html += '</div>';
-            html += '<div style="font-size:13px;color:var(--color-primary);">\u6295\u7968 \u203A</div>';
-            html += '</div></div>';
-        }
-
-        // Info
-        html += '<div style="font-size:12px;color:var(--color-text-light);margin-top:16px;line-height:1.6;">';
-        html += '\u00B7 \u5F97\u7968\u6700\u9AD8\u7684\u89D2\u8272\u652F\u7EBF8\u7AE0\uFF0C\u4EE5\u6B64\u7C7B\u63A8<br>';
-        html += '\u00B7 \u6BCF\u4EBA\u53EA\u80FD\u6295\u4E00\u6B21<br>';
-        html += '\u00B7 \u53C2\u4E0E\u6295\u7968\u7684\u73A9\u5BB6\uFF0CV2.0\u4E0A\u7EBF\u65F6\u53EF\u83B7\u5F97\u989D\u59161\u7AE0\u62A2\u5148\u9605\u8BFB\u6743';
-        html += '</div>';
-    }
-
-    html += '</div></div>';
-    container.innerHTML = html;
-}
-
-function _getCharName(charId) {
-    var i;
-    for (i = 0; i < SIDELINE_CHARACTERS.length; i++) {
-        if (SIDELINE_CHARACTERS[i].id === charId) return SIDELINE_CHARACTERS[i].name;
-    }
-    return '';
-}
 
 function openAfdianPage() {
     window.open('https://afdian.com/a/myidol', '_blank');
