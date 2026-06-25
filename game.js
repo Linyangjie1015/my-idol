@@ -4493,7 +4493,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
         if (page === 'bubble') { gameState.bubbleUnread = 0; }
         if (page === 'weverse') { gameState.weverseUnread = 0; }
         if (page === 'dating') { gameState.datingUnread = 0; }
-        if (page === 'home') { window._inSceneMode = true; }
+        if (page === 'home') { window._inSceneMode = false; /* new lobby home */ }
         currentPage = page;
         render();
         renderBottomNav();
@@ -16266,7 +16266,7 @@ render = function() {
 })();
 
 /* ---------- 版本号 ---------- */
-var V2_VERSION = 'v2.1.1-cinematic (build 0625-fix-crash+welcome)';
+var V2_VERSION = 'v2.1.2-cinematic (build 0625-home-rewrite)';
 
 /* ---------- 1. 设置页：音量滑块 ---------- */
 function _v2PlaySfx(name) {
@@ -18114,7 +18114,7 @@ function _v2EnterChapter(chNum) {
       + '<div style="width:100%;max-width:280px;margin-top:32px;">'
       + slotsHtml
       + '</div>'
-      + '<div class="v21-version">V2.1</div>'
+      + '<div class="v21-version">V2.1.2</div>'
       + '</div>';
   };
 
@@ -18299,7 +18299,7 @@ function _v2EnterChapter(chNum) {
       + '<button class="v21-btn-line-sub" onclick="_showCloudLoginOverlay()" style="letter-spacing:0.1em;">邮箱登录</button>'
       + '<div class="v21-wa-footer">登录后存档自动云端同步</div>'
       + '</div>'
-      + '<div class="v21-wa-version">V2.1</div>'
+      + '<div class="v21-wa-version">V2.1.2</div>'
       + '</div>';
 
     // particles (if available) - keep but small
@@ -18322,4 +18322,449 @@ function _v2EnterChapter(chNum) {
   // ---------- apply body bg immediately ----------
   document.body.style.background = 'radial-gradient(ellipse at top left, #1A1A3E 0%, #0F0C29 50%, #08061A 100%)';
 
+})();
+
+// =====================================================================
+// V2.1.2 - HOME OVERHAUL (角色即入口，对标光与夜之恋)
+// =====================================================================
+;(function(){
+  if (window._v21HomeRewritten) return;
+  window._v21HomeRewritten = true;
+
+  // ---------- CSS ----------
+  var cssId = 'v21-home-overhaul';
+  if (!document.getElementById(cssId)) {
+    var s = document.createElement('style');
+    s.id = cssId;
+    s.textContent = ''
+      + '@keyframes v21h-breath{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}'
+      + '@keyframes v21h-fadein{from{opacity:0}to{opacity:1}}'
+      + '@keyframes v21h-bubble-in{0%{opacity:0;transform:translate(-50%,10px) scale(0.9)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}'
+      + '@keyframes v21h-bubble-out{0%{opacity:1}to{opacity:0}}'
+      + '@keyframes v21h-portrait-swap{0%{opacity:1}50%{opacity:0}100%{opacity:1}}'
+      + '.v21-home{position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,#1A1A3E 0%,#0F0C29 60%,#08061A 100%);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;color:#fff;-webkit-user-select:none;user-select:none;}'
+      + '.v21-home-top{position:absolute;top:0;left:0;right:0;height:56px;padding:max(8px,env(safe-area-inset-top)) 16px 8px;display:flex;align-items:center;justify-content:space-between;z-index:10;background:rgba(15,12,41,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);box-sizing:border-box;}'
+      + '.v21h-top-left{display:flex;align-items:center;gap:10px;}'
+      + '.v21h-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#A78BFA,#7C3AED);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}'
+      + '.v21h-name{font-size:12px;font-weight:400;color:#fff;display:flex;align-items:center;gap:6px;}'
+      + '.v21h-vip{font-size:9px;color:#D4AF37;background:linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.08));border:1px solid rgba(212,175,55,0.3);padding:1px 5px;border-radius:4px;font-weight:500;letter-spacing:0.05em;}'
+      + '.v21h-top-right{display:flex;align-items:center;gap:14px;font-size:12px;color:#fff;}'
+      + '.v21h-stat{display:flex;align-items:center;gap:4px;}'
+      + '.v21h-stat-icon{font-size:13px;}'
+      + '.v21h-stat-val{font-weight:500;}'
+      + '.v21h-side-icons{position:absolute;top:50%;transform:translateY(-50%);z-index:5;display:flex;flex-direction:column;gap:14px;padding:0 14px;}'
+      + '.v21h-side-left{left:0;}'
+      + '.v21h-side-right{right:0;}'
+      + '.v21h-icon-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;}'
+      + '.v21h-icon-circle{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;transition:transform 0.15s,background 0.2s;}'
+      + '.v21h-icon-circle:active{transform:scale(0.9);background:rgba(167,139,250,0.25);}'
+      + '.v21h-icon-circle svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}'
+      + '.v21h-icon-label{font-size:9px;color:rgba(255,255,255,0.7);font-weight:400;letter-spacing:0.03em;}'
+      + '.v21h-icon-dot{position:absolute;top:-2px;right:-2px;width:7px;height:7px;border-radius:50%;background:#FF4D6D;border:1.5px solid #0F0C29;}'
+      + '.v21h-portrait-wrap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;display:flex;align-items:center;justify-content:center;pointer-events:auto;cursor:pointer;}'
+      + '.v21h-portrait{max-height:88%;max-width:75%;object-fit:contain;filter:drop-shadow(0 12px 40px rgba(0,0,0,0.6)) brightness(0.97);animation:v21h-breath 3s ease-in-out infinite;-webkit-user-drag:none;user-select:none;}'
+      + '.v21h-portrait.swapping{animation:v21h-portrait-swap 0.4s ease-in-out;}'
+      + '.v21h-scene-overlay{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;background:radial-gradient(ellipse at center,transparent 30%,rgba(8,6,26,0.55) 100%);pointer-events:none;}'
+      + '.v21h-bottom{position:absolute;bottom:0;left:0;right:0;height:56px;padding:0 16px max(8px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-between;z-index:10;background:rgba(15,12,41,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.06);box-sizing:border-box;}'
+      + '.v21h-chapter{display:flex;align-items:center;gap:10px;}'
+      + '.v21h-arrow{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#A78BFA;font-size:16px;font-weight:300;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:50%;transition:background 0.15s;}'
+      + '.v21h-arrow:active{background:rgba(167,139,250,0.2);}'
+      + '.v21h-chapter-text{font-size:13px;font-weight:300;color:#fff;letter-spacing:0.05em;}'
+      + '.v21h-chapter-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:1px;font-weight:300;letter-spacing:0.08em;}'
+      + '.v21h-npc-switch{display:flex;gap:5px;align-items:center;}'
+      + '.v21h-npc-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.25);cursor:pointer;transition:all 0.2s;}'
+      + '.v21h-npc-dot.active{width:16px;border-radius:3px;background:#A78BFA;}'
+      + '.v21h-bubble{position:absolute;bottom:72px;left:50%;transform:translateX(-50%);background:rgba(15,12,41,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:10px 16px;max-width:70%;font-size:13px;color:#fff;font-weight:400;z-index:20;animation:v21h-bubble-in 0.3s ease-out;pointer-events:none;white-space:nowrap;}'
+      + '.v21h-bubble::after{content:"";position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);width:10px;height:10px;background:rgba(15,12,41,0.85);border-right:1px solid rgba(167,139,250,0.3);border-bottom:1px solid rgba(167,139,250,0.3);transform:translateX(-50%) rotate(45deg);}'
+      + '.v21h-vignette{position:absolute;top:0;left:0;width:100%;height:100%;z-index:3;pointer-events:none;box-shadow:inset 0 0 120px rgba(0,0,0,0.4);}'
+      + '.v21h-glow{position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(100px);opacity:0.18;pointer-events:none;z-index:1;}'
+      + '.v21h-glow-tl{top:-80px;left:-80px;background:#A78BFA;}'
+      + '.v21h-glow-br{bottom:-100px;right:-80px;background:#7C3AED;}'
+      + '.v21h-me-btn{position:absolute;top:max(56px,calc(env(safe-area-inset-top)+56px));right:14px;z-index:6;}'
+      + '.v21h-me-btn .v21h-icon-circle{width:36px;height:36px;}'
+      + '.v21h-me-btn .v21h-icon-circle svg{width:17px;height:17px;}'
+      + '.v21h-aff-tag{position:absolute;top:max(64px,calc(env(safe-area-inset-top)+64px));left:50%;transform:translateX(-50%);z-index:6;font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.15em;font-weight:300;pointer-events:none;}';
+    document.head.appendChild(s);
+  }
+
+  // ---------- NPC Data ----------
+  var NPC_LIST = [
+    { key:'haeun',   name:'夏恩', tag:'队长',     color:'#F472B6' },
+    { key:'soah',    name:'素雅', tag:'主唱',     color:'#A78BFA' },
+    { key:'jiwon',   name:'智媛', tag:'忙内',     color:'#FBBF24' },
+    { key:'junho',   name:'俊昊', tag:'领唱',     color:'#60A5FA' },
+    { key:'seokhyun',name:'瑞贤', tag:'主Rapper', color:'#34D399' }
+  ];
+
+  // ---------- Utility: daily lines per NPC ----------
+  var DAILY_LINES = {
+    haeun:   ['今天也要加油哦。','累了的话就休息一下，我陪着你。','看到你来，心情变好了。','练习结束了？我一直在等你。'],
+    soah:    ['早…今天的状态看起来不错呢。','要不要一起听首歌放松一下？','你笑起来的样子，很好看。','那个…有什么我能帮忙的吗？'],
+    jiwon:   ['欧尼/欧巴！今天也要一起玩对吧~','我刚刚练了一段新舞蹈，你要看吗？','嘿嘿，被我抓到摸鱼啦！','你看你看！我新做的美甲好看吗？'],
+    junho:   ['别太勉强自己。','需要帮忙的话随时叫我。','你在的地方，空气都变得不一样了。','今天天气不错，适合出去走走。'],
+    seokhyun:['……来了。','便利店关东煮，要吗？我请。','别盯着我看，专心做事。','……你看起来很累。']
+  };
+
+  // ---------- Save / load current NPC index ----------
+  function _getCurrentNpcIdx() {
+    // pick NPC with highest affection; default 0 (haeun)
+    var best = 0, bestLove = -1;
+    for (var i = 0; i < NPC_LIST.length; i++) {
+      var n = NPC_LIST[i];
+      var lv = (gameState.npc好感度 && gameState.npc好感度[n.name]) || 0;
+      if (lv > bestLove) { bestLove = lv; best = i; }
+    }
+    var saved = parseInt(gameState._v21HomeNpcIdx, 10);
+    if (!isNaN(saved) && saved >= 0 && saved < NPC_LIST.length) return saved;
+    return best;
+  }
+  function _setCurrentNpcIdx(i) {
+    gameState._v21HomeNpcIdx = i;
+  }
+
+  // ---------- Icon SVGs (1.8 stroke, 20px viewBox 24) ----------
+  var ICONS = {
+    home: '<svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M5 10v10h14V10"/></svg>',
+    story: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    personal: '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+    phone: '<svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>',
+    event: '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+    task: '<svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    rank: '<svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>',
+    gacha: '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M12 8V2"/><path d="M19 12H5"/><circle cx="8.5" cy="15.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/></svg>',
+    me: '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+  };
+
+  // ---------- side buttons config ----------
+  var LEFT_ICONS = [
+    { id:'scene',    icon:ICONS.home,     label:'家',    page:'scene' },
+    { id:'story',    icon:ICONS.story,    label:'主线',  page:'story' },
+    { id:'personal', icon:ICONS.personal, label:'支线',  page:'love' },
+    { id:'phone',    icon:ICONS.phone,    label:'手机',  page:'phone' }
+  ];
+  var RIGHT_ICONS = [
+    { id:'event',  icon:ICONS.event, label:'活动', page:'event' },
+    { id:'task',   icon:ICONS.task,  label:'任务', page:'daily' },
+    { id:'rank',   icon:ICONS.rank,  label:'排行', page:'rank' },
+    { id:'gacha',  icon:ICONS.gacha, label:'抽卡', page:'gacha' }
+  ];
+
+  // ---------- Page router: nav to target (compat) ----------
+  function _v21Nav(page) {
+    // hide bottom nav when leaving home; re-show on home return handled by render()
+    try {
+      if (page === 'scene') {
+        // "家" = enter scene mode (renders living room / practice room etc.)
+        window._inSceneMode = true;
+        currentPage = 'home';
+        var app = document.getElementById('app');
+        if (app && typeof renderScenePage === 'function') {
+          renderScenePage(app);
+          // scene page uses bottom nav
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'flex';
+          if (typeof renderBottomNav === 'function') renderBottomNav();
+          return;
+        }
+      } else if (page === 'story') {
+        currentPage = 'story';
+        render();
+        var bn2 = document.getElementById('bottomNav');
+        if (bn2) bn2.style.display = 'none';
+        return;
+      } else if (page === 'love') {
+        window._loveView = 'list';
+        window._loveChatTarget = '';
+        currentPage = 'love';
+        render();
+        var bn3 = document.getElementById('bottomNav');
+        if (bn3) bn3.style.display = 'none';
+        return;
+      } else if (page === 'phone') {
+        // Phone modal overlay — stays on home page
+        try { if (typeof _showPhoneModal === 'function') _showPhoneModal(); } catch(e){ console.warn('phone open failed', e); }
+        return;
+      } else if (page === 'event') {
+        showModal('敬请期待', '活动系统即将开放');
+        return;
+      } else if (page === 'gacha') {
+        showModal('敬请期待', '抽卡系统即将开放');
+        return;
+      } else if (page === 'rank') {
+        goToPage('rank');
+        return;
+      } else if (page === 'daily') {
+        goToPage('daily');
+        return;
+      } else {
+        goToPage(page);
+        return;
+      }
+    } catch(e) {
+      console.warn('v21 nav error', e);
+      goToPage(page === 'scene' ? 'home' : page);
+    }
+  }
+
+  // ---------- Chapter progress ----------
+  function _v21ChapterInfo() {
+    try {
+      if (typeof _v2GetChapterProgress === 'function') {
+        var p = _v2GetChapterProgress();
+        if (p && p.title) {
+          var num = 1;
+          if (gameState.chapterState && gameState.chapterState.currentChapter) {
+            num = gameState.chapterState.currentChapter;
+          } else if (p.chapter) {
+            num = p.chapter;
+          }
+          return { num: num, title: p.title, cur: p.completed || 0, total: p.total || 9 };
+        }
+      }
+    } catch(e){}
+    var cc = (gameState.chapterState && gameState.chapterState.currentChapter) || 1;
+    var ch = V2_CHAPTERS[cc-1] || V2_CHAPTERS[0];
+    return { num: cc, title: ch.title, cur: 0, total: 9 };
+  }
+
+  // ---------- Red dot check ----------
+  function _hasRedDot(id) {
+    try {
+      if (id === 'task' || id === 'daily') {
+        var ci = (typeof getCheckInInfo === 'function') ? getCheckInInfo() : null;
+        if (ci && !ci.checkedIn) return true;
+        if ((gameState._notifUnread || 0) > 0) return true;
+      }
+      if (id === 'story') {
+        var cp = (typeof _v2GetChapterProgress === 'function') ? _v2GetChapterProgress() : null;
+        if (cp && cp.completed < cp.total) return true;
+      }
+    } catch(e){}
+    return false;
+  }
+
+  // ---------- Format numbers ----------
+  function _fmt(n) {
+    n = n || 0;
+    if (n >= 10000) return (n/10000).toFixed(1).replace(/\.0$/,'') + 'w';
+    return n.toLocaleString();
+  }
+
+  // ---------- Bubble ----------
+  var _bubbleTimer = null;
+  function _showBubble(text) {
+    var home = document.querySelector('.v21-home');
+    if (!home) return;
+    var old = home.querySelector('.v21h-bubble');
+    if (old) old.remove();
+    if (_bubbleTimer) { clearTimeout(_bubbleTimer); _bubbleTimer = null; }
+    var b = document.createElement('div');
+    b.className = 'v21h-bubble';
+    b.textContent = text;
+    home.appendChild(b);
+    _bubbleTimer = setTimeout(function(){
+      b.style.animation = 'v21h-bubble-out 0.3s ease-out forwards';
+      setTimeout(function(){ if (b.parentNode) b.remove(); }, 300);
+      _bubbleTimer = null;
+    }, 2200);
+  }
+
+  // ---------- Main render ----------
+  function _renderHome(container) {
+    // Ensure we are NOT in scene mode (home = character lobby, not scene hotspot view)
+    window._inSceneMode = false;
+    // run danger/credit mail checks from original (simplified — just trigger once per day)
+    try {
+      var today = new Date().toDateString();
+      if (gameState.danger >= 30 && gameState._lastDangerMailDate !== today) {
+        gameState._lastDangerMailDate = today;
+        var dm = ['公司高层对你最近的风评表示担忧。','经纪部紧急通知：危险值偏高，注意形象管理。','经纪人提醒：负面传言增多。'];
+        gameState.emails = gameState.emails || [];
+        gameState.emails.unshift({title:'公司警告：风评危机',from:'公司经纪部',content:dm[Math.floor(Math.random()*dm.length)],time:new Date().toLocaleDateString('zh-CN'),read:false});
+      }
+      if (gameState.credit < 50 && gameState.credit > 0 && gameState._lastCreditMailDate !== today) {
+        gameState._lastCreditMailDate = today;
+        var cm = ['再取消通告公司可能换人。','信誉低于安全线，立即改善。','继续下去可能失去回归机会。'];
+        gameState.emails = gameState.emails || [];
+        gameState.emails.unshift({title:'信誉警告',from:'经纪团队',content:cm[Math.floor(Math.random()*cm.length)],time:new Date().toLocaleDateString('zh-CN'),read:false});
+      }
+    } catch(e){}
+
+    // hide bottom nav on new home
+    var bn = document.getElementById('bottomNav');
+    if (bn) bn.style.display = 'none';
+    // remove backToSceneBtn if exists
+    var sb = document.getElementById('backToSceneBtn');
+    if (sb) sb.remove();
+
+    var idx = _getCurrentNpcIdx();
+    var npc = NPC_LIST[idx];
+    var chInfo = _v21ChapterInfo();
+    var playerName = (gameState.player && gameState.player.name) ? gameState.player.name : '玩家';
+    var avatarChar = playerName.charAt(0).toUpperCase();
+    var isVip = !!gameState.vipTier;
+    var money = gameState.money || 0;
+    var stamina = gameState.体力 || 0;
+    var maxStam = gameState.max体力 || 200;
+    var affLv = (gameState.npc好感度 && gameState.npc好感度[npc.name]) || 0;
+
+    // portrait src — prefer cinematic; fallback to halfbody
+    var portraitSrc = 'imgs/portraits/' + npc.key + '_cinematic.jpg';
+    var portraitFb = 'imgs/portraits/' + npc.key + '_halfbody.jpg';
+
+    function _iconBtn(cfg, side) {
+      var dot = _hasRedDot(cfg.id) ? '<div class="v21h-icon-dot"></div>' : '';
+      return '<div class="v21h-icon-btn" onclick="_v21Nav(\''+cfg.page+'\')">'
+        + '<div class="v21h-icon-circle" style="position:relative;">' + cfg.icon + dot + '</div>'
+        + '<div class="v21h-icon-label">'+cfg.label+'</div>'
+        + '</div>';
+    }
+
+    var leftHtml = '';
+    for (var li = 0; li < LEFT_ICONS.length; li++) leftHtml += _iconBtn(LEFT_ICONS[li], 'left');
+    var rightHtml = '';
+    for (var ri = 0; ri < RIGHT_ICONS.length; ri++) rightHtml += _iconBtn(RIGHT_ICONS[ri], 'right');
+
+    // NPC dots
+    var dotsHtml = '';
+    for (var di = 0; di < NPC_LIST.length; di++) {
+      dotsHtml += '<div class="v21h-npc-dot '+(di===idx?'active':'')+'" onclick="_v21SwitchNpc('+di+')"></div>';
+    }
+
+    var vipTag = isVip ? '<span class="v21h-vip">VIP</span>' : '';
+
+    var html = '<div class="v21-home" id="v21HomeRoot">'
+      // bg glows
+      + '<div class="v21h-glow v21h-glow-tl"></div>'
+      + '<div class="v21h-glow v21h-glow-br"></div>'
+      // vignette
+      + '<div class="v21h-vignette"></div>'
+      + '<div class="v21h-scene-overlay"></div>'
+
+      // top bar
+      + '<div class="v21-home-top">'
+      +   '<div class="v21h-top-left">'
+      +     '<div class="v21h-avatar">'+avatarChar+'</div>'
+      +     '<div class="v21h-name">'+playerName+vipTag+'</div>'
+      +   '</div>'
+      +   '<div class="v21h-top-right">'
+      +     '<div class="v21h-stat"><span class="v21h-stat-icon" style="color:#FBBF24;">●</span><span class="v21h-stat-val">'+_fmt(money)+'</span></div>'
+      +     '<div class="v21h-stat"><span class="v21h-stat-icon" style="color:#FF6B8A;">♥</span><span class="v21h-stat-val">'+stamina+'/'+maxStam+'</span></div>'
+      +   '</div>'
+      + '</div>'
+
+      // me button (top right under top bar)
+      + '<div class="v21h-me-btn">'
+      +   '<div class="v21h-icon-btn" onclick="goToPage(\'me\')">'
+      +     '<div class="v21h-icon-circle">'+ICONS.me+'</div>'
+      +   '</div>'
+      + '</div>'
+
+      // NPC name tag (top center under top bar, subtle)
+      + '<div class="v21h-aff-tag">'+npc.name+' · Lv.'+affLv+'</div>'
+
+      // left icons
+      + '<div class="v21h-side-icons v21h-side-left">'+leftHtml+'</div>'
+      // right icons
+      + '<div class="v21h-side-icons v21h-side-right">'+rightHtml+'</div>'
+
+      // portrait center
+      + '<div class="v21h-portrait-wrap" id="v21hPortraitWrap" onclick="_v21OnPortraitTap()">'
+      +   '<img class="v21h-portrait" id="v21hPortrait" src="'+portraitSrc+'" onerror="this.onerror=function(){this.src=\''+portraitFb+'\';};this.src=\''+portraitFb+'\';" alt="'+npc.name+'"/>'
+      + '</div>'
+
+      // bottom bar
+      + '<div class="v21h-bottom">'
+      +   '<div class="v21h-chapter">'
+      +     '<div class="v21h-arrow" onclick="_v21SwitchNpc('+((idx-1+NPC_LIST.length)%NPC_LIST.length)+')">‹</div>'
+      +     '<div>'
+      +       '<div class="v21h-chapter-text">第'+chInfo.num+'章 · '+chInfo.title+'  <span style="color:rgba(255,255,255,0.5);font-weight:300;">'+chInfo.cur+'/'+chInfo.total+'</span></div>'
+      +       '<div class="v21h-chapter-sub">CHAPTER '+chInfo.num+'</div>'
+      +     '</div>'
+      +     '<div class="v21h-arrow" onclick="_v21SwitchNpc('+((idx+1)%NPC_LIST.length)+')">›</div>'
+      +   '</div>'
+      +   '<div class="v21h-npc-switch">'+dotsHtml+'</div>'
+      + '</div>'
+
+      + '</div>';
+
+    container.innerHTML = html;
+    document.body.style.background = '#0F0C29';
+  }
+
+  // ---------- Switch NPC ----------
+  window._v21SwitchNpc = function(i) {
+    if (i < 0) i = NPC_LIST.length - 1;
+    if (i >= NPC_LIST.length) i = 0;
+    _setCurrentNpcIdx(i);
+    var img = document.getElementById('v21hPortrait');
+    if (img) {
+      img.classList.add('swapping');
+      setTimeout(function(){
+        var npc = NPC_LIST[i];
+        var src = 'imgs/portraits/' + npc.key + '_cinematic.jpg';
+        var fb = 'imgs/portraits/' + npc.key + '_halfbody.jpg';
+        img.src = src;
+        img.onerror = function(){ img.onerror=function(){img.src=fb;}; img.src=fb; };
+        setTimeout(function(){ img.classList.remove('swapping'); }, 200);
+      }, 200);
+    }
+    // update chapter & tag & dots without full re-render
+    var app = document.getElementById('app');
+    if (app) {
+      // cheap: re-render to refresh tag and dots
+      _renderHome(app);
+    }
+  };
+
+  // ---------- Tap portrait → daily bubble ----------
+  window._v21OnPortraitTap = function() {
+    var idx = _getCurrentNpcIdx();
+    var npc = NPC_LIST[idx];
+    var lines = DAILY_LINES[npc.key] || ['……'];
+    var line = lines[Math.floor(Math.random()*lines.length)];
+    // pronoun replace for junho/seokhyun if player is female → 欧巴 if opposite gender
+    if (gameState.player && gameState.player.gender === 'M') {
+      line = line.replace(/欧尼/g,'努那').replace(/欧巴/g,'欧尼?不对,男生叫哥是hyeong-').replace(/欧巴/g,'hyeong');
+      // simple: 女玩家 female NPC 叫欧尼 male叫欧巴; 男玩家 female NPC 叫努那 male叫哥
+      // We'll just do a rough: replace placeholder if any
+    }
+    _showBubble('「'+line+'」');
+  };
+
+  // ---------- Override renderHomePage ----------
+  if (typeof renderHomePage === 'function') {
+    var _oldHome2 = renderHomePage;
+    renderHomePage = function(container) {
+      try {
+        _renderHome(container);
+      } catch(e) {
+        console.warn('v21 home render failed, falling back', e);
+        _oldHome2.apply(this, arguments);
+      }
+    };
+  }
+
+  // Expose for global use
+  window._v21Nav = _v21Nav;
+
+})();
+
+
+// ---------- Hide bottom nav on home (new cinematic home has its own bar) ----------
+;(function(){
+  if (window._v21BnPatched) return;
+  window._v21BnPatched = true;
+  var _oldRbn = window.renderBottomNav;
+  if (typeof _oldRbn === 'function') {
+    window.renderBottomNav = function() {
+      _oldRbn.apply(this, arguments);
+      try {
+        if (currentPage === 'home') {
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'none';
+        }
+      } catch(e){}
+    };
+  }
 })();
