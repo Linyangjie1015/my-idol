@@ -16251,7 +16251,7 @@ render = function() {
 })();
 
 /* ---------- 版本号 ---------- */
-var V2_VERSION = 'v2.0.3-ch1 (build 0625-story-hub)';
+var V2_VERSION = 'v2.1.0-cinematic (build 0625-light-night-ui)';
 
 /* ---------- 1. 设置页：音量滑块 ---------- */
 function _v2PlaySfx(name) {
@@ -17805,3 +17805,392 @@ function _v2EnterChapter(chNum) {
     showToast('第'+chNum+'章即将开放');
   }
 }
+/* ============================================================
+ * V2.1 UI OVERHAUL - Light & Night (光与夜之恋) 风格
+ * 深色背景 + 毛玻璃 + 细体字 + 电影感
+ * ============================================================ */
+(function(){
+  if (window._v21UIInjected) return;
+  window._v21UIInjected = true;
+
+  // ---------- inject global CSS ----------
+  var cssId = 'v21-ui-overhaul';
+  if (!document.getElementById(cssId)) {
+    var css = ''
+      + '/* === Global base reset to dark cinematic === */'
+      + 'html, body { background: radial-gradient(ellipse at top left, #1A1A3E 0%, #0F0C29 50%, #08061A 100%) !important; color:#FFF !important; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Noto Sans KR", sans-serif !important; }'
+      + 'body::before{content:"";position:fixed;top:-30%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(167,139,250,0.15) 0%,transparent 60%);pointer-events:none;z-index:0;}'
+      + 'body::after{content:"";position:fixed;bottom:-20%;right:-10%;width:60%;height:60%;background:radial-gradient(ellipse,rgba(96,165,250,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}'
+      + '.phone-frame{background:linear-gradient(180deg,#0F0C29 0%,#1A1A3E 100%) !important; border:1px solid rgba(255,255,255,0.06) !important; box-shadow:0 25px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(167,139,250,0.08) inset !important; position:relative; z-index:1;}'
+      + '.phone-frame::before{content:"";position:absolute;top:0;left:0;right:0;height:40%;background:radial-gradient(ellipse at top,rgba(167,139,250,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}'
+
+      /* Status bar */
+      + '.status-bar{background:transparent !important; border-bottom:1px solid rgba(255,255,255,0.04) !important; color:#FFF !important; position:relative;z-index:2;}'
+      + '.status-time, .status-icons{color:rgba(255,255,255,0.7) !important; font-weight:300 !important;}'
+
+      /* Pages */
+      + '.page{background:transparent !important; color:#FFF !important; position:relative; z-index:1;}'
+      + '.page-content{background:transparent !important; color:#FFF !important;}'
+
+      /* Page header */
+      + '.page-header{background:rgba(15,12,41,0.6) !important; backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important; border-bottom:1px solid rgba(255,255,255,0.06) !important; color:#FFF !important; position:relative; z-index:10;}'
+      + '.page-title{color:#FFF !important; font-weight:300 !important; letter-spacing:0.05em; font-size:16px !important;}'
+      + '.back-btn, .home-btn{color:rgba(255,255,255,0.7) !important; font-weight:300 !important;}'
+
+      /* Glass card */
+      + '.card, .save-slot, .modal-content{background:rgba(255,255,255,0.06) !important; backdrop-filter:blur(20px) !important; -webkit-backdrop-filter:blur(20px) !important; border:1px solid rgba(255,255,255,0.08) !important; color:#FFF !important; border-radius:14px !important; box-shadow:0 4px 20px rgba(0,0,0,0.2) !important;}'
+      + '.card *{color:#FFF !important;}'
+      + '.save-slot{background:rgba(255,255,255,0.04) !important; border:1px solid rgba(255,255,255,0.08) !important; color:#FFF !important; padding:14px 16px !important; border-radius:12px !important; margin-bottom:8px !important;}'
+      + '.save-slot.empty{border-style:dashed !important;}'
+
+      /* Buttons */
+      + '.btn{border-radius:12px !important; font-weight:400 !important; letter-spacing:0.02em; font-size:14px !important;}'
+      + '.btn-primary{background:linear-gradient(135deg,rgba(167,139,250,0.25),rgba(124,58,237,0.25)) !important; color:#FFF !important; border:1px solid rgba(167,139,250,0.4) !important; backdrop-filter:blur(10px);}'
+      + '.btn-primary:active{background:rgba(167,139,250,0.4) !important;}'
+      + '.btn-secondary{background:rgba(255,255,255,0.06) !important; color:#FFF !important; border:1px solid rgba(255,255,255,0.12) !important; backdrop-filter:blur(10px);}'
+      + '.btn-secondary:active{background:rgba(255,255,255,0.12) !important;}'
+      + '.btn-lg{padding:14px 28px !important; font-size:15px !important; font-weight:300 !important;}'
+      + 'button{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;}'
+
+      /* Text colors */
+      + 'h1,h2,h3,h4,.section-title{color:#FFF !important; font-weight:300 !important; letter-spacing:0.04em;}'
+      + 'p, span, div, label{color:rgba(255,255,255,0.85);}'
+      + '.section-title{font-size:13px !important; color:rgba(255,255,255,0.5) !important; font-weight:400 !important; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px !important; margin-top:20px !important;}'
+
+      /* Inputs & selects */
+      + 'input, select, textarea{background:rgba(255,255,255,0.06) !important; color:#FFF !important; border:1px solid rgba(255,255,255,0.1) !important; border-radius:10px !important; backdrop-filter:blur(10px);}'
+      + 'input::placeholder, textarea::placeholder{color:rgba(255,255,255,0.3) !important;}'
+      + 'select option{background:#1A1A3E;color:#FFF;}'
+
+      /* Bottom nav */
+      + '.bottom-nav{background:rgba(15,12,41,0.85) !important; backdrop-filter:blur(24px) !important; -webkit-backdrop-filter:blur(24px) !important; border-top:1px solid rgba(255,255,255,0.06) !important;}'
+      + '.bottom-nav .nav-item{color:rgba(255,255,255,0.4) !important; font-weight:300 !important;}'
+      + '.bottom-nav .nav-item.active{color:#A78BFA !important;}'
+
+      /* Tags & selected */
+      + '.tag{background:rgba(255,255,255,0.06) !important; color:rgba(255,255,255,0.7) !important; border:1px solid rgba(255,255,255,0.1) !important; border-radius:10px !important; font-weight:300 !important;}'
+      + '.tag.selected{background:rgba(167,139,250,0.2) !important; color:#FFF !important; border-color:rgba(167,139,250,0.5) !important;}'
+      + '.card.selected{border-color:rgba(167,139,250,0.5) !important; background:rgba(167,139,250,0.08) !important;}'
+
+      /* Modal */
+      + '.modal-overlay{background:rgba(0,0,0,0.7) !important; backdrop-filter:blur(8px);}'
+      + '.toast{background:rgba(30,25,70,0.95) !important; color:#FFF !important; backdrop-filter:blur(20px) !important; border:1px solid rgba(167,139,250,0.2) !important; border-radius:12px !important; font-weight:300 !important;}'
+
+      /* App icons (home phone grid) */
+      + '.app-icon{background:rgba(255,255,255,0.05) !important; backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.06) !important; border-radius:16px !important; width:60px !important; height:60px !important; display:flex !important; align-items:center !important; justify-content:center !important; margin:0 auto 6px !important; transition:transform .15s, background .15s;}'
+      + '.app-icon:active{transform:scale(0.92); background:rgba(255,255,255,0.12) !important;}'
+      + '.app-icon svg{width:26px !important; height:26px !important; stroke:#FFF !important; fill:none; stroke-width:1.6;}'
+      + '.app-label{color:rgba(255,255,255,0.8) !important; font-size:11px !important; font-weight:300 !important; text-align:center; letter-spacing:0.02em;}'
+      + '.app-grid{gap:18px 8px !important; padding:20px !important; background:rgba(255,255,255,0.03) !important; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border-radius:20px !important; border:1px solid rgba(255,255,255,0.05); margin:0 16px 16px !important;}'
+
+      /* Avatar */
+      + '.avatar{background:linear-gradient(135deg,#A78BFA,#7C3AED) !important; color:#FFF !important; border:2px solid rgba(255,255,255,0.15) !important; font-weight:300 !important;}'
+
+      /* Dividers */
+      + '.section-divider, hr{background:rgba(255,255,255,0.06) !important; border-color:rgba(255,255,255,0.06) !important;}'
+
+      /* Scrollbars */
+      + '::-webkit-scrollbar{width:0px; background:transparent;}'
+
+      /* Welcome / login page cinematic */
+      + '.welcome-container{display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; height:100% !important; padding:40px 32px !important; position:relative; z-index:2; text-align:center;}'
+      + '.welcome-container .brand-title{font-size:36px !important; font-weight:200 !important; color:#FFF !important; letter-spacing:0.25em !important; margin-bottom:6px; text-shadow:0 2px 20px rgba(167,139,250,0.3);}'
+      + '.welcome-container .brand-sub{font-size:10px !important; color:rgba(255,255,255,0.4) !important; letter-spacing:0.3em !important; font-weight:300 !important; text-transform:uppercase; margin-bottom:48px;}'
+      + '.welcome-container .hero-portrait{width:180px; height:240px; margin:0 auto 32px; border-radius:20px; background:linear-gradient(180deg,rgba(167,139,250,0.15),rgba(15,12,41,0.3)); border:1px solid rgba(255,255,255,0.08); display:flex; align-items:flex-end; justify-content:center; padding-bottom:20px; backdrop-filter:blur(10px); box-shadow:0 20px 60px rgba(167,139,250,0.15); position:relative; overflow:hidden; animation:_breathe 3s ease-in-out infinite;}'
+      + '.welcome-container .hero-portrait::before{content:"";position:absolute;top:-20%;left:-20%;width:140%;height:140%;background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,0.12) 0%,transparent 50%);pointer-events:none;}'
+      + '@keyframes _breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}'
+
+      /* Chapter hub cinematic */
+      + '.v21-story-bg{background:linear-gradient(180deg,#0F0C29,#1A1A3E,#0F0C29)!important; min-height:100%; position:relative;}'
+      + '.v21-story-banner{padding:48px 24px 24px; text-align:center; position:relative;}'
+      + '.v21-story-banner h1{font-size:28px; font-weight:200; letter-spacing:0.3em; color:#FFF; text-shadow:0 2px 20px rgba(167,139,250,0.3); margin-bottom:6px;}'
+      + '.v21-story-banner p{font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.3em; font-weight:300; text-transform:uppercase;}'
+      + '.v21-chapter-card{background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:18px; margin-bottom:10px; display:flex; align-items:center; transition:all .2s;}'
+      + '.v21-chapter-card:active{background:rgba(167,139,250,0.08); border-color:rgba(167,139,250,0.3);}'
+      + '.v21-chapter-num{width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:200; margin-right:14px; flex-shrink:0; background:linear-gradient(135deg,rgba(167,139,250,0.2),rgba(124,58,237,0.15)); border:1px solid rgba(167,139,250,0.3); color:#FFF;}'
+      + '.v21-chapter-num.locked{background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); color:rgba(255,255,255,0.3);}'
+      + '.v21-chapter-num.completed{background:linear-gradient(135deg,#A78BFA,#7C3AED); border-color:transparent;}'
+
+      /* Tabs */
+      + '.v21-tabs{display:flex; padding:0 24px; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:16px;}'
+      + '.v21-tab{flex:1; text-align:center; padding:12px 0; font-size:14px; font-weight:300; color:rgba(255,255,255,0.4); cursor:pointer; position:relative; letter-spacing:0.05em; -webkit-tap-highlight-color:transparent;}'
+      + '.v21-tab.active{color:#FFF;}'
+      + '.v21-tab.active::after{content:""; position:absolute; bottom:-1px; left:50%; transform:translateX(-50%); width:24px; height:2px; background:#A78BFA; border-radius:1px;}'
+
+      /* Dialog box (story) */
+      + '.v21-dialogue{position:absolute; left:16px; right:16px; bottom:max(16px,env(safe-area-inset-bottom)); background:rgba(0,0,0,0.55); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:18px 20px; z-index:30;}'
+      + '.v21-dialogue-name{font-size:13px; color:#A78BFA; font-weight:400; letter-spacing:0.08em; margin-bottom:8px;}'
+      + '.v21-dialogue-text{font-size:15px; color:#FFF; line-height:1.85; font-weight:400;}'
+      + '.v21-choice-btn{display:block; width:100%; padding:14px 20px; margin-bottom:8px; background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:#FFF; font-size:14px; font-weight:300; text-align:left; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:all .15s;}'
+      + '.v21-choice-btn:active{background:rgba(167,139,250,0.15); border-color:rgba(167,139,250,0.4);}'
+
+      /* Scene page - darker overlay */
+      + '.scene-overlay{background:rgba(0,0,0,0.35) !important;}'
+
+      /* Story "我的" page */
+      + '.v21-me-header{padding:40px 24px 24px; display:flex; align-items:center;}'
+      + '.v21-me-avatar{width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#A78BFA,#7C3AED); display:flex; align-items:center; justify-content:center; color:#FFF; font-size:20px; font-weight:200; border:2px solid rgba(255,255,255,0.15); margin-right:14px;}'
+      + '.v21-me-name{font-size:20px; font-weight:300; color:#FFF; letter-spacing:0.05em;}'
+      + '.v21-me-sub{font-size:11px; color:rgba(255,255,255,0.4); margin-top:4px; letter-spacing:0.1em;}'
+      + '.v21-vip-tag{display:inline-block; font-size:10px; padding:2px 8px; background:linear-gradient(135deg,#FFD700,#FFA500); color:#1A1A3E; border-radius:10px; font-weight:600; letter-spacing:0.05em; margin-left:8px;}'
+
+      /* Stat bars */
+      + '.stat-bar, .progress-bar{background:rgba(255,255,255,0.08) !important; border-radius:4px; overflow:hidden;}'
+      + '.stat-fill{border-radius:4px;}'
+
+      /* Version / footer text */
+      + '.v21-version{position:absolute; bottom:20px; right:24px; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:0.1em; font-weight:300;}'
+
+      /* Loading screen dark */
+      + '#loadingScreen{background:linear-gradient(180deg,#0F0C29,#1A1A3E) !important; color:#FFF !important;}'
+      + '#loadingScreen *{color:#FFF !important;}'
+
+      /* Invite gate dark */
+      + '.invite-gate{background:linear-gradient(180deg,#0F0C29,#1A1A3E) !important; color:#FFF !important;}'
+
+      /* SNS / chat bubbles dark */
+      + '.kakao-msg-bubble.me{background:rgba(167,139,250,0.2) !important; color:#FFF !important;}'
+      + '.kakao-msg-bubble.npc{background:rgba(255,255,255,0.06) !important; color:#FFF !important;}'
+      + '.kakao-input-bar{background:rgba(15,12,41,0.8) !important; border-top-color:rgba(255,255,255,0.06) !important;}'
+      + '.kakao-input{background:rgba(255,255,255,0.06) !important; color:#FFF !important; border-color:rgba(255,255,255,0.1) !important;}'
+
+      /* Store/training cards */
+      + '.store-item, .training-card, .schedule-item{background:rgba(255,255,255,0.04) !important; backdrop-filter:blur(14px); border:1px solid rgba(255,255,255,0.06) !important; border-radius:14px !important; color:#FFF !important;}'
+      + '.store-item *, .training-card *, .schedule-item *{color:#FFF !important;}'
+
+      /* Charts / rankings */
+      + '.rank-item, .chart-row{background:rgba(255,255,255,0.03) !important; border-bottom:1px solid rgba(255,255,255,0.04) !important;}'
+      + '.rank-num-1{color:#FFD700 !important;} .rank-num-2{color:#C0C0C0 !important;} .rank-num-3{color:#CD7F32 !important;}'
+
+      /* Achievement list */
+      + '.achievement-item{background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:14px; margin-bottom:8px;}'
+      + '.achievement-item.locked{opacity:0.45;}'
+
+      /* NEW badge */
+      + '.new-badge{font-size:9px; background:#A78BFA; color:#FFF; padding:2px 6px; border-radius:4px; font-weight:500; letter-spacing:0.05em;}'
+
+      /* Section gap tuning */
+      + '.day-bar{background:rgba(255,255,255,0.04) !important; border:1px solid rgba(255,255,255,0.06) !important; border-radius:14px !important; backdrop-filter:blur(14px); color:#FFF !important; padding:12px 16px !important;}'
+      + '.day-bar *{color:#FFF !important;}'
+      + '.weekly-goals{background:rgba(255,255,255,0.04) !important; border:1px solid rgba(255,255,255,0.06) !important; border-radius:14px !important; backdrop-filter:blur(14px); padding:14px 16px !important; margin-top:12px !important;}'
+      + '.weekly-goals *{color:#FFF !important;}'
+
+      /* Chapter completion / result page */
+      + '.v21-result{padding:60px 24px 40px; text-align:center;}'
+      + '.v21-result h1{font-size:24px; font-weight:200; letter-spacing:0.2em; margin-bottom:8px;}'
+      + '.v21-result .subtitle{font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.3em; text-transform:uppercase; margin-bottom:32px;}'
+      + '.v21-result-card{background:rgba(255,255,255,0.04); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-bottom:10px; text-align:left;}'
+      + '.v21-result-card .label{font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.1em; text-transform:uppercase; margin-bottom:6px; font-weight:300;}'
+      + '.v21-result-card .val{font-size:14px; color:#FFF; font-weight:300; line-height:1.6;}'
+
+      /* Portrait (story) */
+      + '.v21-portrait{position:absolute; bottom:0; right:0; width:60%; height:75%; z-index:20; pointer-events:none; display:flex; align-items:flex-end; justify-content:center;}'
+      + '.v21-portrait img, .v21-portrait svg{max-width:100%; max-height:100%; filter:drop-shadow(0 -10px 40px rgba(167,139,250,0.2));}'
+
+      /* Setting page sliders */
+      + 'input[type=range]{-webkit-appearance:none; background:transparent !important; border:none !important; height:20px;}'
+      + 'input[type=range]::-webkit-slider-runnable-track{height:3px; background:rgba(255,255,255,0.15); border-radius:2px;}'
+      + 'input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:#A78BFA; margin-top:-6px; box-shadow:0 2px 8px rgba(167,139,250,0.4); border:2px solid #FFF;}'
+      ;
+
+    var s = document.createElement('style');
+    s.id = cssId;
+    s.textContent = css;
+    document.head.appendChild(s);
+  }
+
+  // ---------- override welcome page (login) ----------
+  var _origWelcome = window.renderWelcomePage;
+  window.renderWelcomePage = function(container) {
+    if (!container) return;
+    var saves = (typeof loadAllSaves === 'function') ? loadAllSaves() : {};
+    var slotsHtml = '';
+    for (var si = 0; si < 3; si++) {
+      var save = saves[si];
+      if (save && save.player && save.player.name) {
+        var roleText = save.player.role === 'Trainee' ? '练习生' : '出道爱豆';
+        var fans = (save.fans || 0).toLocaleString ? (save.fans || 0).toLocaleString() : (save.fans || 0);
+        slotsHtml += '<div class="save-slot occupied" onclick="loadGame(' + si + ')" style="cursor:pointer;">'
+          + '<div style="font-weight:300;color:#FFF;font-size:15px;letter-spacing:0.03em;">存档 ' + (si+1) + '</div>'
+          + '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;font-weight:300;">' + save.player.name + ' · ' + roleText + '</div>'
+          + '<div style="font-size:11px;color:rgba(167,139,250,0.8);margin-top:2px;font-weight:300;">粉丝 ' + fans + '</div>'
+          + '</div>';
+      } else {
+        slotsHtml += '<div class="save-slot empty" onclick="startNewGame(' + si + ')" style="cursor:pointer;text-align:center;">'
+          + '<div style="font-weight:300;color:rgba(255,255,255,0.4);font-size:14px;">空存档 ' + (si+1) + '</div>'
+          + '<div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:4px;">点击开始新故事</div>'
+          + '</div>';
+      }
+    }
+
+    // Hero portrait (Haeun silhouette via gradient since no img)
+    var hero = '<div class="hero-portrait">'
+      + '<svg width="100" height="180" viewBox="0 0 100 180" fill="none">'
+      + '<defs><linearGradient id="hpGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(255,255,255,0.9)"/><stop offset="100%" stop-color="rgba(167,139,250,0.3)"/></linearGradient></defs>'
+      + '<ellipse cx="50" cy="32" rx="18" ry="22" fill="url(#hpGrad)"/>'
+      + '<path d="M28 50 Q22 80 28 120 L72 120 Q78 80 72 50 Q62 40 50 40 Q38 40 28 50 Z" fill="url(#hpGrad)"/>'
+      + '<path d="M24 48 Q18 70 26 110" stroke="url(#hpGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>'
+      + '<path d="M76 48 Q82 70 74 110" stroke="url(#hpGrad)" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.6"/>'
+      + '</svg>'
+      + '</div>';
+
+    container.innerHTML = '<div class="welcome-container">'
+      + hero
+      + '<div class="brand-title">myidol</div>'
+      + '<div class="brand-sub">SEONGWOO ENTERTAINMENT</div>'
+      + '<button class="btn btn-primary btn-lg" onclick="startNewGame(0)" style="width:100%;max-width:260px;margin-bottom:12px;letter-spacing:0.15em;" oncontextmenu="return false;">开 始 故 事</button>'
+      + '<div style="width:100%;max-width:280px;margin-top:32px;">'
+      + slotsHtml
+      + '</div>'
+      + '<div class="v21-version">V2.1</div>'
+      + '</div>';
+  };
+
+  // ---------- override "我的" page to be cinematic ----------
+  var _orig我的 = window.render我的Page;
+  window.render我的Page = function(container) {
+    if (!container) return;
+    var name = (gameState.player && gameState.player.name) ? gameState.player.name : '玩家';
+    var role = (gameState.player && gameState.player.role === 'Trainee') ? '练习生' : '出道爱豆';
+    var company = (typeof _getCompany === 'function' && gameState.player) ? (_getCompany(gameState.player.company) || {}) : {};
+    var compName = company.name || 'SEONGWOO ENT';
+    var firstChar = name.charAt(0) || '?';
+    var isVip = !!(gameState.vip && gameState.vip.active);
+
+    // tabs state
+    if (!gameState._v21MeTab) gameState._v21MeTab = 'achievement';
+    var tab = gameState._v21MeTab;
+
+    var tabsHtml = '<div class="v21-tabs">'
+      + '<div class="v21-tab '+(tab==='achievement'?'active':'')+'" onclick="gameState._v21MeTab=\'achievement\';render();">成就</div>'
+      + '<div class="v21-tab '+(tab==='rank'?'active':'')+'" onclick="gameState._v21MeTab=\'rank\';render();">排行</div>'
+      + '<div class="v21-tab '+(tab==='memory'?'active':'')+'" onclick="gameState._v21MeTab=\'memory\';render();">剧情回顾</div>'
+      + '<div class="v21-tab '+(tab==='setting'?'active':'')+'" onclick="gameState._v21MeTab=\'setting\';render();">设置</div>'
+      + '</div>';
+
+    var bodyHtml = '';
+    if (tab === 'achievement') {
+      bodyHtml = _v21RenderAchievements();
+    } else if (tab === 'rank') {
+      bodyHtml = _v21RenderRanks();
+    } else if (tab === 'memory') {
+      bodyHtml = _v21RenderMemoryMini();
+    } else {
+      // setting content is rendered by render设置Page, but we keep light touch here
+      bodyHtml = _v21RenderSettingsShortcut();
+    }
+
+    container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;height:100%;">'
+      + '<div class="page-header">'
+      + '<div class="back-btn" onclick="window._inSceneMode=true;goToPage(\'scene\');">‹ 返回</div>'
+      + '<div class="page-title">我 的</div>'
+      + '<div style="width:40px;"></div>'
+      + '</div>'
+      + '<div class="page-content" style="padding:0 0 100px;flex:1;overflow-y:auto;">'
+      + '<div class="v21-me-header">'
+      + '<div class="v21-me-avatar">'+firstChar+'</div>'
+      + '<div>'
+      + '<div class="v21-me-name">'+name+(isVip?'<span class="v21-vip-tag">VIP</span>':'')+'</div>'
+      + '<div class="v21-me-sub">'+compName+' · '+role+'</div>'
+      + '</div>'
+      + '</div>'
+      + tabsHtml
+      + '<div style="padding:0 20px;">'+bodyHtml+'</div>'
+      + '</div>'
+      + '</div>';
+  };
+
+  function _v21RenderAchievements() {
+    var ach = (typeof ACHIEVEMENTS !== 'undefined') ? ACHIEVEMENTS : null;
+    var unlocked = gameState.achievements || {};
+    var html = '';
+    if (!ach) {
+      // fallback: show achievements from gameState
+      var keys = Object.keys(unlocked || {});
+      if (keys.length === 0) {
+        html = '<div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.4);font-size:13px;font-weight:300;">暂无成就，继续故事解锁</div>';
+      } else {
+        for (var i=0;i<keys.length;i++) {
+          html += '<div class="achievement-item"><div style="font-size:14px;color:#FFF;font-weight:300;">'+keys[i]+'</div></div>';
+        }
+      }
+      return html;
+    }
+    var achKeys = Object.keys(ach);
+    for (var ai=0; ai<achKeys.length; ai++) {
+      var k = achKeys[ai];
+      var a = ach[k];
+      var got = !!unlocked[k];
+      html += '<div class="achievement-item '+(got?'':'locked')+'">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;">'
+        + '<div style="font-size:14px;color:#FFF;font-weight:300;letter-spacing:0.03em;">'+(a.name||k)+'</div>'
+        + (got ? '<div style="font-size:11px;color:#A78BFA;">✓</div>' : '<div style="font-size:16px;color:rgba(255,255,255,0.2);">🔒</div>')
+        + '</div>'
+        + (a.desc ? '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;font-weight:300;">'+a.desc+'</div>' : '')
+        + '</div>';
+    }
+    return html;
+  }
+
+  function _v21RenderRanks() {
+    var fans = gameState.fans || 0;
+    var fame = gameState.fame || 0;
+    var html = '<div class="v21-result-card">'
+      + '<div class="label">粉 丝 数</div>'
+      + '<div class="val">'+(fans.toLocaleString?fans.toLocaleString():fans)+'</div>'
+      + '</div>';
+    html += '<div class="v21-result-card">'
+      + '<div class="label">名 气 值</div>'
+      + '<div class="val">'+fame+'</div>'
+      + '</div>';
+    // NPC好感度
+    var npcs = [
+      {key:'haeun',name:'夏恩',color:'#F472B6'},
+      {key:'soah',name:'素雅',color:'#A78BFA'},
+      {key:'jiwon',name:'智媛',color:'#FBBF24'},
+      {key:'junho',name:'俊昊',color:'#60A5FA'},
+      {key:'seokhyun',name:'瑞贤',color:'#34D399'}
+    ];
+    html += '<div class="v21-result-card"><div class="label">好 感 度</div>';
+    for (var i=0;i<npcs.length;i++){
+      var n = npcs[i];
+      var v = (gameState.npc好感度 && gameState.npc好感度[n.name]) || 0;
+      html += '<div style="display:flex;align-items:center;margin-top:10px;">'
+        + '<div style="width:8px;height:8px;border-radius:50%;background:'+n.color+';margin-right:10px;flex-shrink:0;"></div>'
+        + '<div style="font-size:13px;color:#FFF;font-weight:300;flex:1;">'+n.name+'</div>'
+        + '<div style="font-size:12px;color:rgba(255,255,255,0.6);font-weight:300;width:36px;text-align:right;">'+v+'</div>'
+        + '</div>'
+        + '<div style="height:2px;background:rgba(255,255,255,0.08);border-radius:1px;margin-top:6px;overflow:hidden;">'
+        + '<div style="height:100%;width:'+Math.min(100,v)+'%;background:'+n.color+';border-radius:1px;"></div></div>';
+    }
+    html += '</div>';
+    // Weekly/monthly chart if exists
+    if (gameState._v2Chart) {
+      var wk = gameState._v2Chart.weekly || {};
+      html += '<div class="v21-result-card">'
+        + '<div class="label">本 周 排 行</div>'
+        + '<div class="val">粉丝 '+ (wk.fans||0) +' · 音源 '+ (wk.music||0) +' · 投票 '+ (wk.votes||0) +'</div>'
+        + '</div>';
+    }
+    return html;
+  }
+
+  function _v21RenderMemoryMini() {
+    // Jump to story hub (memories tab)
+    return '<div style="text-align:center;padding:40px 20px;">'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:18px;font-weight:300;">在剧情中心查看完整回忆</div>'
+      + '<button class="btn btn-primary" onclick="goToPage(\'story\');" style="letter-spacing:0.1em;">前 往 剧 情</button>'
+      + '</div>';
+  }
+
+  function _v21RenderSettingsShortcut() {
+    return '<div style="text-align:center;padding:40px 20px;">'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:18px;font-weight:300;">完整设置请通过手机-设置进入</div>'
+      + '<button class="btn btn-secondary" onclick="goToPage(\'settings\');" style="letter-spacing:0.1em;">进 入 设 置</button>'
+      + '</div>';
+  }
+
+  // ---------- apply body bg immediately ----------
+  document.body.style.background = 'radial-gradient(ellipse at top left, #1A1A3E 0%, #0F0C29 50%, #08061A 100%)';
+
+})();
