@@ -2678,9 +2678,6 @@ function render我的Page(container) {
                 + '<div><div style="font-weight:600;">排行榜</div><div style="font-size:12px;color:var(--color-text-light);">查看人气排名</div></div>'
                 + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>'
                 + '</div>'
-                + '<div class="card" onclick="_showSubPage(\'wiki\')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">'
-                + '<div><div style="font-weight:600;">Kpop百科</div><div style="font-size:12px;color:var(--color-text-light);">K-Pop知识问答</div></div>'
-                + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>'
                 + '</div>'
                 + '<div class="card" onclick="_showSubPage(\'achievements\')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">'
                 + '<div><div style="font-weight:600;">成就</div><div style="font-size:12px;color:var(--color-text-light);">查看你的成就进度</div></div>'
@@ -4736,58 +4733,6 @@ function renderSchedulePage(container) {
                 + '</div>';
         }
 
-        // Earn jobs section (inline simplified earn logic)
-        if (!gameState.earnCooldowns) gameState.earnCooldowns = {};
-        var traineeJobs = [
-            { id: 'magazine', name: '\u62cd\u6742\u5fd7', '\u4f53\u529b': 15, money: 2000, fame: 3, influence: 0, fans: 5, cooldown: 30000 },
-            { id: 'busking', name: '\u8def\u6f14', '\u4f53\u529b': 20, money: 1500, fame: 5, influence: 0, fans: 15, cooldown: 45000 },
-            { id: 'backup', name: '\u4f34\u821e', '\u4f53\u529b': 25, money: 3000, fame: 0, influence: 2, fans: 8, cooldown: 60000 },
-            { id: 'convenience', name: '\u4fbf\u5229\u5e97\u6253\u5de5', '\u4f53\u529b': 10, money: 800, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
-            { id: 'cafe', name: '\u5496\u5561\u5e97\u517c\u804c', '\u4f53\u529b': 10, money: 900, fame: 0, influence: 0, fans: 1, cooldown: 30000 },
-            { id: 'street', name: '\u8857\u5934\u8868\u6f14', '\u4f53\u529b': 15, money: 1200, fame: 5, influence: 0, fans: 10, cooldown: 45000 }
-        ];
-        var traineeSoloJobs = [
-            { id: 't_solo_dance', name: '\u4e2a\u4eba\u7ec3\u821e', '\u4f53\u529b': 15, money: 500, fame: 1, influence: 0, fans: 3, cooldown: 30000 },
-            { id: 't_solo_vocal', name: '\u4e2a\u4eba\u7ec3\u5531', '\u4f53\u529b': 10, money: 300, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
-            { id: 't_solo_cover', name: '\u7ffb\u5531\u6295\u7a3f', '\u4f53\u529b': 15, money: 1000, fame: 3, influence: 0, fans: 8, cooldown: 45000 },
-            { id: 't_solo_street', name: '\u8857\u5934solo', '\u4f53\u529b': 20, money: 1500, fame: 4, influence: 0, fans: 10, cooldown: 45000 }
-        ];
-        var traineeGroupJobs = [
-            { id: 't_group_harmony', name: '\u5408\u58f0\u7ec3\u4e60', '\u4f53\u529b': 10, money: 400, fame: 0, influence: 1, fans: 2, cooldown: 30000 },
-            { id: 't_group_choreo', name: '\u7fa4\u821e\u7ec3\u4e60', '\u4f53\u529b': 20, money: 600, fame: 1, influence: 1, fans: 5, cooldown: 45000 },
-            { id: 't_group_eval', name: '\u5c0f\u7ec4\u8003\u6838', '\u4f53\u529b': 25, money: 2000, fame: 2, influence: 2, fans: 5, cooldown: 60000, interview: true }
-        ];
-        var allTraineeEarnings = traineeJobs.concat(traineeSoloJobs).concat(traineeGroupJobs);
-
-        html += '<div class="section-title" style="margin-top:16px;">\u6253\u5de5\u8d5a\u94b1</div>';
-        html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-            + '<div style="font-size:12px;opacity:0.8;">\u5f53\u524d\u4f53\u529b</div>'
-            + '<div style="font-size:20px;font-weight:700;">' + gameState['\u4f53\u529b'] + ' / ' + gameState['max\u4f53\u529b'] + '</div>'
-            + '</div>';
-
-        for (var ei = 0; ei < allTraineeEarnings.length; ei++) {
-            var ej = allTraineeEarnings[ei];
-            var cd = gameState.earnCooldowns[ej.id] || 0;
-            var now = Date.now();
-            var isOnCd = cd > now;
-            var noStamina = gameState['\u4f53\u529b'] < ej['\u4f53\u529b'];
-            var isDisabled = isOnCd || noStamina;
-            var rewardText = '+' + ej.money.toLocaleString() + ' \u91d1\u5e01';
-            if (ej.fame > 0) rewardText += '  +' + ej.fame + ' \u540d\u6c14';
-            if (ej.influence > 0) rewardText += '  +' + ej.influence + ' \u5f71\u54cd\u529b';
-            if (ej.fans > 0) rewardText += '  +' + ej.fans + ' \u7c89\u4e1d';
-            var lockText = '';
-            if (isOnCd) {
-                var remain = Math.ceil((cd - now) / 1000);
-                lockText = '<div class="earn-job-cooldown">\u51b7\u5374\u4e2d ' + remain + 's</div>';
-            }
-            html += '<div class="earn-job-card ' + (isDisabled ? 'disabled' : '') + '" ' + (isDisabled ? '' : 'onclick="_removedEarnJob(\'' + ej.id + '\')"') + '>'
-                + '<div class="earn-job-name">' + ej.name + (ej.interview ? ' <span style="font-size:10px;color:var(--color-primary);font-weight:400;">\u9700\u9762\u8bd5</span>' : '') + '</div>'
-                + '<div class="earn-job-cost">\u4f53\u529b -' + ej['\u4f53\u529b'] + '</div>'
-                + '<div class="earn-job-reward">' + rewardText + '</div>'
-                + lockText
-                + '</div>';
-        }
     }
 
     html += getAppLinkHtml('schedule');
@@ -14715,17 +14660,50 @@ function _showSubPage(page) {
     var content = '';
     if (page === 'ranking') {
         title = '\u6392\u884c\u699c';
-        content = '<div style="text-align:center;padding:40px 20px;color:#888;"><div style="font-size:16px;font-weight:600;color:#FFF;margin-bottom:8px;">\u4eba\u6c14\u6392\u884c\u699c</div><div style="margin:16px 0;padding:12px;background:rgba(167,139,250,0.15);border-radius:8px;"><div style="font-size:14px;color:#A78BFA;">\u4f60\u7684\u6392\u540d</div><div style="font-size:24px;font-weight:700;color:#FFF;">#' + Math.max(1, 100 - Math.floor((gameState.fans || 0) / 50)) + '</div></div><div style="font-size:12px;color:#888;">\u7c89\u4e1d: ' + (gameState.fans || 0).toLocaleString() + ' | \u540d\u6c14: ' + (gameState.fame || 0) + '</div></div>';
-    } else if (page === 'wiki') {
-        title = 'Kpop\u767e\u79d1';
-        content = '<div style="text-align:center;padding:20px;color:#888;"><div style="font-size:16px;font-weight:600;color:#FFF;margin-bottom:12px;">K-Pop\u77e5\u8bc6\u95ee\u7b54</div><div style="font-size:13px;">\u5373\u5c06\u5f00\u653e\uff0c\u656c\u8bf7\u671f\u5f85\uff01</div></div>';
+        var rank = Math.max(1, 100 - Math.floor((gameState.fans || 0) / 50));
+        content = '\u003cdiv style="text-align:center;padding:40px 20px;color:#888;"\u003e'
+            + '\u003cdiv style="font-size:16px;font-weight:600;color:#FFF;margin-bottom:8px;"\u003e\u4eba\u6c14\u6392\u884c\u699c\u003c/div\u003e'
+            + '\u003cdiv style="margin:16px 0;padding:12px;background:rgba(167,139,250,0.15);border-radius:8px;"\u003e'
+            + '\u003cdiv style="font-size:14px;color:#A78BFA;"\u003e\u4f60\u7684\u6392\u540d\u003c/div\u003e'
+            + '\u003cdiv style="font-size:24px;font-weight:700;color:#FFF;"\u003e#' + rank + '\u003c/div\u003e'
+            + '\u003c/div\u003e'
+            + '\u003cdiv style="font-size:12px;color:#888;"\u003e\u7c89\u4e1d: ' + (gameState.fans || 0).toLocaleString() + ' | \u540d\u6c14: ' + (gameState.fame || 0) + '\u003c/div\u003e'
+            + '\u003c/div\u003e';
     } else if (page === 'achievements') {
         title = '\u6210\u5c31';
+        var allAch = [
+            { id: 'first_login', name: '\u521d\u5165\u97e9\u5a31', desc: '\u9996\u6b21\u767b\u5f55\u6e38\u620f' },
+            { id: 'debut', name: '\u6b63\u5f0f\u51fa\u9053', desc: '\u5b8c\u6210\u51fa\u9053\u6d41\u7a0b' },
+            { id: 'fans_1k', name: '\u4e07\u4eba\u8ff7', desc: '\u7c89\u4e1d\u8fbe\u52301000' },
+            { id: 'fans_10k', name: '\u660e\u65e5\u4e4b\u661f', desc: '\u7c89\u4e1d\u8fbe\u523010000' },
+            { id: 'fans_100k', name: '\u9876\u6d41\u7231\u8c46', desc: '\u7c89\u4e1d\u8fbe\u5230100000' },
+            { id: 'money_1m', name: '\u4ebf\u4e07\u5bcc\u7fc1', desc: '\u91d1\u5e01\u8d85\u8fc71000000' },
+            { id: 'ch1', name: '\u521d\u5165\u516c\u53f8', desc: '\u5b8c\u6210\u7b2c1\u7ae0' },
+            { id: 'ch2', name: '\u521d\u6b21\u767b\u53f0', desc: '\u5b8c\u6210\u7b2c2\u7ae0' },
+            { id: 'ch3', name: '\u7b2c\u4e00\u6b21\u516c\u6f14', desc: '\u5b8c\u6210\u7b2c3\u7ae0' },
+            { id: 'ch4', name: '\u5168\u56e2\u51fa\u51fb', desc: '\u5b8c\u6210\u7b2c4\u7ae0' },
+            { id: 'ch5', name: '\u7c89\u4e1d\u7206\u53d1', desc: '\u5b8c\u6210\u7b2c5\u7ae0' },
+            { id: 'ch6', name: '\u738b\u8005\u5f52\u6765', desc: '\u5b8c\u6210\u7b2c6\u7ae0' },
+            { id: 'affection_60', name: '\u5fc3\u52a8\u77ac\u95f4', desc: '\u4e0e\u4efb\u4e00NPC\u597d\u611f\u5ea6\u8fbe60' },
+            { id: 'affection_100', name: '\u547d\u5b9a\u4e4b\u4eba', desc: '\u4e0e\u4efb\u4e00NPC\u597d\u611f\u5ea6\u8fbe100' },
+            { id: 'train_50', name: '\u52aa\u529b\u578b\u7ec3\u4e60\u751f', desc: '\u5b8c\u621050\u6b21\u8bad\u7ec3' }
+        ];
         var achList = gameState.achievements || [];
-        content = '<div style="padding:20px;"><div style="font-size:16px;font-weight:600;color:#FFF;margin-bottom:12px;">\u6210\u5c31\u8fdb\u5ea6</div>';
-        if (achList.length === 0) { content += '<div style="text-align:center;color:#888;padding:20px;font-size:13px;">\u8fd8\u6ca1\u6709\u89e3\u9501\u6210\u5c31</div>'; }
-        else { for (var ai = 0; ai < achList.length; ai++) { content += '<div style="padding:8px 12px;margin:4px 0;background:rgba(167,139,250,0.1);border-radius:8px;"><span style="color:#A78BFA;font-weight:600;">' + achList[ai] + '</span></div>'; } }
-        content += '</div>';
+        content = '\u003cdiv style="padding:20px;"\u003e'
+            + '\u003cdiv style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"\u003e'
+            + '\u003cdiv style="font-size:16px;font-weight:600;color:#FFF;"\u003e\u6210\u5c31\u5217\u8868\u003c/div\u003e'
+            + '\u003cdiv style="font-size:12px;color:#A78BFA;"\u003e' + achList.length + '/' + allAch.length + '\u003c/div\u003e'
+            + '\u003c/div\u003e';
+        for (var ai = 0; ai < allAch.length; ai++) {
+            var a = allAch[ai];
+            var done = achList.indexOf(a.id) !== -1;
+            content += '\u003cdiv style="display:flex;align-items:center;gap:12px;padding:10px 12px;margin:6px 0;background:' + (done ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.03)') + ';border-radius:10px;' + (done ? '' : 'opacity:0.5;') + '"\u003e'
+                + '\u003cdiv style="font-size:18px;width:28px;text-align:center;color:' + (done ? '#A78BFA' : '#444') + ';"\u003e' + (done ? '\u2605' : '\u25A0') + '\u003c/div\u003e'
+                + '\u003cdiv\u003e\u003cdiv style="font-size:14px;font-weight:600;color:' + (done ? '#FFF' : '#666') + ';"\u003e' + a.name + '\u003c/div\u003e\u003cdiv style="font-size:11px;color:#888;"\u003e' + a.desc + '\u003c/div\u003e\u003c/div\u003e'
+                + (done ? '\u003cdiv style="margin-left:auto;color:#A78BFA;font-size:12px;"\u003e\u2713\u003c/div\u003e' : '')
+                + '\u003c/div\u003e';
+        }
+        content += '\u003c/div\u003e';
     }
     showModal(title, content);
 }
