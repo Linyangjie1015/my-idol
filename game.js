@@ -165,7 +165,22 @@ var gameState = {
     dayActionLog: [],
     cooldowns: { debut: 0, comeback: 0, confess: 0 },
     equippedOutfit: null,
-        ownedClothes: []
+        ownedClothes: [],
+    chapterState: {
+        currentChapter: 1,
+        currentStep: 0,
+        choices: [],
+        unlockedApps: ['daily'],
+        completedSteps: [],
+        readApps: [],
+        isIdolLine: false,
+        chapterCounts: {
+            trainCount: 0,
+            scheduleCount: 0,
+            snsPostCount: 0,
+            fansAtChapterStart: 0
+        }
+    }
 };
 var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 
@@ -1031,6 +1046,26 @@ function syncFromApp(sourceApp, data) {
 
 // ==================== HOME PAGE (APP GRID) ====================
 function renderHomePage(container) {
+    // V2.0 Chapter overlay check
+    _ensureChapterStateFields();
+    var _chapterOverlayHtml = renderChapterOverlay();
+    if (_chapterOverlayHtml) {
+        container.innerHTML = _chapterOverlayHtml;
+        return;
+    }
+    // V2.0 Chapter: auto-skip check
+    _ensureChapterStateFields();
+    (function() {
+        var cs = gameState.chapterState;
+        if (cs.currentChapter !== 1) return;
+        if (cs.currentStep === 2 && cs.chapterCounts.scheduleCount >= 1 && cs.completedSteps.indexOf(2) < 0) {
+            _completeChapterStep(2, 'schedule');
+        } else if (cs.currentStep === 3 && cs.chapterCounts.snsPostCount >= 1 && cs.completedSteps.indexOf(3) < 0) {
+            _completeChapterStep(3, 'sns');
+        } else if (cs.currentStep === 4 && cs.chapterCounts.trainCount >= 1 && cs.completedSteps.indexOf(4) < 0) {
+            _completeChapterStep(4, 'training');
+        }
+    })();
     // 危险值/信誉警告邮件（每天只触发一次）
     var today = new Date().toDateString();
     if (gameState.danger >= 30 && (!gameState._lastDangerMailDate || gameState._lastDangerMailDate !== today)) {
@@ -1173,6 +1208,8 @@ function renderHomePage(container) {
 
 // ==================== TRAINING PAGE ====================
 function render训练Page(container) {
+    // V2.0 Chapter: mark training app as read
+    _markChapterAppRead('training');
     var trainOptions = [
         { name: '舞蹈训练', stat: 'dance', statName: '舞蹈', cost: 20, moneyCost: 1000, gain: 2 },
         { name: '声乐训练', stat: 'vocal', statName: '声乐', cost: 20, moneyCost: 1000, gain: 2 },
@@ -1182,7 +1219,7 @@ function render训练Page(container) {
         { name: '综合训练', stat: 'random', statName: '随机', cost: 30, moneyCost: 2000, gain: 3 }
     ];
     
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">训练</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;">\n                    <div style="font-size: 12px; opacity: 0.8;">当前体力</div>\n                    <div style="font-size: 28px; font-weight: 700;">' + (gameState.体力) + ' / ' + (gameState.max体力) + '</div>\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">能力值</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
+    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">训练</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                ' + _renderChapterProgressBar('training') + _renderTrainingWelcomeNotice() + '<div class="card" style="text-align: center; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;">\n                    <div style="font-size: 12px; opacity: 0.8;">当前体力</div>\n                    <div style="font-size: 28px; font-weight: 700;">' + (gameState.体力) + ' / ' + (gameState.max体力) + '</div>\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">能力值</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
                     }).join('')) + '\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">选择训练项目</div>\n                ' + (trainOptions.map(function(opt) { return '\n                    <div class="card" onclick="do训练项目(\'' + (opt.stat) + '\', ' + (opt.cost) + ', ' + (opt.moneyCost) + ', \'' + (opt.name) + '\')">\n                        <div style="display: flex; justify-content: space-between; align-items: center;">\n                            <div>\n                                <div style="font-weight: 600;">' + (opt.name) + '</div>\n                                <div style="font-size: 12px; color: var(--color-text-light);">体力 -' + (opt.cost) + ' | 金币 -' + (opt.moneyCost.toLocaleString()) + '</div>\n                            </div>\n                        </div>\n                    </div>\n                '}).join('')) + '\n                <div style="margin-top: 16px;">\n                    <button class="btn btn-outline btn-lg" onclick="goToPage(\'exam\')" style="width:100%;">去考核</button>\n                </div>\n                <div class="section-title" style="margin-top: 16px;">体力恢复</div>\n                <div class="card" id="restBtnCard" onclick="startRestRecovery()" style="text-align:center;cursor:pointer;">\n                    <div style="font-weight:600;">Rest 30s</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">30秒不可操作，体力恢复至200</div>\n                </div>\n            </div>\n        </div>\n    ';
@@ -1221,6 +1258,10 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     gameState.influence = (gameState.influence || 50) + Math.floor(Math.random() * 3) + 1;
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
+    // V2.0 Chapter: increment train count
+    _ensureChapterStateFields();
+    gameState.chapterState.chapterCounts.trainCount = (gameState.chapterState.chapterCounts.trainCount || 0) + 1;
+    checkChapterProgress();
     showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]); _trackWeeklyGoal('train', 1);
     render();
 }
@@ -3595,6 +3636,11 @@ function getAppRedDot(appId) {
             count = _getDailyTodoCount();
             break;
     }
+    // V2.0 Chapter red dot
+    if (gameState.chapterState) {
+        var _chrd = _getChapterAppRedDot(appId);
+        if (_chrd > 0) count += _chrd;
+    }
     return count > 0 ? count : null;
 }
 function goToPage(page) {
@@ -3930,6 +3976,8 @@ function renderRankingPage(container) {
 }
 
 function render行程表Page(container) {
+    // V2.0 Chapter: mark schedule app as read
+    _markChapterAppRead('schedule');
     if (!gameState.scheduleItems || gameState.scheduleItems.length === 0) {
         initScheduleItems();
     }
@@ -3973,7 +4021,7 @@ function render行程表Page(container) {
         + '<div style="width:32px;"></div>'
         + '</div>'
         + '<div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
+        + '' + _renderChapterProgressBar('schedule') + _renderScheduleWelcomeNotice() + '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
         + '<div style="font-size:12px;opacity:0.8;">今日行程</div>'
         + '<div style="font-size:14px;margin-top:4px;">' + new Date().toLocaleDateString('zh-CN') + '</div>'
         + '</div>'
@@ -4033,6 +4081,10 @@ function joinSchedule(index) {
     }
     item._completed = true;
     triggerSilentSave();
+    // V2.0 Chapter: increment schedule count
+    _ensureChapterStateFields();
+    gameState.chapterState.chapterCounts.scheduleCount = (gameState.chapterState.chapterCounts.scheduleCount || 0) + 1;
+    checkChapterProgress();
     showModal('参加完成', item.name + '\n-' + 体力cost + ' 体力' + gainMsg);
     render();
 }
@@ -5746,6 +5798,8 @@ function _translateTtDesc(idx) {
 }
 
 function renderInsPage(container) {
+    // V2.0 Chapter: mark sns app as read
+    _markChapterAppRead('sns');
     try {
     if (!gameState.insPosts) gameState.insPosts = [];
     if (!gameState.insMessages) gameState.insMessages = [];
@@ -5829,7 +5883,7 @@ function renderInsPage(container) {
         + '<div class="ins-top-tab-item ' + (insTab === 'profile' ? 'active' : '') + '" onclick="insTab=\'profile\';render();"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><div style="font-size:10px;margin-top:2px;">我的</div></div>'
         + '</div>';
     
-    container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">INS</div><div style="width:32px;"></div></div>' + tabBar + tabContent + getAppLinkHtml('ins') + '</div>';
+    container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">INS</div><div style="width:32px;"></div></div>' + tabBar + _renderChapterProgressBar('sns') + _renderSnsMembersWelcome() + tabContent + getAppLinkHtml('ins') + '</div>';
     } catch(e) {
         console.error('INS render error:', e);
         container.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FF6B8A;">INS页面加载出错</div><div style="font-size:12px;color:#8E8E93;margin-top:8px;">' + (e.message || '') + '</div><button onclick="goToPage(\'home\')" style="margin-top:16px;padding:12px 24px;background:#FF8FA3;color:white;border:none;border-radius:50px;cursor:pointer;">返回首页</button></div>';
@@ -5876,6 +5930,10 @@ function postToIns() {
                 gameState.fans += Math.floor(Math.random() * 25) + 5;
                 gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 3) + 1;
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
+                // V2.0 Chapter: increment sns post count
+                _ensureChapterStateFields();
+                gameState.chapterState.chapterCounts.snsPostCount = (gameState.chapterState.chapterCounts.snsPostCount || 0) + 1;
+                checkChapterProgress();
                 insSelectedImage = '';
             }
             closeModal();
@@ -6070,6 +6128,10 @@ function postToTiktok() {
                 gameState.fans += Math.floor(Math.random() * 40) + 10;
                 gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 4) + 2;
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
+                // V2.0 Chapter: increment sns post count
+                _ensureChapterStateFields();
+                gameState.chapterState.chapterCounts.snsPostCount = (gameState.chapterState.chapterCounts.snsPostCount || 0) + 1;
+                checkChapterProgress();
                 tiktokSelectedVideo = '';
             }
             closeModal();
@@ -7535,7 +7597,7 @@ function saveGame(slot) {
             return;
         }
         var key = _getSaveKey(slot);
-        localStorage.setItem(key, jsonStr);
+        safeLocalStorageSet(key, jsonStr);
         showToast('已保存 - 存档 ' + (slot + 1));
         _doCloudSave(slot, saveData, function(ok) {
             if (ok) {
@@ -7604,6 +7666,72 @@ function loadGame(slot) {
         }
     } catch (e) {
         showModal('加载失败', '无法加载游戏。');
+    }
+}
+
+
+// V1.7.23: localStorage quota protection
+function cleanupLocalStorage() {
+    var keysToRemove = [];
+    for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('myidol_saves_') === 0 && k !== _getSaveKey(current存档)) {
+            keysToRemove.push(k);
+        }
+        if (k && k.indexOf('myidol_share_') === 0) {
+            keysToRemove.push(k);
+        }
+    }
+    for (var ri = 0; ri < keysToRemove.length; ri++) {
+        try { localStorage.removeItem(keysToRemove[ri]); } catch(e) {}
+    }
+}
+
+function cleanGameStateForSave() {
+    // Truncate unbounded arrays before saving
+    if (gameState.insMessages && gameState.insMessages.length > 100) {
+        gameState.insMessages = gameState.insMessages.slice(-100);
+    }
+    if (gameState.tiktokMessages && gameState.tiktokMessages.length > 100) {
+        gameState.tiktokMessages = gameState.tiktokMessages.slice(-100);
+    }
+    if (gameState.emails && gameState.emails.length > 50) {
+        gameState.emails = gameState.emails.slice(-50);
+    }
+    if (gameState._notifLog && gameState._notifLog.length > 100) {
+        gameState._notifLog = gameState._notifLog.slice(-100);
+    }
+    if (gameState.dayActionLog && gameState.dayActionLog.length > 100) {
+        gameState.dayActionLog = gameState.dayActionLog.slice(-100);
+    }
+    if (gameState.ownedClothes && gameState.ownedClothes.length > 100) {
+        gameState.ownedClothes = gameState.ownedClothes.slice(-100);
+    }
+    if (gameState.hotsearchTopics && gameState.hotsearchTopics.length > 50) {
+        gameState.hotsearchTopics = gameState.hotsearchTopics.slice(-50);
+    }
+    if (gameState.mvCollection && gameState.mvCollection.length > 30) {
+        gameState.mvCollection = gameState.mvCollection.slice(-30);
+    }
+}
+
+function safeLocalStorageSet(key, value) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch(e) {
+        console.warn('localStorage quota exceeded, cleaning up...');
+        cleanupLocalStorage();
+        cleanGameStateForSave();
+        try {
+            var retryValue = (typeof value === 'string') ? value : JSON.stringify(value);
+            localStorage.setItem(key, retryValue);
+            return true;
+        } catch(e2) {
+            console.error('Still cannot save after cleanup, data too large');
+            showModal('存储空间不足', '游戏数据过大，建议清理旧存档。已自动压缩数据。');
+            return false;
+        }
     }
 }
 
@@ -11807,11 +11935,14 @@ function _ensureV16Fields() {
         gameState.gacha._savedCollection.topIdol = JSON.parse(JSON.stringify(gameState.gacha.topIdol.collection));
     }
     if (typeof initGachaPool === 'function') initGachaPool();
+    _ensureChapterStateFields();
 }
 
 var _kakaoAddPersonality = '';
 
 function renderKakaoTalkPage(container) {
+    // V2.0 Chapter: mark contacts app as read
+    _markChapterAppRead('contacts');
     _ensureKakaoState();
     var tab = gameState.kakaoTab || 'chats';
     var tabHtml = '<div class="kakao-tab-bar">'
@@ -13276,16 +13407,20 @@ var autoSaveTimer = null;
 function _doAutoSave(silent) {
     if (gameState.player.name && currentPage !== 'welcome') {
         try {
+            cleanGameStateForSave();
             var saveData = {};
             var keys = Object.keys(gameState);
             for (var i = 0; i < keys.length; i++) {
                 if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
             }
             saveData._saveTime = Date.now();
-            localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
+            safeLocalStorageSet(_getSaveKey(current存档), JSON.stringify(saveData));
             _doCloudSave(current存档, saveData);
             if (!silent) showToast('已自动存档');
-        } catch(e) {}
+        } catch(e) {
+            console.error('AutoSave failed:', e);
+            if (!silent) showToast('自动存档失败，存储空间不足');
+        }
     }
 }
 
@@ -14282,6 +14417,296 @@ function doDailyCheckIn() {
     showToast(msg);
     triggerSilentSave();
     render();
+}
+
+
+// ==================== V2.0 CHAPTER SYSTEM ====================
+
+var CHAPTER_PROGRESS_MAP = {
+    1: { app: 'training', target: 1, countKey: 'trainCount', label: '\u5b8c\u6210\u8bad\u7ec3' },
+    2: { app: 'schedule', target: 1, countKey: 'scheduleCount', label: '\u5b8c\u6210\u65e5\u7a0b' },
+    3: { app: 'sns', target: 1, countKey: 'snsPostCount', label: '\u53d1\u5e03\u52a8\u6001' }
+};
+
+function _ensureChapterStateFields() {
+    if (!gameState.chapterState) {
+        gameState.chapterState = {
+            currentChapter: 1,
+            currentStep: 0,
+            choices: [],
+            unlockedApps: ['daily'],
+            completedSteps: [],
+            readApps: [],
+            isIdolLine: false,
+            chapterCounts: {
+                trainCount: 0,
+                scheduleCount: 0,
+                snsPostCount: 0,
+                fansAtChapterStart: 0
+            }
+        };
+    }
+    if (!gameState.chapterState.unlockedApps) gameState.chapterState.unlockedApps = ['daily'];
+    if (!gameState.chapterState.readApps) gameState.chapterState.readApps = [];
+    if (!gameState.chapterState.completedSteps) gameState.chapterState.completedSteps = [];
+    if (!gameState.chapterState.choices) gameState.chapterState.choices = [];
+    if (!gameState.chapterState.chapterCounts) {
+        gameState.chapterState.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, fansAtChapterStart: 0 };
+    }
+    if (gameState.chapterState.chapterCounts.trainCount === undefined) gameState.chapterState.chapterCounts.trainCount = 0;
+    if (gameState.chapterState.chapterCounts.scheduleCount === undefined) gameState.chapterState.chapterCounts.scheduleCount = 0;
+    if (gameState.chapterState.chapterCounts.snsPostCount === undefined) gameState.chapterState.chapterCounts.snsPostCount = 0;
+    if (gameState.chapterState.chapterCounts.fansAtChapterStart === undefined) gameState.chapterState.chapterCounts.fansAtChapterStart = 0;
+}
+
+function checkChapterProgress() {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    if (cs.currentChapter !== 1) return;
+    if (cs.currentStep === 2) {
+        if (cs.chapterCounts.scheduleCount >= 1) {
+            _completeChapterStep(2, 'schedule');
+        }
+    } else if (cs.currentStep === 3) {
+        if (cs.chapterCounts.snsPostCount >= 1) {
+            _completeChapterStep(3, 'sns');
+        }
+    } else if (cs.currentStep === 4) {
+        if (cs.chapterCounts.trainCount >= 1) {
+            _completeChapterStep(4, 'training');
+        }
+    }
+}
+
+function _completeChapterStep(step, appId) {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    if (cs.completedSteps.indexOf(step) >= 0) return;
+    cs.completedSteps.push(step);
+    if (cs.unlockedApps.indexOf(appId) < 0) {
+        cs.unlockedApps.push(appId);
+    }
+    cs.currentStep = step + 1;
+    triggerSilentSave();
+    var stepMessages = {
+        2: '\u606d\u559c\uff01\u4f60\u5df2\u6b63\u5f0f\u52a0\u5165Haeoreum',
+        3: '\u6210\u5458\u4eec\u7eb7\u7eb7\u5411\u4f60\u53d1\u6765\u6b22\u8fce\uff01',
+        4: '\u4f60\u5b8c\u6210\u4e86\u7b2c\u4e00\u6b21\u8bad\u7ec3\uff01'
+    };
+    var msg = stepMessages[step] || '\u7ae0\u8282\u8fdb\u5ea6\u66f4\u65b0\uff01';
+    showToast(msg);
+    if (appId === 'schedule') {
+        setTimeout(function() {
+            currentPage = 'schedule';
+            gameState._chapterShowWelcome = true;
+            render();
+        }, 600);
+    } else if (appId === 'sns') {
+        setTimeout(function() {
+            currentPage = 'ins';
+            gameState._chapterShowMembersWelcome = true;
+            render();
+        }, 600);
+    } else if (appId === 'training') {
+        setTimeout(function() {
+            currentPage = 'training';
+            gameState._chapterShowTrainWelcome = true;
+            render();
+        }, 600);
+    }
+}
+
+function renderChapterOverlay() {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    if (cs.currentChapter !== 1) return null;
+    if (cs.currentStep === 0) {
+        return _renderChapter10Overlay();
+    }
+    if (cs.currentStep === 1) {
+        return _renderChapter11Overlay();
+    }
+    return null;
+}
+
+function _renderChapter10Overlay() {
+    var html = '<div id="chapterOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+        + '<div style="text-align:center;max-width:300px;">'
+        + '<div style="font-size:14px;color:rgba(255,255,255,0.5);letter-spacing:4px;margin-bottom:12px;">CHAPTER 1</div>'
+        + '<div style="font-size:32px;font-weight:800;color:#fff;margin-bottom:8px;">\u7b2c1\u7ae0\uff1a\u5165\u793e</div>'
+        + '<div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:40px;line-height:1.6;">\u5f52\u5c5e\u611f\uff0c\u4ece\u964c\u751f\u4eba\u5230\u6709\u5bb6</div>'
+        + '<div style="width:40px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent);margin:0 auto 40px;"></div>'
+        + '<button onclick="_dismissChapter10()" style="padding:12px 40px;background:linear-gradient(135deg,#1A2A3A,#2A3A4A);color:white;border:none;border-radius:25px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:1px;">\u5f00\u59cb</button>'
+        + '</div></div>';
+    return html;
+}
+
+function _dismissChapter10() {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    cs.currentStep = 1;
+    cs.completedSteps.push(0);
+    triggerSilentSave();
+    var overlay = document.getElementById('chapterOverlay');
+    if (overlay) overlay.remove();
+    render();
+}
+
+function _renderChapter11Overlay() {
+    var cs = gameState.chapterState;
+    var choice1Made = false;
+    var choice1Id = '';
+    for (var ci = 0; ci < cs.choices.length; ci++) {
+        if (cs.choices[ci].chapter === 1 && cs.choices[ci].step === 1) {
+            choice1Made = true;
+            choice1Id = cs.choices[ci].choiceId;
+        }
+    }
+    var responseText = '';
+    if (choice1Made) {
+        if (choice1Id === 'nervous') {
+            responseText = '\u7d27\u5f20\u8bf4\u660e\u4f60\u5728\u4e4e\u3002\u5728\u4e4e\u7684\u4eba\uff0c\u624d\u4f1a\u8d70\u5f97\u8fdc\u3002';
+        } else {
+            responseText = '\u81ea\u4fe1\u662f\u597d\u7684\u5f00\u59cb\u3002\u4f46\u8bb0\u5f97\uff0c\u81ea\u4fe1\u8981\u914d\u5f97\u4e0a\u5b9e\u529b\u624d\u884c\u54e6\u3002';
+        }
+    }
+    var html = '<div id="chapterOverlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+        + '<div style="max-width:340px;width:90%;background:#1A2A3A;border-radius:16px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.5);">'
+        + '<div style="display:flex;align-items:center;margin-bottom:16px;">'
+        + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#4A6A8A,#2A4A6A);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;">\u6069</div>'
+        + '<div style="margin-left:12px;">'
+        + '<div style="font-size:15px;font-weight:700;color:white;">\u590f\u6069</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.5);">Leader</div>'
+        + '</div></div>'
+        + '<div style="font-size:14px;color:rgba(255,255,255,0.9);line-height:1.8;margin-bottom:20px;">\u4f60\u597d\uff0c\u6b22\u8fce\u6765\u5230Haeoreum\u3002\u6211\u662f\u961f\u957f\u590f\u6069\u3002\u7b2c\u4e00\u6b21\u6765\u516c\u53f8\uff0c\u611f\u89c9\u600e\u4e48\u6837\uff1f</div>';
+    if (!choice1Made) {
+        html += '<div style="display:flex;gap:10px;">'
+            + '<button onclick="_chapter11Choice(\'nervous\')" style="flex:1;padding:10px;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;cursor:pointer;">\u6709\u70b9\u7d27\u5f20...</button>'
+            + '<button onclick="_chapter11Choice(\'confident\')" style="flex:1;padding:10px;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);border-radius:10px;font-size:13px;cursor:pointer;">\u6211\u5f88\u81ea\u4fe1\uff01</button>'
+            + '</div>';
+    } else {
+        html += '<div style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;margin-bottom:16px;">'
+            + '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:4px;">\u590f\u6069\u8bf4\uff1a</div>'
+            + '<div style="font-size:14px;color:rgba(255,255,255,0.9);line-height:1.6;">' + responseText + '</div>'
+            + '</div>'
+            + '<button onclick="_dismissChapter11()" style="width:100%;padding:10px;background:linear-gradient(135deg,#3A5A7A,#2A4A6A);color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">\u7ee7\u7eed</button>';
+    }
+    html += '</div></div>';
+    return html;
+}
+
+function _chapter11Choice(choiceId) {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    cs.choices.push({ chapter: 1, step: 1, choiceId: choiceId });
+    if (cs.unlockedApps.indexOf('contacts') < 0) {
+        cs.unlockedApps.push('contacts');
+    }
+    triggerSilentSave();
+    render();
+}
+
+function _dismissChapter11() {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    cs.currentStep = 2;
+    cs.completedSteps.push(1);
+    triggerSilentSave();
+    var overlay = document.getElementById('chapterOverlay');
+    if (overlay) overlay.remove();
+    render();
+    checkChapterProgress();
+}
+
+function _renderChapterProgressBar(appId) {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    if (cs.currentChapter !== 1) return '';
+    var stepMap = { 'schedule': 2, 'sns': 3, 'training': 4 };
+    var targetStep = stepMap[appId];
+    if (targetStep === undefined) return '';
+    if (cs.currentStep !== targetStep) return '';
+    if (cs.completedSteps.indexOf(targetStep) >= 0) return '';
+    var progressInfo = CHAPTER_PROGRESS_MAP[targetStep];
+    var countKey = progressInfo.countKey;
+    var target = progressInfo.target;
+    var current = cs.chapterCounts[countKey] || 0;
+    var label = progressInfo.label;
+    var pct = Math.min(100, Math.floor((current / target) * 100));
+    var html = '<div style="background:linear-gradient(135deg,#F0F4F8,#E2E8F0);border-radius:10px;padding:10px 14px;margin-bottom:12px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+        + '<span style="font-size:12px;font-weight:600;color:#1E293B;">' + label + '</span>'
+        + '<span style="font-size:11px;color:#64748B;">' + current + '/' + target + '</span>'
+        + '</div>'
+        + '<div style="height:6px;background:#CBD5E1;border-radius:3px;overflow:hidden;">'
+        + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#3A5A7A,#1A2A3A);border-radius:3px;transition:width 0.3s;"></div>'
+        + '</div></div>';
+    return html;
+}
+
+function _getChapterAppRedDot(appId) {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    if (cs.unlockedApps.indexOf(appId) >= 0 && cs.readApps.indexOf(appId) < 0) {
+        return 1;
+    }
+    return 0;
+}
+
+function _markChapterAppRead(appId) {
+    _ensureChapterStateFields();
+    var cs = gameState.chapterState;
+    if (cs.readApps.indexOf(appId) < 0) {
+        cs.readApps.push(appId);
+        triggerSilentSave();
+    }
+}
+
+function _renderScheduleWelcomeNotice() {
+    if (!gameState._chapterShowWelcome) return '';
+    gameState._chapterShowWelcome = false;
+    var html = '<div style="background:linear-gradient(135deg,#1A2A3A,#2A4A6A);border-radius:12px;padding:16px;margin-bottom:12px;color:white;text-align:center;">'
+        + '<div style="font-size:20px;margin-bottom:8px;">\ud83c\udf89</div>'
+        + '<div style="font-size:16px;font-weight:700;margin-bottom:4px;">\u606d\u559c\uff01\u4f60\u5df2\u6b63\u5f0f\u52a0\u5165Haeoreum</div>'
+        + '<div style="font-size:12px;opacity:0.8;">\u4ece\u4eca\u5929\u8d77\uff0c\u4f60\u662fHaeoreum\u7684\u4e00\u5458\u4e86</div>'
+        + '</div>';
+    return html;
+}
+
+function _renderSnsMembersWelcome() {
+    if (!gameState._chapterShowMembersWelcome) return '';
+    gameState._chapterShowMembersWelcome = false;
+    var members = [
+        { name: '\u590f\u6069', avatar: '\u6069', msg: '\u6b22\u8fce\u52a0\u5165\u6211\u4eec\u7684\u5927\u5bb6\u5ead\uff01\u4ee5\u540e\u5c31\u662f\u4e00\u5bb6\u4eba\u4e86 \ud83d\ude0a' },
+        { name: '\u4fca\u660a', avatar: '\u660a', msg: '\u7ec8\u4e8e\u7b49\u5230\u4f60\u4e86\uff01\u4ee5\u540e\u4e00\u8d77\u5531\u6b4c\u5230\u55d3\u5b50\u54d1\u5427 \ud83c\udfa4' },
+        { name: '\u667a\u5a9b', avatar: '\u5a9b', msg: '\u54c7\uff01\u65b0\u6210\u5458\uff01\u6211\u53ef\u4ee5\u53eb\u4f60\u54e5\u54e5/\u59d0\u59d0\u5417\uff1f \u2728' },
+        { name: '\u7d20\u96c5', avatar: '\u96c5', msg: '\u6b22\u8fce\u3002\u6709\u4ec0\u4e48\u4e0d\u61c2\u7684\u53ef\u4ee5\u6765\u95ee\u6211\u3002' },
+        { name: '\u745e\u8d24', avatar: '\u8d24', msg: '...\u6b22\u8fce\u3002' }
+    ];
+    var html = '<div style="background:#F0F4F8;border-radius:12px;padding:12px;margin-bottom:12px;">'
+        + '<div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:10px;">\ud83c\udf89 \u6210\u5458\u4eec\u5411\u4f60\u53d1\u6765\u6b22\u8fce</div>';
+    for (var mi = 0; mi < members.length; mi++) {
+        var m = members[mi];
+        html += '<div style="display:flex;align-items:flex-start;margin-bottom:10px;padding:8px;background:white;border-radius:8px;">'
+            + '<div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4A6A8A,#2A4A6A);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;flex-shrink:0;">' + m.avatar + '</div>'
+            + '<div style="margin-left:8px;flex:1;">'
+            + '<div style="font-size:12px;font-weight:600;color:#1E293B;">' + m.name + '</div>'
+            + '<div style="font-size:12px;color:#64748B;margin-top:2px;">' + m.msg + '</div>'
+            + '</div></div>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function _renderTrainingWelcomeNotice() {
+    if (!gameState._chapterShowTrainWelcome) return '';
+    gameState._chapterShowTrainWelcome = false;
+    var html = '<div style="background:linear-gradient(135deg,#1A2A3A,#2A4A6A);border-radius:12px;padding:16px;margin-bottom:12px;color:white;text-align:center;">'
+        + '<div style="font-size:20px;margin-bottom:8px;">\ud83d\udcaa</div>'
+        + '<div style="font-size:16px;font-weight:700;margin-bottom:4px;">\u5b8c\u6210\u4f60\u7684\u7b2c\u4e00\u6b21\u8bad\u7ec3</div>'
+        + '<div style="font-size:12px;opacity:0.8;">\u9009\u62e9\u4e00\u4e2a\u8bad\u7ec3\u9879\u76ee\u5f00\u59cb\u5427\uff01</div>'
+        + '</div>';
+    return html;
 }
 
 function getCheckInInfo() {
