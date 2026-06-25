@@ -4058,6 +4058,8 @@ function joinSchedule(index) {
     }
     gameState.体力 = Math.max(0, gameState.体力 - 体力cost);
     item.status = 'done';
+    _trackWeeklyGoal('work', 1);
+    if (typeof chapterCounts !== 'undefined') { chapterCounts.scheduleCount = (chapterCounts.scheduleCount || 0) + 1; }
     var gainMsg = '';
     if (item.tagType === 'practice') {
         var keys = Object.keys(gameState.stats);
@@ -7589,6 +7591,7 @@ function saveGame(slot) {
         if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
     }
     saveData._saveTime = Date.now();
+    _cleanSaveData(saveData);
     
     try {
         var jsonStr = JSON.stringify(saveData);
@@ -7675,9 +7678,6 @@ function cleanupLocalStorage() {
     var keysToRemove = [];
     for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (k && k.indexOf('myidol_saves_') === 0 && k !== _getSaveKey(current存档)) {
-            keysToRemove.push(k);
-        }
         if (k && k.indexOf('myidol_share_') === 0) {
             keysToRemove.push(k);
         }
@@ -7687,31 +7687,31 @@ function cleanupLocalStorage() {
     }
 }
 
-function cleanGameStateForSave() {
-    // Truncate unbounded arrays before saving
-    if (gameState.insMessages && gameState.insMessages.length > 100) {
-        gameState.insMessages = gameState.insMessages.slice(-100);
+function _cleanSaveData(sd) {
+    // Truncate unbounded arrays on the save data copy only - never mutate gameState
+    if (sd.insMessages && sd.insMessages.length > 100) {
+        sd.insMessages = sd.insMessages.slice(-100);
     }
-    if (gameState.tiktokMessages && gameState.tiktokMessages.length > 100) {
-        gameState.tiktokMessages = gameState.tiktokMessages.slice(-100);
+    if (sd.tiktokMessages && sd.tiktokMessages.length > 100) {
+        sd.tiktokMessages = sd.tiktokMessages.slice(-100);
     }
-    if (gameState.emails && gameState.emails.length > 50) {
-        gameState.emails = gameState.emails.slice(-50);
+    if (sd.emails && sd.emails.length > 50) {
+        sd.emails = sd.emails.slice(-50);
     }
-    if (gameState._notifLog && gameState._notifLog.length > 100) {
-        gameState._notifLog = gameState._notifLog.slice(-100);
+    if (sd._notifLog && sd._notifLog.length > 100) {
+        sd._notifLog = sd._notifLog.slice(-100);
     }
-    if (gameState.dayActionLog && gameState.dayActionLog.length > 100) {
-        gameState.dayActionLog = gameState.dayActionLog.slice(-100);
+    if (sd.dayActionLog && sd.dayActionLog.length > 100) {
+        sd.dayActionLog = sd.dayActionLog.slice(-100);
     }
-    if (gameState.ownedClothes && gameState.ownedClothes.length > 100) {
-        gameState.ownedClothes = gameState.ownedClothes.slice(-100);
+    if (sd.ownedClothes && sd.ownedClothes.length > 100) {
+        sd.ownedClothes = sd.ownedClothes.slice(-100);
     }
-    if (gameState.hotsearchTopics && gameState.hotsearchTopics.length > 50) {
-        gameState.hotsearchTopics = gameState.hotsearchTopics.slice(-50);
+    if (sd.hotsearchTopics && sd.hotsearchTopics.length > 50) {
+        sd.hotsearchTopics = sd.hotsearchTopics.slice(-50);
     }
-    if (gameState.mvCollection && gameState.mvCollection.length > 30) {
-        gameState.mvCollection = gameState.mvCollection.slice(-30);
+    if (sd.mvCollection && sd.mvCollection.length > 30) {
+        sd.mvCollection = sd.mvCollection.slice(-30);
     }
 }
 
@@ -7722,14 +7722,12 @@ function safeLocalStorageSet(key, value) {
     } catch(e) {
         console.warn('localStorage quota exceeded, cleaning up...');
         cleanupLocalStorage();
-        cleanGameStateForSave();
         try {
-            var retryValue = (typeof value === 'string') ? value : JSON.stringify(value);
-            localStorage.setItem(key, retryValue);
+            localStorage.setItem(key, value);
             return true;
         } catch(e2) {
             console.error('Still cannot save after cleanup, data too large');
-            showModal('存储空间不足', '游戏数据过大，建议清理旧存档。已自动压缩数据。');
+            showModal('存储空间不足', '游戏数据过大，请尝试在设置中手动保存。');
             return false;
         }
     }
@@ -13407,13 +13405,13 @@ var autoSaveTimer = null;
 function _doAutoSave(silent) {
     if (gameState.player.name && currentPage !== 'welcome') {
         try {
-            cleanGameStateForSave();
             var saveData = {};
             var keys = Object.keys(gameState);
             for (var i = 0; i < keys.length; i++) {
                 if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
             }
             saveData._saveTime = Date.now();
+            _cleanSaveData(saveData);
             safeLocalStorageSet(_getSaveKey(current存档), JSON.stringify(saveData));
             _doCloudSave(current存档, saveData);
             if (!silent) showToast('已自动存档');
