@@ -174,65 +174,7 @@ var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 // ==================== NAVIGATION ====================
 var currentPage = 'welcome';
 var creationStep = 1;
-var INVITE_CODES = ['LOVE7286', 'DREAM4886', 'DREAM5305', 'DREAM6461', 'DEBUT3677', 'V162877', 'MYIDOL5203', 'V165678', 'V164720', 'FAN3082'];
 
-function renderInviteCodePage(app) {
-    app.innerHTML = '<div class="page active"><div class="page-content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 30px;background:linear-gradient(180deg,#FFF5F7,#FFE4EC);">'
-        + '<div style="font-size:32px;font-weight:800;color:#FF6B8A;margin-bottom:8px;">My Idol</div>'
-        + '<div style="font-size:13px;color:#8E8E93;margin-bottom:40px;">韩娱爱豆模拟器</div>'
-        + '<div style="width:100%;max-width:300px;background:white;border-radius:16px;padding:28px 24px;box-shadow:0 2px 12px rgba(255,107,138,0.1);">'
-        + '<div style="font-size:16px;font-weight:600;color:#333;text-align:center;margin-bottom:6px;">内测邀请码</div>'
-        + '<div style="font-size:12px;color:#8E8E93;text-align:center;margin-bottom:20px;">请输入邀请码进入游戏</div>'
-        + '<input id="inviteCodeInput" type="text" placeholder="输入邀请码" style="width:100%;padding:14px 16px;border:1.5px solid #FFD5DE;border-radius:12px;font-size:15px;text-align:center;outline:none;letter-spacing:2px;text-transform:uppercase;" oninput="handleInviteCodeInput(this)" onkeydown="if(event.key===\'Enter\')checkInviteCode()">'
-        + '<div id="inviteCodeError" style="font-size:12px;color:#FF3B30;text-align:center;margin-top:10px;display:none;"></div>'
-        + '<button onclick="checkInviteCode()" id="inviteCodeBtn" style="width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#FF8FA3,#FF6B8A);color:white;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;">进入游戏</button>'
-        + '</div>'
-        + '<div style="margin-top:24px;font-size:12px;color:#C7C7CC;text-align:center;">没有邀请码？敬请期待正式上线</div>'
-        + '</div></div>';
-    setTimeout(function(){ var inp = document.getElementById('inviteCodeInput'); if(inp) inp.focus(); }, 300);
-}
-
-
-var _inviteCodeTimer = null;
-function handleInviteCodeInput(el) {
-    if (_inviteCodeTimer) clearTimeout(_inviteCodeTimer);
-    _inviteCodeTimer = setTimeout(function() {
-        var oldVal = el.value;
-        var cursorPos = el.selectionStart;
-        el.value = el.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-        try { el.setSelectionRange(cursorPos, cursorPos); } catch(e) {}
-        if (oldVal.length > 0 && el.value.length < oldVal.length) {
-            var errEl = document.getElementById('inviteCodeError');
-            if (errEl) { errEl.style.display = 'block'; errEl.textContent = '仅支持英文和数字'; setTimeout(function(){ if(errEl) errEl.style.display='none'; }, 2000); }
-        }
-    }, 80);
-}
-
-function checkInviteCode() {
-    var btnEl = document.getElementById('inviteCodeBtn');
-    if (btnEl && btnEl.disabled) return;
-    var code = (document.getElementById('inviteCodeInput').value || '').trim().toUpperCase().replace(/\s/g, '');
-    var errEl = document.getElementById('inviteCodeError');
-    if (!code) {
-        errEl.style.display = 'block';
-        errEl.textContent = '请输入邀请码';
-        var inpEl = document.getElementById('inviteCodeInput');
-        if(inpEl) { inpEl.style.animation = 'shake 0.3s'; setTimeout(function(){ inpEl.style.animation = ''; }, 300); }
-        return;
-    }
-    if (INVITE_CODES.indexOf(code) !== -1) {
-        if(btnEl){btnEl.textContent='验证中...';btnEl.disabled=true;}
-        window._inviteVerified = true;
-        localStorage.setItem('myIdolInviteVerified', 'true');
-        currentPage = 'welcome';
-        render();
-    } else {
-        errEl.style.display = 'block';
-        errEl.textContent = '邀请码无效，请检查后重试';
-        var inpEl = document.getElementById('inviteCodeInput');
-        if(inpEl) { inpEl.style.borderColor = '#FF3B30'; inpEl.style.animation = 'shake 0.3s'; setTimeout(function(){ inpEl.style.borderColor = '#FFD5DE'; inpEl.style.animation = ''; }, 1500); }
-    }
-}
 
 function render() {
     var ls = document.getElementById('loadingScreen');
@@ -245,12 +187,7 @@ function render() {
     var app = document.getElementById('app');
     if (!app) return;
     try {
-        // V1.7 public beta: invite code removed, auto-verify
-        if (!window._inviteVerified) {
-            window._inviteVerified = true;
-            localStorage.setItem('myIdolInviteVerified', 'true');
-        }
-        switch(currentPage) {
+                switch(currentPage) {
             case 'welcome':
                 var currentUser = localStorage.getItem('myIdolCurrentUser');
                 if (currentUser) {
