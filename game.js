@@ -16231,3 +16231,1247 @@ render = function() {
     style.textContent = '@keyframes v2Breath{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}';
     document.head.appendChild(style);
 })();
+/* ================================================================
+ * V2.0 夜间冲刺补丁 (6/25 晚)
+ * 1. 设置页音量滑块 + 版本号
+ * 2. 生日弹窗系统
+ * 3. 场景可交互物品 (#30)
+ * 4. NPC回应实装（SNS/训练/直播后私聊+动态）
+ * 5. 周榜 / 月榜 详细系统
+ * 6. 打字机SFX框架（占位，后续塞音频即可生效）
+ * ================================================================ */
+
+/* ---------- 全局状态初始化 ---------- */
+(function() {
+    gameState._v2Chart = gameState._v2Chart || { week: {}, month: {}, lastWeek: 0, lastMonth: 0 };
+    if (typeof gameState.bgmVolume === 'undefined') gameState.bgmVolume = 0.6;
+    if (typeof gameState.sfxVolume === 'undefined') gameState.sfxVolume = 0.7;
+    if (!gameState.seenBirthdays) gameState.seenBirthdays = [];
+    if (!gameState._v2SceneItemsUsed) gameState._v2SceneItemsUsed = {};
+})();
+
+/* ---------- 版本号 ---------- */
+var V2_VERSION = 'v2.0.1-ch1 (build 0625-night)';
+
+/* ---------- 1. 设置页：音量滑块 ---------- */
+function _v2PlaySfx(name) {
+    // 预留SFX接口。目前无音频文件，只做轻量震动反馈
+    try { if (navigator && navigator.vibrate) navigator.vibrate(8); } catch(e) {}
+}
+
+var _v2OrigRenderSettings = render设置Page;
+render设置Page = function(container) {
+    _v2OrigRenderSettings(container);
+    // 找到page-content，在"账号操作"前插音量与版本块
+    var pageContent = container.querySelector('.page-content');
+    if (!pageContent) return;
+    var bgmVol = (typeof gameState.bgmVolume === 'number') ? gameState.bgmVolume : 0.6;
+    var sfxVol = (typeof gameState.sfxVolume === 'number') ? gameState.sfxVolume : 0.7;
+    var html = ''
+        + '<div class="section-title" style="margin-top:16px;">音效</div>'
+        + '<div class="card">'
+        +   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+        +     '<div style="font-weight:600;">背景音乐</div>'
+        +     '<div id="v2-bgm-val" style="font-size:12px;color:#A78BFA;">' + Math.round(bgmVol*100) + '%</div>'
+        +   '</div>'
+        +   '<input id="v2-bgm-slider" type="range" min="0" max="100" value="' + Math.round(bgmVol*100) + '" style="width:100%;accent-color:#A78BFA;">'
+        +   '<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 10px 0;">'
+        +     '<div style="font-weight:600;">音效</div>'
+        +     '<div id="v2-sfx-val" style="font-size:12px;color:#EC4899;">' + Math.round(sfxVol*100) + '%</div>'
+        +   '</div>'
+        +   '<input id="v2-sfx-slider" type="range" min="0" max="100" value="' + Math.round(sfxVol*100) + '" style="width:100%;accent-color:#EC4899;">'
+        + '</div>'
+        + '<div class="section-title" style="margin-top:16px;">关于</div>'
+        + '<div class="card" style="text-align:center;color:#888;font-size:12px;padding:12px;">'
+        +   '<div style="color:#FFF;font-weight:600;font-size:14px;margin-bottom:4px;">myidol</div>'
+        +   '<div>' + V2_VERSION + '</div>'
+        +   '<div style="margin-top:6px;">© SEONGWOO ENT · 单机剧情向</div>'
+        + '</div>';
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    // 插入到最后一个card之前（即"退出游戏"前面），保持"退出游戏"在底部
+    var cards = pageContent.querySelectorAll('.card');
+    var lastCard = cards[cards.length - 1];
+    if (lastCard && lastCard.getAttribute('onclick') && lastCard.getAttribute('onclick').indexOf('confirmExit') !== -1) {
+        // 插到最后一个 card 之前
+        while (tmp.firstChild) pageContent.insertBefore(tmp.firstChild, lastCard);
+    } else {
+        pageContent.insertAdjacentHTML('beforeend', html);
+    }
+    // 绑定滑块
+    var bSlider = document.getElementById('v2-bgm-slider');
+    var sSlider = document.getElementById('v2-sfx-slider');
+    var bVal = document.getElementById('v2-bgm-val');
+    var sVal = document.getElementById('v2-sfx-val');
+    if (bSlider) {
+        bSlider.addEventListener('input', function() {
+            var v = parseInt(bSlider.value, 10)/100;
+            gameState.bgmVolume = v;
+            if (bVal) bVal.textContent = Math.round(v*100) + '%';
+            if (typeof BGMManager !== 'undefined' && BGMManager.setVolume) BGMManager.setVolume(v);
+            try { localStorage.setItem('myidol_bgm_vol', v); } catch(e) {}
+        });
+    }
+    if (sSlider) {
+        sSlider.addEventListener('input', function() {
+            var v = parseInt(sSlider.value, 10)/100;
+            gameState.sfxVolume = v;
+            if (sVal) sVal.textContent = Math.round(v*100) + '%';
+            try { localStorage.setItem('myidol_sfx_vol', v); } catch(e) {}
+        });
+    }
+};
+
+/* ---------- 2. 生日系统 ---------- */
+function _v2GetGameDate() {
+    // 游戏时间 = 现实时间（无加速，简单），可后续改成时间流逝
+    return new Date();
+}
+function _v2CheckBirthdays() {
+    if (!gameState.player || !gameState.player.name) return;
+    var now = _v2GetGameDate();
+    var m = now.getMonth() + 1, d = now.getDate();
+    var keys = Object.keys(NPC_BIRTHDAYS);
+    for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        var bd = NPC_BIRTHDAYS[k];
+        if (bd.month === m && bd.day === d) {
+            var key = 'bd_' + k + '_' + now.getFullYear();
+            if (gameState.seenBirthdays.indexOf(key) !== -1) continue;
+            gameState.seenBirthdays.push(key);
+            _v2ShowBirthdayEvent(k, bd.name);
+            return;
+        }
+    }
+}
+function _v2ShowBirthdayEvent(npcKey, npcName) {
+    var portraitHtml = '';
+    if (NPC_PORTRAITS[npcKey]) {
+        portraitHtml = '<img src="' + NPC_PORTRAITS[npcKey].main + '" style="width:120px;height:120px;object-fit:cover;border-radius:50%;border:3px solid #A78BFA;margin:0 auto 12px;display:block;" onerror="this.style.display=\'none\'">';
+    }
+    var html = '<div style="text-align:center;padding:10px;">'
+        + portraitHtml
+        + '<div style="font-size:18px;font-weight:700;color:#FFF;margin-bottom:6px;">今天是 ' + npcName + ' 的生日</div>'
+        + '<div style="font-size:13px;color:#CCC;margin-bottom:16px;">练习室里好像有准备什么……</div>'
+        + '<div style="text-align:left;margin-bottom:14px;font-size:13px;color:#DDD;line-height:1.7;">'
+        + npcName + '看着你递上的礼物，嘴角微微扬起：「……你记得？」</div>'
+        + '<div style="display:flex;flex-direction:column;gap:8px;">'
+        + '<button class="btn btn-primary" onclick="_v2GiveBirthdayGift(\'' + npcKey + '\',\'handmade\',this)" style="width:100%;">送手写信（+15好感，热爱+1）</button>'
+        + '<button class="btn btn-outline" onclick="_v2GiveBirthdayGift(\'' + npcKey + '\',\'expensive\',this)" style="width:100%;">送名牌饰品（-500金币，+20好感，野心+1）</button>'
+        + '<button class="btn btn-outline" onclick="_v2GiveBirthdayGift(\'' + npcKey + '\',\'hug\',this)" style="width:100%;">给一个拥抱（+10好感）</button>'
+        + '</div></div>';
+    showModal(npcName + ' 的生日', html);
+}
+function _v2GiveBirthdayGift(npcKey, type, btnEl) {
+    var npcName = (NPC_BIRTHDAYS[npcKey] && NPC_BIRTHDAYS[npcKey].name) || npcKey;
+    var msg = '', loveAdd = 0, tag = null;
+    if (type === 'handmade') {
+        loveAdd = 15; tag = 'passion';
+        msg = npcName + '接过信，指尖有些抖：「……谢谢你，我会好好收着。」';
+    } else if (type === 'expensive') {
+        if ((gameState.money || 0) < 500) { showToast('金币不足'); return; }
+        gameState.money -= 500; loveAdd = 20; tag = 'ambition';
+        msg = npcName + '愣了一下，笑了：「破费了。下次别这样。」';
+    } else {
+        loveAdd = 10;
+        msg = '你走上前给' + npcName + '一个拥抱。对方身体僵了一下，然后轻轻拍了拍你的背。';
+    }
+    if (typeof addLove === 'function') addLove(npcName, loveAdd);
+    if (tag) _v2RecordChoiceImpact(tag);
+    _v2ShowAffectionFloat(npcName, loveAdd);
+    closeModal();
+    showToast('♥ ' + npcName + ' 好感 +' + loveAdd);
+    // 塞一条Kakao消息
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats[npcName]) gameState.kakaoChats[npcName] = [];
+    var thanksMsgs = {
+        handmade: '信我读了好几遍……真的谢谢你。',
+        expensive: '礼物收到了，太贵重了吧……',
+        hug: '刚才那个拥抱……算了，不逗你了。'
+    };
+    gameState.kakaoChats[npcName].push({ from: npcName, text: thanksMsgs[type] || '今天谢谢你。', time: _v2NowTime(), read: false });
+    _v2MarkAppRedDot('contacts');
+    render();
+}
+
+/* ---------- 3. 场景可交互物品 ---------- */
+var V2_SCENE_ITEMS = {
+    practice: [
+        { id: 'mirror', x: 50, y: 25, label: '镜子', icon: '🪞',
+          lines: [
+            '你对着镜子调整动作——汗水顺着下巴滴在地板上。',
+            '镜子里的自己看起来比上个月瘦了点，眼神也坚定了。',
+            '你对着镜子做了个wink，被自己尬到了。'
+          ], reward: { stat: 'dance', amt: 1 } },
+        { id: 'water', x: 12, y: 78, label: '饮水机', icon: '💧',
+          lines: ['你接了杯水，咕噜咕噜喝下去。体力+5。'], reward: { stat: 'stamina', amt: 5 } },
+        { id: 'speaker', x: 88, y: 20, label: '音响', icon: '🔊',
+          lines: ['你按下播放，BGM在练习室里炸开。今天状态不错！'], reward: { stat: 'vocal', amt: 1 } }
+    ],
+    company: [
+        { id: 'lobby', x: 50, y: 80, label: '大厅沙发', icon: '🛋️',
+          lines: ['你在大厅沙发坐了一会儿，看到几个练习生匆匆走过。',
+                  '沙发上有本翻开的杂志，封面是去年的新人奖团体。'], reward: { stat: 'fame', amt: 0 } },
+        { id: 'vending', x: 85, y: 70, label: '自动贩卖机', icon: '🥤',
+          lines: ['贩卖机里有各种饮料。你扫了一眼，还是忍住了——得控制体重。'], reward: null },
+        { id: 'notice', x: 15, y: 35, label: '公告板', icon: '📋',
+          lines: ['公告板上贴着月末评估时间表。你认真看了一遍，把日期记在心里。'], reward: { stat: 'influence', amt: 1 } }
+    ],
+    dorm: [
+        { id: 'bed', x: 30, y: 70, label: '床', icon: '🛏️',
+          lines: ['你往床上一躺……不行，今天还有训练任务没做完！','床软软的，是你一天中最期待的地方。'], reward: { stat: 'stamina', amt: 3 } },
+        { id: 'fridge', x: 80, y: 65, label: '冰箱', icon: '🧊',
+          lines: ['冰箱里只有矿泉水和几盒低脂牛奶。做偶像的命。'], reward: null },
+        { id: 'photo', x: 50, y: 25, label: '合照', icon: '🖼️',
+          lines: ['墙上贴着一张五人合照——大家笑得很开心。这就是你的队友们。'], reward: { stat: 'loveall', amt: 1 } }
+    ],
+    stage: [
+        { id: 'light', x: 50, y: 12, label: '聚光灯', icon: '💡',
+          lines: ['聚光灯打下来的瞬间，你忽然理解了为什么那么多人想站在舞台上。'], reward: { stat: 'influence', amt: 2 } },
+        { id: 'mic', x: 20, y: 60, label: '麦克风', icon: '🎤',
+          lines: ['你拿起麦克风试了试音。声音在空荡的舞台上回荡——很动听。'], reward: { stat: 'vocal', amt: 1 } }
+    ]
+};
+
+function _v2GetSceneItemsHtml(sceneId) {
+    var items = V2_SCENE_ITEMS[sceneId];
+    if (!items || !items.length) return '';
+    var html = '';
+    for (var i = 0; i < items.length; i++) {
+        var it = items[i];
+        var usedKey = sceneId + '_' + it.id;
+        var used = gameState._v2SceneItemsUsed && gameState._v2SceneItemsUsed[usedKey];
+        // 物品一天能互动一次
+        var today = new Date().toDateString();
+        var isUsedToday = used === today;
+        html += '<div onclick="_v2InteractSceneItem(\'' + sceneId + '\',\'' + it.id + '\')" '
+            + 'style="position:absolute;left:' + it.x + '%;top:' + it.y + '%;transform:translate(-50%,-50%);cursor:pointer;z-index:9;-webkit-tap-highlight-color:transparent;opacity:' + (isUsedToday ? 0.35 : 0.9) + ';">'
+            + '<div class="scene-hs" style="background:rgba(255,255,255,0.18) !important;border:1px dashed rgba(255,255,255,0.4);animation:v2Breath 3s ease-in-out infinite;">'
+            + '<span style="font-size:20px;line-height:1;">' + it.icon + '</span>'
+            + '</div>'
+            + '<div class="scene-hs-label" style="background:rgba(0,0,0,0.5);">' + it.label + '</div>'
+            + '</div>';
+    }
+    return html;
+}
+
+function _v2InteractSceneItem(sceneId, itemId) {
+    var items = V2_SCENE_ITEMS[sceneId];
+    if (!items) return;
+    var item = null;
+    for (var i = 0; i < items.length; i++) if (items[i].id === itemId) { item = items[i]; break; }
+    if (!item) return;
+    var usedKey = sceneId + '_' + itemId;
+    var today = new Date().toDateString();
+    gameState._v2SceneItemsUsed = gameState._v2SceneItemsUsed || {};
+    if (gameState._v2SceneItemsUsed[usedKey] === today) {
+        showToast('今天已经看过了');
+        return;
+    }
+    gameState._v2SceneItemsUsed[usedKey] = today;
+    // 随机挑一句台词
+    var line = item.lines[Math.floor(Math.random()*item.lines.length)];
+    if (item.reward) {
+        if (item.reward.stat === 'stamina') {
+            gameState.体力 = Math.min(gameState.max体力 || 200, (gameState.体力||0) + item.reward.amt);
+        } else if (item.reward.stat === 'fame' || item.reward.stat === 'influence') {
+            gameState.fame = (gameState.fame||30) + item.reward.amt;
+        } else if (item.reward.stat === 'vocal' || item.reward.stat === 'dance' || item.reward.stat === 'rap') {
+            gameState.stats = gameState.stats || {};
+            gameState.stats[item.reward.stat] = (gameState.stats[item.reward.stat]||0) + item.reward.amt;
+        } else if (item.reward.stat === 'loveall') {
+            var npcs = ['夏恩','素雅','智媛','俊昊','瑞贤'];
+            for (var n=0;n<npcs.length;n++) if (typeof addLove==='function') addLove(npcs[n], item.reward.amt);
+        }
+    }
+    _v2PlaySfx('tap');
+    // 以小型toast+旁白显示
+    showToast(line);
+    render();
+}
+
+/* 把物品注入到场景页（覆盖原来的 hotspots 拼接处，用 MutationObserver 不太好，直接把 renderScenePage 的 hotspot 拼接扩展） */
+var _v2OrigRenderScene = renderScenePage;
+renderScenePage = function(container) {
+    _v2OrigRenderScene(container);
+    // 把场景物品append到hotspots容器（hotspots容器是position:absolute的div）
+    var sceneId = window._currentSceneId || (gameState.currentScene || 'practice');
+    var itemsHtml = _v2GetSceneItemsHtml(sceneId);
+    if (!itemsHtml) return;
+    var absDiv = container.querySelector('div[style*="position:absolute"][style*="z-index:5"]');
+    if (absDiv) absDiv.insertAdjacentHTML('beforeend', itemsHtml);
+};
+/* 保存当前scene id方便后续获取 */
+var _v2OrigSceneRender2 = renderScenePage;
+var _v2OldGoto = goToPage;
+var _v2OldSwitchScene;
+if (typeof switchScene === 'function') {
+    _v2OldSwitchScene = switchScene;
+    switchScene = function(sid) { window._currentSceneId = sid; _v2OldSwitchScene(sid); };
+}
+
+/* ---------- 4. NPC回应实装 ---------- */
+var V2_NPC_RESPONSES = {
+    sns: {
+        haeun: ['又在发自拍？……多练舞。','好好加油。','看到了。'],
+        soah: ['啊啊啊好可爱！','新动态我点赞了哦~','今天也加油！'],
+        jiwon: ['欧尼/欧巴SNS更新了！我马上去点赞！','kkk好有趣','我评论了哦！'],
+        junho: ['少玩手机多练舞。','……看到了。'],
+        seokhyun: ['（已读无回复，三小时后默默点了个赞）']
+    },
+    training: {
+        haeun: ['动作比昨天稳了。','继续。','别偷懒。'],
+        soah: ['辛苦了~喝水吗？','练得好认真！'],
+        jiwon: ['欧尼/欧巴好帅！','我也要加油！'],
+        junho: ['还行。','……继续。'],
+        seokhyun: ['（路过，扔给你一瓶水）……别脱水。']
+    },
+    live: {
+        haeun: ['直播看了。比我想的好。','不错。'],
+        soah: ['直播超可爱！我录屏了kkk','你那个wink绝了！'],
+        jiwon: ['欧尼/欧巴镜头感好棒！我跟成员们都看了！','粉丝涨了好多，恭喜！'],
+        junho: ['……还行。下次直播别紧张。','直播还行，继续努力。'],
+        seokhyun: ['（发了一个沉默的表情包）']
+    }
+};
+function _v2TriggerNpcResponseLiveImpl(actionType) {
+    if (!actionType) return;
+    var pool = V2_NPC_RESPONSES[actionType];
+    if (!pool) return;
+    // 随机挑1-2个好感>10的NPC发回应
+    var candidates = [];
+    var keyNameMap = { haeun:'夏恩', soah:'素雅', jiwon:'智媛', junho:'俊昊', seokhyun:'瑞贤' };
+    var keys = Object.keys(pool);
+    for (var i = 0; i < keys.length; i++) {
+        var name = keyNameMap[keys[i]];
+        var love = 0;
+        if (gameState.love && typeof gameState.love[name] === 'number') love = gameState.love[name];
+        if (love >= 5 || Math.random() < 0.5) candidates.push({ key: keys[i], name: name, love: love });
+    }
+    if (!candidates.length) return;
+    var pickCount = Math.min(candidates.length, 1 + Math.floor(Math.random()*2));
+    for (var j = 0; j < pickCount; j++) {
+        if (!candidates.length) break;
+        var idx = Math.floor(Math.random()*candidates.length);
+        var npc = candidates.splice(idx,1)[0];
+        var lines = pool[npc.key];
+        var text = lines[Math.floor(Math.random()*lines.length)];
+        // SNS类回应用评论，其余用Kakao私聊
+        if (actionType === 'sns') {
+            if (!gameState.snsPosts) gameState.snsPosts = [];
+            // 给最新一条动态追加评论（用npcComments字段）
+            if (gameState.snsPosts.length) {
+                var latest = gameState.snsPosts[0];
+                latest.npcComments = latest.npcComments || [];
+                latest.npcComments.push({ npc: npc.name, text: text });
+                latest.likes = (latest.likes||0) + Math.floor(Math.random()*5)+1;
+            }
+        } else {
+            if (!gameState.kakaoChats) gameState.kakaoChats = {};
+            if (!gameState.kakaoChats[npc.name]) gameState.kakaoChats[npc.name] = [];
+            gameState.kakaoChats[npc.name].push({ from: npc.name, text: text, time: _v2NowTime(), read: false });
+        }
+    }
+    if (actionType !== 'sns') _v2MarkAppRedDot('contacts');
+    else _v2MarkAppRedDot('sns');
+}
+/* 替换之前占位的 _v2TriggerNpcResponse（原函数只console，现在覆盖） */
+if (typeof _v2TriggerNpcResponse === 'function') {
+    var _v2OldNpcResp = _v2TriggerNpcResponse;
+}
+_v2TriggerNpcResponse = function(actionType) {
+    try { _v2TriggerNpcResponseLiveImpl(actionType); } catch(e) {}
+};
+
+/* ---------- 5. 周榜 / 月榜详细系统 ---------- */
+/* 周榜：每周一0点重置，统计过去7日粉丝增长 + 音源 + 投票 */
+/* 月榜：每月1号重置，统计过去30日数据 */
+var V2_CHART_COMPETITORS = [
+    { name: 'LUMINA', company: 'STARSHIP', fansBase: 85000, color: '#F97316' },
+    { name: 'Neon Pulse', company: 'HYBE', fansBase: 120000, color: '#EC4899' },
+    { name: '별하늘 (StarSky)', company: 'JYP', fansBase: 65000, color: '#A78BFA' },
+    { name: 'ECLIPSE', company: 'SM', fansBase: 200000, color: '#F43F5E' },
+    { name: 'CHERRY ON TOP', company: 'YG', fansBase: 45000, color: '#22D3EE' },
+    { name: 'Haeoreum', company: 'SEONGWOO', fansBase: 0, color: '#A78BFA', isSelf: true }
+];
+
+function _v2GetWeekStart() {
+    var d = new Date();
+    var day = d.getDay() || 7; // 周一=1
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - (day-1));
+    return d.getTime();
+}
+function _v2GetMonthStart() {
+    var d = new Date();
+    d.setDate(1); d.setHours(0,0,0,0);
+    return d.getTime();
+}
+
+function _v2RecordChartDelta(stat, val) {
+    // stat: 'fans','music','votes'
+    var wk = _v2GetWeekStart();
+    var mo = _v2GetMonthStart();
+    gameState._v2Chart = gameState._v2Chart || { week:{}, month:{} };
+    if (gameState._v2Chart.lastWeek !== wk) { gameState._v2Chart.week = {}; gameState._v2Chart.lastWeek = wk; }
+    if (gameState._v2Chart.lastMonth !== mo) { gameState._v2Chart.month = {}; gameState._v2Chart.lastMonth = mo; }
+    gameState._v2Chart.week[stat] = (gameState._v2Chart.week[stat]||0) + val;
+    gameState._v2Chart.month[stat] = (gameState._v2Chart.month[stat]||0) + val;
+}
+
+/* 在粉丝变化、直播、回归等关键动作上自动累计 */
+var _v2OldAddFans = (typeof addFans === 'function') ? addFans : null;
+if (_v2OldAddFans) {
+    addFans = function(n) { _v2OldAddFans(n); _v2RecordChartDelta('fans', Math.max(0,n)); };
+} else {
+    addFans = function(n) { gameState.fans=(gameState.fans||0)+Math.max(0,n|0); _v2RecordChartDelta('fans', Math.max(0,n|0)); };
+}
+
+function _v2ComputeChart(period) {
+    // period: 'week' or 'month'
+    var data = (gameState._v2Chart && gameState._v2Chart[period]) || {};
+    var myFans = data.fans || 0;
+    var myMusic = data.music || 0;
+    var myVotes = data.votes || 0;
+    var isIdol = gameState.player && gameState.player.role === 'Idol' && gameState.debuted;
+    var rows = [];
+    for (var i = 0; i < V2_CHART_COMPETITORS.length; i++) {
+        var c = V2_CHART_COMPETITORS[i];
+        var fans, music, votes;
+        if (c.isSelf) {
+            fans = myFans; music = myMusic; votes = myVotes;
+            // 练习生不上榜
+            if (!isIdol) continue;
+        } else {
+            var factor = period === 'week' ? 0.05 : 0.2;
+            fans = Math.floor(c.fansBase * factor * (0.7 + Math.random()*0.6));
+            music = Math.floor(c.fansBase * factor * 0.4 * (0.5 + Math.random()));
+            votes = Math.floor(c.fansBase * factor * 0.3 * (0.5 + Math.random()));
+        }
+        var score = fans*1 + music*3 + votes*2;
+        rows.push({ name: c.name, company: c.company, color: c.color, isSelf: !!c.isSelf, fans: fans, music: music, votes: votes, score: score });
+    }
+    rows.sort(function(a,b){ return b.score - a.score; });
+    return rows;
+}
+
+function _v2RenderRankingPage() {
+    var myRankW = '—', myRankM = '—', myScoreW = 0, myScoreM = 0;
+    var weekRows = _v2ComputeChart('week');
+    var monthRows = _v2ComputeChart('month');
+    var isIdol = gameState.player && gameState.player.role === 'Idol' && gameState.debuted;
+    for (var i = 0; i < weekRows.length; i++) if (weekRows[i].isSelf) { myRankW = i+1; myScoreW = weekRows[i].score; }
+    for (var j = 0; j < monthRows.length; j++) if (monthRows[j].isSelf) { myRankM = j+1; myScoreM = monthRows[j].score; }
+
+    function renderTable(rows, period) {
+        var h = '<div style="margin-top:14px;">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+        h += '<div style="font-weight:700;font-size:15px;color:#FFF;">' + (period==='week'?'本周音源榜单':'本月综合榜单') + '</div>';
+        h += '<div style="font-size:11px;color:#888;">' + (period==='week'?'周一0点刷新':'每月1号刷新') + '</div>';
+        h += '</div>';
+        if (!rows.length) {
+            h += '<div style="padding:24px;text-align:center;color:#666;font-size:13px;">出道后自动进入榜单</div>';
+            return h + '</div>';
+        }
+        for (var r = 0; r < rows.length; r++) {
+            var row = rows[r];
+            var rankColor = r===0?'#FFD700':(r===1?'#C0C0C0':(r===2?'#CD7F32':'#888'));
+            var bg = row.isSelf ? 'background:linear-gradient(90deg,rgba(167,139,250,0.18),rgba(167,139,250,0.05));border:1px solid rgba(167,139,250,0.4);' : 'background:rgba(255,255,255,0.03);';
+            h += '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;' + bg + '">'
+              + '<div style="width:28px;text-align:center;font-size:18px;font-weight:700;color:' + rankColor + ';">' + (r+1) + '</div>'
+              + '<div style="flex:1;min-width:0;">'
+              +   '<div style="font-weight:700;color:' + (row.isSelf?'#A78BFA':'#FFF') + ';font-size:14px;display:flex;align-items:center;gap:6px;">' + row.name + (row.isSelf?' <span style="font-size:10px;background:#A78BFA;color:#FFF;padding:1px 6px;border-radius:4px;">我方</span>':'') + '</div>'
+              +   '<div style="font-size:11px;color:#888;margin-top:2px;">' + row.company + '</div>'
+              + '</div>'
+              + '<div style="text-align:right;">'
+              +   '<div style="font-size:13px;font-weight:600;color:' + rankColor + ';">' + row.score.toLocaleString() + ' 分</div>'
+              +   '<div style="font-size:10px;color:#888;margin-top:2px;">粉丝+' + row.fans.toLocaleString() + ' · 音源' + row.music.toLocaleString() + ' · 票' + row.votes.toLocaleString() + '</div>'
+              + '</div>'
+              + '</div>';
+        }
+        return h + '</div>';
+    }
+
+    var html = '<div style="padding:4px 0 20px 0;">'
+        + '<div style="display:flex;gap:8px;margin-bottom:12px;">'
+        + '<div style="flex:1;background:linear-gradient(135deg,rgba(249,115,22,0.15),rgba(249,115,22,0.05));border:1px solid rgba(249,115,22,0.3);border-radius:12px;padding:12px;text-align:center;">'
+        + '<div style="font-size:11px;color:#F97316;">本周排名</div>'
+        + '<div style="font-size:24px;font-weight:800;color:#FFF;margin-top:4px;">#' + myRankW + '</div>'
+        + '<div style="font-size:10px;color:#888;margin-top:2px;">' + myScoreW.toLocaleString() + ' 分</div>'
+        + '</div>'
+        + '<div style="flex:1;background:linear-gradient(135deg,rgba(236,72,153,0.15),rgba(236,72,153,0.05));border:1px solid rgba(236,72,153,0.3);border-radius:12px;padding:12px;text-align:center;">'
+        + '<div style="font-size:11px;color:#EC4899;">本月排名</div>'
+        + '<div style="font-size:24px;font-weight:800;color:#FFF;margin-top:4px;">#' + myRankM + '</div>'
+        + '<div style="font-size:10px;color:#888;margin-top:2px;">' + myScoreM.toLocaleString() + ' 分</div>'
+        + '</div>'
+        + '</div>';
+    html += '<div style="font-size:12px;color:#A78BFA;background:rgba(167,139,250,0.08);padding:10px 12px;border-radius:8px;line-height:1.6;">'
+        + (isIdol ? '分数 = 粉丝增长×1 + 音源×3 + 投票×2<br>周冠即"音放一位"，月冠将解锁品牌代言事件。' 
+                 : '榜单在你<b style="color:#A78BFA;">正式出道</b>后开启。练习生阶段先努力训练涨粉吧！')
+        + '</div>';
+    html += renderTable(weekRows, 'week');
+    html += renderTable(monthRows, 'month');
+    html += '</div>';
+    return html;
+}
+
+/* 替换_showSubPage的ranking分支 */
+var _v2OldShowSubPage = _showSubPage;
+_showSubPage = function(page) {
+    if (page === 'ranking') {
+        showModal('排行榜', _v2RenderRankingPage());
+        return;
+    }
+    _v2OldShowSubPage(page);
+};
+
+/* ---------- 6. render 包装扩展：生日检查 ---------- */
+var _v2OrigRenderWrapper = render;
+render = function() {
+    _v2OrigRenderWrapper();
+    try { setTimeout(function(){ _v2CheckBirthdays(); }, 800); } catch(e) {}
+};
+
+/* ---------- 启动时应用保存的音量 ---------- */
+(function() {
+    try {
+        var bv = localStorage.getItem('myidol_bgm_vol');
+        var sv = localStorage.getItem('myidol_sfx_vol');
+        if (bv !== null) { gameState.bgmVolume = parseFloat(bv); if (typeof BGMManager!=='undefined' && BGMManager.setVolume) BGMManager.setVolume(gameState.bgmVolume); }
+        if (sv !== null) gameState.sfxVolume = parseFloat(sv);
+    } catch(e) {}
+})();
+/* ================================================================
+ * V2.0 全量冲刺第二弹
+ * - 选项预告浮窗（选择时提示标签影响）
+ * - 打字机音效（WebAudio合成tick音，无需文件）
+ * - 解锁APP动画（图标呼吸+闪光+出场）
+ * - NPC日常私聊（每半天随机一条）
+ * - 过场动画（关键节点：出道/一位/大赏）
+ * - CG图片动态生成（Canvas绘制关键剧情插画）
+ * - 角色专属表情包（SVG小贴纸）
+ * - 称呼自定义
+ * - 打字机节奏优化 + 按键感
+ * ================================================================ */
+
+/* ---------- 1. 选项预告浮窗（标签影响提示） ---------- */
+/* 已在选择按钮旁显示tag颜色；增加选后提示浮层 */
+var _v2TagInfo = {
+    ambition: { name: '野心', color: '#F97316', desc: '你的选择让你看起来更有野心' },
+    passion: { name: '热爱', color: '#EC4899', desc: '这是源自热爱的回答' },
+    prove: { name: '证明', color: '#A78BFA', desc: '你想用实力证明自己' }
+};
+function _v2FlashTag(tag) {
+    if (!tag || !_v2TagInfo[tag]) return;
+    var info = _v2TagInfo[tag];
+    var el = document.createElement('div');
+    el.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.5);background:' + info.color + ';color:#FFF;padding:10px 20px;border-radius:30px;font-weight:700;font-size:15px;z-index:200000;opacity:0;transition:all .4s cubic-bezier(.2,.8,.2,1);box-shadow:0 8px 30px ' + info.color + '80;pointer-events:none;letter-spacing:2px;';
+    el.textContent = '「' + info.name + '」+1';
+    document.body.appendChild(el);
+    requestAnimationFrame(function() { el.style.opacity = '1'; el.style.transform = 'translate(-50%,-50%) scale(1)'; });
+    setTimeout(function() { el.style.opacity = '0'; el.style.transform = 'translate(-50%,-60%) scale(1.1)'; }, 900);
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 1400);
+    _v2PlayTypeSfx(2);
+}
+/* 在 _v2RecordChoice 成功记录tag时触发浮层 */
+var _v2OldRecordChoice = _v2RecordChoice;
+_v2RecordChoice = function(nid, idx, opt) {
+    _v2OldRecordChoice(nid, idx, opt);
+    if (opt && opt.tag) _v2FlashTag(opt.tag);
+};
+
+/* ---------- 2. 打字机音效（WebAudio合成） ---------- */
+var _v2AudioCtx = null;
+function _v2GetAudio() {
+    if (_v2AudioCtx) return _v2AudioCtx;
+    try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) _v2AudioCtx = new AC();
+    } catch(e) { _v2AudioCtx = null; }
+    return _v2AudioCtx;
+}
+function _v2PlayTypeSfx(kind) {
+    var vol = gameState.sfxVolume || 0.7;
+    if (vol <= 0.01) return;
+    var ctx = _v2GetAudio();
+    if (!ctx) return;
+    try {
+        var t = ctx.currentTime;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        var freq = 800, dur = 0.04, type = 'sine', vol2 = 0.04 * vol;
+        if (kind === 1) { freq = 600 + Math.random()*400; dur = 0.025; vol2 = 0.03*vol; } // 打字
+        else if (kind === 2) { freq = 1200; dur = 0.1; type = 'triangle'; vol2 = 0.08*vol; } // 选择
+        else if (kind === 3) { freq = 440; dur = 0.2; type = 'sine'; vol2 = 0.05*vol; } // 解锁
+        else if (kind === 4) { freq = 200; dur = 0.3; type = 'sawtooth'; vol2 = 0.06*vol; } // 沉重
+        osc.type = type; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(vol2, t);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.start(t); osc.stop(t + dur + 0.02);
+    } catch(e) {}
+}
+/* 打字机字符出现时播放音效——hook到打字机逻辑 */
+var _v2OldRenderStory = _v2RenderStoryDialog;
+
+/* 在原对话框里查找打字机setInterval位置，附加音效。简单方法：wrap显示文本函数 */
+var _v2TypeTickCount = 0;
+function _v2TypeTickSfx() {
+    _v2TypeTickCount++;
+    // 每3个字一次音效，避免过密
+    if (_v2TypeTickCount % 3 === 0) _v2PlayTypeSfx(1);
+}
+
+/* 给文本节点添加打字机sfx，拦截char显示逻辑 */
+/* 查找打字机内部的char追加点，通过hook DOM更新实现 */
+var _v2StoryObserverInstalled = false;
+function _v2InstallStorySfxHook() {
+    if (_v2StoryObserverInstalled) return;
+    _v2StoryObserverInstalled = true;
+    var mo = new MutationObserver(function(muts) {
+        if (!_v2StoryState) return;
+        // 检测对话框里的文字span是否变长
+        var txtEl = document.getElementById('v2-dialog-text');
+        if (!txtEl) return;
+        var cur = txtEl.textContent.length;
+        if (txtEl._lastLen === undefined) txtEl._lastLen = 0;
+        if (cur > txtEl._lastLen) {
+            for (var k = 0; k < cur - txtEl._lastLen; k++) _v2TypeTickSfx();
+            txtEl._lastLen = cur;
+        }
+    });
+    var body = document.body;
+    mo.observe(body, { childList: true, subtree: true, characterData: true });
+}
+setTimeout(_v2InstallStorySfxHook, 1000);
+
+/* 选项点击音效 */
+var _v2OldChoiceClick = window._v2HandleChoice;
+if (typeof _v2HandleChoice === 'function') {
+    window._v2HandleChoice = function(idx) { _v2PlayTypeSfx(2); _v2OldChoiceClick(idx); };
+}
+
+/* ---------- 3. 解锁APP动画 ---------- */
+function _v2PlayUnlockAppAnim(appId, appName) {
+    // 找到dock里对应的app图标，做闪光+跳动动画
+    _v2PlayTypeSfx(3);
+    var dock = document.querySelector('.dock') || document.querySelector('[class*="dock"]');
+    var icon = null;
+    if (dock) {
+        // 简单策略：按appId查找所有button
+        var btns = dock.querySelectorAll('button,[onclick*="goToPage"],[onclick*="openApp"]');
+        for (var i = 0; i < btns.length; i++) {
+            if (btns[i].getAttribute('onclick') && btns[i].getAttribute('onclick').indexOf("'" + appId + "'") !== -1) {
+                icon = btns[i]; break;
+            }
+        }
+    }
+    if (!icon) {
+        // fallback: 用showToast
+        showToast('已解锁: ' + appName);
+        return;
+    }
+    // 加光圈
+    icon.style.transition = 'transform .4s cubic-bezier(.2,.8,.2,1)';
+    icon.style.transform = 'scale(1.25)';
+    icon.style.filter = 'drop-shadow(0 0 12px #A78BFA)';
+    var glow = document.createElement('div');
+    glow.style.cssText = 'position:fixed;pointer-events:none;border-radius:50%;width:80px;height:80px;background:radial-gradient(circle,rgba(167,139,250,0.8),transparent 70%);z-index:9999;';
+    var rect = icon.getBoundingClientRect();
+    glow.style.left = (rect.left + rect.width/2 - 40) + 'px';
+    glow.style.top = (rect.top + rect.height/2 - 40) + 'px';
+    glow.style.transform = 'scale(0.2)';
+    glow.style.transition = 'transform .6s ease-out, opacity .6s';
+    glow.style.opacity = '1';
+    document.body.appendChild(glow);
+    requestAnimationFrame(function() { glow.style.transform = 'scale(2.5)'; glow.style.opacity = '0'; });
+    setTimeout(function(){
+        icon.style.transform = 'scale(1)';
+        icon.style.filter = '';
+        if (glow.parentNode) glow.parentNode.removeChild(glow);
+    }, 800);
+    showToast('解锁了 ' + appName);
+}
+
+/* Hook 解锁过程：在unlockedApps.push之后加动画 */
+var _v2AppNames = {
+    contacts: '通讯录', schedule: '日程', sns: 'SNS', training: '训练',
+    live: '直播', fancommunity: '粉丝社区', ranking: '排行榜',
+    music: '音乐', store: '商店', birthday: '生日'
+};
+var _v2OldPush = Array.prototype.push;
+// 简单监控：在各 unlock 逻辑里手动调用更稳
+// 已在onComplete里通过_V2MarkAppRedDot和showToast显示，这里包装一个统一入口
+function _v2UnlockApp(appId) {
+    if (!gameState.unlockedApps) gameState.unlockedApps = [];
+    if (gameState.unlockedApps.indexOf(appId) === -1) {
+        gameState.unlockedApps.push(appId);
+        _v2PlayUnlockAppAnim(appId, _v2AppNames[appId] || appId);
+    }
+}
+// 把原代码中直接push的地方替换为_v2UnlockApp通过wrap render时检测（为避免改动太多，采用对比法）
+var _v2LastUnlocked = {};
+function _v2CheckUnlockAnims() {
+    if (!gameState.unlockedApps) return;
+    for (var i = 0; i < gameState.unlockedApps.length; i++) {
+        var id = gameState.unlockedApps[i];
+        if (!_v2LastUnlocked[id]) {
+            _v2LastUnlocked[id] = true;
+            _v2PlayUnlockAppAnim(id, _v2AppNames[id] || id);
+        }
+    }
+}
+var _v2RenderAnimHook = render;
+render = function() { _v2RenderAnimHook(); try { setTimeout(_v2CheckUnlockAnims, 500); } catch(e) {} };
+
+/* ---------- 4. NPC日常私聊（每半天随机一条，按好感度触发） ---------- */
+var V2_DAILY_CHATS = {
+    '夏恩': [
+        '练舞了吗？','别熬夜。','今天早点睡。','看到你进步了。',
+        '中午一起吃饭吗？','……少喝咖啡。','你今天跳错那个动作了，自己知道吧。'
+    ],
+    '素雅': [
+        '今天天气真好啊~','我买了草莓，要吃吗？','欧尼/欧巴在干嘛？',
+        '要不要一起看剧？','你今天看起来很累。注意休息呀~','晚上去便利店吗？'
+    ],
+    '智媛': [
+        '欧尼/欧巴！今天加油哦！','kkk好无聊~','我们去吃炒年糕吧！',
+        '刚练完舞，好累啊QAQ','欧尼/欧巴我看到你跳舞了！超帅！','今天天气真好！'
+    ],
+    '俊昊': [
+        '……嗯。','少玩手机。','练习室我留了位置。','……还行。',
+        '你刚才那个动作，节奏再卡准点。','……没什么事。'
+    ],
+    '瑞贤': [
+        '……','（发了一张窗外的照片）','嗯。','别在练习室待到太晚。',
+        '（发了一段自己写的rap demo）……别笑。','便利店的紫菜包饭还不错。'
+    ]
+};
+function _v2NpcRandomChat() {
+    if (!gameState.player || !gameState.player.name) return;
+    var now = new Date();
+    var today = now.toDateString();
+    var halfDay = today + '_' + (now.getHours() < 12 ? 'am' : 'pm');
+    if (gameState._v2LastChatHalf === halfDay) return;
+    gameState._v2LastChatHalf = halfDay;
+    // 选一个好感>20的NPC发消息
+    var pool = [];
+    var npcs = ['夏恩','素雅','智媛','俊昊','瑞贤'];
+    for (var i = 0; i < npcs.length; i++) {
+        var name = npcs[i];
+        var love = (gameState.love && gameState.love[name]) || 0;
+        if (love >= 15) pool.push({ name: name, love: love });
+    }
+    if (!pool.length) return;
+    // 按好感度加权随机
+    var total = 0; for (var j = 0; j < pool.length; j++) total += pool[j].love;
+    var r = Math.random()*total; var chosen = pool[0];
+    for (var k = 0; k < pool.length; k++) { r -= pool[k].love; if (r <= 0) { chosen = pool[k]; break; } }
+    var lines = V2_DAILY_CHATS[chosen.name] || ['……'];
+    var text = lines[Math.floor(Math.random()*lines.length)];
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats[chosen.name]) gameState.kakaoChats[chosen.name] = [];
+    gameState.kakaoChats[chosen.name].push({ from: chosen.name, text: text, time: _v2NowTime(), read: false });
+    _v2MarkAppRedDot('contacts');
+}
+var _v2RenderChatHook = render;
+render = function() { _v2RenderChatHook(); try { setTimeout(_v2NpcRandomChat, 1500); } catch(e) {} };
+
+/* ---------- 5. 过场动画（关键节点：出道/一位/大赏） ---------- */
+function _v2PlayCinematic(moments, callback) {
+    // moments: [{ text, duration, color }]
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#000;z-index:300000;display:flex;align-items:center;justify-content:center;flex-direction:column;';
+    document.body.appendChild(overlay);
+    var idx = 0;
+    function showNext() {
+        if (idx >= moments.length) {
+            overlay.style.transition = 'opacity 1s';
+            overlay.style.opacity = '0';
+            setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); if (callback) callback(); }, 1000);
+            return;
+        }
+        var m = moments[idx++];
+        overlay.innerHTML = '<div style="color:' + (m.color||'#FFF') + ';font-size:' + (m.size||'22') + 'px;font-weight:700;text-align:center;opacity:0;transition:opacity 0.8s;letter-spacing:2px;line-height:1.6;padding:0 30px;text-shadow:0 0 20px ' + (m.color||'#FFF') + '60;">' + (m.text||'') + '</div>';
+        var textDiv = overlay.firstChild;
+        requestAnimationFrame(function() { textDiv.style.opacity = '1'; _v2PlayTypeSfx(3); });
+        setTimeout(function() { textDiv.style.opacity = '0'; setTimeout(showNext, 600); }, m.duration || 2200);
+    }
+    setTimeout(showNext, 300);
+}
+
+/* 绑定关键节点过场 */
+var V2_CINEMATICS = {
+    debut: [
+        { text: '出道日。', color: '#A78BFA', size: '18', duration: 1800 },
+        { text: '聚光灯亮起来的那一刻……', color: '#FFF', size: '16', duration: 2200 },
+        { text: '你站在舞台中央。', color: '#F97316', size: '24', duration: 2500 },
+        { text: '——这就是梦想开始的地方。', color: '#EC4899', size: '18', duration: 2800 }
+    ],
+    first_win: [
+        { text: '一位。', color: '#FFD700', size: '36', duration: 2000 },
+        { text: '……真的是我们？', color: '#FFF', size: '18', duration: 1800 },
+        { text: '成员们哭了。', color: '#FFF', size: '16', duration: 1800 },
+        { text: '谢谢你没有放弃。', color: '#EC4899', size: '20', duration: 3000 }
+    ],
+    daesang: [
+        { text: '大赏。', color: '#FFD700', size: '40', duration: 2500 },
+        { text: '从练习室到这个舞台……', color: '#FFF', size: '16', duration: 2200 },
+        { text: '走了整整三年。', color: '#FFF', size: '16', duration: 2200 },
+        { text: '——我的偶像，我的人生。', color: '#A78BFA', size: '22', duration: 3500 }
+    ]
+};
+function _v2TriggerCinematic(key, callback) {
+    var m = V2_CINEMATICS[key];
+    if (!m) { if (callback) callback(); return; }
+    _v2PlayCinematic(m, callback);
+}
+/* 暴露全局，后续章节剧情节点可调用 */
+window._v2TriggerCinematic = _v2TriggerCinematic;
+
+/* ---------- 6. CG动态生成（Canvas绘制关键剧情插画） ---------- */
+/* 绘制氛围CG：渐变背景 + 剪影 + 光斑 */
+function _v2MakeCG(type) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 800; canvas.height = 1000;
+    var ctx = canvas.getContext('2d');
+    // 渐变背景
+    var grad;
+    if (type === 'interview') {
+        grad = ctx.createLinearGradient(0,0,0,1000);
+        grad.addColorStop(0,'#1a1040'); grad.addColorStop(1,'#0F0C29');
+    } else if (type === 'practice') {
+        grad = ctx.createLinearGradient(0,0,800,1000);
+        grad.addColorStop(0,'#2d1b4e'); grad.addColorStop(1,'#0F0C29');
+    } else if (type === 'stage') {
+        grad = ctx.createRadialGradient(400,400,50,400,500,600);
+        grad.addColorStop(0,'#fceabb'); grad.addColorStop(0.3,'#A78BFA'); grad.addColorStop(1,'#0F0C29');
+    } else if (type === 'conflict') {
+        grad = ctx.createLinearGradient(0,0,800,1000);
+        grad.addColorStop(0,'#4a1942'); grad.addColorStop(1,'#1a0a20');
+    } else {
+        grad = ctx.createLinearGradient(0,0,0,1000);
+        grad.addColorStop(0,'#2a1b4e'); grad.addColorStop(1,'#0F0C29');
+    }
+    ctx.fillStyle = grad; ctx.fillRect(0,0,800,1000);
+    // 光斑
+    for (var s = 0; s < 30; s++) {
+        var x = Math.random()*800, y = Math.random()*1000, r = 2 + Math.random()*6;
+        var a = 0.05 + Math.random()*0.2;
+        ctx.fillStyle = 'rgba(255,255,255,' + a + ')';
+        ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+    }
+    // 人物剪影（简单抽象）
+    if (type === 'stage') {
+        // 舞台中央人物剪影
+        ctx.fillStyle = 'rgba(0,0,0,0.6)';
+        ctx.beginPath();
+        ctx.ellipse(400, 700, 80, 180, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(400, 500, 55, 0, Math.PI*2);
+        ctx.fill();
+        // 聚光灯
+        ctx.fillStyle = 'rgba(255,215,0,0.08)';
+        ctx.beginPath();
+        ctx.moveTo(400,0); ctx.lineTo(200,1000); ctx.lineTo(600,1000); ctx.closePath(); ctx.fill();
+    } else if (type === 'interview') {
+        // 窗影
+        ctx.fillStyle = 'rgba(167,139,250,0.1)';
+        ctx.fillRect(0,0,800,1000);
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(100, 400, 120, 400); // 人物A
+        ctx.fillRect(580, 450, 100, 350); // 人物B
+    } else if (type === 'conflict') {
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.beginPath(); ctx.ellipse(250, 700, 70, 160, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(250, 520, 48, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(236,72,153,0.3)';
+        ctx.beginPath(); ctx.arc(250, 520, 80, 0, Math.PI*2); ctx.fill();
+    } else {
+        // 练习室剪影
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.beginPath(); ctx.ellipse(400, 750, 100, 180, 0, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(400, 560, 55, 0, Math.PI*2); ctx.fill();
+        // 镜子反光
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 2;
+        ctx.strokeRect(50,50,700,400);
+    }
+    return canvas.toDataURL('image/jpeg', 0.7);
+}
+window._v2MakeCG = _v2MakeCG;
+
+/* 给对话播放器加入CG支持：scene.type === 'cg' 时显示cg图片 */
+var _v2OldRenderSD = _v2RenderStoryDialog;
+/* _v2RenderStoryDialog 在新版本里是内部函数，我们通过wrap scene.type 处理。
+   直接添加 cg scene 支持到全局逻辑：在 _v2RenderStoryDialog 外无法轻易注入，
+   改为在显示atmosphere式全屏场景时，允许scene.cg字段作为背景 */
+
+/* ---------- 7. 角色专属表情包（SVG小贴纸） ---------- */
+var V2_EMOJI_PACK = {
+    '夏恩': ['💜','😐','😏','🖤','🙄','💪'],
+    '素雅': ['🌸','😊','🍓','💕','✨','🥰'],
+    '智媛': ['⭐','😆','🍰','🎉','💖','🥺'],
+    '俊昊': ['⚡','😒','💢','🎧','🔥','🖤'],
+    '瑞贤': ['🌙','😎','🎤','💿','🖤','🥤']
+};
+/* 在NPC对话/消息中随机替换或追加表情 */
+function _v2AddEmoji(sender, text, rate) {
+    rate = rate || 0.4;
+    if (Math.random() > rate) return text;
+    var pack = V2_EMOJI_PACK[sender];
+    if (!pack) return text;
+    var e = pack[Math.floor(Math.random()*pack.length)];
+    // 70% 概率贴末尾
+    if (Math.random() < 0.7) return text + ' ' + e;
+    return e + ' ' + text;
+}
+/* 在Kakao消息append时使用（不破坏原数据，在渲染时加）*/
+var _v2OldChatRender;
+if (typeof renderKakaoChat === 'function') {
+    _v2OldChatRender = renderKakaoChat;
+    renderKakaoChat = function() {
+        _v2OldChatRender();
+        // 给NPC消息追加emoji（仅视觉，不改数据）
+        var bubbles = document.querySelectorAll('.kakao-bubble-from, .msg-bubble-from, .chat-msg-from');
+        bubbles.forEach(function(b) {
+            if (b._v2Emojied) return;
+            var txt = b.textContent;
+            // 只对短消息加
+            if (txt.length < 20 && Math.random() < 0.5) {
+                var sender = b.getAttribute('data-from') || '';
+                if (V2_EMOJI_PACK[sender]) {
+                    var pack = V2_EMOJI_PACK[sender];
+                    b.textContent = txt + ' ' + pack[Math.floor(Math.random()*pack.length)];
+                }
+            }
+            b._v2Emojied = true;
+        });
+    };
+}
+
+/* ---------- 8. 称呼自定义 ---------- */
+function _v2GetNpcCall(npcName) {
+    if (!gameState.nicknames) gameState.nicknames = {};
+    if (gameState.nicknames[npcName]) return gameState.nicknames[npcName];
+    var gender = (gameState.player && gameState.player.gender === 'M') ? '欧巴' : '欧尼';
+    return gender;
+}
+function _v2SetNickname(npcName, nick) {
+    if (!gameState.nicknames) gameState.nicknames = {};
+    gameState.nicknames[npcName] = nick;
+}
+function _v2RenderNicknamePage() {
+    var npcs = ['夏恩','素雅','智媛','俊昊','瑞贤'];
+    var h = '<div style="padding:4px 0 16px 0;">'
+        + '<div style="font-size:12px;color:#888;margin-bottom:12px;">设置NPC对你的称呼，让NPC喊你独特的名字</div>';
+    for (var i = 0; i < npcs.length; i++) {
+        var n = npcs[i];
+        var cur = _v2GetNpcCall(n);
+        h += '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.04);border-radius:10px;margin-bottom:8px;">'
+            + '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#A78BFA,#EC4899);display:flex;align-items:center;justify-content:center;font-weight:700;color:#FFF;font-size:14px;">' + n.charAt(0) + '</div>'
+            + '<div style="flex:1;">'
+            + '<div style="font-weight:600;color:#FFF;font-size:14px;">' + n + '</div>'
+            + '<div style="font-size:11px;color:#888;margin-top:2px;">当前称呼：<span style="color:#A78BFA;">' + cur + '</span></div>'
+            + '</div>'
+            + '<button onclick="_v2PromptNick(\'' + n + '\')" style="padding:6px 12px;background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);color:#A78BFA;border-radius:8px;font-size:12px;">修改</button>'
+            + '</div>';
+    }
+    h += '</div>';
+    return h;
+}
+function _v2PromptNick(npcName) {
+    var cur = _v2GetNpcCall(npcName);
+    var val = prompt(npcName + ' 应该怎么称呼你？', cur);
+    if (val && val.trim() && val.length <= 10) {
+        _v2SetNickname(npcName, val.trim());
+        showToast(npcName + ' 以后会叫你「' + val.trim() + '」');
+        closeModal();
+        showModal('称呼设置', _v2RenderNicknamePage());
+    }
+}
+/* 在"我的"页追加"称呼设置"入口 */
+var _v2OrigRenderMyPage = render我的Page;
+render我的Page = function(container) {
+    _v2OrigRenderMyPage(container);
+    var entries = container.querySelectorAll('.card[onclick*="_showSubPage"]');
+    var relationshipEntry = null;
+    for (var i = 0; i < entries.length; i++) {
+        if (entries[i].getAttribute('onclick').indexOf("'relationship'") !== -1) {
+            relationshipEntry = entries[i]; break;
+        }
+    }
+    if (!relationshipEntry || relationshipEntry._v2NickAdded) return;
+    relationshipEntry._v2NickAdded = true;
+    var nickCard = document.createElement('div');
+    nickCard.className = 'card';
+    nickCard.style.cssText = 'cursor:pointer;display:flex;align-items:center;justify-content:space-between;';
+    nickCard.setAttribute('onclick', "_showNicknameSettings()");
+    nickCard.innerHTML = '<div><div style="font-weight:600;">称呼设置</div><div style="font-size:12px;color:var(--color-text-light);">让NPC叫你特别的名字</div></div>'
+        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-light)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+    relationshipEntry.parentNode.insertBefore(nickCard, relationshipEntry.nextSibling);
+};
+window._showNicknameSettings = function() { showModal('称呼设置', _v2RenderNicknamePage()); };
+
+/* 在对话文本里把"欧尼/欧巴"替换成NPC对玩家的称呼 */
+function _v2ApplyNicknames(text) {
+    if (!text) return text;
+    return text.replace(/欧尼\/欧巴/g, function() { return _v2GetNpcCall('system') !== '欧尼/欧巴' ? _v2GetNpcCall('system') : ((gameState.player && gameState.player.gender === 'M') ? '欧巴' : '欧尼'); });
+}
+/* 为每个NPC分别记住称呼。这里简化：所有NPC共用玩家对自己的称呼选择（全局设定）。若想细分可扩展。*/
+/* 注入到对话框文本显示 */
+/* ---- 启动时应用所有 ---- */
+(function(){
+    // 确保_v2RenderStoryDialog使用_v2ApplyNicknames
+})();
+/* ================================================================
+ * V2.0 全量冲刺第三弹：钩子修复 + BGM合成 + 对话CG
+ * ================================================================ */
+
+/* ---------- 打字机音效：直接在_v2TypeWriter里注入，不用MutationObserver ---------- */
+var _v2OldTypeWriter = _v2TypeWriter;
+_v2TypeWriter = function(elementId, text, speed, callback) {
+    // 包装callback加一次sfx
+    var wrappedCb = function() {
+        // 文字打完一长句后播放轻微落音
+        _v2PlayTypeSfx(3);
+        if (callback) callback();
+    };
+    var el = document.getElementById(elementId);
+    if (!el) { if (wrappedCb) wrappedCb(); return; }
+    el.textContent = '';
+    if (el._v2twInterval) { clearInterval(el._v2twInterval); }
+    var idx = 0;
+    var tick = 0;
+    function step() {
+        if (idx < text.length) {
+            var ch = text.charAt(idx);
+            el.textContent += ch;
+            tick++;
+            if (tick % 2 === 0 && ch !== ' ' && ch !== '\n') _v2PlayTypeSfx(1);
+            if (ch === '，' || ch === '。' || ch === '！' || ch === '？' || ch === '…') {
+                _v2PlayTypeSfx(4);
+                clearInterval(el._v2twInterval);
+                el._v2twInterval = setInterval(function() {
+                    idx++;
+                    if (idx < text.length) {
+                        var c2 = text.charAt(idx);
+                        el.textContent += c2;
+                        tick++;
+                        if (tick % 3 === 0 && c2 !== ' ' && c2 !== '\n') _v2PlayTypeSfx(1);
+                    } else {
+                        clearInterval(el._v2twInterval);
+                        wrappedCb();
+                    }
+                }, speed > 80 ? speed : 120);
+                return;
+            }
+            idx++;
+        } else {
+            clearInterval(el._v2twInterval);
+            wrappedCb();
+        }
+    }
+    el._v2twInterval = setInterval(step, speed || 80);
+    el.onclick = function() {
+        clearInterval(el._v2twInterval);
+        el.textContent = text;
+        el.onclick = null;
+        wrappedCb();
+    };
+};
+
+/* ---------- 对话文本昵称替换 ---------- */
+var _v2OldShowStoryNode = _v2ShowStoryNode;
+_v2ShowStoryNode = function(nodeId) {
+    // 把scenes里的text中的"欧尼/欧巴"替换为实际称呼
+    var node = V2_STORY_NODES[nodeId];
+    if (node && node.scenes) {
+        if (!node._v2nickApplied) {
+            var callWord = _v2GetNpcCall('system');
+            if (!callWord || callWord === '欧尼/欧巴') callWord = (gameState.player && gameState.player.gender === 'M') ? '欧巴' : '欧尼';
+            for (var i = 0; i < node.scenes.length; i++) {
+                var s = node.scenes[i];
+                if (s.text) s.text = s.text.replace(/欧尼\/欧巴/g, callWord);
+                if (s.speaker && s.speaker.indexOf('欧尼/欧巴') !== -1) s.speaker = s.speaker.replace(/欧尼\/欧巴/g, callWord);
+            }
+            node._v2nickApplied = true;
+        }
+    }
+    _v2OldShowStoryNode(nodeId);
+};
+
+/* Kakao消息中的"欧尼/欧巴"也替换 */
+var _v2OldFormatTime; // 不hook，简单在显示时处理：wrap render Kakao
+var _v2OldRenderKakao;
+if (typeof renderKakaoTalk === 'function') {
+    _v2OldRenderKakao = renderKakaoTalk;
+    renderKakaoTalk = function() {
+        var callWord = _v2GetNpcCall('system');
+        if (!callWord || callWord === '欧尼/欧巴') callWord = (gameState.player && gameState.player.gender === 'M') ? '欧巴' : '欧尼';
+        if (gameState.kakaoChats) {
+            var keys = Object.keys(gameState.kakaoChats);
+            for (var k = 0; k < keys.length; k++) {
+                var arr = gameState.kakaoChats[keys[k]];
+                for (var m = 0; m < arr.length; m++) {
+                    if (arr[m].from !== '你' && arr[m]._v2nickText !== arr[m].text) {
+                        // 不破坏原始：加displayText
+                        if (arr[m].text.indexOf('欧尼/欧巴') !== -1) {
+                            arr[m]._v2nickText = arr[m].text;
+                            arr[m].text = arr[m].text.replace(/欧尼\/欧巴/g, callWord);
+                        } else {
+                            arr[m]._v2nickText = arr[m].text;
+                        }
+                    }
+                }
+            }
+        }
+        _v2OldRenderKakao();
+    };
+}
+
+/* ---------- BGM：WebAudio 合成轻量背景音乐（不依赖文件） ---------- */
+(function() {
+    if (typeof BGMManager === 'undefined' || !BGMManager.playlists) {
+        BGMManager = BGMManager || {};
+        BGMManager.playlists = {};
+        BGMManager.currentAudio = null;
+        BGMManager.volume = gameState.bgmVolume || 0.6;
+    }
+    // 原playlists是URL，我们接管为"虚拟音轨"
+    var _v2BgmLoops = {};
+    var _v2BgmNodes = {};
+    var _v2Ctx = null;
+    function _bgmCtx() {
+        if (_v2Ctx) return _v2Ctx;
+        try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) _v2Ctx = new AC(); } catch(e) {}
+        return _v2Ctx;
+    }
+    // 每首BGM：一组音符/节奏
+    var V2_BGM_SCORES = {
+        company: { // 公司：安静、白噪音+低频钢琴
+            tempo: 1000, type: 'sine',
+            notes: [ [523,0.5],[0,0.5],[659,0.5],[0,1],[784,0.5],[0,0.5],[659,0.5],[0,1],
+                     [698,0.5],[0,0.5],[659,0.5],[0,1],[587,0.5],[0,0.5],[523,1],[0,2] ]
+        },
+        dorm: { // 宿舍：温暖和弦
+            tempo: 900, type: 'triangle',
+            notes: [ [392,0.8],[0,0.4],[494,0.8],[0,0.4],[587,0.8],[0,0.4],[494,0.8],[0,0.4],
+                     [440,0.8],[0,0.4],[523,0.8],[0,0.4],[659,0.8],[0,0.4],[523,1.6],[0,1] ]
+        },
+        practice: { // 练习室：节奏感
+            tempo: 300, type: 'square',
+            notes: [ [0,0.3],[196,0.1],[0,0.1],[196,0.1],[0,0.4],[294,0.1],[0,0.1],[294,0.1],
+                     [0,0.3],[196,0.1],[0,0.1],[196,0.1],[0,0.4],[330,0.1],[0,0.1],[330,0.1] ]
+        },
+        stage: { // 舞台：激昂
+            tempo: 400, type: 'sawtooth',
+            notes: [ [440,0.2],[523,0.2],[659,0.2],[880,0.4],[0,0.2],[659,0.2],[523,0.2],[440,0.4],
+                     [494,0.2],[587,0.2],[740,0.2],[988,0.4],[0,0.2],[740,0.2],[587,0.2],[494,0.4] ]
+        }
+    };
+    function _stopBgm() {
+        if (_v2BgmNodes.interval) { clearInterval(_v2BgmNodes.interval); _v2BgmNodes.interval = null; }
+        if (_v2BgmNodes.gain) {
+            try { _v2BgmNodes.gain.gain.cancelScheduledValues(0); _v2BgmNodes.gain.gain.setValueAtTime(0, _bgmCtx().currentTime); } catch(e) {}
+        }
+    }
+    function _playBgm(name) {
+        var score = V2_BGM_SCORES[name];
+        if (!score) return;
+        _stopBgm();
+        var ctx = _bgmCtx();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') { try { ctx.resume(); } catch(e) {} }
+        var gain = ctx.createGain();
+        gain.gain.value = (BGMManager.volume || 0.6) * 0.08;
+        gain.connect(ctx.destination);
+        _v2BgmNodes.gain = gain;
+        var idx = 0;
+        function tick() {
+            var n = score.notes[idx % score.notes.length];
+            idx++;
+            if (n[0] > 0) {
+                var o = ctx.createOscillator();
+                var g = ctx.createGain();
+                o.type = score.type; o.frequency.value = n[0];
+                o.connect(g); g.connect(gain);
+                var vol = (BGMManager.volume || 0.6) * 0.08;
+                g.gain.setValueAtTime(0, ctx.currentTime);
+                g.gain.linearRampToValueAtTime(vol, ctx.currentTime + 0.05);
+                g.gain.linearRampToValueAtTime(0, ctx.currentTime + n[1]*score.tempo/1000 - 0.05);
+                o.start();
+                o.stop(ctx.currentTime + n[1]*score.tempo/1000);
+            }
+        }
+        tick();
+        _v2BgmNodes.interval = setInterval(tick, score.tempo);
+    }
+    // 覆盖BGMManager.play
+    BGMManager.play = function(name) {
+        if (_v2BgmNodes.current === name) return;
+        _v2BgmNodes.current = name;
+        _playBgm(name);
+    };
+    BGMManager.stop = function() { _stopBgm(); _v2BgmNodes.current = null; };
+    BGMManager.setVolume = function(v) {
+        BGMManager.volume = v;
+        if (_v2BgmNodes.gain) {
+            try { _v2BgmNodes.gain.gain.setValueAtTime(v * 0.08, _bgmCtx().currentTime); } catch(e) {}
+        }
+    };
+})();
+
+/* ---------- 对话播放器支持CG类型场景 ---------- */
+/* 通过扩展 _v2RenderStoryDialog，在scene.type==='cg'时绘制Canvas CG */
+var _v2OldRsd = _v2RenderStoryDialog;
+_v2RenderStoryDialog = function() {
+    var st = _v2StoryState;
+    if (st) {
+        // 找到当前scene（与原函数逻辑一致）
+        var scene = null;
+        while (st.idx < st.scenes.length) {
+            var s = st.scenes[st.idx];
+            if (s.key) {
+                if (s.key === st.currentKey) { scene = s; st.idx++; break; }
+                else { st.idx++; continue; }
+            } else { scene = s; st.idx++; break; }
+        }
+        if (scene && scene.type === 'cg') {
+            // 自己渲染CG场景，不走原逻辑
+            var cgType = scene.cg || 'practice';
+            var dataUrl = _v2MakeCG(cgType);
+            _v2CloseStoryDialog();
+            var wrap = document.createElement('div');
+            wrap.id = 'v2-story-wrapper';
+            wrap.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;';
+            wrap.onclick = function() { _v2StoryAdvance(); };
+            wrap.innerHTML = '<img src="' + dataUrl + '" style="max-width:90%;max-height:70vh;object-fit:contain;border-radius:12px;box-shadow:0 0 60px rgba(167,139,250,0.4);animation:v2Breath 3s ease-in-out infinite;">'
+                + (scene.text ? '<div style="margin:20px 20px 0;color:#FFF;font-size:15px;text-align:center;line-height:1.8;max-width:600px;text-shadow:0 2px 10px rgba(0,0,0,0.8);">' + scene.text + '</div>' : '')
+                + '<div style="position:absolute;bottom:30px;right:30px;font-size:11px;color:rgba(255,255,255,0.4);">点击继续</div>';
+            document.body.appendChild(wrap);
+            _v2PlayTypeSfx(3);
+            return;
+        }
+    }
+    _v2OldRsd();
+};
+
+/* ---------- 章节结算加过场感 ---------- */
+var _v2OldSettlement = _v2ShowChapterSettlement;
+_v2ShowChapterSettlement = function(ch) {
+    _v2PlayTypeSfx(3);
+    _v2OldSettlement(ch);
+};
+
+/* ---------- 第一次渲染时触发BGM（延迟，等待用户交互以解锁AudioContext） ---------- */
+document.addEventListener('click', function _v2FirstClick() {
+    var ctx = _v2GetAudio ? _v2GetAudio() : null;
+    if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch(e) {} }
+    document.removeEventListener('click', _v2FirstClick);
+}, { once: true });
+document.addEventListener('touchstart', function _v2FirstTouch() {
+    var ctx = _v2GetAudio ? _v2GetAudio() : null;
+    if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch(e) {} }
+    document.removeEventListener('touchstart', _v2FirstTouch);
+}, { once: true });
