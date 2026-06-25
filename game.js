@@ -1592,6 +1592,12 @@ function renderScenePage(container) {
     var scene = SCENES[sceneId];
     if (!scene) { sceneId = _getHomeScene(); scene = SCENES[sceneId]; }
     if (!scene) { renderHomePage(container); return; }
+    if (typeof BGMManager !== 'undefined') {
+        if (sceneId.indexOf('practice') !== -1 || sceneId.indexOf('train') !== -1) BGMManager.play('practice');
+        else if (sceneId.indexOf('company') !== -1 || sceneId.indexOf('office') !== -1) BGMManager.play('company');
+        else if (sceneId.indexOf('dorm') !== -1) BGMManager.play('dorm');
+        else if (sceneId.indexOf('stage') !== -1 || sceneId.indexOf('concert') !== -1) BGMManager.play('stage');
+    }
 
     var locationName = scene.name;
     if (scene.floor) locationName = scene.floor + 'F ' + scene.name;
