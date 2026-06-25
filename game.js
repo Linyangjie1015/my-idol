@@ -15055,10 +15055,67 @@ function _getChapterProgressHtml(appId) {
     return '<div style="background:#1E293B;border-radius:8px;padding:10px 14px;margin:12px 0;"><div style="font-size:12px;color:#94A3B8;margin-bottom:6px;">' + _cp.label + '</div><div style="background:#334155;border-radius:4px;height:6px;"><div style="background:#64748B;border-radius:4px;height:6px;width:' + pct + '%;"></div></div></div>';
 }
 
+
+// V2.0 Feature #7: Get the APP that the current pending chapter step requires
+function _getChapterPendingApp() {
+    var cs = gameState.chapterState;
+    if (!cs || cs.currentChapter === 0) return null;
+    var chapter = CHAPTER_CONFIG[cs.currentChapter];
+    if (!chapter) return null;
+    var stepKey = cs.currentChapter + '.' + cs.currentStep;
+    var stepConfig = chapter.steps[stepKey];
+    if (!stepConfig) return null;
+    var isCompleted = false;
+    for (var i = 0; i < cs.completedSteps.length; i++) {
+        if (cs.completedSteps[i] === stepKey) { isCompleted = true; break; }
+    }
+    if (isCompleted) return null;
+    return stepConfig.app || stepConfig.unlockApp || null;
+}
+
+
+// V2.0 Feature #8: Get chapter progress for a specific stat (for training page display)
+function _getChapterStatProgress(statKey) {
+    var cs = gameState.chapterState;
+    if (!cs || cs.currentChapter === 0) return null;
+    var chapter = CHAPTER_CONFIG[cs.currentChapter];
+    if (!chapter) return null;
+    // Find the first uncompleted step that has this stat as condition
+    for (var sk in chapter.steps) {
+        var step = chapter.steps[sk];
+        var isCompleted = false;
+        for (var j = 0; j < cs.completedSteps.length; j++) {
+            if (cs.completedSteps[j] === sk) { isCompleted = true; break; }
+        }
+        if (!isCompleted && step.condition === statKey) {
+            var current = _getChapterConditionValue(statKey);
+            return { current: current, target: step.target, label: step.label || (statKey + ' ' + current + '/' + step.target) };
+        }
+    }
+    return null;
+}
+
 function hasChapterRedDot(appId) {
     var cs = gameState.chapterState;
     if (!cs) return false;
-    return cs.unlockedApps.indexOf(appId) !== -1 && cs.readApps.indexOf(appId) === -1;
+    // V2.0 Feature #7/#12: Red dot for unlocked but unread APPs
+    if (cs.unlockedApps.indexOf(appId) !== -1 && cs.readApps.indexOf(appId) === -1) return true;
+    // V2.0 Feature #7: Red dot for pending steps that need this APP
+    if (cs.currentChapter > 0) {
+        var chapter = CHAPTER_CONFIG[cs.currentChapter];
+        if (chapter) {
+            var stepKey = cs.currentChapter + '.' + cs.currentStep;
+            var stepConfig = chapter.steps[stepKey];
+            if (stepConfig) {
+                var isCompleted = false;
+                for (var ci = 0; ci < cs.completedSteps.length; ci++) {
+                    if (cs.completedSteps[ci] === stepKey) { isCompleted = true; break; }
+                }
+                if (!isCompleted && stepConfig.app === appId) return true;
+            }
+        }
+    }
+    return false;
 }
 
 function markAppRead(appId) {
