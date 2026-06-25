@@ -1627,7 +1627,7 @@ function renderScenePage(container) {
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(\'' + scene.img + '\');background-size:cover;background-position:center;"></div>'
         + '<div class="scene-day">\u7b2c' + dayInfo.day + '\u5929 ' + dayInfo.weekDay + '</div>'
         + '<div class="scene-loc">' + locationName + '</div>'
-        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
+        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + (typeof _v2GetSceneNpcHtml==='function'?_v2GetSceneNpcHtml(sceneId):'') + '</div>'
         + '<div style="position:absolute;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:14px;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius: 12px;padding:6px 16px;">' + '<div onclick="_exitSceneToUI()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>手机</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>导航</div>' + '<div onclick="goToPage(&#39;me&#39;)" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>我的</div>' + '</div>'
         + '</div>'
 }
@@ -1646,7 +1646,7 @@ function render训练Page(container) {
     container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">训练</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" style="text-align: center; background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;">\n                    <div style="font-size: 12px; opacity: 0.8;">当前体力</div>\n                    <div style="font-size: 28px; font-weight: 700;">' + (gameState.体力) + ' / ' + (gameState.max体力) + '</div>\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">能力值</div>\n                <div class="card">\n                    ' + (Object.entries(gameState.stats).map(function(entry) { var key = entry[0]; var val = entry[1];
                         var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
                         return '\n                            <div class="my-stat-bar">\n                                <span class="my-stat-label">' + (names[key]) + '</span>\n                                <div class="my-stat-track">\n                                    <div class="my-stat-fill ' + (key) + '" style="width: ' + (Math.min(100, (val / 150) * 100)) + '%;"></div>\n                                </div>\n                                <span class="my-stat-val">' + (val) + '</span>\n                            </div>\n                        ';
-                    }).join('')) + '\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">选择训练项目</div>\n                ' + (trainOptions.map(function(opt) { return '\n                    <div class="card" onclick="do训练项目(\'' + (opt.stat) + '\', ' + (opt.cost) + ', ' + (opt.moneyCost) + ', \'' + (opt.name) + '\')">\n                        <div style="display: flex; justify-content: space-between; align-items: center;">\n                            <div>\n                                <div style="font-weight: 600;">' + (opt.name) + '</div>\n                                <div style="font-size: 12px; color: var(--color-text-light);">体力 -' + (opt.cost) + ' | 金币 -' + (opt.moneyCost.toLocaleString()) + '</div>\n                            </div>\n                        </div>\n                    </div>\n                '}).join('')) + '\n                <div style="margin-top: 16px;">\n                    <button class="btn btn-outline btn-lg" onclick="goToPage(\'exam\')" style="width:100%;">去考核</button>\n                </div>\n                <div class="section-title" style="margin-top: 16px;">体力恢复</div>\n                <div class="card" id="restBtnCard" onclick="startRestRecovery()" style="text-align:center;cursor:pointer;">\n                    <div style="font-weight:600;">Rest 30s</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">30秒不可操作，体力恢复至200</div>\n                </div>\n            </div>\n        </div>\n    ';
+                    }).join('')) + '\n                </div>\n                \n                <div id="v2-train-thresholds"></div>\n                <div class="section-title" style="margin-top: 16px;">选择训练项目</div>\n                ' + (trainOptions.map(function(opt) { return '\n                    <div class="card" onclick="do训练项目(\'' + (opt.stat) + '\', ' + (opt.cost) + ', ' + (opt.moneyCost) + ', \'' + (opt.name) + '\')">\n                        <div style="display: flex; justify-content: space-between; align-items: center;">\n                            <div>\n                                <div style="font-weight: 600;">' + (opt.name) + '</div>\n                                <div style="font-size: 12px; color: var(--color-text-light);">体力 -' + (opt.cost) + ' | 金币 -' + (opt.moneyCost.toLocaleString()) + '</div>\n                            </div>\n                        </div>\n                    </div>\n                '}).join('')) + '\n                <div style="margin-top: 16px;">\n                    <button class="btn btn-outline btn-lg" onclick="goToPage(\'exam\')" style="width:100%;">去考核</button>\n                </div>\n                <div class="section-title" style="margin-top: 16px;">体力恢复</div>\n                <div class="card" id="restBtnCard" onclick="startRestRecovery()" style="text-align:center;cursor:pointer;">\n                    <div style="font-weight:600;">Rest 30s</div>\n                    <div style="font-size:12px;color:var(--color-text-light);">30秒不可操作，体力恢复至200</div>\n                </div>\n            </div>\n        </div>\n    ';
     var _tEl = container.querySelector('.page-content'); if (_tEl) _tEl.innerHTML += getAppLinkHtml('training');
 }
 
@@ -1684,6 +1684,7 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]); _trackWeeklyGoal('train', 1);
     render();
+    if (typeof _v2TriggerNpcResponse === 'function') _v2TriggerNpcResponse('training');
 }
 
 function startRestRecovery() {
@@ -4781,9 +4782,8 @@ function renderStorePage(container) {
 
     // Tab bar SVG icons
     var foodIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>';
-    var deliveryIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>';
     var giftIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5" rx="1"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>';
-    var tabIcons = { food: foodIcon, delivery: deliveryIcon, gift: giftIcon };
+    var tabIcons = { food: foodIcon, gift: giftIcon };
 
     var tabsHtml = '<div style="position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--bg-card);border-top:1px solid var(--color-border);display:flex;z-index:100;">';
     for (var ti = 0; ti < tabs.length; ti++) {
@@ -4801,8 +4801,6 @@ function renderStorePage(container) {
     var contentHtml = '';
     if (currentTab === 'food') {
         contentHtml = _renderStoreFoodTab();
-    } else if (currentTab === 'delivery') {
-        contentHtml = _renderStoreDeliveryTab();
     } else if (currentTab === 'gift') {
         contentHtml = _renderStoreGiftTab();
     }
@@ -4874,60 +4872,6 @@ function _renderStoreFoodTab() {
     return html;
 }
 
-function _renderStoreDeliveryTab() {
-    var deliveryItems = [
-        { name: '\u57fa\u7840\u62a4\u80a4\u5957\u88c5', price: 15000, lifeVal: 3, looksVal: 0, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
-        { name: '\u7cbe\u534e\u6db2', price: 25000, lifeVal: 5, looksVal: 0, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
-        { name: '\u9762\u819c\u5957\u88c5', price: 12000, lifeVal: 2, looksVal: 0, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
-        { name: '\u9632\u6652\u971c', price: 8000, lifeVal: 1, looksVal: 0, category: '\u62a4\u80a4', effect: '\u989c\u503c' },
-        { name: '\u5316\u5986\u54c1\u5957\u88c5', price: 20000, looksVal: 0, category: '\u5316\u5986\u54c1', effect: '\u989c\u503c' },
-        { name: '\u53e3\u7ea2\u793c\u76d2', price: 18000, looksVal: 0, category: '\u5316\u5986\u54c1', effect: '\u989c\u503c' },
-        { name: '\u6c14\u57ab\u7c89\u5e95', price: 16000, looksVal: 0, category: '\u5316\u5986\u54c1', effect: '\u989c\u503c' },
-        { name: '\u7ec3\u4e60\u670d', price: 10000, looksVal: 0, category: '\u8863\u670d', effect: '\u989c\u503c' },
-        { name: '\u821e\u53f0\u670d\u88c5', price: 35000, looksVal: 0, category: '\u8863\u670d', effect: '\u989c\u503c' },
-        { name: '\u65e5\u5e38\u7a7f\u642d', price: 15000, looksVal: 0, category: '\u8863\u670d', effect: '\u989c\u503c' },
-        { name: '\u54c1\u724c\u8054\u540d\u6b3e', price: 50000, looksVal: 0, category: '\u8863\u670d', effect: '\u989c\u503c' },
-        { name: '\u7c89\u4e1d\u4fe1\u4ef6\u5408\u96c6', price: 5000, fameVal: 5, category: '\u7c89\u4e1d\u793c\u7269', effect: '\u540d\u6c14' },
-        { name: '\u7c89\u4e1d\u5e94\u63f4\u68d2', price: 8000, fameVal: 8, category: '\u7c89\u4e1d\u793c\u7269', effect: '\u540d\u6c14' },
-        { name: '\u7c89\u4e1d\u624b\u5de5\u793c\u7269', price: 12000, fameVal: 12, category: '\u7c89\u4e1d\u793c\u7269', effect: '\u540d\u6c14' },
-        { name: '\u9690\u79c1\u4fdd\u62a4\u5957\u88c5', price: 20000, dangerVal: -15, category: '\u79c1\u751f\u9632\u62a4', effect: '\u5371\u9669' },
-        { name: '\u9632\u8ddf\u8e2a\u5668', price: 30000, dangerVal: -20, category: '\u79c1\u751f\u9632\u62a4', effect: '\u5371\u9669' },
-        { name: '\u5b89\u5168\u8b66\u62a5\u5668', price: 15000, dangerVal: -10, category: '\u79c1\u751f\u9632\u62a4', effect: '\u5371\u9669' },
-        { name: '\u611f\u5192\u836f', price: 5000, lifeVal: 15, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
-        { name: '\u8425\u517b\u8865\u5145\u5242', price: 10000, lifeVal: 25, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
-        { name: '\u6b62\u75db\u8d34', price: 8000, lifeVal: 12, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
-        { name: '\u6025\u6551\u5305', price: 15000, lifeVal: 35, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' },
-        { name: '\u7ef4\u751f\u7d20\u5957\u88c5', price: 12000, lifeVal: 20, category: '\u533b\u836f\u54c1', effect: '\u751f\u547d' }
-    ];
-    var delCats = ['\u62a4\u80a4', '\u5316\u5986\u54c1', '\u8863\u670d', '\u7c89\u4e1d\u793c\u7269', '\u79c1\u751f\u9632\u62a4', '\u533b\u836f\u54c1'];
-    var html = '<div class="card" style="text-align:center;background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:white;">'
-        + '<div style="font-size:12px;opacity:0.8;">\u4f59\u989d</div>'
-        + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
-        + '</div>';
-    for (var dci = 0; dci < delCats.length; dci++) {
-        var delCat = delCats[dci];
-        html += '<div class="section-title">' + delCat + '</div>';
-        for (var dii = 0; dii < deliveryItems.length; dii++) {
-            var item = deliveryItems[dii];
-            if (item.category !== delCat) continue;
-            var effectText = '';
-            if (item.effect === '\u751f\u547d') effectText = '+' + item.lifeVal + ' \u751f\u547d';
-            else if (item.effect === '\u989c\u503c') effectText = '+' + (item.looksVal || 0) + ' \u989c\u503c';
-            else if (item.effect === '\u540d\u6c14') effectText = '+' + item.fameVal + ' \u540d\u6c14';
-            else if (item.effect === '\u5371\u9669') effectText = '-' + Math.abs(item.dangerVal) + ' \u5371\u9669\u503c';
-            var itemVal = item.looksVal || item.lifeVal || item.fameVal || Math.abs(item.dangerVal || 0);
-            html += '<div class="card" data-name="' + item.name + '" data-price="' + item.price + '" data-val="' + itemVal + '" data-effect="' + item.effect + '" onclick="order\u5feb\u9012\u670d\u52a1(this.dataset.name,Number(this.dataset.price),Number(this.dataset.val),this.dataset.effect)">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-                + '<div>'
-                + '<div style="font-weight:600;">' + item.name + '</div>'
-                + '<div style="font-size:12px;color:var(--color-success);">' + effectText + '</div>'
-                + '</div>'
-                + '<div style="font-weight:600;color:var(--color-primary);">' + (item.price || 0).toLocaleString() + '</div>'
-                + '</div></div>';
-        }
-    }
-    return html;
-}
 
 function _renderStoreGiftTab() {
     var gifts = [
@@ -5228,6 +5172,7 @@ function joinSchedule(index) {
         gainMsg = '\n+' + fameGain + ' 名气\n+' + influenceGain + ' 影响力';
     }
     item._completed = true;
+    gameState.scheduleDoneCount = (gameState.scheduleDoneCount || 0) + 1;
     triggerSilentSave();
     showModal('参加完成', item.name + '\n-' + 体力cost + ' 体力' + gainMsg);
     render();
@@ -6973,6 +6918,8 @@ function postToIns() {
                 var likes = Math.floor(Math.random() * 200) + 50;
                 if (!gameState.insPosts) gameState.insPosts = [];
                 gameState.insPosts.unshift({ user: gameState.player.name, avatar: gameState.player.avatar, time: '刚刚', content: ta.value, img: insSelectedImage, likes: likes });
+                if (typeof _v2MarkSnsPosted === 'function') _v2MarkSnsPosted();
+                if (typeof _v2TriggerNpcResponse === 'function') _v2TriggerNpcResponse('sns');
                 gameState.fans += Math.floor(Math.random() * 25) + 5;
                 gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 3) + 1;
                 gameState.totalLikes = (gameState.totalLikes || 0) + likes;
@@ -7573,6 +7520,8 @@ function stopLive() {
     syncFromApp('live', { action: 'live_end', viewers: viewers, revenue: revenue });
     showModal('直播结束', '做得好！\n+' + fansGain + ' 粉丝\n+' + revenue.toLocaleString() + ' 金币\n+' + (Math.floor(Math.random()*5)+2) + ' 名气');
     render();
+    if (typeof _v2MarkLiveDone === 'function') _v2MarkLiveDone();
+    if (typeof _v2TriggerNpcResponse === 'function') _v2TriggerNpcResponse('live');
 }
 
 function startLiveSpeech() {
@@ -11718,6 +11667,13 @@ function renderKakaoChatPage(container) {
     }
     if (!npc) { goToPage('contacts'); return; }
 
+    // V2: mark chats as read and check haeun message for chapter progression
+    if (npcName === '夏恩' && typeof _v2MarkHaeunRead === 'function') _v2MarkHaeunRead();
+    if (gameState.kakaoChats && gameState.kakaoChats[npcName]) {
+        var _hmsgs = gameState.kakaoChats[npcName];
+        for (var _hi = 0; _hi < _hmsgs.length; _hi++) { if (_hmsgs[_hi].from !== 'me') _hmsgs[_hi].read = true; }
+    }
+
     var chats = gameState.kakaoChats[npcName] || [];
     var chatHtml = '';
     for (var j = 0; j < chats.length; j++) {
@@ -13899,7 +13855,7 @@ var NPC_PORTRAITS = {
 
 // V2.0: Chapter data structure
 var V2_CHAPTERS = [
-    { id: 1, title: '\u521d\u5165\u516c\u53f8', preview: '\u65b0\u7684\u5f00\u59cb\uff0c\u65b0\u7684\u68a6\u60f3' },
+    { id: 1, title: '\u5165\u793e', preview: '\u65b0\u7684\u5f00\u59cb\uff0c\u65b0\u7684\u68a6\u60f3' },
     { id: 2, title: '\u7ec3\u4e60\u5ba4\u65e5\u5e38', preview: '\u6c57\u6c34\u4e0e\u6cea\u6c34\u4ea4\u7ec7\u7684\u65e5\u5b50' },
     { id: 3, title: '\u7b2c\u4e00\u6b21\u8003\u6838', preview: '\u8bc1\u660e\u81ea\u5df1\u7684\u65f6\u523b' },
     { id: 4, title: '\u56e2\u4f53\u78e8\u5408', preview: '\u5f7c\u6b64\u4e86\u89e3\uff0c\u5fc3\u7ed3\u6253\u5f00' },
@@ -15166,7 +15122,7 @@ var NPC_BIRTHDAYS = {
     'haeun': { month: 2, day: 14, name: '夏恩' },
     'soah': { month: 5, day: 3, name: '素雅' },
     'jiwon': { month: 8, day: 21, name: '智媛' },
-    'junho': { month: 11, day: 7, name: '俊昇' },
+    'junho': { month: 11, day: 7, name: '俊昊' },
     'seokhyun': { month: 12, day: 25, name: '瑞贤' }
 };
 function _v2CheckBirthdays() {
@@ -15422,9 +15378,9 @@ var NPC_EXCLUSIVE_SCENES = {
         bgmScene: 'company'
     },
     'junho': {
-        name: '俊昇',
+        name: '俊昊',
         scene: '练习室',
-        desc: '深夜的练习室，只有镜子前的俊昇还在练舞步。满头大汗的他停下来：“你还没睡？…我也是。”',
+        desc: '深夜的练习室，只有镜子前的俊昊还在练舞步。满头大汗的他停下来：“你还没睡？…我也是。”',
         unlockAt: 40,
         bgmScene: 'practice'
     },
@@ -15464,7 +15420,7 @@ function _v2UnlockExclusiveScene(npcKey) {
 var NPC_ACTION_RESPONSES = {
     training: [
         { npc: '夏恩', text: '今天训练很认真啊，加油。' },
-        { npc: '俊昇', text: '看到你这么努力，我也不能懈怠了。' },
+        { npc: '俊昊', text: '看到你这么努力，我也不能懈怠了。' },
         { npc: '瑞贤', text: '…还行，继续保持。' }
     ],
     live: [
@@ -15474,7 +15430,7 @@ var NPC_ACTION_RESPONSES = {
     ],
     sns: [
         { npc: '智媛', text: '你发的帖子好有趣！我也想发一个！' },
-        { npc: '俊昇', text: '最近的动态挺有意思的。' },
+        { npc: '俊昊', text: '最近的动态挺有意思的。' },
         { npc: '素雅', text: '注意照片里不要泄露公司信息哦。' }
     ]
 };
@@ -15499,7 +15455,7 @@ function _v2TriggerNpcResponse(actionType) {
 // --- Choice Hint Enhancement ---
 var CHOICE_HINTS = {
     'nervous_confident': '这个选择将影响夏恩对你的初印象',
-    'prove_humble': '俊昇会记住你的态度',
+    'prove_humble': '俊昊会记住你的态度',
     'fight_calm': '这个决定将影响你在团体中的地位',
     'song_style': '主打歌风格将影响团体定位',
     'concert_style': '你的感谢方式会被所有人记住'
@@ -15533,3 +15489,745 @@ _v2GetChoiceHintHtml = function(choiceId) {
     if (enhanced) return enhanced;
     return _origGetChoiceHintHtml(choiceId);
 };
+
+// ==================== V2.0 CHAPTER 1 MAIN STORY MODULE ====================
+
+var V2_C1_NODES = [
+    {
+        id: '1.0', title: '面试邀请', unlockApp: null,
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.0']) return false;
+            return gameState.player && gameState.player.name && gameState.player.role === 'Trainee';
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.0'] = true;
+            if (!gameState.emails) gameState.emails = [];
+            gameState.emails.unshift({
+                title: 'SEONGWOO ENT 面试邀请',
+                from: 'SEONGWOO ENT 人事部',
+                content: '亲爱的' + (gameState.player.name || '练习生') + '：\n\n我们通过线上海选注意到了你的潜力，诚邀你参加SEONGWOO ENT第二期练习生选拔面试。\n\n时间：本周六 14:00\n地点：SEONGWOO大楼 3F 面试室\n\n请携带个人简介准时到场。\n\n——SEONGWOO ENT 人事部',
+                time: new Date().toLocaleDateString('zh-CN'), read: false
+            });
+            _v2MarkAppRedDot('daily');
+            _v2ShowStoryNode('1.0');
+        }
+    },
+    {
+        id: '1.1', title: '面试·与夏恩初遇', unlockApp: 'contacts',
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.1']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.0'];
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.1'] = true;
+            _v2ShowStoryNode('1.1');
+        }
+    },
+    {
+        id: '1.2', title: '入团通知', unlockApp: 'schedule',
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.2']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.1']
+                && gameState.scheduleDoneCount && gameState.scheduleDoneCount >= 1;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.2'] = true;
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('contacts') === -1) gameState.unlockedApps.push('contacts');
+            if (!gameState.kakaoChats) gameState.kakaoChats = {};
+            if (!gameState.kakaoChats['夏恩']) gameState.kakaoChats['夏恩'] = [];
+            var ts = _v2NowTime();
+            gameState.kakaoChats['夏恩'].push({ from: '夏恩', text: '你好，我是夏恩。以后就是同队的队友了，好好加油。', time: ts, read: false });
+            _v2MarkAppRedDot('contacts');
+            _v2ShowStoryNode('1.2');
+        }
+    },
+    {
+        id: '1.3', title: '认识成员', unlockApp: 'sns',
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.3']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.2']
+                && gameState._v2SnsPosted === true;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.3'] = true;
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('sns') === -1) gameState.unlockedApps.push('sns');
+            if (!gameState.snsPosts) gameState.snsPosts = [];
+            gameState.snsPosts.unshift({ author: '素雅', text: '欢迎新成员～以后一起加油吧！', likes: 23, time: '刚刚', liked: false });
+            gameState.snsPosts.unshift({ author: '智媛', text: '新人来啦！以后请多关照！', likes: 45, time: '刚刚', liked: false });
+            gameState.snsPosts.unshift({ author: '俊昊', text: '欢迎。希望实力配得上位置。', likes: 12, time: '刚刚', liked: false });
+            gameState.snsPosts.unshift({ author: '瑞贤', text: '…欢迎。', likes: 8, time: '刚刚', liked: false });
+            _v2MarkAppRedDot('sns');
+            _v2ShowStoryNode('1.3');
+        }
+    },
+    {
+        id: '1.4', title: '第一次训练', unlockApp: 'training',
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.4']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.3']
+                && gameState.stats && gameState.stats.dance >= 30;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.4'] = true;
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('training') === -1) gameState.unlockedApps.push('training');
+            _v2MarkAppRedDot('training');
+            _v2ShowStoryNode('1.4');
+        }
+    },
+    {
+        id: '1.5', title: '团内风波', unlockApp: null,
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.5']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.4']
+                && gameState.stats && gameState.stats.dance >= 40;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.5'] = true;
+            _v2ShowStoryNode('1.5');
+        }
+    },
+    {
+        id: '1.6', title: '第一次直播', unlockApp: 'live',
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.6']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.5']
+                && gameState._v2LiveDone === true;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.6'] = true;
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('live') === -1) gameState.unlockedApps.push('live');
+            _v2MarkAppRedDot('live');
+            _v2ShowStoryNode('1.6');
+        }
+    },
+    {
+        id: '1.7', title: '粉丝初见', unlockApp: 'fancommunity',
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.7']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.6']
+                && (gameState.fans || 0) >= 50;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.7'] = true;
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('fancommunity') === -1) gameState.unlockedApps.push('fancommunity');
+            if (!gameState.fanPosts) gameState.fanPosts = [];
+            var initFans = [
+                { name: '星愿少女', text: '新人好棒！我来应援啦！', likes: 12 },
+                { name: '练习生观察员', text: '有潜力，继续加油。', likes: 8 },
+                { name: 'K-pop新粉', text: '声音很好听，期待出道！', likes: 15 }
+            ];
+            for (var fi = 0; fi < initFans.length; fi++) {
+                gameState.fanPosts.unshift({ author: initFans[fi].name, text: initFans[fi].text, likes: initFans[fi].likes, time: '刚刚', liked: false, isMine: false });
+            }
+            _v2MarkAppRedDot('fancommunity');
+            _v2ShowStoryNode('1.7');
+        }
+    },
+    {
+        id: '1.8', title: '章节结算', unlockApp: null,
+        check: function() {
+            if (gameState._v2NodeTriggered && gameState._v2NodeTriggered['1.8']) return false;
+            return gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.7']
+                && gameState.stats && gameState.stats.dance >= 50
+                && gameState._v2HaeunMsgRead === true;
+        },
+        trigger: function() {
+            gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+            gameState._v2NodeTriggered['1.8'] = true;
+            _v2ShowChapterSettlement(1);
+        }
+    }
+];
+
+var V2_STORY_NODES = {
+    '1.0': {
+        bgm: 'company', portrait: null,
+        scenes: [
+            { type: 'atmosphere', text: 'SEONGWOO ENT. 大楼……\n新的故事，从这里开始。' },
+            { type: 'narrate', text: '手机屏幕亮了。一封来自SEONGWOO ENT人事部的邮件，静静地躺在通知栏里。' },
+            { type: 'narrate', text: '你深吸一口气——这是你等了很久的面试邀请。' },
+            { type: 'dialogue', speaker: '系统', text: '请前往"日程"查看面试安排。' }
+        ],
+        onComplete: function() {
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('schedule') === -1) gameState.unlockedApps.push('schedule');
+            _v2MarkAppRedDot('schedule');
+            _v2MarkAppRedDot('daily');
+            _v2CompleteNode('1.0');
+            showToast('新邮件已送达，日程已解锁');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.1': {
+        bgm: 'company', portrait: 'haeun', expression: 'main',
+        scenes: [
+            { type: 'atmosphere', text: 'SEONGWOO大楼 3F 面试室……' },
+            { type: 'narrate', text: '推开门，房间里只有一个女生。她穿着简单的黑丝绸衬衫，银链在颈间微微反光，黑长直发垂在肩上，正低头翻看着什么资料。' },
+            { type: 'dialogue', speaker: '？？？', text: '……你也是来面试的？', portrait: 'haeun', expression: 'main' },
+            { type: 'narrate', text: '她抬起头，单眼皮的眼睛平静地看着你，看不出情绪。' },
+            { type: 'dialogue', speaker: '夏恩', text: '我是夏恩，目前在这里练习。别紧张，面试官没那么可怕。', portrait: 'haeun', expression: 'smile' },
+            {
+                type: 'choice', text: '面对前辈的搭话，你——',
+                options: [
+                    { text: '（紧张地低头）你、你好……我是来面试的……', tag: 'passion', loveNpc: '夏恩', loveAmt: 5, next: 'nervous' },
+                    { text: '（自信抬头）你好！我准备好了，一定能通过！', tag: 'ambition', loveNpc: '夏恩', loveAmt: 3, next: 'confident' }
+                ]
+            },
+            { key: 'nervous', type: 'dialogue', speaker: '夏恩', text: '（轻笑）紧张成这样啊……放轻松，我当初也和你一样。', portrait: 'haeun', expression: 'smile' },
+            { key: 'confident', type: 'dialogue', speaker: '夏恩', text: '（挑眉）有自信是好事。不过……在这里，实力比自信更重要。', portrait: 'haeun', expression: 'main' },
+            { type: 'narrate', text: '面试很顺利——你通过了。走出大楼的时候，手机震了一下，夏恩的聊天框出现在通讯录里。' }
+        ],
+        onComplete: function() {
+            gameState.unlockedApps = gameState.unlockedApps || [];
+            if (gameState.unlockedApps.indexOf('contacts') === -1) gameState.unlockedApps.push('contacts');
+            if (!gameState.kakaoChats) gameState.kakaoChats = {};
+            if (!gameState.kakaoChats['夏恩']) gameState.kakaoChats['夏恩'] = [];
+            var ts = _v2NowTime();
+            var initMsg = (gameState.chapterState && gameState.chapterState._c1_1_1_choice === 'nervous')
+                ? '面试通过了对吧？恭喜。有什么不懂的可以问我。'
+                : '通过了。下次见面，让我看看你的实力。';
+            gameState.kakaoChats['夏恩'].push({ from: '夏恩', text: initMsg, time: ts, read: false });
+            _v2MarkAppRedDot('contacts');
+            _v2CompleteNode('1.1');
+            showToast('通讯录已解锁，夏恩发来消息');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.2': {
+        bgm: 'dorm', portrait: null,
+        scenes: [
+            { type: 'atmosphere', text: '完成了第一天的日程……' },
+            { type: 'narrate', text: '手机响了。是一条来自公司的短信。' },
+            { type: 'dialogue', speaker: '系统通知', text: '【SEONGWOO ENT】恭喜你通过筛选，正式成为SEONGWOO第二期练习生。请于明日9:00到公司报到，分配团体宿舍。' },
+            { type: 'narrate', text: '入团了。你看着这条短信，心跳加速。从今天起，你是SEONGWOO的练习生了。' },
+            { type: 'dialogue', speaker: '夏恩', text: '欢迎入团。明天报到别迟到。', portrait: 'haeun', expression: 'main' }
+        ],
+        onComplete: function() {
+            _v2CompleteNode('1.2');
+            _v2MarkAppRedDot('contacts');
+            showToast('已入团！日程已解锁');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.3': {
+        bgm: 'dorm', portrait: null,
+        scenes: [
+            { type: 'atmosphere', text: '认识成员们的第一天……' },
+            { type: 'narrate', text: '你在SNS上发了第一条动态：「今天开始在SEONGWOO练习了，请多关照！」' },
+            { type: 'narrate', text: '没过多久，SNS就弹出好几条通知——成员们都来留言了。' },
+            { type: 'dialogue', speaker: '素雅', text: '欢迎新成员～以后一起加油吧！', portrait: 'soah', expression: 'smile' },
+            { type: 'dialogue', speaker: '智媛', text: '新人来啦！我是忙内智媛，以后请多关照！', portrait: 'jiwon', expression: 'smile' },
+            { type: 'dialogue', speaker: '俊昊', text: '欢迎。希望实力配得上位置。', portrait: 'junho', expression: 'main' },
+            { type: 'dialogue', speaker: '瑞贤', text: '…欢迎。', portrait: 'seokhyun', expression: 'main' },
+            { type: 'narrate', text: '五个人，一个团体。故事，正式开始了。' }
+        ],
+        onComplete: function() {
+            _v2CompleteNode('1.3');
+            _v2MarkAppRedDot('sns');
+            showToast('成员们欢迎了你！SNS已解锁');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.4': {
+        bgm: 'practice', portrait: null,
+        scenes: [
+            { type: 'atmosphere', text: '第一次正式训练……' },
+            { type: 'narrate', text: '舞蹈达到30了。夏恩在练习室门口等你。' },
+            { type: 'dialogue', speaker: '夏恩', text: '到你了。今天练基础动作，别偷懒。', portrait: 'haeun', expression: 'main' },
+            { type: 'narrate', text: '镜子里的自己动作还很生疏，但每一滴汗水都是真实的。这是你第一次真正意义上的训练——不再是自己瞎练，而是在SEONGWOO的练习室里，和队友们一起。' },
+            { type: 'dialogue', speaker: '夏恩', text: '（看了一眼镜子里的你）……节奏还行。继续。', portrait: 'haeun', expression: 'smile' }
+        ],
+        onComplete: function() {
+            _v2CompleteNode('1.4');
+            showToast('完成第一次训练！继续提升舞蹈能力');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.5': {
+        bgm: 'practice', portrait: 'junho', expression: 'main',
+        scenes: [
+            { type: 'atmosphere', text: '舞蹈40……团内第一次冲突' },
+            { type: 'narrate', text: '训练结束后，俊昊叫住了你。他擦着汗，表情不太好看。' },
+            { type: 'dialogue', speaker: '俊昊', text: '你这水平……真的是通过面试进来的？', portrait: 'junho', expression: 'sad' },
+            { type: 'narrate', text: '空气安静了几秒。练习室里只剩下呼吸声。' },
+            {
+                type: 'choice', text: '面对俊昊的质疑，你——',
+                options: [
+                    { text: '我会证明给你看的。', tag: 'prove', loveNpc: '俊昊', loveAmt: 5, next: 'prove' },
+                    { text: '……俊昊前辈，能教教我吗？', tag: 'passion', loveNpc: '俊昊', loveAmt: 8, next: 'humble' }
+                ]
+            },
+            { key: 'prove', type: 'dialogue', speaker: '俊昊', text: '（挑眉）好啊，我等着。别光说不练。', portrait: 'junho', expression: 'main' },
+            { key: 'humble', type: 'dialogue', speaker: '俊昊', text: '（愣了一下）……行。明天6点，练习室见。别迟到。', portrait: 'junho', expression: 'smile' },
+            { type: 'narrate', text: '那天晚上，你在练习室多待了两个小时。' }
+        ],
+        onComplete: function() {
+            _v2CompleteNode('1.5');
+            showToast('团内风波事件完成');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.6': {
+        bgm: 'dorm', portrait: 'jiwon', expression: 'smile',
+        scenes: [
+            { type: 'atmosphere', text: '第一次直播……和智媛一起' },
+            { type: 'narrate', text: '公司安排了你的第一次直播——和忙内智媛一起。直播间里人不多，但弹幕一条条跳出来。' },
+            { type: 'dialogue', speaker: '智媛', text: '欧尼/欧巴！第一次直播对吧？别紧张，有我在！', portrait: 'jiwon', expression: 'smile' },
+            {
+                type: 'choice', text: '直播话题风格——',
+                options: [
+                    { text: '聊聊练习生日常，走亲切路线', tag: 'passion', loveNpc: '智媛', loveAmt: 5, next: 'daily_topic' },
+                    { text: '展示舞蹈/唱歌实力，走实力路线', tag: 'ambition', loveNpc: '智媛', loveAmt: 3, next: 'talent_topic' }
+                ]
+            },
+            { key: 'daily_topic', type: 'dialogue', speaker: '智媛', text: '哇欧尼/欧巴好会聊天！粉丝都说喜欢你！', portrait: 'jiwon', expression: 'smile' },
+            { key: 'talent_topic', type: 'dialogue', speaker: '智媛', text: '好厉害！我也要加油追上你！', portrait: 'jiwon', expression: 'main' },
+            { type: 'narrate', text: '直播结束了。粉丝数涨了一些。这是你第一次，被陌生人喜欢。' }
+        ],
+        onComplete: function() {
+            gameState._v2LiveDone = true;
+            _v2CompleteNode('1.6');
+            _v2MarkAppRedDot('live');
+            showToast('第一次直播完成！');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    },
+    '1.7': {
+        bgm: 'dorm', portrait: null,
+        scenes: [
+            { type: 'atmosphere', text: '粉丝数突破50……' },
+            { type: 'narrate', text: '打开粉丝社区，第一批粉丝已经在留言了——' },
+            { type: 'dialogue', speaker: '星愿少女', text: '新人好棒！直播超可爱的！我来应援啦！' },
+            { type: 'dialogue', speaker: '练习生观察员', text: '有潜力。舞蹈看得出练过，继续加油。' },
+            { type: 'dialogue', speaker: 'K-pop新粉', text: '声音很好听，期待出道！' },
+            { type: 'narrate', text: '50个粉丝。不多，但每一个都是真实的人，在看着你、支持你。这种感觉……很奇妙。' }
+        ],
+        onComplete: function() {
+            _v2CompleteNode('1.7');
+            showToast('第一批粉丝来了！粉丝社区已解锁');
+            triggerSilentSave(); render();
+            setTimeout(_v2CheckChapterNodes, 400);
+        }
+    }
+};
+
+function _v2NowTime() {
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+}
+
+function _v2MarkAppRedDot(appId) {
+    _v2AppRedDots = _v2AppRedDots || {};
+    _v2AppRedDots[appId] = (_v2AppRedDots[appId] || 0) + 1;
+    if (typeof updateAppRedDots === 'function') updateAppRedDots();
+}
+
+function _v2CompleteNode(nodeId) {
+    gameState._v2NodeCompleted = gameState._v2NodeCompleted || {};
+    gameState._v2NodeCompleted[nodeId] = { completedAt: Date.now() };
+    gameState._v2CurrentNode = null;
+    if (typeof updateAppRedDots === 'function') updateAppRedDots();
+}
+
+function _v2RecordChoice(nodeId, optionIdx, optionData) {
+    gameState.chapterState = gameState.chapterState || {};
+    gameState.chapterState.choices = gameState.chapterState.choices || {};
+    var chKey = '1';
+    gameState.chapterState.choices[chKey] = gameState.chapterState.choices[chKey] || [];
+    gameState.chapterState.choices[chKey].push({
+        nodeId: nodeId, text: optionData.text, tag: optionData.tag, made: true, relatedNpc: optionData.loveNpc || ''
+    });
+    if (optionData.tag) _v2RecordChoiceImpact(optionData.tag);
+    if (optionData.loveNpc && optionData.loveAmt && typeof addLove === 'function') {
+        addLove(optionData.loveNpc, optionData.loveAmt);
+        _v2ShowAffectionFloat(optionData.loveNpc, optionData.loveAmt);
+    }
+    gameState.chapterState['_c1_' + nodeId.replace(/\./g, '_') + '_choice'] = optionData.next;
+}
+
+var _v2StoryState = null;
+
+function _v2ShowStoryNode(nodeId) {
+    var node = V2_STORY_NODES[nodeId];
+    if (!node) { _v2CompleteNode(nodeId); render(); return; }
+    if (node.bgm && typeof BGMManager !== 'undefined' && BGMManager.play) {
+        try { BGMManager.play(node.bgm); } catch(e) {}
+    }
+    _v2StoryState = {
+        nodeId: nodeId, scenes: node.scenes, idx: 0,
+        currentKey: null, waitingChoice: false,
+        portrait: node.portrait, expression: node.expression
+    };
+    _v2RenderStoryDialog();
+}
+
+function _v2RenderStoryDialog() {
+    var st = _v2StoryState;
+    if (!st) return;
+    var scene = null;
+    while (st.idx < st.scenes.length) {
+        var s = st.scenes[st.idx];
+        if (s.key) {
+            if (s.key === st.currentKey) { scene = s; st.idx++; break; }
+            else { st.idx++; continue; }
+        } else { scene = s; st.idx++; break; }
+    }
+    if (!scene) {
+        var nodeId = st.nodeId;
+        _v2StoryState = null;
+        var node = V2_STORY_NODES[nodeId];
+        if (node && typeof node.onComplete === 'function') { node.onComplete(); }
+        else { _v2CompleteNode(nodeId); render(); }
+        return;
+    }
+    if (scene.type === 'atmosphere') {
+        _v2CloseStoryDialog();
+        _v2ShowAtmosphere(scene.text, 3000);
+        setTimeout(function() { if (_v2StoryState && _v2StoryState.nodeId === st.nodeId) _v2RenderStoryDialog(); }, 3100);
+        return;
+    }
+    if (scene.type === 'pause') {
+        _v2ShowKeyMomentPause(scene.text);
+        setTimeout(function() { if (_v2StoryState && _v2StoryState.nodeId === st.nodeId) _v2RenderStoryDialog(); }, 3500);
+        return;
+    }
+    var overlayHtml = '<div id="v2-story-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;background:rgba(0,0,0,0.5);display:flex;flex-direction:column;justify-content:flex-end;" onclick="_v2StoryAdvance()">';
+    var portrait = scene.portrait || st.portrait;
+    var expr = scene.expression || st.expression || 'main';
+    if (portrait) {
+        var portraitMap = { haeun: 'imgs/portraits/haeun_halfbody.jpg', soah: 'imgs/portraits/soah_halfbody.jpg', jiwon: 'imgs/portraits/jiwon_halfbody.jpg', junho: 'imgs/portraits/junho_halfbody.jpg', seokhyun: 'imgs/portraits/seokhyun_halfbody.jpg' };
+        var exprMap = { smile: '_smile', sad: '_sad', blink_half: '_blink_half', blink_full: '_blink_full' };
+        var imgSrc = portraitMap[portrait] || '';
+        if (expr !== 'main' && exprMap[expr] && imgSrc) {
+            imgSrc = imgSrc.replace('_halfbody.jpg', exprMap[expr] + '.jpg');
+        }
+        if (imgSrc) {
+            overlayHtml += '<div style="position:absolute;bottom:180px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;">'
+                + '<img src="' + imgSrc + '" style="height:55vh;max-width:80%;object-fit:contain;filter:drop-shadow(0 10px 30px rgba(167,139,250,0.3));animation:v2Breath 3s ease-in-out infinite;" onerror="this.style.display=\'none\'">'
+                + '</div>';
+        }
+    }
+    if (scene.type === 'narrate') {
+        overlayHtml += '<div style="margin:0 16px 20px;background:rgba(15,12,41,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,0.2);border-radius:16px;padding:20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+            + '<div id="v2-story-text" style="font-size:15px;color:#DDD;line-height:1.8;font-family:-apple-system,sans-serif;min-height:60px;white-space:pre-line;"></div>'
+            + '<div style="text-align:right;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.3);">点击继续</div></div>';
+    } else if (scene.type === 'dialogue') {
+        overlayHtml += '<div style="margin:0 16px 20px;background:rgba(15,12,41,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,0.2);border-radius:16px;padding:16px 20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+            + '<div style="font-size:14px;font-weight:700;color:#A78BFA;margin-bottom:8px;font-family:-apple-system,sans-serif;">' + (scene.speaker || '') + '</div>'
+            + '<div id="v2-story-text" style="font-size:16px;color:#FFF;line-height:1.8;font-family:-apple-system,sans-serif;min-height:40px;"></div>'
+            + '<div style="text-align:right;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.3);">点击继续</div></div>';
+    } else if (scene.type === 'choice') {
+        st.waitingChoice = true;
+        overlayHtml += '<div style="margin:0 16px 20px;background:rgba(15,12,41,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+            + '<div style="font-size:14px;color:#FFF;margin-bottom:14px;font-family:-apple-system,sans-serif;">' + scene.text + '</div>'
+            + '<div id="v2-story-choices"></div></div>';
+    }
+    overlayHtml += '</div>';
+    _v2CloseStoryDialog();
+    var wrapper = document.createElement('div');
+    wrapper.id = 'v2-story-wrapper';
+    wrapper.innerHTML = overlayHtml;
+    document.body.appendChild(wrapper);
+    if (scene.type === 'dialogue' || scene.type === 'narrate') {
+        var speed = (scene.type === 'dialogue' && scene.speaker && scene.speaker !== '系统' && scene.speaker !== '系统通知' && scene.speaker !== '？？？') ? 80 : 50;
+        _v2TypeWriter('v2-story-text', scene.text, speed, function(){});
+    } else if (scene.type === 'choice') {
+        var choiceBox = document.getElementById('v2-story-choices');
+        if (choiceBox) {
+            var tagLabels = { ambition: '野心', passion: '热爱', prove: '证明' };
+            var tagColors = { ambition: '#F97316', passion: '#EC4899', prove: '#A78BFA' };
+            for (var ci = 0; ci < scene.options.length; ci++) {
+                var opt = scene.options[ci];
+                var tagHtml = opt.tag ? '<span style="color:' + tagColors[opt.tag] + ';font-size:11px;margin-left:6px;">[' + tagLabels[opt.tag] + ']</span>' : '';
+                choiceBox.innerHTML += '<div onclick="_v2StoryChoose(' + ci + ')" style="padding:14px 16px;margin-bottom:10px;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:12px;cursor:pointer;font-size:14px;color:#FFF;font-family:-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;">'
+                    + opt.text + tagHtml + '</div>';
+            }
+        }
+        wrapper.onclick = function(e) { e.stopPropagation(); };
+    }
+}
+
+function _v2StoryAdvance() {
+    var st = _v2StoryState;
+    if (!st) return;
+    if (st.waitingChoice) return;
+    _v2RenderStoryDialog();
+}
+
+function _v2StoryChoose(optIdx) {
+    var st = _v2StoryState;
+    if (!st) return;
+    var scene = null;
+    for (var si = 0; si < st.scenes.length; si++) {
+        if (st.scenes[si].type === 'choice') { scene = st.scenes[si]; break; }
+    }
+    if (!scene) return;
+    var opt = scene.options[optIdx];
+    if (!opt) return;
+    _v2RecordChoice(st.nodeId, optIdx, opt);
+    st.waitingChoice = false;
+    st.currentKey = opt.next;
+    _v2CloseStoryDialog();
+    setTimeout(function() { _v2RenderStoryDialog(); }, 200);
+}
+
+function _v2CloseStoryDialog() {
+    var w = document.getElementById('v2-story-wrapper');
+    if (w && w.parentNode) w.parentNode.removeChild(w);
+}
+
+function _v2ShowChapterSettlement(chNum) {
+    _v2CloseStoryDialog();
+    _ensureChapterState();
+    var chapter = V2_CHAPTERS[chNum - 1];
+    var choices = (gameState.chapterState && gameState.chapterState.choices && gameState.chapterState.choices[String(chNum)]) || [];
+    var unlockList = ['日程', '通讯录', 'SNS', '训练', '直播', '粉丝社区'];
+    var dominant = _v2GetDominantTag();
+    var tagNames = { ambition: '野心', passion: '热爱', prove: '证明' };
+    var nextPreview = '第二章·成长：你将面临第一次公开路演，以及TikTok出圈的机会……';
+    var html = '<div style="max-height:75vh;overflow-y:auto;padding:4px;">';
+    html += '<div style="text-align:center;margin-bottom:20px;">';
+    html += '<div style="font-size:12px;color:#A78BFA;letter-spacing:0.2em;margin-bottom:8px;">CHAPTER ' + chNum + ' COMPLETE</div>';
+    html += '<div style="font-size:24px;font-weight:700;color:#FFF;font-family:-apple-system,sans-serif;">' + (chapter ? chapter.title : '第' + chNum + '章') + '</div>';
+    html += '<div style="width:40px;height:2px;background:#A78BFA;margin:12px auto;"></div></div>';
+    html += '<div style="font-size:14px;font-weight:600;color:#FFF;margin-bottom:10px;">你的选择</div>';
+    if (choices.length === 0) {
+        html += '<div style="color:#888;font-size:13px;margin-bottom:16px;">本章无关键选择记录</div>';
+    } else {
+        for (var ci = 0; ci < choices.length; ci++) {
+            var c = choices[ci];
+            html += '<div style="background:rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:3px solid #A78BFA;">';
+            html += '<div style="font-size:13px;color:#FFF;">' + c.text + '</div>';
+            if (c.relatedNpc) html += '<div style="font-size:11px;color:#888;margin-top:4px;">与 ' + c.relatedNpc + ' 的羁绊加深了</div>';
+            html += '<div style="font-size:11px;color:#A78BFA;margin-top:4px;">这个选择将在后续章节中产生回响</div></div>';
+        }
+    }
+    html += '<div style="font-size:14px;font-weight:600;color:#FFF;margin:16px 0 10px;">已解锁内容</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">';
+    for (var ui = 0; ui < unlockList.length; ui++) {
+        html += '<span style="padding:4px 10px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);border-radius:20px;font-size:11px;color:#A78BFA;">' + unlockList[ui] + '</span>';
+    }
+    html += '</div>';
+    html += '<div style="background:linear-gradient(135deg,rgba(167,139,250,0.15),rgba(236,72,153,0.1));border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(167,139,250,0.2);">';
+    html += '<div style="font-size:12px;color:#888;margin-bottom:4px;">当前故事走向</div>';
+    html += '<div style="font-size:18px;font-weight:700;color:#A78BFA;">' + (tagNames[dominant] || '热爱') + '</div>';
+    html += '<div style="font-size:11px;color:#888;margin-top:4px;">你的选择正在塑造你的故事</div></div>';
+    html += '<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;border-left:3px solid #EC4899;">';
+    html += '<div style="font-size:12px;color:#EC4899;margin-bottom:4px;letter-spacing:0.1em;">NEXT CHAPTER</div>';
+    html += '<div style="font-size:14px;color:#FFF;line-height:1.6;">' + nextPreview + '</div></div>';
+    html += '</div>';
+    showModal('章节完成', html, [{ text: '继续游戏', action: function() { closeModal(); _v2CompleteChapter1(); } }]);
+}
+
+function _v2CompleteChapter1() {
+    gameState._v2NodeCompleted = gameState._v2NodeCompleted || {};
+    gameState._v2NodeCompleted['1.8'] = { completedAt: Date.now() };
+    gameState.unlockedApps = gameState.unlockedApps || [];
+    if (gameState.unlockedApps.indexOf('daily') === -1) gameState.unlockedApps.push('daily');
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats['夏恩']) gameState.kakaoChats['夏恩'] = [];
+    var ts = _v2NowTime();
+    gameState.kakaoChats['夏恩'].push({ from: '夏恩', text: '第一章结束了，你做得不错。接下来的路会更难，但我相信你。', time: ts, read: false });
+    gameState.chapterState = gameState.chapterState || {};
+    gameState.chapterState.unlockedMemories = gameState.chapterState.unlockedMemories || {};
+    gameState.chapterState.unlockedMemories['ch1'] = {
+        summary: '初入SEONGWOO ENT，通过面试入团，认识了五位成员。经历了第一次训练、团内风波、第一次直播，收获了第一批粉丝。',
+        detail: '这是你梦想的起点。'
+    };
+    gameState.currentChapter = 2;
+    _v2MarkAppRedDot('contacts');
+    _v2MarkAppRedDot('daily');
+    showToast('第1章完成！第2章「成长」开启');
+    triggerSilentSave(); render();
+}
+
+function _v2CheckChapterNodes() {
+    if (!gameState || !gameState.player || !gameState.player.name) return;
+    if (gameState.player.role !== 'Trainee') return;
+    var ch = gameState.currentChapter || 1;
+    if (ch !== 1) return;
+    if (_v2StoryState) return;
+    if (window._v2CheckingNodes) return;
+    window._v2CheckingNodes = true;
+    for (var i = 0; i < V2_C1_NODES.length; i++) {
+        var node = V2_C1_NODES[i];
+        try { if (node.check()) { node.trigger(); break; } } catch(e) {}
+    }
+    window._v2CheckingNodes = false;
+}
+
+function _v2NpcImgError(img) {
+    img.style.display = 'none';
+    var initial = img.getAttribute('data-npc-initial') || '?';
+    var parent = img.parentNode;
+    parent.innerHTML = '<span style="font-size:18px;color:#FFF;">' + initial + '</span>';
+}
+
+var V2_SCENE_NPCS = {
+    practice: [
+        { npc: '夏恩', key: 'haeun', x: 20, y: 60 },
+        { npc: '俊昊', key: 'junho', x: 70, y: 55 }
+    ],
+    company: [
+        { npc: '素雅', key: 'soah', x: 30, y: 55 },
+        { npc: '俊昊', key: 'junho', x: 75, y: 60 }
+    ],
+    dorm: [
+        { npc: '智媛', key: 'jiwon', x: 25, y: 65 },
+        { npc: '瑞贤', key: 'seokhyun', x: 75, y: 58 }
+    ],
+    stage: [
+        { npc: '夏恩', key: 'haeun', x: 50, y: 50 }
+    ]
+};
+
+function _v2GetSceneNpcHtml(sceneId) {
+    var npcs = V2_SCENE_NPCS[sceneId];
+    if (!npcs || npcs.length === 0) return '';
+    var html = '';
+    var stageNames = ['陌生','熟悉','暧昧','亲密','专属'];
+    var stageColors = ['#666','#4ADE80','#FACC15','#F97316','#EC4899'];
+    var lines = {
+        '夏恩': ['今天状态不错。','练完了来找我。','（对你笑了笑）今天也辛苦了。',''],
+        '俊昊': ['嗯，继续。','动作比之前稳了。','……一起练？',''],
+        '智媛': ['你好呀～','欧尼/欧巴今天也超棒！','欧尼/欧巴！等你好久了！',''],
+        '素雅': ['你好。','要喝点什么吗？','累了吧？要喝杯热水吗？',''],
+        '瑞贤': ['……','……你来了。','……过来坐。','']
+    };
+    for (var i = 0; i < npcs.length; i++) {
+        var n = npcs[i];
+        var aff = (gameState.npc好感度 && gameState.npc好感度[n.npc]) || 0;
+        var si = aff >= 80 ? 3 : aff >= 60 ? 2 : aff >= 40 ? 1 : 0;
+        var stageIdx = aff >= 80 ? 4 : aff >= 60 ? 3 : aff >= 40 ? 2 : aff >= 20 ? 1 : 0;
+        var line = (lines[n.npc] && lines[n.npc][si]) || '……';
+        var portraitSrc = 'imgs/portraits/' + n.key + '_halfbody.jpg';
+        var safeLine = line.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        html += '<div onclick="_v2TalkToSceneNpc(\'' + n.npc + '\',\'' + n.key + '\',\'' + safeLine + '\')" style="position:absolute;left:' + n.x + '%;top:' + n.y + '%;transform:translate(-50%,-50%);cursor:pointer;-webkit-tap-highlight-color:transparent;z-index:5;">'
+            + '<div style="width:48px;height:48px;border-radius:50%;background:rgba(167,139,250,0.2);border:2px solid ' + stageColors[stageIdx] + ';display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 4px 12px rgba(167,139,250,0.3);animation:v2Pulse 2s ease-in-out infinite;">'
+            + '<img src="' + portraitSrc + '" style="width:100%;height:100%;object-fit:cover;" onerror="_v2NpcImgError(this)" data-npc-initial="' + n.npc.charAt(0) + '">'
+            + '</div>'
+            + '<div style="text-align:center;margin-top:4px;font-size:10px;color:#FFF;text-shadow:0 1px 4px rgba(0,0,0,0.8);white-space:nowrap;background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:8px;">' + n.npc + ' · ' + stageNames[stageIdx] + '</div>'
+            + '</div>';
+    }
+    return html;
+}
+
+function _v2TalkToSceneNpc(npcName, npcKey, line) {
+    var bubbleId = 'v2-npc-bubble';
+    var old = document.getElementById(bubbleId);
+    if (old) old.parentNode.removeChild(old);
+    var portraitSrc = 'imgs/portraits/' + npcKey + '_halfbody.jpg';
+    var html = '<div id="' + bubbleId + '" style="position:fixed;bottom:120px;left:16px;right:16px;z-index:9999;background:rgba(15,12,41,0.95);backdrop-filter:blur(20px);border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:16px;display:flex;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,0.5);animation:v2FadeIn 0.3s ease;" onclick="this.parentNode.removeChild(this)">'
+        + '<div style="width:50px;height:50px;border-radius:50%;overflow:hidden;flex-shrink:0;background:rgba(167,139,250,0.15);">'
+        + '<img src="' + portraitSrc + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">'
+        + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:13px;font-weight:700;color:#A78BFA;margin-bottom:4px;">' + npcName + '</div>'
+        + '<div id="v2-npc-line" style="font-size:14px;color:#FFF;line-height:1.6;min-height:20px;"></div>'
+        + '<div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px;text-align:right;">点击关闭</div>'
+        + '</div></div>';
+    var wrap = document.createElement('div');
+    wrap.innerHTML = html;
+    document.body.appendChild(wrap);
+    if (Math.random() < 0.3 && typeof addLove === 'function') addLove(npcName, 1);
+    _v2TypeWriter('v2-npc-line', line, 60, function(){});
+}
+
+function _v2DailyGreeting() {
+    if (!gameState || !gameState.player || !gameState.player.name) return;
+    if (gameState._v2GreetedToday === new Date().toDateString()) return;
+    if (!gameState.npc好感度) return;
+    var keys = Object.keys(gameState.npc好感度);
+    if (keys.length === 0) return;
+    var topNpc = keys[0]; var topLove = gameState.npc好感度[topNpc] || 0;
+    for (var i = 1; i < keys.length; i++) {
+        if ((gameState.npc好感度[keys[i]] || 0) > topLove) { topNpc = keys[i]; topLove = gameState.npc好感度[keys[i]] || 0; }
+    }
+    if (topLove < 10) return;
+    var greetings = { '夏恩':'早。今天也要认真练。','素雅':'早上好，今天天气不错呢。','智媛':'欧尼/欧巴早上好！今天也要加油哦！','俊昊':'……早。','瑞贤':'……嗯，早。' };
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats[topNpc]) gameState.kakaoChats[topNpc] = [];
+    gameState.kakaoChats[topNpc].push({ from: topNpc, text: greetings[topNpc] || '早上好。', time: _v2NowTime(), read: false });
+    gameState._v2GreetedToday = new Date().toDateString();
+    _v2MarkAppRedDot('contacts');
+}
+
+function _v2GetChapter1TrainingBars() {
+    var ch = gameState.currentChapter || 1;
+    if (ch !== 1 || (gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.8'])) return '';
+    var dance = (gameState.stats && gameState.stats.dance) || 0;
+    var fans = gameState.fans || 0;
+    var items = [];
+    function bar(label, cur, need, doneFlag) {
+        var pct = Math.min(100, Math.round((cur / need) * 100));
+        var done = doneFlag || cur >= need;
+        return '<div style="margin-bottom:8px;">'
+            + '<div style="display:flex;justify-content:space-between;font-size:12px;color:'+(done?'#A78BFA':'#CCC')+';margin-bottom:4px;">'
+            + '<span>'+(done?'✓ ':'')+label+'</span><span>'+cur+' / '+need+'</span></div>'
+            + '<div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">'
+            + '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#A78BFA,#EC4899);border-radius:3px;transition:width .4s;"></div>'
+            + '</div></div>';
+    }
+    if (!gameState._v2NodeCompleted || !gameState._v2NodeCompleted['1.3']) {
+        items.push(bar('舞蹈能力达到 30（解锁第一次训练）', dance, 30, false));
+    } else if (!gameState._v2NodeCompleted['1.4']) {
+        items.push(bar('舞蹈能力达到 30', dance, 30, true));
+    } else if (!gameState._v2NodeCompleted['1.5']) {
+        items.push(bar('舞蹈能力达到 40（解锁团内风波）', dance, 40, false));
+    } else if (!gameState._v2NodeCompleted['1.7']) {
+        items.push(bar('舞蹈能力达到 40', dance, 40, true));
+        items.push(bar('粉丝数达到 50（解锁粉丝初见）', fans, 50, false));
+    } else if (!gameState._v2NodeCompleted['1.8']) {
+        items.push(bar('舞蹈能力达到 50（解锁章节结算）', dance, 50, false));
+    }
+    if (items.length === 0) return '';
+    return '<div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,rgba(167,139,250,0.08),rgba(236,72,153,0.08));border:1px solid rgba(167,139,250,0.2);">'
+        + '<div style="font-size:13px;font-weight:600;color:#A78BFA;margin-bottom:8px;">第1章 · 进度</div>'
+        + items.join('')
+        + '</div>';
+}
+
+function _v2FillTrainingBars() {
+    var el = document.getElementById('v2-train-thresholds');
+    if (!el) return;
+    el.outerHTML = _v2GetChapter1TrainingBars();
+}
+
+function _v2MarkSnsPosted() { gameState._v2SnsPosted = true; _v2CheckChapterNodes(); }
+function _v2MarkLiveDone() { gameState._v2LiveDone = true; _v2CheckChapterNodes(); }
+function _v2MarkHaeunRead() { gameState._v2HaeunMsgRead = true; _v2CheckChapterNodes(); }
+
+var _v2OrigRender = render;
+render = function() {
+    _v2OrigRender();
+    try { setTimeout(function(){ _v2CheckChapterNodes(); _v2DailyGreeting(); _v2FillTrainingBars(); }, 300); } catch(e) {}
+};
+
+(function() {
+    if (document.getElementById('v2-breath-style')) return;
+    var style = document.createElement('style');
+    style.id = 'v2-breath-style';
+    style.textContent = '@keyframes v2Breath{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}';
+    document.head.appendChild(style);
+})();
