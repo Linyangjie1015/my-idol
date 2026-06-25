@@ -19,18 +19,16 @@ export default async function handler(req, res) {
       return res.status(200).json({ ec: 200, em: '' });
     }
 
-    // Only process paid orders (status=2 means paid)
     if (order.status === 2) {
       var SUPABASE_URL = process.env.SUPABASE_URL;
       var SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
       if (SUPABASE_URL && SUPABASE_KEY) {
-        var tier = getTier(order.total_amount, order.plan_id || '');
+        var tier = mapAfdianOrder(order);
         var orderNo = order.out_trade_no || '';
         var amount = order.total_amount || '0';
         var productType = tier ? tier.key : 'unknown';
 
-        // Check if order already exists
         var checkResp = await fetch(SUPABASE_URL + '/rest/v1/payments?order_id=eq.' + encodeURIComponent(orderNo) + '&select=order_id', {
           headers: {
             'apikey': SUPABASE_KEY,
@@ -47,7 +45,6 @@ export default async function handler(req, res) {
         };
 
         if (!existing || existing.length === 0) {
-          // Insert new order (user_id omitted = null, avoids FK constraint)
           await fetch(SUPABASE_URL + '/rest/v1/payments', {
             method: 'POST',
             headers: {
@@ -59,7 +56,6 @@ export default async function handler(req, res) {
             body: JSON.stringify(payload)
           });
         } else {
-          // Update existing order
           await fetch(SUPABASE_URL + '/rest/v1/payments?order_id=eq.' + encodeURIComponent(orderNo), {
             method: 'PATCH',
             headers: {
@@ -78,18 +74,16 @@ export default async function handler(req, res) {
       }
     }
 
-    // Always return 200 to Afdian
     return res.status(200).json({ ec: 200, em: '' });
   } catch (e) {
-    // Still return 200 to prevent Afdian from retrying unnecessarily
     return res.status(200).json({ ec: 200, em: '' });
   }
 }
 
-function getTier(amount, planId) {
-  var a = parseFloat(amount || '0');
-  if (a >= 15) return { key: 'premium', name: '完整版' };
-  if (a >= 8) return { key: 'advanced', name: '进阶版' };
-  if (a >= 5) return { key: 'basic', name: '基础版' };
-  return { key: 'unknown', name: '未知档位' };
+function mapAfdianOrder(order) {
+  var amount = parseFloat(order.total_amount || '0');
+  if (amount >= 9 && amount < 20) return { key: 'monthly', name: '\u6708\u5EA6\u4F1A\u5458' };
+  if (amount >= 20 && amount < 50) return { key: 'quarterly', name: '\u5B63\u5EA6\u4F1A\u5458' };
+  if (amount >= 50) return { key: 'yearly', name: '\u5E74\u5EA6\u4F1A\u5458' };
+  return { key: 'monthly', name: '\u6708\u5EA6\u4F1A\u5458' };
 }

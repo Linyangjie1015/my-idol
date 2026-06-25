@@ -2742,12 +2742,11 @@ function getAIUsageToday(appId) {
 
 function getAIMaxTotalToday() {
     // VIP tier-based limits
-    var vipTier = gameState.vipTier || null;
-    if (!vipTier) { try { vipTier = JSON.parse(localStorage.getItem('myidol_saves_' + localStorage.getItem('myidol_current_account')) || '{}').vipTier; } catch(e) {} }
+    var vipTier = getVipTier() || null;
     var base = 3;
-    if (vipTier === 'premium') base = 80;
-    else if (vipTier === 'advanced') base = 40;
-    else if (vipTier === 'basic') base = 15;
+    if (vipTier === 'yearly') base = 80;
+    else if (vipTier === 'quarterly') base = 40;
+    else if (vipTier === 'monthly') base = 15;
     var bonus = gameState._bonusAiToday || 0;
     return base + bonus;
 }
