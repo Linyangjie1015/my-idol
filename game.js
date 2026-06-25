@@ -11911,6 +11911,21 @@ var WEEKLY_GOALS = [
     { id: 'work2', desc: '完成2个通告', target: 2, type: 'work', reward: { money: 12000, fame: 5 } }
 ];
 
+// ===== V2.1 stub: weekly/monthly exam penalty check (placeholder) =====
+function _checkWeeklyMonthlyExamPenalty() {
+    try {
+        if (!gameState) return;
+        if (!gameState._weeklyExamCheck) gameState._weeklyExamCheck = { lastWeek: 0, penaltyApplied: false };
+        if (!gameState._monthlyExamCheck) gameState._monthlyExamCheck = { lastMonth: 0, penaltyApplied: false };
+    } catch(e) {}
+}
+
+// ===== V2.1 stub: weekly/monthly exam section renderer =====
+function renderWeeklyMonthlyExamSection() {
+    return '<div class="section-title" style="margin-top:16px;opacity:0.5;">周/月考核</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);padding:8px 0;">敬请期待后续版本</div>';
+}
+
 function _initWeeklyGoals() {
     if (gameState.player.role !== 'Idol' || gameState.preDebut) return;
     if (!gameState.weeklyGoals) {
@@ -16251,7 +16266,7 @@ render = function() {
 })();
 
 /* ---------- 版本号 ---------- */
-var V2_VERSION = 'v2.1.0-cinematic (build 0625-light-night-ui)';
+var V2_VERSION = 'v2.1.1-cinematic (build 0625-fix-crash+welcome)';
 
 /* ---------- 1. 设置页：音量滑块 ---------- */
 function _v2PlaySfx(name) {
@@ -17940,6 +17955,63 @@ function _v2EnterChapter(chNum) {
 
       /* Version / footer text */
       + '.v21-version{position:absolute; bottom:20px; right:24px; font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:0.1em; font-weight:300;}'
+      /* ===== Welcome Account (cloud login) cinematic ===== */
+      + '.v21-welcome-account{position:relative;width:100%;height:100%;min-height:100vh;background:radial-gradient(ellipse at 30% 20%,#1A1A3E 0%,#0F0C29 60%,#08061A 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;overflow:hidden;box-sizing:border-box;}'
+      + '.v21-wa-glow{position:absolute;top:-30%;left:-20%;width:80%;height:80%;background:radial-gradient(ellipse,rgba(167,139,250,0.12) 0%,transparent 60%);pointer-events:none;}'
+      + '.v21-wa-portrait{position:absolute;right:-18%;bottom:0;height:82%;pointer-events:none;opacity:0.28;filter:brightness(0.8) saturate(0.7);z-index:1;}'
+      + '.v21-wa-portrait img{height:100%;object-fit:contain;}'
+      + '.v21-wa-content{position:relative;z-index:2;text-align:center;width:100%;max-width:280px;}'
+      + '.v21-wa-brand{font-size:40px;font-weight:200;color:#FFF;letter-spacing:0.2em;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;margin-bottom:6px;text-shadow:0 2px 20px rgba(167,139,250,0.3);}'
+      + '.v21-wa-sub{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.35em;font-weight:300;margin-bottom:8px;}'
+      + '.v21-quick-card{margin-top:28px;padding:14px 18px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:14px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);cursor:pointer;transition:all 0.2s;text-align:center;}'
+      + '.v21-quick-card:active{background:rgba(167,139,250,0.18);}'
+      + '.v21-btn-ghost{width:100%;padding:14px;border:1px solid rgba(255,255,255,0.4);background:transparent;color:#FFF;border-radius:12px;font-size:14px;font-weight:200;font-family:-apple-system,sans-serif;cursor:pointer;transition:all 0.25s;-webkit-tap-highlight-color:transparent;}'
+      + '.v21-btn-ghost:active{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.6);}'
+      + '.v21-wa-divider{margin:14px 0;font-size:11px;color:rgba(255,255,255,0.25);letter-spacing:0.2em;position:relative;}'
+      + '.v21-wa-divider::before,.v21-wa-divider::after{content:"";position:absolute;top:50%;width:35%;height:1px;background:rgba(255,255,255,0.08);}'
+      + '.v21-wa-divider::before{left:0;}'
+      + '.v21-wa-divider::after{right:0;}'
+      + '.v21-wa-divider span{padding:0 10px;}'
+      + '.v21-btn-line{width:100%;padding:12px;border:1px solid rgba(167,139,250,0.5);background:transparent;color:#A78BFA;border-radius:12px;font-size:13px;font-weight:300;font-family:-apple-system,sans-serif;cursor:pointer;transition:all 0.2s;margin-bottom:8px;-webkit-tap-highlight-color:transparent;}'
+      + '.v21-btn-line:active{background:rgba(167,139,250,0.15);}'
+      + '.v21-btn-line-sub{width:100%;padding:12px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.7);border-radius:12px;font-size:13px;font-weight:300;font-family:-apple-system,sans-serif;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);-webkit-tap-highlight-color:transparent;}'
+      + '.v21-btn-line-sub:active{background:rgba(255,255,255,0.08);}'
+      + '.v21-wa-footer{margin-top:20px;font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:0.08em;font-weight:300;}'
+
+      /* ===== Creation / form pages dark override ===== */
+      + '.page,.page.active{background:transparent !important;}'
+      + '.page-header{background:rgba(15,12,41,0.6) !important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06) !important;}'
+      + '.page-header .page-title,.page-header .back-btn{color:#FFF !important;font-weight:300 !important;}'
+      + '.page-content{background:transparent !important;}'
+      + '.section-title{color:rgba(255,255,255,0.6) !important;font-weight:300 !important;letter-spacing:0.05em;}'
+      + 'input[type=text],select,.account-input{background:rgba(255,255,255,0.06) !important;border:1px solid rgba(255,255,255,0.1) !important;color:#FFF !important;}'
+      + 'input::placeholder,select::placeholder{color:rgba(255,255,255,0.3) !important;}'
+      + 'select option{background:#1A1A3E;color:#FFF;}'
+      + '.card{background:rgba(255,255,255,0.05) !important;border:1px solid rgba(255,255,255,0.08) !important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);color:#FFF !important;box-shadow:none !important;}'
+      + '.card *{color:#FFF !important;}'
+      + '.card.selected{border-color:#A78BFA !important;background:rgba(167,139,250,0.1) !important;}'
+      + '.tag{background:rgba(255,255,255,0.06) !important;border:1px solid rgba(255,255,255,0.1) !important;color:rgba(255,255,255,0.7) !important;font-weight:300 !important;}'
+      + '.tag.selected{background:rgba(167,139,250,0.2) !important;border-color:#A78BFA !important;color:#FFF !important;}'
+      + '.btn-primary{background:rgba(167,139,250,0.2) !important;border:1px solid #A78BFA !important;color:#FFF !important;font-weight:300 !important;letter-spacing:0.05em;}'
+      + '.btn-secondary{background:rgba(255,255,255,0.06) !important;border:1px solid rgba(255,255,255,0.12) !important;color:#FFF !important;font-weight:300 !important;}'
+      + '#ageDisplay,.progress-bar-container{background:rgba(255,255,255,0.05) !important;}'
+      + 'h2{color:#FFF !important;font-weight:300 !important;letter-spacing:0.03em;}'
+      + 'p{color:rgba(255,255,255,0.6) !important;}'
+      + 'label{color:rgba(255,255,255,0.7) !important;}'
+      + '.bottom-nav{background:rgba(15,12,41,0.85) !important;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.06) !important;}'
+      + '.nav-item{color:rgba(255,255,255,0.5) !important;}'
+      + '.nav-item.active{color:#A78BFA !important;}'
+      + '.app-icon{background:rgba(255,255,255,0.06) !important;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.06);}'
+      + '.app-icon-label{color:#FFF !important;font-weight:300 !important;}'
+      + '.modal-overlay{background:rgba(0,0,0,0.6) !important;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}'
+      + '.modal-box{background:rgba(26,26,62,0.95) !important;border:1px solid rgba(255,255,255,0.08) !important;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);color:#FFF !important;}'
+      + '.modal-box h3,.modal-title{color:#FFF !important;font-weight:300 !important;}'
+      + '.modal-box p,.modal-content{color:rgba(255,255,255,0.7) !important;}'
+      + '.hotspot{background:rgba(255,255,255,0.05) !important;border:1px solid rgba(255,255,255,0.1) !important;color:#FFF !important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-weight:300 !important;}'
+
+
+
+
 
       /* Loading screen dark */
       + '#loadingScreen{background:linear-gradient(180deg,#0F0C29,#1A1A3E) !important; color:#FFF !important;}'
@@ -18189,6 +18261,63 @@ function _v2EnterChapter(chNum) {
       + '<button class="btn btn-secondary" onclick="goToPage(\'settings\');" style="letter-spacing:0.1em;">进 入 设 置</button>'
       + '</div>';
   }
+
+
+  // ---------- override welcome account (cloud login) page - cinematic style ----------
+  var _origWelcomeAccount = window.renderWelcomeAccountPage;
+  window.renderWelcomeAccountPage = function(container) {
+    if (!container) return;
+    var lastUser = localStorage.getItem('myIdolLastUser');
+    var lastEmail = localStorage.getItem('myIdolCloudEmail') || '';
+    var hasCloudToken = !!localStorage.getItem('myIdolCloudToken');
+
+    // Quick-login card (if already logged in before)
+    var quickCard = '';
+    if (hasCloudToken && lastEmail) {
+      quickCard = '<div class="v21-quick-card" onclick="_quickCloudLogin()">'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:300;letter-spacing:0.1em;">继续上次</div>'
+        + '<div style="font-size:14px;color:#FFF;font-weight:300;margin:6px 0;word-break:break-all;letter-spacing:0.02em;">'+lastEmail+'</div>'
+        + '<div style="font-size:11px;color:#A78BFA;font-weight:300;">点击继续故事 →</div>'
+        + '</div>';
+    }
+
+    container.innerHTML = '<div class="v21-welcome-account">'
+      // Decorative glow
+      + '<div class="v21-wa-glow"></div>'
+      // Haeun portrait in background - lower opacity, positioned to right, no content block
+      + '<div class="v21-wa-portrait"><img src="imgs/portraits/haeun_halfbody.jpg" onerror="this.style.display=\'none\'"></div>'
+      // Content column
+      + '<div class="v21-wa-content">'
+      // Brand
+      + '<div class="v21-wa-brand">myidol</div>'
+      + '<div class="v21-wa-sub">SEONGWOO ENTERTAINMENT</div>'
+      + quickCard
+      // Buttons - guest start first (no barrier), then register/login
+      + '<button class="v21-btn-ghost" onclick="startNewGame(0)" style="letter-spacing:0.2em;margin-top:'+(quickCard?'32px':'48px')+';">开 始 故 事</button>'
+      + '<div class="v21-wa-divider"><span>或</span></div>'
+      + '<button class="v21-btn-line" onclick="_showCloudRegisterOverlay()" style="letter-spacing:0.1em;">邮箱注册</button>'
+      + '<button class="v21-btn-line-sub" onclick="_showCloudLoginOverlay()" style="letter-spacing:0.1em;">邮箱登录</button>'
+      + '<div class="v21-wa-footer">登录后存档自动云端同步</div>'
+      + '</div>'
+      + '<div class="v21-wa-version">V2.1</div>'
+      + '</div>';
+
+    // particles (if available) - keep but small
+    if (typeof _createParticlesInContainer === 'function') {
+      // attach after innerHTML so we can insert into it
+      var p = document.createElement('div');
+      p.id = 'v2-welcome-particles';
+      p.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:1;';
+      container.querySelector('.v21-welcome-account').appendChild(p);
+      try { _createParticlesInContainer('v2-welcome-particles', 8); } catch(e){}
+    }
+    if (!localStorage.getItem('myIdolV2EntryPlayed')) {
+      localStorage.setItem('myIdolV2EntryPlayed', '1');
+      if (typeof _playEntryAnimation === 'function') {
+        try { _playEntryAnimation(function() {}); } catch(e){}
+      }
+    }
+  };
 
   // ---------- apply body bg immediately ----------
   document.body.style.background = 'radial-gradient(ellipse at top left, #1A1A3E 0%, #0F0C29 50%, #08061A 100%)';
