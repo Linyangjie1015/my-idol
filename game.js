@@ -16251,7 +16251,7 @@ render = function() {
 })();
 
 /* ---------- 版本号 ---------- */
-var V2_VERSION = 'v2.0.2-ch1 (build 0625-savefix)';
+var V2_VERSION = 'v2.0.3-ch1 (build 0625-story-hub)';
 
 /* ---------- 1. 设置页：音量滑块 ---------- */
 function _v2PlaySfx(name) {
@@ -17533,3 +17533,275 @@ document.addEventListener('touchstart', function _v2FirstTouch() {
     };
   }
 })();
+
+// ---- V2字段兜底 ----
+function _ensureV2Fields() {
+  _ensureChapterState();
+  if (!gameState.npc好感度) gameState.npc好感度 = {};
+  if (!gameState.choiceImpacts) gameState.choiceImpacts = { ambition: 0, passion: 0, prove: 0 };
+  if (!gameState._v2SceneItemsUsed) gameState._v2SceneItemsUsed = {};
+  if (!gameState._v2NodeCompleted) gameState._v2NodeCompleted = {};
+  if (!gameState._v2NodeTriggered) gameState._v2NodeTriggered = {};
+  if (!gameState._v2GreetedToday) gameState._v2GreetedToday = '';
+  if (!gameState._v2LastChatHalf) gameState._v2LastChatHalf = '';
+  if (!gameState._v2SnsPosted) gameState._v2SnsPosted = false;
+  if (!gameState._v2LiveDone) gameState._v2LiveDone = false;
+  if (!gameState._v2HaeunMsgRead) gameState._v2HaeunMsgRead = false;
+  if (!gameState._v2CurrentNode) gameState._v2CurrentNode = 0;
+  if (!gameState._v2Nicknames) gameState._v2Nicknames = {};
+  if (!gameState._v2UnlockedApps) gameState._v2UnlockedApps = {};
+  if (!gameState._v2Chart) gameState._v2Chart = { weekly: null, monthly: null, lastWeek: '', lastMonth: '', score: { fans: 0, music: 0, votes: 0 } };
+  gameState._v2SaveVersion = 'v2.0';
+}
+// wrap _ensureV16Fields末尾调用
+;(function(){
+  if (typeof _ensureV16Fields === 'function') {
+    var _old = _ensureV16Fields;
+    _ensureV16Fields = function() {
+      _old.apply(this, arguments);
+      _ensureV2Fields();
+    };
+  }
+})();
+
+// ============ 剧情中心（光夜风）============
+// 1) 图标
+;(function(){
+  if (typeof getIcon === 'function') {
+    var _oldGetIcon = getIcon;
+    getIcon = function(name) {
+      if (name === 'story') {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>';
+      }
+      return _oldGetIcon.apply(this, arguments);
+    };
+  }
+})();
+
+// 2) 首页dock加入"剧情"APP（放到"日常"分组第一个）
+;(function(){
+  if (typeof renderHomePage === 'function') {
+    var _oldHome = renderHomePage;
+    renderHomePage = function(container) {
+      _oldHome.apply(this, arguments);
+      // 注入story app到apps列表：找daily那个位置
+      try {
+        // 由于app列表是在renderHomePage闭包里，我们重写apps注入太复杂。
+        // 更简单：直接在DOM里追加一个app-item到第一个.app-grid
+        var grids = container.querySelectorAll('.app-grid');
+        if (grids.length > 0) {
+          var firstGrid = grids[0];
+          // 检查是否已有story
+          if (!firstGrid.querySelector('[data-id="story"]')) {
+            var item = document.createElement('div');
+            item.className = 'app-item';
+            item.setAttribute('data-id', 'story');
+            item.onclick = function(){ goToPage('story'); };
+            var _chProg = (typeof _v2GetChapterProgress === 'function') ? _v2GetChapterProgress() : null;
+            var _newDot = (_chProg && _chProg.completed < _chProg.total) ? '<div class="app-red-dot"></div>' : '';
+            item.innerHTML = '<div class="app-icon-wrap" style="background:linear-gradient(135deg,#A78BFA,#7C3AED);color:#fff;">'
+              + '<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>'
+              + _newDot
+              + '</div>'
+              + '<div class="app-name">剧情</div>';
+            // 插入到最前面
+            firstGrid.insertBefore(item, firstGrid.firstChild);
+          }
+        }
+      } catch(e) { console.warn('story app inject failed', e); }
+    };
+  }
+})();
+
+// 3) render switch 新增 case 'story'
+;(function(){
+  var _oldRender = render;
+  render = function() {
+    if (currentPage === 'story') {
+      var app = document.getElementById('app');
+      if (app) _v2RenderStoryHub(app);
+      var bn = document.getElementById('bottomNav'); if (bn) bn.style.display = 'none';
+      return;
+    }
+    return _oldRender.apply(this, arguments);
+  };
+})();
+
+// 4) 剧情中心页面
+function _v2RenderStoryHub(container) {
+  _ensureChapterState();
+  _ensureV2Fields();
+  var tab = gameState._v2StoryTab || 'main'; // main / personal / memory
+  var html = '<div class="page active" style="background:linear-gradient(180deg,#0F0C29 0%,#1a1342 100%);min-height:100vh;">'
+    + '<div class="page-header" style="background:rgba(15,12,41,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(167,139,250,0.2);">'
+    + '<div class="back-btn" onclick="goToPage(\'home\')" style="color:#fff;">‹ 返回</div>'
+    + '<div class="page-title" style="color:#fff;">剧情</div>'
+    + '<div style="width:40px;"></div>'
+    + '</div>'
+    // 顶部banner
+    + '<div style="margin:16px 20px 0;border-radius:16px;overflow:hidden;position:relative;background:linear-gradient(135deg,rgba(167,139,250,0.3),rgba(124,58,237,0.2));padding:24px 20px;">'
+    + '<div style="font-size:20px;font-weight:700;color:#fff;letter-spacing:0.05em;margin-bottom:6px;">CHAPTERS</div>'
+    + '<div style="font-size:12px;color:rgba(255,255,255,0.6);letter-spacing:0.15em;">与他们相遇的所有故事</div>'
+    + '</div>'
+    // tab切换
+    + '<div style="display:flex;gap:0;padding:16px 20px 0;">'
+    + _v2StoryTabBtn('main','主线', tab)
+    + _v2StoryTabBtn('personal','个人线', tab)
+    + _v2StoryTabBtn('memory','回忆', tab)
+    + '</div>'
+    + '<div class="page-content" style="padding:12px 20px 100px;">';
+
+  if (tab === 'main') {
+    html += _v2RenderMainStoryList();
+  } else if (tab === 'personal') {
+    html += _v2RenderPersonalStoryList();
+  } else {
+    html += _v2RenderMemoryList();
+  }
+
+  html += '</div></div>';
+  container.innerHTML = html;
+}
+
+function _v2StoryTabBtn(key, label, cur) {
+  var active = key === cur;
+  return '<div onclick="gameState._v2StoryTab=\''+key+'\';render();" style="flex:1;text-align:center;padding:10px 0;font-size:14px;font-weight:'+(active?'700':'500')+';color:'+(active?'#fff':'rgba(255,255,255,0.5)')+';border-bottom:2px solid '+(active?'#A78BFA':'transparent')+';cursor:pointer;">'+label+'</div>';
+}
+
+function _v2RenderMainStoryList() {
+  var curCh = gameState.chapterState.currentChapter || 1;
+  var html = '';
+  // 主线章节列表 - V2_CHAPTERS 里目前只有ch1，其他用"敬请期待"
+  var totalChapters = 10;
+  for (var i = 1; i <= totalChapters; i++) {
+    var chap = V2_CHAPTERS[i-1];
+    var unlocked = i <= curCh;
+    var completed = false;
+    if (chap) {
+      var chKey = 'ch' + i;
+      // 判断是否完成：第一章看节点1.7是否完成
+      completed = gameState._v2NodeCompleted && gameState._v2NodeCompleted['ch1_1.7'];
+      if (i > 1) completed = (i < curCh);
+    }
+    var title = chap ? chap.title : ('第' + i + '章');
+    var subtitle = chap ? (chap.subtitle || '') : '敬请期待';
+    var isNew = (i === curCh) && !completed;
+
+    html += '<div style="margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid '+(unlocked?'rgba(167,139,250,0.3)':'rgba(255,255,255,0.08)')+';border-radius:14px;overflow:hidden;'+(unlocked?'cursor:pointer;':'opacity:0.5;')+'" '
+      + (unlocked ? 'onclick="_v2EnterChapter('+i+')"' : '') + '>'
+      + '<div style="display:flex;align-items:center;padding:16px;">'
+      + '<div style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;background:'+(completed?'linear-gradient(135deg,#A78BFA,#7C3AED)':(unlocked?'linear-gradient(135deg,rgba(167,139,250,0.3),rgba(124,58,237,0.2))':'rgba(255,255,255,0.08)'))+';color:#fff;margin-right:14px;flex-shrink:0;">'
+      + (unlocked ? i : '🔒') + '</div>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+      + '<div style="font-size:15px;font-weight:700;color:#fff;">'+title+'</div>'
+      + (isNew ? '<div style="font-size:10px;background:#FF2D55;color:#fff;padding:2px 6px;border-radius:4px;font-weight:600;">NEW</div>' : '')
+      + (completed ? '<div style="font-size:10px;color:#A78BFA;">✓ 已完成</div>' : '')
+      + '</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;">'+subtitle+'</div>'
+      + '</div>'
+      + '<div style="color:rgba(255,255,255,0.4);font-size:18px;">›</div>'
+      + '</div>';
+
+    // 进度条（当前章节显示进度）
+    if (chap && i === curCh && !completed) {
+      var prog = _v2GetChapterProgress ? _v2GetChapterProgress() : {completed:0,total:0};
+      var pct = prog.total > 0 ? Math.round(prog.completed / prog.total * 100) : 0;
+      html += '<div style="padding:0 16px 14px;">'
+        + '<div style="display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px;">'
+        + '<span>进度</span><span>'+prog.completed+'/'+prog.total+'</span></div>'
+        + '<div style="width:100%;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">'
+        + '<div style="width:'+pct+'%;height:100%;background:linear-gradient(90deg,#A78BFA,#C9A0FF);border-radius:2px;"></div>'
+        + '</div></div>';
+    }
+    html += '</div>';
+  }
+  return html;
+}
+
+function _v2RenderPersonalStoryList() {
+  var npcs = [
+    { key:'haeun', name:'夏恩', tag:'队长', color:'#F472B6' },
+    { key:'soah', name:'素雅', tag:'主唱', color:'#A78BFA' },
+    { key:'jiwon', name:'智媛', tag:'忙内', color:'#FBBF24' },
+    { key:'junho', name:'俊昊', tag:'领唱', color:'#60A5FA' },
+    { key:'seokhyun', name:'瑞贤', tag:'主Rapper', color:'#34D399' }
+  ];
+  var html = '';
+  for (var i = 0; i < npcs.length; i++) {
+    var n = npcs[i];
+    var love = (gameState.npc好感度 && gameState.npc好感度[n.name]) || 0;
+    var stages = [
+      { lv:20, name:'初遇', desc:'你们的故事开始的地方' },
+      { lv:40, name:'接近', desc:'第一次真正的对话' },
+      { lv:60, name:'信任', desc:'TA开始向你展露真心' },
+      { lv:80, name:'羁绊', desc:'TA的秘密只告诉你' }
+    ];
+    html += '<div style="margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">'
+      + '<div style="display:flex;align-items:center;margin-bottom:10px;">'
+      + '<div style="width:40px;height:40px;border-radius:50%;background:'+n.color+';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-right:12px;">'+n.name.charAt(0)+'</div>'
+      + '<div style="flex:1;">'
+      + '<div style="font-size:14px;font-weight:700;color:#fff;">'+n.name+' <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;">'+n.tag+'</span></div>'
+      + '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">好感度 '+love+'</div>'
+      + '</div>'
+      + '</div>'
+      + '<div style="display:flex;gap:6px;">';
+    for (var s = 0; s < stages.length; s++) {
+      var st = stages[s];
+      var un = love >= st.lv;
+      html += '<div style="flex:1;padding:8px 4px;text-align:center;background:'+(un?n.color:'rgba(255,255,255,0.05)')+';border-radius:8px;'+(un?'cursor:pointer;':'opacity:0.4;')+'" '
+        + (un ? 'onclick="showToast(\''+n.name+'·'+st.name+'：后续章节开放\')"' : '') + '>'
+        + '<div style="font-size:11px;font-weight:700;color:'+(un?'#fff':'rgba(255,255,255,0.3)')+';">'+st.name+'</div>'
+        + '<div style="font-size:9px;color:'+(un?'rgba(255,255,255,0.8)':'rgba(255,255,255,0.2)')+';margin-top:2px;">'+st.lv+'↑</div>'
+        + '</div>';
+    }
+    html += '</div></div>';
+  }
+  return html;
+}
+
+function _v2RenderMemoryList() {
+  var memories = [];
+  // 收集已解锁回忆
+  if (gameState.chapterState && gameState.chapterState.unlockedMemories) {
+    var memKeys = Object.keys(gameState.chapterState.unlockedMemories);
+    for (var i = 0; i < memKeys.length; i++) {
+      memories.push(gameState.chapterState.unlockedMemories[memKeys[i]]);
+    }
+  }
+  if (memories.length === 0) {
+    return '<div style="text-align:center;padding:60px 20px;color:rgba(255,255,255,0.4);font-size:13px;">完成主线剧情即可解锁回忆片段</div>';
+  }
+  var html = '';
+  for (var mi = 0; mi < memories.length; mi++) {
+    var m = memories[mi];
+    html += '<div style="margin-bottom:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;">'
+      + '<div style="font-size:13px;font-weight:600;color:#A78BFA;margin-bottom:4px;">'+(m.title||'回忆')+'</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6;">'+(m.desc||'')+'</div>'
+      + '</div>';
+  }
+  return html;
+}
+
+function _v2EnterChapter(chNum) {
+  // 启动第chNum章剧情
+  if (chNum === 1) {
+    gameState.chapterState.currentChapter = 1;
+    gameState._v2CurrentNode = 0;
+    currentPage = 'scene';
+    window._inSceneMode = true;
+    // 进入第一章：如果还没触发过1.0，就从1.0开始
+    if (!gameState._v2NodeTriggered) gameState._v2NodeTriggered = {};
+    if (!gameState._v2NodeTriggered['ch1_1.0']) {
+      // 触发开局邮件
+      gameState._v2NodeTriggered['ch1_1.0'] = true;
+    }
+    render();
+    // 主动检查节点
+    if (typeof _v2CheckChapterNodes === 'function') {
+      setTimeout(function(){ _v2CheckChapterNodes(true); }, 300);
+    }
+  } else {
+    showToast('第'+chNum+'章即将开放');
+  }
+}
