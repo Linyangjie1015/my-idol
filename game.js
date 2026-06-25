@@ -16251,7 +16251,7 @@ render = function() {
 })();
 
 /* ---------- 版本号 ---------- */
-var V2_VERSION = 'v2.0.1-ch1 (build 0625-night)';
+var V2_VERSION = 'v2.0.2-ch1 (build 0625-savefix)';
 
 /* ---------- 1. 设置页：音量滑块 ---------- */
 function _v2PlaySfx(name) {
@@ -17475,3 +17475,61 @@ document.addEventListener('touchstart', function _v2FirstTouch() {
     if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch(e) {} }
     document.removeEventListener('touchstart', _v2FirstTouch);
 }, { once: true });
+
+;(function(){
+  // 版本标记 - 存档兼容只认v2
+  var V2_SAVE_VER = 'v2.0';
+  // 在游戏首次启动时自动清理不兼容的V1存档（避免用户看到红屏/卡白屏）
+  try {
+    for (var si = 0; si < 3; si++) {
+      var k = _getSaveKey ? _getSaveKey(si) : ('myidol_save_' + si);
+      var raw = localStorage.getItem(k);
+      if (raw) {
+        try {
+          var d = JSON.parse(raw);
+          if (!d._v2SaveVersion) {
+            localStorage.removeItem(k);
+          }
+        } catch(e) {
+          localStorage.removeItem(k);
+        }
+      }
+    }
+    // 也清掉老key格式残留
+    var oldKeys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key && (key.indexOf('myidol_save_') === 0 || key.indexOf('myidol_saves_') === 0)) {
+        try {
+          var v = localStorage.getItem(key);
+          if (v) {
+            var jd = JSON.parse(v);
+            if (!jd._v2SaveVersion && !jd.vipTier) {
+              oldKeys.push(key);
+            }
+          } else {
+            oldKeys.push(key);
+          }
+        } catch(e) { oldKeys.push(key); }
+      }
+    }
+    for (var ki = 0; ki < oldKeys.length; ki++) localStorage.removeItem(oldKeys[ki]);
+  } catch(e) {}
+
+  // wrap startNewGame，写入版本号
+  if (typeof startNewGame === 'function') {
+    var _v2OldStart = startNewGame;
+    startNewGame = function(slot) {
+      _v2OldStart.apply(this, arguments);
+      gameState._v2SaveVersion = V2_SAVE_VER;
+    };
+  }
+  // wrap saveGame，写入版本号
+  if (typeof saveGame === 'function') {
+    var _v2OldSave = saveGame;
+    saveGame = function(slot) {
+      gameState._v2SaveVersion = V2_SAVE_VER;
+      return _v2OldSave.apply(this, arguments);
+    };
+  }
+})();
