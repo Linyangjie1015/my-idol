@@ -2647,6 +2647,86 @@ var HIDDEN_DIALOGUES = {};
 
 // V1.7: Love relationship 5-node system (20/40/60/80/100)
 var LOVE_NODES = [20, 40, 60, 80, 100];
+
+// V2.0 Feature #3: Affection affects dialogue tone
+// 5 stages: 陌生(0-19) / 熟悉(20-39) / 暧昧(40-59) / 亲密(60-79) / 专属(80-100)
+var NPC_TONE_PREFIX = {
+    '夏恩': {
+        stranger: ['……', ''],
+        familiar: ['喔。', '。'],
+       暧昧: ['吧。', '。'],
+        intimate: ['喔，是你。', '嗯。'],
+        exclusive: ['你来了。', '我在等你。']
+    },
+    '素雅': {
+        stranger: ['你好。', ''],
+        familiar: ['嗯，你好。', '。'],
+        暧昧: ['……谢谢。', '。'],
+        intimate: ['我刚好想和你说话。', '。'],
+        exclusive: ['又见到你了。', '这次我先开口。']
+    },
+    '智媛': {
+        stranger: ['啦？', ''],
+        familiar: ['嘿嘿~', '。'],
+        暧昧: ['哇，是你！', '~'],
+        intimate: ['终于来找我了！', '~'],
+        exclusive: ['我等你好久了！！', '~']
+    },
+    '俊昊': {
+        stranger: ['你好。', ''],
+        familiar: ['嘿！', '。'],
+        暧昧: ['哈哈，又见了。', '。'],
+        intimate: ['我刚好想找你。', '。'],
+        exclusive: ['每次见你都很开心。', '。']
+    },
+    '瑞贤': {
+        stranger: ['……', ''],
+        familiar: ['……嗯。', '。'],
+        暧昧: ['来了。', '。'],
+        intimate: ['你来了……我没等。', '。'],
+        exclusive: ['……别走。', '……留下来。']
+    }
+};
+
+function _getNpcToneKey(npcName) {
+    var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    if (love >= 80) return 'exclusive';
+    if (love >= 60) return 'intimate';
+    if (love >= 40) return '暧昧';
+    if (love >= 20) return 'familiar';
+    return 'stranger';
+}
+
+function _getNpcTonePrefix(npcName) {
+    var tones = NPC_TONE_PREFIX[npcName];
+    if (!tones) return '';
+    var key = _getNpcToneKey(npcName);
+    var prefixes = tones[key];
+    if (!prefixes || prefixes.length === 0) return '';
+    return prefixes[Math.floor(Math.random() * prefixes.length)];
+}
+
+function _getNpcToneSuffix(npcName) {
+    var tones = NPC_TONE_PREFIX[npcName];
+    if (!tones) return '';
+    var key = _getNpcToneKey(npcName);
+    var suffixes = tones[key];
+    if (!suffixes || suffixes.length < 2) return '';
+    return suffixes[Math.floor(Math.random() * suffixes.length)];
+}
+
+
+// V2.0 Feature #16: Affection stage visualization helper
+function _getAffectionStageHtml(npcName) {
+    var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    var status = getLoveStatus(love);
+    if (!status || love === 0) return '';
+    return '\u003cspan style="display:inline-flex;align-items:center;gap:3px;font-size:10px;color:' + status.color + ';"\u003e'
+        + '\u003cspan style="width:5px;height:5px;border-radius:50%;background:' + status.color + ';"\u003e\u003c/span\u003e'
+        + status.label
+        + '\u003c/span\u003e';
+}
+
 var LOVE_STATUS = [
   { min: 0, max: 19, label: "陌生", color: "#9CA3AF", icon: "" },
   { min: 20, max: 39, label: "熟悉", color: "#3B82F6", icon: "" },
@@ -14504,9 +14584,12 @@ function _sendStepNpcMsg(stepKey) {
     var now = new Date();
     var h = now.getHours(); var m = now.getMinutes();
     var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    // V2.0 Feature #3: Add affection-based tone prefix
+    var tonePrefix = _getNpcTonePrefix(feedback.npc);
+    var msgText = (tonePrefix ? tonePrefix + ' ' : '') + feedback.text;
     gameState.sms.unshift({
         from: feedback.npc,
-        text: feedback.text,
+        text: msgText,
         icon: feedback.color,
         time: ts,
         read: false
@@ -14550,9 +14633,12 @@ function _checkDailyLoginGreeting() {
     else if (topNpc === '智媛') npcColor = '#F472B6';
     else if (topNpc === '俊昊') npcColor = '#60A5FA';
     else if (topNpc === '瑞贤') npcColor = '#34D399';
+    // V2.0 Feature #3: Add affection-based tone prefix
+    var greetPrefix = _getNpcTonePrefix(topNpc);
+    var greetText = (greetPrefix ? greetPrefix + ' ' : '') + msg;
     gameState.sms.unshift({
         from: topNpc,
-        text: msg,
+        text: greetText,
         icon: npcColor,
         time: ts,
         read: false
