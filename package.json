@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
+    "acorn": "^8.17.0",
     "esprima": "^4.0.1"
   }
 }
