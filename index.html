@@ -1434,10 +1434,10 @@ window.addEventListener('error', function(e) {
 <body><div id="npcCardOverlay" class="npc-card-overlay" onclick="if(event.target===this)closeNpcCard()">
   <div class="npc-card" id="npcCardContent"></div>
 </div>
-<div id="inviteGate">
+<div id="inviteGate" class="hidden">
 <div class="gate-logo">M</div>
 <div class="gate-title">My Idol V1.7</div>
-<div class="gate-desc">内测专用，请输入邀请码进入</div>
+<div class="gate-desc">公测已开放，直接进入游戏</div>
 <div class="gate-card">
 <input class="gate-input" id="gateCodeInput" type="text" placeholder="请输入邀请码" maxlength="20" />
 <button class="gate-btn" id="gateBtn" onclick="verifyGate()">验证进入</button>
@@ -1748,14 +1748,14 @@ if ("serviceWorker" in navigator) {
         if (_app) _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FF6B8A"><div style="font-size:18px;font-weight:700">加载超时</div><div style="font-size:12px;margin-top:8px">请截图此页面发给我，然后尝试：</div><div style="font-size:11px;margin-top:4px;color:#999">设置 > Safari > 清除历史记录与网站数据</div><button onclick="localStorage.clear();location.reload()" style="margin-top:16px;padding:8px 20px;background:#FF8FA3;color:white;border:none;border-radius:20px">清除缓存重试</button></div>';
     }
 
-    if (localStorage.getItem(VERIFIED_KEY) === '1') {
-        document.getElementById('inviteGate').className = 'hidden';
-        window._inviteVerified = true;
-        __diag('Already verified, waiting for JS...');
-        __updateLoad('加载游戏中...');
-        _waitForRenderAndGo();
-        return;
-    }
+    // V1.7 public beta: auto-verify, no invite code needed
+    document.getElementById('inviteGate').className = 'hidden';
+    window._inviteVerified = true;
+    localStorage.setItem(VERIFIED_KEY, '1');
+    __diag('Public beta - auto verified, loading game...');
+    __updateLoad('加载游戏中...');
+    _waitForRenderAndGo();
+    return;
 
     window.verifyGate = function() {
         var code = document.getElementById('gateCodeInput').value.trim().toUpperCase();
