@@ -14352,6 +14352,21 @@ var CHAPTER_CONFIG = {
             '1.7': { type: 'narration', nextStep: '1.8', condition: 'fans', target: 50, label: '\u7C89\u4E1D 0/50', app: 'fancommunity' },
             '1.8': { type: 'chapter_end', condition: 'dance', target: 50, app: 'contacts' }
         }
+    },
+    2: {
+        title: 'Chapter 2',
+        subtitle: '\u6210\u957F',
+        steps: {
+            '2.0': { type: 'narration', nextStep: '2.1', condition: 'dance', target: 50, label: '\u821E\u8E48 0/50', scene: 'lobby' },
+            '2.1': { type: 'narration', nextStep: '2.2', condition: 'vocal', target: 50, label: '\u58F0\u4E50 0/50', scene: 'practice_room', unlockApp: 'schedule' },
+            '2.2': { type: 'choice', nextStep: '2.3', choiceKey: 'street_performance', condition: 'scheduleCount', target: 1, label: '\u5B8C\u6210\u65E5\u7A0B 0/1', scene: 'street' },
+            '2.3': { type: 'narration', nextStep: '2.4', condition: 'rap', target: 40, label: '\u8BF4\u5531 0/40', scene: 'street', unlockApp: 'sns' },
+            '2.4': { type: 'choice', nextStep: '2.5', choiceKey: 'manager_talk', condition: 'dance', target: 70, label: '\u821E\u8E48 0/70', app: 'contacts' },
+            '2.5': { type: 'choice', nextStep: '2.6', choiceKey: 'debut_eval', condition: 'dance', target: 70, label: '\u821E\u8E48 0/70' },
+            '2.6': { type: 'choice', nextStep: '2.7', choiceKey: 'debut_plan', condition: 'dance', target: 60, label: '\u821E\u8E48 0/60', unlockApp: 'debut' },
+            '2.7': { type: 'narration', nextStep: '2.8', scene: 'recording_studio', unlockApp: 'recording' },
+            '2.8': { type: 'chapter_end', condition: 'dance', target: 70, app: 'contacts' }
+        }
     }
 };
 
@@ -14620,6 +14635,53 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
             { id: 'shy', text: '\u201C\u5927\u5BB6\u597D\uFF0C\u6211\u662F' + (gameState.player.name || '') + '\u3002\u8BF7\u591A\u5173\u7167\u3002\u201D', icon: 'B', fansGain: 20 },
             { id: 'serious', text: '\u201C\u5927\u5BB6\u597D\uFF0C\u6211\u662F' + (gameState.player.name || '') + '\u3002\u4EE5\u540E\u4F1A\u597D\u597D\u52AA\u529B\u7684\u3002\u201D', icon: 'C', fansGain: 10 }
         ];
+    } else if (stepKey === '2.2') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u8857\u5934\u003c/div\u003e';
+        html += '\u003cdiv style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;"\u003e';
+        html += '\u003cdiv style="font-size:13px;color:#F59E0B;margin-bottom:8px;"\u003e\u590F\u6069\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.6;color:#E2E8F0;"\u003e\u201C\u516C\u53F8\u5B89\u6392\u4E86\u4E00\u6B21\u8857\u5934\u8DEF\u6F14\u3002\u6BCF\u4E2A\u4EBA\u90FD\u5F97\u4E0A\uFF0C\u8FD9\u662F\u4F60\u7B2C\u4E00\u6B21\u516C\u5F00\u4EAE\u76F8\u3002\u4F60\u60F3\u5531\u4EC0\u4E48\u98CE\u683C\uFF1F\u201D\u003c/div\u003e';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'ballad', text: '\u201C\u60F3\u5531\u4E00\u9996\u6162\u6B4C\uFF0C\u8BA9\u4EBA\u8BB0\u4F4F\u6211\u7684\u58F0\u97F3\u3002\u201D', icon: 'A', gain: 10, fansGain: 25 },
+            { id: 'dance_track', text: '\u201C\u8DF3\u821E\u66F2\uFF01\u6211\u7684\u821E\u8E88\u6BD4\u5531\u6B4C\u66F4\u6709\u8BF4\u670D\u529B\u3002\u201D', icon: 'B', gain: 15, fansGain: 15 },
+            { id: 'rap_cover', text: '\u201C\u8BA9\u745E\u8D24\u6559\u6211\u4E00\u6BB5Rap\uFF0C\u6211\u60F3\u8BD5\u8BD5\u3002\u201D', icon: 'C', gain: 5, fansGain: 35 }
+        ];
+    } else if (stepKey === '2.4') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u516C\u53F8 \u00B7 \u4F1A\u8BAE\u5BA4\u003c/div\u003e';
+        html += '\u003cdiv style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;"\u003e';
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:8px;"\u003e\u7ECF\u7EAA\u4EBA\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.6;color:#E2E8F0;"\u003e\u201C\u6211\u4EEC\u8BA8\u8BBA\u4E86\u4F60\u7684\u5B9A\u4F4D\u3002\u4F60\u7684\u821E\u8E48\u8FDB\u6B65\u5F88\u5FEB\uFF0C\u4F46\u6211\u4EEC\u5BF9\u4F60\u7684\u65B9\u5411\u6709\u4E0D\u540C\u610F\u89C1\u3002\u4F60\u89C9\u5F97\u81EA\u5DF1\u66F4\u50CF\u4EC0\u4E48\uFF1F\u201D\u003c/div\u003e';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'all_round', text: '\u201C\u6211\u60F3\u5168\u9762\u53D1\u5C55\uFF0C\u4EC0\u4E48\u90FD\u80FD\u505A\u3002\u201D', icon: 'A' },
+            { id: 'vocal_focus', text: '\u201C\u6211\u60F3\u5F53\u4E3B\u5531\uFF0C\u7528\u58F0\u97F3\u7AD9\u5728\u4E2D\u5FC3\u3002\u201D', icon: 'B' },
+            { id: 'dance_focus', text: '\u201C\u821E\u8E48\u662F\u6211\u7684\u6838\u5FC3\uFF0C\u6211\u60F3\u5F53\u9886\u821E\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '2.5') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u8003\u6838\u573A\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;"\u003e\u51FA\u9053\u8BC4\u4F30\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;"\u003e';
+        html += '\u4E94\u4E2A\u4EBA\u4F9D\u6B21\u4E0A\u573A\u3002\u4F60\u7AD9\u5728\u53F0\u4E0A\uFF0C\u706F\u5149\u5F88\u4EAE\uFF0C\u5BF5\u5927\u7684\u623F\u95F4\u91CC\u53EA\u6709\u4F60\u548C\u5BA1\u67E5\u5B98\u3002\u003cbr\u003e\u003cbr\u003e';
+        html += '\u4F60\u5B8C\u6210\u4E86\u821E\u8E48\u548C\u58F0\u4E50\u4E24\u9879\u8003\u6838\u3002\u8003\u5B98\u4EA4\u5934\u63A5\u8033\u3002\u003cbr\u003e\u003cbr\u003e';
+        html += '\u7ED3\u679C\u2014\u2014\u901A\u8FC7\u3002';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'celebrate', text: '\u201C\u6211\u505A\u5230\u4E86\uFF01\u201D', icon: 'A' },
+            { id: 'stay_calm', text: '\u201C\u8FD9\u53EA\u662F\u7B2C\u4E00\u6B65\u3002\u201D', icon: 'B' },
+            { id: 'thank_team', text: '\u201C\u8C22\u8C22\u590F\u6069\u548C\u5927\u5BB6\u7684\u5E2E\u52A9\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '2.6') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u51FA\u9053\u4F01\u5212\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;"\u003e\u9009\u62E9\u4F60\u7684\u51FA\u9053\u65B9\u5411\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;"\u003e';
+        html += '\u7ECF\u7EAA\u4EBA\u62FF\u51FA\u4E00\u4EFD\u6587\u4EF6\uFF1A\u201C\u56E2\u540D\u6982\u5FF5\u548C\u4E3B\u6253\u6B4C\u98CE\u683C\uFF0C\u4F60\u4EEC\u6765\u51B3\u5B9A\u3002\u201D\u003cbr\u003e\u003cbr\u003e';
+        html += '\u4E94\u4E2A\u4EBA\u56F4\u5728\u4E00\u8D77\uFF0C\u8FD9\u662F\u4F60\u4EEC\u7B2C\u4E00\u6B21\u4E00\u8D77\u505A\u4E00\u4E2A\u91CD\u5927\u51B3\u5B9A\u3002';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'cool_concept', text: '\u201C\u6211\u4EEC\u8D70\u9177\u98CE\uFF0C\u50CFBLACKPINK\u90A3\u79CD\u6C14\u573A\u3002\u201D', icon: 'A' },
+            { id: 'youth_concept', text: '\u201C\u6211\u4EEC\u8D70\u9752\u6625\u98CE\uFF0C\u8BA9\u4EBA\u89C9\u5F97\u6709\u5E0C\u671B\u3002\u201D', icon: 'B' },
+            { id: 'mystery_concept', text: '\u201C\u795E\u79D8\u611F\uFF0C\u8BA9\u4EBA\u60F3\u4E86\u89E3\u6211\u4EEC\u3002\u201D', icon: 'C' }
+        ];
     }
     inner.innerHTML = html;
 
@@ -14633,7 +14695,15 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
             btn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#94A3B8;font-size:13px;flex-shrink:0;">' + o.icon + '</span><span style="flex:1;">' + o.text + '</span>';
             btn.onclick = function() {
                 cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() });
-                if (o.gain) { gameState.stats.dance = Math.min(150, (gameState.stats.dance || 0) + o.gain); }
+                if (o.gain) {
+                    if (stepKey === '2.2') {
+                        if (o.id === 'ballad') { gameState.stats.vocal = Math.min(150, (gameState.stats.vocal || 0) + o.gain); }
+                        else if (o.id === 'dance_track') { gameState.stats.dance = Math.min(150, (gameState.stats.dance || 0) + o.gain); }
+                        else if (o.id === 'rap_cover') { gameState.stats.rap = Math.min(150, (gameState.stats.rap || 0) + o.gain); }
+                    } else {
+                        gameState.stats.dance = Math.min(150, (gameState.stats.dance || 0) + o.gain);
+                    }
+                }
                 if (o.fansGain) { gameState.fans = (gameState.fans || 0) + o.fansGain; }
                 if (o.reply) {
                     var ol = document.getElementById('chapterOverlay');
@@ -14668,8 +14738,8 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     var chapterChoices = [];
     var ci;
     for (ci = 0; ci < cs.choices.length; ci++) { if (cs.choices[ci].chapter === cs.currentChapter) chapterChoices.push(cs.choices[ci]); }
-    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F' };
-    var appLabels = { contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A', daily: '\u4ECA\u65E5\u4EFB\u52A1' };
+    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F', ballad: '\u6162\u6B4C', dance_track: '\u821E\u8E48\u66F2', rap_cover: 'Rap', all_round: '\u5168\u9762', vocal_focus: '\u4E3B\u5531', dance_focus: '\u9886\u821E', celebrate: '\u6211\u505A\u5230\u4E86', stay_calm: '\u7B2C\u4E00\u6B65', thank_team: '\u611F\u8C22\u56E2\u961F', cool_concept: '\u9177\u98CE', youth_concept: '\u9752\u6625', mystery_concept: '\u795E\u79D8' };
+    var appLabels = { contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A', daily: '\u4ECA\u65E5\u4EFB\u52A1', debut: '\u51FA\u9053\u4F01\u5212', recording: '\u5F55\u97F3\u5BA4' };
     var html = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + ' COMPLETE</div>';
     html += '<div style="font-size:24px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">\u5165\u793E</div>';
     html += '<div style="width:40px;height:2px;background:#1E293B;margin:12px auto;"></div>';
@@ -14688,8 +14758,10 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     inner.innerHTML = html;
     var btn = document.createElement('button');
     btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;width:100%;';
-    btn.textContent = '\u8FDB\u5165\u7B2C2\u7AE0';
-    btn.onclick = function() { cs.currentChapter = 2; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); triggerSilentSave(); render(); };
+    var nextCh = cs.currentChapter + 1;
+    var nextTitles = { 2: '\u6210\u957F', 3: '\u51FA\u9053' };
+    btn.textContent = '\u8FDB\u5165\u7B2C' + nextCh + '\u7AE0';
+    btn.onclick = function() { cs.currentChapter = nextCh; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); triggerSilentSave(); render(); };
     inner.appendChild(btn);
 }
 
