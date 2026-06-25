@@ -1600,6 +1600,10 @@ function renderScenePage(container) {
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + '</div>'
         + '<div style="position:absolute;bottom:max(8px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:14px;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);border-radius: 12px;padding:6px 16px;">' + '<div onclick="_exitSceneToUI()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg>手机</div>' + '<div onclick="_showSceneNavModal()" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg>导航</div>' + '<div onclick="goToPage(&#39;me&#39;)" style="color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg>我的</div>' + '</div>'
         + '</div>'
+    // V2.0 Feature #20: Render NPC markers in scene
+    var _sceneLayer = container.querySelector('div[style*="z-index:5"]');
+    if (_sceneLayer && typeof SCENE_NPC_MARKERS !== 'undefined' && typeof _renderSceneNpcMarkers === 'function') { _renderSceneNpcMarkers(_sceneLayer, sceneId); }
+
 }
 
 // ==================== TRAINING PAGE ====================
