@@ -228,25 +228,7 @@ var gameState = {
     dayActionLog: [],
     cooldowns: { debut: 0, comeback: 0, confess: 0 },
     equippedOutfit: null,
-    ownedClothes: [],
-    chapterState: {
-        currentChapter: 0,
-        currentStep: 0,
-        choices: [],
-        unlockedApps: ['daily'],
-        readApps: ['daily'],
-        completedSteps: [],
-        isIdolLine: false,
-        chapterCounts: {
-            trainCount: 0,
-            scheduleCount: 0,
-            snsPostCount: 0,
-            liveCount: 0,
-            fansAtChapterStart: 0,
-            musicShowCount: 0,
-            fameAtChapterStart: 0
-        }
-    }
+    ownedClothes: []
 };
 var _defaultGameState = JSON.parse(JSON.stringify(gameState));
 
@@ -349,13 +331,11 @@ function render() {
                 } else {
                     renderHomePage(app);
                 }
-                if (typeof renderChapterOverlay === 'function') renderChapterOverlay(app);
                 break;
             case 'phoneui':
                 renderHomePage(app);
                 break;
             case 'training':
-                if (typeof markAppRead === 'function') markAppRead('training');
                 render训练Page(app);
                 break;
             case 'exam':
@@ -368,7 +348,6 @@ function render() {
                 render我的Page(app);
                 break;
             case 'schedule':
-                if (typeof markAppRead === 'function') markAppRead('schedule');
                 renderSchedulePage(app);
                 break;
             case 'store':
@@ -381,15 +360,12 @@ function render() {
 
 
             case 'contacts':
-                if (typeof markAppRead === 'function') markAppRead('contacts');
                 renderContactsPage(app);
                 break;
             case 'fancommunity':
-                if (typeof markAppRead === 'function') markAppRead('fancommunity');
                 renderFanCommunityPage(app);
                 break;
                         case 'sns':
-                if (typeof markAppRead === 'function') markAppRead('sns');
                 renderSnsPage(app);
                 break;
                         case 'more':
@@ -408,7 +384,6 @@ function render() {
 
 
             case 'live':
-                if (typeof markAppRead === 'function') markAppRead('live');
                 renderLivePage(app);
                 break;
             case 'settings':
@@ -837,8 +812,6 @@ function completeCreation() {
         // 检查管理员模式
         _checkAdmin(localStorage.getItem('myIdolCurrentUser'));
         
-        // V2.0: Start Chapter 1
-        if (typeof startChapter === 'function') startChapter(1);
         // 切换到首页 - 进入场景模式
         window._inSceneMode = true;
         currentPage = 'home';
@@ -1018,9 +991,6 @@ function syncFromApp(sourceApp, data) {
         }
     }
     if (sourceApp === 'schedule' && data && data.action === 'complete') {
-        gameState.scheduleCount = (gameState.scheduleCount || 0) + 1;
-        if (gameState.chapterState && gameState.chapterState.chapterCounts) { gameState.chapterState.chapterCounts.scheduleCount = (gameState.chapterState.chapterCounts.scheduleCount || 0) + 1; }
-        if (typeof checkChapterProgress === 'function') { checkChapterProgress(); }
         if (data.fame > 0 && Math.random() < 0.3) {
             if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
             gameState.hotsearchTopics.unshift({ text: data.name + ' 表现出色', type: 'good', time: Date.now() });
@@ -1709,9 +1679,6 @@ function do训练项目(stat, 体力cost, moneyCost, name) {
     
     var names = { dance: '舞蹈', vocal: '声乐', rap: '说唱', acting: '表演', variety: '综艺' };
     showModal('训练完成', '-' + 体力cost + ' 体力\n-' + moneyCost.toLocaleString() + ' 金币\n+' + gain + ' ' + names[stat]); _trackWeeklyGoal('train', 1);
-    gameState.trainCount = (gameState.trainCount || 0) + 1;
-    if (gameState.chapterState && gameState.chapterState.chapterCounts) { gameState.chapterState.chapterCounts.trainCount = (gameState.chapterState.chapterCounts.trainCount || 0) + 1; }
-    if (typeof checkChapterProgress === 'function') { checkChapterProgress(); }
     render();
 }
 
@@ -4489,7 +4456,6 @@ function getAppRedDot(appId) {
             count = _getDailyTodoCount();
             break;
     }
-    if (typeof hasChapterRedDot === 'function') { if (hasChapterRedDot(appId)) count += 1; }
     return count > 0 ? count : null;
 }
 function goToPage(page) {
@@ -7889,8 +7855,6 @@ function stopLive() {
     gameState.money += revenue;
     _trackWeeklyGoal('live', 1); _trackWeeklyGoal('earn', revenue);
     gameState.fame = (gameState.fame || 30) + Math.floor(Math.random() * 5) + 2;
-    if (gameState.chapterState && gameState.chapterState.chapterCounts) { gameState.chapterState.chapterCounts.liveCount = (gameState.chapterState.chapterCounts.liveCount || 0) + 1; }
-    if (typeof checkChapterProgress === 'function') { checkChapterProgress(); }
     
     gameState.livePendingReward = true;
     syncFromApp('live', { action: 'live_end', viewers: viewers, revenue: revenue });
@@ -12435,8 +12399,6 @@ function _ensureV16Fields() {
         gameState.gacha._savedCollection.topIdol = JSON.parse(JSON.stringify(gameState.gacha.topIdol.collection));
     }
     if (typeof initGachaPool === 'function') initGachaPool();
-
-    if (!gameState.chapterState) { gameState.chapterState = { currentChapter: 0, currentStep: 0, choices: [], unlockedApps: ['daily'], readApps: ['daily'], completedSteps: [], isIdolLine: false, chapterCounts: { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: 0, musicShowCount: 0, fameAtChapterStart: 0 } }; }
 }
 
 var _kakaoAddPersonality = '';
@@ -14938,220 +14900,4 @@ function getCheckInInfo() {
     }
     var checkedIn = gameState._lastCheckIn === today;
     return { streak: streak, checkedIn: checkedIn };
-}
-
-
-// ========== V2.0 CHAPTER SYSTEM ==========
-
-var CHAPTER_CONFIG = {
-    1: {
-        title: 'Chapter 1',
-        subtitle: 'Joining the Family',
-        steps: {
-            '1.0': { type: 'narration', nextStep: '1.1' },
-            '1.1': { type: 'choice', nextStep: '1.2', choiceKey: 'interview' },
-            '1.2': { type: 'auto_open', app: 'schedule', nextStep: '1.3', condition: 'scheduleCount', target: 1, label: 'Schedule 0/1' },
-            '1.3': { type: 'auto_open', app: 'sns', nextStep: '1.4', condition: 'snsPostCount', target: 1, label: 'SNS Post 0/1' },
-            '1.4': { type: 'auto_open', app: 'training', nextStep: '1.5', condition: 'trainCount', target: 1, label: 'Train 0/1' },
-            '1.5': { type: 'choice', nextStep: '1.6', choiceKey: 'junho_doubt', condition: 'trainCount', target: 3, label: 'Train 0/3' },
-            '1.6': { type: 'choice', nextStep: '1.7', choiceKey: 'live_style', condition: 'liveCount', target: 1, label: 'Live 0/1' },
-            '1.7': { type: 'auto_open', app: 'fancommunity', nextStep: '1.8', condition: 'fans', target: 50, label: 'Fans 0/50' },
-            '1.8': { type: 'chapter_end', app: 'contacts' }
-        }
-    }
-};
-
-function checkChapterProgress() {
-    if (!gameState.chapterState) return;
-    var cs = gameState.chapterState;
-    if (cs.currentChapter === 0) return;
-    var chapter = CHAPTER_CONFIG[cs.currentChapter];
-    if (!chapter) return;
-    var stepKey = cs.currentChapter + '.' + cs.currentStep;
-    var stepConfig = chapter.steps[stepKey];
-    if (!stepConfig) return;
-    var i;
-    for (i = 0; i < cs.completedSteps.length; i++) { if (cs.completedSteps[i] === stepKey) return; }
-    if (stepConfig.condition) {
-        var current = 0;
-        if (stepConfig.condition === 'fans') { current = gameState.fans; }
-        else if (stepConfig.condition === 'fame') { current = gameState.fame; }
-        else { current = cs.chapterCounts[stepConfig.condition] || 0; }
-        if (current >= stepConfig.target && stepConfig.type === 'auto_open') {
-            _completeAndAdvanceStep(stepKey, stepConfig);
-        }
-    }
-}
-
-function _completeAndAdvanceStep(stepKey, stepConfig) {
-    var cs = gameState.chapterState;
-    cs.completedSteps.push(stepKey);
-    if (stepConfig.nextStep) { cs.currentStep = parseInt(stepConfig.nextStep.split('.')[1]); }
-    if (stepConfig.app) {
-        if (cs.unlockedApps.indexOf(stepConfig.app) === -1) { cs.unlockedApps.push(stepConfig.app); }
-        if (stepConfig.type === 'auto_open') {
-            setTimeout(function() { currentPage = stepConfig.app; render(); }, 300);
-        }
-    }
-    var nextStepKey = cs.currentChapter + '.' + cs.currentStep;
-    var nextConfig = CHAPTER_CONFIG[cs.currentChapter] && CHAPTER_CONFIG[cs.currentChapter].steps[nextStepKey];
-    if (nextConfig && nextConfig.condition && nextConfig.type === 'auto_open') {
-        var nextCurrent = 0;
-        if (nextConfig.condition === 'fans') { nextCurrent = gameState.fans; }
-        else if (nextConfig.condition === 'fame') { nextCurrent = gameState.fame; }
-        else { nextCurrent = cs.chapterCounts[nextConfig.condition] || 0; }
-        if (nextCurrent >= nextConfig.target) { _completeAndAdvanceStep(nextStepKey, nextConfig); return; }
-    }
-    triggerSilentSave();
-}
-
-function renderChapterOverlay(container) {
-    var cs = gameState.chapterState;
-    if (!cs || cs.currentChapter === 0) return false;
-    var chapter = CHAPTER_CONFIG[cs.currentChapter];
-    if (!chapter) return false;
-    var stepKey = cs.currentChapter + '.' + cs.currentStep;
-    var stepConfig = chapter.steps[stepKey];
-    if (!stepConfig) return false;
-    var i;
-    for (i = 0; i < cs.completedSteps.length; i++) { if (cs.completedSteps[i] === stepKey) return false; }
-    if (stepConfig.type === 'narration') { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
-    if (stepConfig.type === 'choice' && !stepConfig.condition) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
-    if (stepConfig.type === 'choice' && stepConfig.condition) {
-        var current = 0;
-        if (stepConfig.condition === 'fans') { current = gameState.fans; }
-        else if (stepConfig.condition === 'fame') { current = gameState.fame; }
-        else { current = cs.chapterCounts[stepConfig.condition] || 0; }
-        if (current >= stepConfig.target) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
-    }
-    if (stepConfig.type === 'chapter_end' && currentPage === stepConfig.app) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
-    return false;
-}
-
-function _renderChapterStepUI(container, stepKey, stepConfig, chapter) {
-    var overlay = document.createElement('div');
-    overlay.id = 'chapterOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;box-sizing:border-box;';
-    var inner = document.createElement('div');
-    inner.style.cssText = 'max-width:360px;width:100%;text-align:center;color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,sans-serif;';
-    if (stepConfig.type === 'narration') { _renderNarrationStep(inner, stepKey, stepConfig, chapter); }
-    else if (stepConfig.type === 'choice') { _renderChoiceStep(inner, stepKey, stepConfig, chapter); }
-    else if (stepConfig.type === 'chapter_end') { _renderChapterEnd(inner, stepKey, stepConfig, chapter); }
-    overlay.appendChild(inner);
-    container.appendChild(overlay);
-}
-
-function _renderNarrationStep(inner, stepKey, stepConfig, chapter) {
-    var cs = gameState.chapterState;
-    if (stepKey === '1.0') {
-        inner.innerHTML = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + '</div><div style="font-size:28px;font-weight:700;color:#F8FAFC;margin-bottom:8px;">\u5165\u793E</div><div style="font-size:14px;color:#94A3B8;margin-bottom:32px;">\u5F52\u5C5E\u611F\uFF0C\u4ECE\u964C\u751F\u4EBA\u5230\u6709\u5BB6</div>';
-        var narration = document.createElement('div');
-        narration.style.cssText = 'font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:32px;text-align:left;';
-        narration.textContent = '\u4F60\u63A8\u5F00SEONGWOO ENT\u7684\u7384\u7483\u7384\u7483\u95E8\uFF0C\u524D\u53F0\u62AC\u5934\u770B\u4F60\u3002\u4E00\u4E2A\u6234\u773C\u955C\u7684\u7537\u4EBA\u8D70\u6765\uFF1A\u201C\u65B0\u6765\u7684\u7EC3\u4E60\u751F\uFF1F\u8DDF\u6211\u6765\u3002\u201D';
-        inner.appendChild(narration);
-    }
-    var btn = document.createElement('button');
-    btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;';
-    btn.textContent = '\u7EE7\u7EED';
-    btn.onclick = function() { _completeAndAdvanceStep(stepKey, stepConfig); var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); render(); };
-    inner.appendChild(btn);
-}
-
-function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
-    var cs = gameState.chapterState;
-    if (stepKey === '1.1') {
-        inner.innerHTML = '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">SEONGWOO ENT</div><div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;"><div style="font-size:13px;color:#64748B;margin-bottom:8px;">\u793E\u957F</div><div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C\u4E3A\u4EC0\u4E48\u60F3\u5F53\u7231\u8C46\uFF1F\u201D</div></div>';
-        var options = [
-            { id: 'ambition', text: '\u91CE\u5FC3', icon: 'A' },
-            { id: 'passion', text: '\u70ED\u7231', icon: 'B' },
-            { id: 'proof', text: '\u8BC1\u660E', icon: 'C' }
-        ];
-        var optContainer = document.createElement('div');
-        optContainer.style.cssText = 'display:flex;flex-direction:column;gap:10px;width:100%;';
-        var oi, opt;
-        for (oi = 0; oi < options.length; oi++) {
-            (function(o) {
-                var btn = document.createElement('button');
-                btn.style.cssText = 'background:#1E293B;border:1px solid #334155;color:#E2E8F0;padding:14px 18px;border-radius:8px;font-size:14px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;';
-                btn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#94A3B8;font-size:13px;flex-shrink:0;">' + o.icon + '</span><span>' + o.text + '</span>';
-                btn.onclick = function() { cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() }); _completeAndAdvanceStep(stepKey, stepConfig); var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); render(); };
-                optContainer.appendChild(btn);
-            })(options[oi]);
-        }
-        inner.appendChild(optContainer);
-    }
-}
-
-function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
-    var cs = gameState.chapterState;
-    var chapterChoices = [];
-    var ci;
-    for (ci = 0; ci < cs.choices.length; ci++) { if (cs.choices[ci].chapter === cs.currentChapter) chapterChoices.push(cs.choices[ci]); }
-    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F' };
-    var appLabels = { daily: '\u4ECA\u65E5\u4EFB\u52A1', contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A' };
-    var html = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + ' COMPLETE</div>';
-    html += '<div style="font-size:24px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">\u5165\u793E</div>';
-    html += '<div style="width:40px;height:2px;background:#1E293B;margin:12px auto;"></div>';
-    if (chapterChoices.length > 0) {
-        html += '<div style="font-size:13px;color:#64748B;margin:16px 0 8px;text-align:left;">\u4F60\u7684\u9009\u62E9</div>';
-        for (ci = 0; ci < chapterChoices.length; ci++) { html += '<div style="background:#1E293B;border-radius:8px;padding:10px 14px;margin-bottom:6px;text-align:left;font-size:14px;color:#CBD5E1;">' + (choiceLabels[chapterChoices[ci].choiceId] || chapterChoices[ci].choiceId) + '</div>'; }
-    }
-    html += '<div style="font-size:13px;color:#64748B;margin:16px 0 8px;text-align:left;">\u5DF2\u89E3\u9501</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;">';
-    var ai;
-    for (ai = 0; ai < cs.unlockedApps.length; ai++) { html += '<span style="background:#1E293B;border:1px solid #334155;padding:4px 10px;border-radius:6px;font-size:12px;color:#94A3B8;">' + (appLabels[cs.unlockedApps[ai]] || cs.unlockedApps[ai]) + '</span>'; }
-    html += '</div>';
-    html += '<div style="background:#0F172A;border:1px solid #1E293B;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;"><div style="font-size:12px;color:#64748B;margin-bottom:6px;">\u4E0B\u4E00\u7AE0\u9884\u544A</div><div style="font-size:14px;color:#94A3B8;line-height:1.5;">\u4F60\u6B63\u5F0F\u6210\u4E3AHaeoreum\u7684\u4E00\u5458\u3002\u4F46\u771F\u6B63\u7684\u6311\u6218\u624D\u521A\u521A\u5F00\u59CB\u3002</div></div>';
-    inner.innerHTML = html;
-    var btn = document.createElement('button');
-    btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;width:100%;';
-    btn.textContent = '\u8FDB\u5165\u7B2C2\u7AE0';
-    btn.onclick = function() { cs.currentChapter = 2; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); triggerSilentSave(); render(); };
-    inner.appendChild(btn);
-}
-
-function startChapter(chapterNum) {
-    var cs = gameState.chapterState;
-    cs.currentChapter = chapterNum;
-    cs.currentStep = 0;
-    cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame };
-    triggerSilentSave();
-}
-
-function getChapterProgressForApp(appId) {
-    var cs = gameState.chapterState;
-    if (!cs || cs.currentChapter === 0) return null;
-    var chapter = CHAPTER_CONFIG[cs.currentChapter];
-    if (!chapter) return null;
-    var stepKey = cs.currentChapter + '.' + cs.currentStep;
-    var stepConfig = chapter.steps[stepKey];
-    if (!stepConfig) return null;
-    var i;
-    for (i = 0; i < cs.completedSteps.length; i++) { if (cs.completedSteps[i] === stepKey) return null; }
-    if (stepConfig.app === appId && stepConfig.condition) {
-        var current = 0;
-        if (stepConfig.condition === 'fans') { current = gameState.fans; }
-        else if (stepConfig.condition === 'fame') { current = gameState.fame; }
-        else { current = cs.chapterCounts[stepConfig.condition] || 0; }
-        return { label: stepConfig.label, current: current, target: stepConfig.target };
-    }
-    return null;
-}
-
-function _getChapterProgressHtml(appId) {
-    var _cp = (typeof getChapterProgressForApp === 'function') ? getChapterProgressForApp(appId) : null;
-    if (!_cp) return '';
-    var pct = Math.min(100, Math.floor((_cp.current / _cp.target) * 100));
-    return '<div style="background:#1E293B;border-radius:8px;padding:10px 14px;margin:12px 0;"><div style="font-size:12px;color:#94A3B8;margin-bottom:6px;">' + _cp.label + '</div><div style="background:#334155;border-radius:4px;height:6px;"><div style="background:#64748B;border-radius:4px;height:6px;width:' + pct + '%;"></div></div></div>';
-}
-
-function hasChapterRedDot(appId) {
-    var cs = gameState.chapterState;
-    if (!cs) return false;
-    return cs.unlockedApps.indexOf(appId) !== -1 && cs.readApps.indexOf(appId) === -1;
-}
-
-function markAppRead(appId) {
-    var cs = gameState.chapterState;
-    if (!cs) return;
-    if (cs.readApps.indexOf(appId) === -1) cs.readApps.push(appId);
 }
