@@ -1,5 +1,8 @@
 {
   "name": "my-idol-api",
   "version": "1.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "esprima": "^4.0.1"
+  }
 }

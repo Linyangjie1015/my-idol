@@ -358,21 +358,12 @@ function render() {
                 if (typeof markAppRead === 'function') markAppRead('training');
                 render训练Page(app);
                 break;
-            case 'exam':
-                render考核Page(app);
-                break;
-            case 'examGame':
-                renderExamGamePage(app);
-                break;
             case 'me':
                 render我的Page(app);
                 break;
             case 'schedule':
                 if (typeof markAppRead === 'function') markAppRead('schedule');
                 renderSchedulePage(app);
-                break;
-            case 'store':
-                renderStorePage(app);
                 break;
             case 'prroom':
                 renderPrRoomPage(app);
@@ -392,18 +383,6 @@ function render() {
                 if (typeof markAppRead === 'function') markAppRead('sns');
                 renderSnsPage(app);
                 break;
-                        case 'more':
-                render更多服务Page(app);
-                break;
-
-
-
-
-
-
-            case 'loan':
-                renderLoanPage(app);
-                break;
 
 
 
@@ -416,10 +395,6 @@ function render() {
                 break;
             case 'members':
                 render成员信息Page(app);
-                break;
-                        
-                    case 'kakaochat':
-                renderKakaoChatPage(app);
                 break;
             case 'debut':
                 render出道企划Page(app);
@@ -451,30 +426,12 @@ function render() {
             case 'achievement':
                 renderAchievementsPage(app);
                 break;
-            case 'gacha':
-                renderGachaPage(app);
-                break;
-            case 'wardrobe':
-                renderWardrobePage(app);
-                break;
-            case 'vip':
-                renderVipPage(app);
-                break;
             case 'company':
                 renderCompanyDetailPage(app);
                 break;
                 break;
             case 'daily':
                 renderDailyPage(app);
-                break;
-
-
-
-            case 'noticedetail':
-                render通告详情Page(app);
-                break;
-            case 'insprofile':
-                renderInsProfilePage(app);
                 break;
             default:
                 app.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;"><div style="font-size:18px;color:var(--color-text-light);">页面不存在</div><button class="btn btn-primary" onclick="goToPage(\'home\')" style="margin-top:16px;">返回首页</button></div></div>';
@@ -938,32 +895,23 @@ var APP_LINKS = {
     'comeback': ['music', 'mvstudio', 'songprod', 'company'],
     'songprod': ['comeback', 'mvstudio', 'company'],
     'music': ['sns', 'comeback', 'schedule'],
-    'sns': ['fancommunity', 'fanclub', 'live'],
-    'fancommunity': ['sns', 'fanchat', 'fanclub', 'live'],
-    'fanchat': ['fancommunity', 'fanclub'],
-    'live': ['sns', 'fancommunity', 'fanclub', 'schedule'],
-    'fanclub': ['fancommunity', 'fanchat', 'live', 'sns'],
-    'loan': ['schedule', 'company'],
-    'schedule': ['loan', 'music', 'training'],
-    'store': ['schedule', 'vip'],
+    'sns': ['fancommunity', 'live'],
+    'fancommunity': ['sns', 'fanchat', 'live'],
+    'fanchat': ['fancommunity'],
+    'live': ['sns', 'fancommunity', 'schedule'],
+    'schedule': ['music', 'training'],
     'prroom': ['contacts', 'company'],
     'contacts': ['prroom', 'members'],
     'members': ['contacts', 'company'],
     'company': ['members', 'comeback'],
-    'debut': ['members', 'training', 'achievement'],
+    'debut': ['members', 'training'],
     'training': ['schedule', 'debut'],
-    'achievement': ['debut'],
-    'gacha': ['members', 'vip'],
-    'vip': ['gacha', 'live', 'training', 'store'],
 };
 
 var APP_NAMES = {
-    'sns': 'SNS', 'contacts': '通讯录', 'fancommunity': '粉丝社区', 'store': '便利店',
-    'loan': '贷款', 'live': '直播',
-    'fanchat': '粉丝私聊', 'prroom': '公关室',
-    'achievement': '成就', 'gacha': '抽卡', 'vip': '会员', 'company': '公司',
+    'sns': 'SNS', 'contacts': '通讯录', 'fancommunity': '粉丝社区', 'live': '直播',
+    'fanchat': '粉丝私聊', 'prroom': '公关室', 'company': '公司',
     'comeback': '回归计划', 'songprod': '录音室', 'music': '音乐放送',
-    'fanclub': '后援会',
 };
 
 function getAppLinkHtml(currentAppId) {
@@ -1088,12 +1036,8 @@ function renderHomePage(container) {
         { id: 'comeback', icon: 'comeback', name: '回归', unlock: 0 },
         { id: 'live', icon: 'live', name: '直播', unlock: 0 },
 
-        { id: 'gacha', icon: 'gacha', name: '抽卡', unlock: 0 },
-        { id: 'wardrobe', icon: 'wardrobe', name: '换装', unlock: 0 },
         { id: 'debut', icon: 'debut', name: '出道企划', unlock: 0 },
-        { id: 'store', icon: 'store', name: '\u4fbf\u5229\u5e97', unlock: 0 },
-        { id: 'prroom', icon: 'prroom', name: '\u516c\u5173\u5ba4', unlock: 0 },
-        { id: 'vip', icon: 'vip', name: '会员', unlock: 0 }
+        { id: 'prroom', icon: 'prroom', name: '\u516c\u5173\u5ba4', unlock: 0 }
     ];
     
     var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
@@ -1139,7 +1083,7 @@ function renderHomePage(container) {
                     var categories = [
                         { title: '日常', ids: ['daily', 'contacts', 'sns', 'schedule', 'fancommunity'], page: 1 },
                         { title: '事业', ids: ['training', 'schedule', 'music', 'comeback', 'live', 'debut'], page: 1 },
-                        { title: '更多', ids: ['gacha', 'wardrobe', 'vip'], page: 2 }
+                        { title: '更多', ids: [], page: 2 }
                     ];
                     var catHtml = '';
                     for (var ci = 0; ci < categories.length; ci++) {
@@ -1178,9 +1122,7 @@ var SCENES = {
             {x:50,y:60,icon:'phone',label:'手机',action:'phone'},
             {x:35,y:55,icon:'bed',label:'休息',action:'sleep'},
             {x:75,y:30,icon:'door',label:'走廊',action:'scene',target:'home_corridor'},
-            {x:25,y:70,icon:'store',label:'便利店',action:'app',target:'store'},
-            {x:80,y:75,icon:'store',label:'便利店',action:'app',target:'store'},
-            {x:88,y:45,icon:'door',label:'出门',action:'nav',target:'_nav'}
+                                    {x:88,y:45,icon:'door',label:'出门',action:'nav',target:'_nav'}
         ]
     },
     home_corridor: {
@@ -1202,8 +1144,7 @@ var SCENES = {
     wardrobe_room: {
         name: '衣帽间', img: 'imgs/scenes/wardrobe_room.jpg', role: 'Idol',
         hotspots: [
-            {x:50,y:50,icon:'shirt',label:'换装',action:'app',target:'wardrobe'},
-            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'home_corridor'}
+                        {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'home_corridor'}
         ]
     },
     bathroom: {
@@ -1228,8 +1169,7 @@ var SCENES = {
         hotspots: [
             {x:25,y:45,icon:'bed',label:'卧室',action:'scene',target:'bedroom_dorm'},
             {x:55,y:45,icon:'bath',label:'卫生间',action:'scene',target:'bathroom_dorm'},
-            {x:80,y:45,icon:'shirt',label:'衣架',action:'app',target:'wardrobe'},
-            {x:50,y:85,icon:'door',label:'回宿舍',action:'scene',target:'dorm'}
+                        {x:50,y:85,icon:'door',label:'回宿舍',action:'scene',target:'dorm'}
         ]
     },
     bedroom_dorm: {
@@ -1251,8 +1191,7 @@ var SCENES = {
         name: '公司大厅', img: 'imgs/scenes/company.jpg',
         hotspots: [
             {x:50,y:55,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'},
-            {x:20,y:65,icon:'store',label:'便利店',action:'app',target:'store'},
-            {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
+                        {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     floor2: {
@@ -1349,8 +1288,7 @@ var SCENES = {
         name: '走廊', img: 'imgs/scenes/company_corridor_f5.jpg', floor: 5,
         hotspots: [
             {x:35,y:45,icon:'company',label:'社长室',action:'scene',target:'ceo_office'},
-            {x:65,y:45,icon:'vip',label:'VIP休息室',action:'scene',target:'vip_room'},
-            {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
+                        {x:88,y:80,icon:'elevator',label:'电梯',action:'nav',target:'_elevator'}
         ]
     },
     ceo_office: {
@@ -1363,8 +1301,7 @@ var SCENES = {
     vip_room: {
         name: 'VIP休息室', img: 'imgs/scenes/vip.jpg', floor: 5,
         hotspots: [
-            {x:50,y:50,icon:'vip',label:'休息',action:'app',target:'vip'},
-            {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor5'}
+                        {x:85,y:50,icon:'door',label:'走廊',action:'scene',target:'floor5'}
         ]
     },
 
@@ -1372,9 +1309,7 @@ var SCENES = {
     mall: {
         name: '商场', img: 'imgs/scenes/mall.jpg',
         hotspots: [
-            {x:30,y:40,icon:'shirt',label:'服装店',action:'app',target:'wardrobe'},
-            {x:70,y:40,icon:'gacha',label:'周边店',action:'app',target:'gacha'},
-            {x:50,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
+                                    {x:50,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     stage: {
@@ -1410,8 +1345,7 @@ var SCENES = {
     restaurant: {
         name: '餐厅', img: 'imgs/scenes/restaurant.jpg',
         hotspots: [
-            {x:50,y:55,icon:'store',label:'便利店',action:'app',target:'store'},
-            {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
+                        {x:88,y:45,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     redcarpet: {
@@ -1424,8 +1358,7 @@ var SCENES = {
     gacha: {
         name: '周边店', img: 'imgs/scenes/gacha.jpg',
         hotspots: [
-            {x:50,y:50,icon:'gacha',label:'抽卡',action:'app',target:'gacha'},
-            {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
+                        {x:88,y:80,icon:'door',label:'离开',action:'nav',target:'_nav'}
         ]
     },
     photoshoot: {
@@ -1446,8 +1379,7 @@ var SCENE_NAV_OPTIONS = [
     {id:'musicshow',name:'\u6253\u6b4c\u8282\u76ee',icon:'music'},
     {id:'livestream',name:'\u76f4\u64ad\u95f4',icon:'live'},
     {id:'redcarpet',name:'\u7ea2\u6bef',icon:'award'},
-    {id:'gacha',name:'\u5468\u8fb9\u5e97',icon:'gacha'},
-    {id:'photoshoot',name:'\u62cd\u6444\u68da',icon:'camera'}
+        {id:'photoshoot',name:'\u62cd\u6444\u68da',icon:'camera'}
 ];
 
 var SCENE_TIPS = [
@@ -1568,17 +1500,13 @@ function _buildPhoneModal() {
         {id:'comeback',icon:'comeback',name:'\u56de\u5f52',unlock:0},
         {id:'live',icon:'live',name:'\u76f4\u64ad',unlock:0},
 
-        {id:'gacha',icon:'gacha',name:'\u62bd\u5361',unlock:0},
-        {id:'wardrobe',icon:'wardrobe',name:'\u6362\u88c5',unlock:0},
-        {id:'debut',icon:'debut',name:'\u51fa\u9053\u4f01\u5212',unlock:0},
-        {id:'store',icon:'store',name:'\u4fbf\u5229\u5e97',unlock:0},
-        {id:'prroom',icon:'prroom',name:'\u516c\u5173\u5ba4',unlock:0},
-        {id:'vip',icon:'vip',name:'\u4f1a\u5458',unlock:0}
-    ];
+                        {id:'debut',icon:'debut',name:'\u51fa\u9053\u4f01\u5212',unlock:0},
+                {id:'prroom',icon:'prroom',name:'\u516c\u5173\u5ba4',unlock:0}
+            ];
     var categories = [
-        {title:'\u65e5\u5e38',ids:['daily','contacts','sns','schedule','fancommunity','store','prroom']},
+        {title:'\u65e5\u5e38',ids:['daily','contacts','sns','schedule','fancommunity','prroom']},
         {title:'\u4e8b\u4e1a',ids:['training','music','comeback','live','debut']},
-        {title:'\u66f4\u591a',ids:['gacha','wardrobe','vip']}
+        {title:'\u66f4\u591a',ids:[]}
     ];
     var appMap = {};
     for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
@@ -1833,181 +1761,6 @@ function _ensureExamState() {
     }
     if (gameState.preDebut === undefined) {
         gameState.preDebut = false;
-    }
-}
-
-function render考核Page(container) {
-    _ensureExamState();
-    var certs = gameState.certificates;
-    var subjects = [
-        { key: 'dance', name: '舞蹈', icon: 'D', color: '#1E293B' },
-        { key: 'vocal', name: '声乐', icon: 'V', color: '#7EB6FF' },
-        { key: 'rap', name: '说唱', icon: 'R', color: '#FFBE5C' },
-        { key: 'acting', name: '表演', icon: 'A', color: '#B88AFF' },
-        { key: 'variety', name: '综艺', icon: 'S', color: '#5CC9A7' }
-    ];
-    var levelNames = ['一级', '二级', '三级'];
-    var allLevel3 = true;
-    for (var si = 0; si < subjects.length; si++) {
-        if (!certs[subjects[si].key][2]) { allLevel3 = false; break; }
-    }
-    var compDone = gameState.examResult.comprehensive[0] && gameState.examResult.comprehensive[1];
-
-    var certCardsHtml = '';
-    for (var si = 0; si < subjects.length; si++) {
-        var s = subjects[si];
-        var allObtained = certs[s.key][0] && certs[s.key][1] && certs[s.key][2];
-        var obtainedCount = 0;
-        for (var li = 0; li < 3; li++) { if (certs[s.key][li]) obtainedCount++; }
-        var levelStr = '';
-        for (var li = 0; li < 3; li++) {
-            if (certs[s.key][li]) {
-                levelStr += '<span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:' + (allObtained ? 'linear-gradient(135deg,#FFD700,#FFA500)' : 'var(--color-primary)') + ';color:white;font-size:10px;font-weight:700;line-height:22px;text-align:center;margin:0 1px;">' + (li+1) + '</span>';
-            } else {
-                levelStr += '<span style="display:inline-block;width:18px;height:18px;border-radius:50%;border:2px solid var(--color-border);color:var(--color-text-light);font-size:10px;font-weight:600;line-height:22px;text-align:center;margin:0 1px;">' + (li+1) + '</span>';
-            }
-        }
-        var progressPct = Math.floor(obtainedCount / 3 * 100);
-        var certBg = allObtained ? 'background:linear-gradient(135deg,rgba(26,42,58,0.12),rgba(148,163,184,0.08));border:1.5px solid var(--color-primary);' : 'background:var(--bg-card);border:1.5px solid var(--color-border);';
-        certCardsHtml += '<div class="exam-cert-card ' + (allObtained ? 'obtained' : '') + '" style="' + certBg + 'border-radius:12px;padding:12px;">'
-            + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-            + '<div class="cert-icon" style="background:' + (allObtained ? 'linear-gradient(135deg,#FFD700,#FFA500)' : s.color) + ';color:white;font-weight:700;font-size:14px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;">' + s.icon + '</div>'
-            + '<div style="flex:1;">'
-            + '<div class="cert-name" style="font-weight:600;font-size:13px;">' + s.name + (allObtained ? ' <span style="font-size:10px;color:#FFD700;">MASTER</span>' : '') + '</div>'
-            + '<div style="font-size:10px;color:var(--color-text-light);margin-top:2px;">' + obtainedCount + '/3 \u5df2\u901a\u8fc7</div>'
-            + '</div></div>'
-            + '<div style="display:flex;justify-content:center;gap:4px;margin-bottom:10px;">' + levelStr + '</div>'
-            + '<div style="height:6px;background:var(--color-border);border-radius:3px;overflow:hidden;">'
-            + '<div style="height:100%;width:' + progressPct + '%;background:' + (allObtained ? 'linear-gradient(90deg,#FFD700,#FFA500)' : 'linear-gradient(90deg,var(--color-primary),var(--color-accent))') + ';border-radius:2px;"></div>'
-            + '</div>'
-            + '</div>';
-    }
-    var examEntriesHtml = '';
-    for (var si = 0; si < subjects.length; si++) {
-        var s = subjects[si];
-        var statVal = gameState.stats[s.key] || 0;
-        var nextLevel = -1;
-        for (var li = 0; li < 3; li++) {
-            if (!certs[s.key][li]) { nextLevel = li; break; }
-        }
-        if (nextLevel === -1) {
-            examEntriesHtml += '<div class="exam-entry locked">'
-                + '<div class="exam-entry-left">'
-                + '<div class="exam-entry-title"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:' + s.color + ';color:white;font-size:11px;font-weight:700;line-height:20px;text-align:center;margin-right:6px;">' + s.icon + '</span>' + s.name + ' - 已全部通过</div>'
-                + '<div class="exam-entry-sub">恭喜！该科目三级合格证已全部获得</div>'
-                + '</div>'
-                + '<div class="exam-entry-right" style="color:var(--color-success);">✓ 完成</div>'
-                + '</div>';
-        } else {
-            var canTake = statVal >= 105 && gameState.money >= 300;
-            var lockReasons = [];
-            if (statVal < 105) lockReasons.push('需' + s.name + '≥105（当前' + statVal + '）');
-            if (gameState.money < 300) lockReasons.push('金币不足300（当前' + gameState.money + '）');
-            var lockReason = lockReasons.length > 0 ? lockReasons.join(' · ') : '';
-            examEntriesHtml += '<div class="exam-entry ' + (canTake ? '' : 'locked') + '" onclick="' + (canTake ? "startExam('" + s.key + "'," + nextLevel + ")" : '') + '">'
-                + '<div class="exam-entry-left">'
-                + '<div class="exam-entry-title"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;background:' + s.color + ';color:white;font-size:11px;font-weight:700;line-height:20px;text-align:center;margin-right:6px;">' + s.icon + '</span>' + s.name + ' - ' + levelNames[nextLevel] + '合格证</div>'
-                + '<div class="exam-entry-sub">' + (lockReason ? lockReason : '能力值满足 · 300金币/次') + '</div>'
-                + '</div>'
-                + '<div class="exam-entry-right">' + (canTake ? '参加考试 ›' : '未满足') + '</div>'
-                + '</div>';
-        }
-    }
-
-    var compHtml = '';
-    if (gameState.preDebut) {
-        compHtml = '<div class="exam-comprehensive-entry unlocked" style="border-color:var(--color-success);background:linear-gradient(135deg,rgba(76,217,100,0.1),rgba(76,217,100,0.2));">'
-            + '<div style="font-size:28px;margin-bottom:8px;color:var(--color-success);font-weight:700;">PASS</div>'
-            + '<div style="font-size:16px;font-weight:700;color:var(--color-success);">预备出道！</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">综合考试已通过，预备出道状态</div>'
-            + '</div>';
-    } else if (compDone) {
-        compHtml = '<div class="exam-comprehensive-entry unlocked" style="border-color:var(--color-success);">'
-            + '<div style="font-size:16px;font-weight:700;color:var(--color-success);">✓ 综合考试已通过</div></div>';
-    } else if (allLevel3) {
-        var nextComp = gameState.examResult.comprehensive[0] ? 1 : 0;
-        var needScore = nextComp === 0 ? '3/5' : '4/5';
-        compHtml = '<div class="exam-comprehensive-entry unlocked" data-nextComp="' + nextComp + '" onclick="startComprehensiveExam(parseInt(this.dataset.nextComp))">'
-            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
-            + '<div style="font-size:16px;font-weight:700;color:var(--color-primary);">综合考试 - 第' + (nextComp + 1) + '次</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">5科各出1题，需答对' + needScore + '以上 · 300金币</div>'
-            + '</div>';
-    } else {
-        compHtml = '<div class="exam-comprehensive-entry locked">'
-            + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#1A2A3A,#94A3B8);color:white;font-weight:700;font-size:12px;line-height:32px;text-align:center;margin:0 auto 8px;">F</div>'
-            + '<div style="font-size:16px;font-weight:700;color:var(--color-text-light);">综合考试</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);margin-top:4px;">需5科三级合格证全部获得后解锁</div>'
-            + '</div>';
-    }
-
-    var preDebutTag = gameState.preDebut ? '<span class="pre-debut-badge">预备出道</span>' : '';
-
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
-        + '<div class="page-title">考核' + preDebutTag + '</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content">'
-        + '<div class="section-title">合格证状态</div>'
-        + '<div class="exam-subject-row">' + certCardsHtml + '</div>'
-        + '<div class="section-title" style="margin-top:16px;">可参加考试</div>'
-        + examEntriesHtml
-        + compHtml
-        + renderWeeklyMonthlyExamSection()
-        + '</div></div>';
-}
-
-function startExam(subject, level) {
-    _ensureExamState();
-    var statVal = gameState.stats[subject] || 0;
-    if (statVal < 105) {
-        showModal('无法参加', '该科目能力值需达到105才能参加考试（当前：' + statVal + '）');
-        return;
-    }
-    if (gameState.money < 300) {
-        showModal('金币不足', '参加考试需要300金币');
-        return;
-    }
-    gameState.money -= 300;
-    isExamInProgress = true;
-    currentExamSubject = subject;
-    currentExamLevel = level;
-    currentPage = 'examGame';
-    render();
-}
-
-function startComprehensiveExam(attempt) {
-    _ensureExamState();
-    if (gameState.money < 300) {
-        showModal('金币不足', '参加综合考试需要300金币');
-        return;
-    }
-    gameState.money -= 300;
-    isExamInProgress = true;
-    currentExamSubject = 'comprehensive';
-    currentExamLevel = attempt;
-    currentPage = 'examGame';
-    render();
-}
-
-function renderExamGamePage(container) {
-    _ensureExamState();
-    var subject = currentExamSubject;
-    var level = currentExamLevel;
-
-    if (subject === 'dance') {
-        renderDanceExam(container, level);
-    } else if (subject === 'vocal') {
-        renderVocalExam(container, level);
-    } else if (subject === 'rap') {
-        renderRapExam(container, level);
-    } else if (subject === 'acting') {
-        renderActingExam(container, level);
-    } else if (subject === 'variety') {
-        renderVarietyExam(container, level);
-    } else if (subject === 'comprehensive') {
-        renderComprehensiveExam(container, level);
     }
 }
 
@@ -3254,14 +3007,6 @@ function _renderToneSelector() {
 
 
 // V1.7: Wardrobe / Dress-up System (换装系统 - 换衣服)
-var WARDROBE_ITEMS = [
-    { id: 'practice', name: '练习服', price: 10000, looksVal: 5, desc: '简单舒适，适合日常训练', color: '#7EC8E3', icon: 'T' },
-    { id: 'daily', name: '日常穿搭', price: 15000, looksVal: 8, desc: '休闲时尚，出街必备', color: '#98D8AA', icon: 'D' },
-    { id: 'stage', name: '舞台服装', price: 35000, looksVal: 18, desc: '华丽闪耀，舞台焦点', color: '#FFD700', icon: 'S' },
-    { id: 'brand', name: '品牌联名款', price: 50000, looksVal: 25, desc: '顶奢联名，潮流巅峰', color: '#1A2A3A', icon: 'B' },
-    { id: 'couple', name: '情侣卫衣', price: 22000, looksVal: 10, loveVal: 8, desc: '和恋人的甜蜜穿搭', color: '#C8A2C8', icon: 'C' },
-    { id: 'airport', name: '机场穿搭', price: 28000, looksVal: 15, desc: '机场时尚，镜头焦点', color: '#45B7D1', icon: 'A' }
-];
 
 function _getOutfitName() {
     if (!gameState.equippedOutfit) return '';
@@ -3315,7 +3060,7 @@ function equipOutfit(itemId) {
             if (WARDROBE_ITEMS[i].id === gameState.equippedOutfit) { prev = WARDROBE_ITEMS[i]; break; }
         }
         if (prev) {
-            gameState.looks = Math.max(0, (gameState.looks || 0) - prev.looksVal);
+            /* looks removed */
         }
     }
     gameState.equippedOutfit = itemId;
@@ -3324,7 +3069,7 @@ function equipOutfit(itemId) {
         if (WARDROBE_ITEMS[j].id === itemId) { item = WARDROBE_ITEMS[j]; break; }
     }
     if (item) {
-        gameState.looks = (gameState.looks || 0) + item.looksVal;
+        /* looks removed */
         showToast('换上了 ' + item.name + ' +' + item.looksVal + '颜值');
     }
     closeModal();
@@ -3338,7 +3083,7 @@ function unequipOutfit() {
         if (WARDROBE_ITEMS[i].id === gameState.equippedOutfit) { prev = WARDROBE_ITEMS[i]; break; }
     }
     if (prev) {
-        gameState.looks = Math.max(0, (gameState.looks || 0) - prev.looksVal);
+        /* looks removed */
     }
     gameState.equippedOutfit = null;
     showToast('已脱下 ' + prev.name);
@@ -3364,40 +3109,6 @@ function buyAndEquipOutfit(itemId) {
     equipOutfit(itemId);
 }
 
-function renderWardrobePage(container) {
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">换装</div><div style="width:32px;"></div></div><div class="page-content">';
-    html += '<div class="card" style="text-align:center;background:linear-gradient(135deg,#1A2A3A,#C8A2C8);color:white;padding:16px;">';
-    html += '<div style="font-size:28px;font-weight:700;">' + (gameState.equippedOutfit ? _getOutfitIcon() : '?') + '</div>';
-    html += '<div style="font-size:15px;font-weight:600;margin-top:4px;">' + (_getOutfitName() || '未穿着') + '</div>';
-    html += '<div style="font-size:12px;opacity:0.8;margin-top:2px;">颜值 +' + (gameState.equippedOutfit ? (function(){ for(var i=0;i<WARDROBE_ITEMS.length;i++){if(WARDROBE_ITEMS[i].id===gameState.equippedOutfit)return WARDROBE_ITEMS[i].looksVal;} return 0; })() : 0) + '</div>';
-    html += '</div>';
-    html += '<div style="font-size:12px;color:var(--color-text-light);margin:12px 0 8px 4px;">选择穿搭，提升颜值</div>';
-    var current = gameState.equippedOutfit;
-    for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
-        var item = WARDROBE_ITEMS[i];
-        var owned = gameState.ownedClothes && gameState.ownedClothes.indexOf(item.id) > -1;
-        var equipped = current === item.id;
-        var canAfford = gameState.money >= item.price;
-        html += '<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;border-radius:10px;' + (equipped ? 'background:var(--color-secondary);border:2px solid #CBD5E1;' : 'background:var(--bg-card);border:1px solid var(--color-border);') + '">';
-        html += '<div style="width:40px;height:40px;border-radius:50%;background:' + item.color + ';display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:16px;flex-shrink:0;">' + item.icon + '</div>';
-        html += '<div style="flex:1;">';
-        html += '<div style="font-weight:600;font-size:13px;color:var(--color-text);">' + item.name + (equipped ? ' <span style="font-size:10px;color:var(--color-primary);">(穿着中)</span>' : '') + '</div>';
-        html += '<div style="font-size:11px;color:var(--color-text-light);">' + item.desc + ' | +' + item.looksVal + '颜值' + (item.loveVal ? ' +' + item.loveVal + '好感' : '') + '</div>';
-        html += '</div>';
-        if (equipped) {
-            html += '<button onclick="unequipOutfitFromPage()" style="padding:6px 14px;border-radius: 8px;border:1px solid var(--color-border);background:var(--bg-card);font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">脱下</button>';
-        } else if (owned) {
-            html += '<button onclick="equipOutfitFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius: 8px;border:none;background:var(--color-primary);color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">穿上</button>';
-        } else {
-            html += '<button onclick="buyAndEquipFromPage(\'' + item.id + '\')" style="padding:6px 14px;border-radius: 8px;border:none;background:' + (canAfford ? 'var(--color-primary)' : '#CCC') + ';color:white;font-size:12px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;">' + item.price.toLocaleString() + '</button>';
-        }
-        html += '</div>';
-    }
-    html += '</div></div>';
-    html += getAppLinkHtml('wardrobe');
-    container.innerHTML = html;
-}
-
 function equipOutfitFromPage(itemId) {
     if (!gameState.ownedClothes || gameState.ownedClothes.indexOf(itemId) === -1) return;
     if (gameState.equippedOutfit) {
@@ -3405,7 +3116,7 @@ function equipOutfitFromPage(itemId) {
         for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
             if (WARDROBE_ITEMS[i].id === gameState.equippedOutfit) { prev = WARDROBE_ITEMS[i]; break; }
         }
-        if (prev) { gameState.looks = Math.max(0, (gameState.looks || 0) - prev.looksVal); }
+        if (prev) { /* looks removed */ }
     }
     gameState.equippedOutfit = itemId;
     var item = null;
@@ -3413,7 +3124,7 @@ function equipOutfitFromPage(itemId) {
         if (WARDROBE_ITEMS[j].id === itemId) { item = WARDROBE_ITEMS[j]; break; }
     }
     if (item) {
-        gameState.looks = (gameState.looks || 0) + item.looksVal;
+        /* looks removed */
         showToast('换上了 ' + item.name + ' +' + item.looksVal + '颜值');
     }
     render();
@@ -3425,7 +3136,7 @@ function unequipOutfitFromPage() {
     for (var i = 0; i < WARDROBE_ITEMS.length; i++) {
         if (WARDROBE_ITEMS[i].id === gameState.equippedOutfit) { prev = WARDROBE_ITEMS[i]; break; }
     }
-    if (prev) { gameState.looks = Math.max(0, (gameState.looks || 0) - prev.looksVal); }
+    if (prev) { /* looks removed */ }
     gameState.equippedOutfit = null;
     showToast('已脱下 ' + prev.name);
     render();
@@ -4557,7 +4268,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
 
 function renderBottomNav() {
     var nav = document.getElementById('bottomNav');
-    var navPages = ['home','training','exam','me'];
+    var navPages = ['home','training','me'];
     var showNav = false;
     for (var ni = 0; ni < navPages.length; ni++) {
         if (currentPage === navPages[ni]) { showNav = true; break; }
@@ -4567,7 +4278,6 @@ function renderBottomNav() {
     
     var homePages = ['home'];
     var trainPages = ['training'];
-    var examPages = ['exam', 'examGame'];
     var mePages = ['me'];
     
     function isActive(group) { return group.indexOf(currentPage) > -1; }
@@ -4575,7 +4285,6 @@ function renderBottomNav() {
     var items = [
         { id: 'home', icon: 'navHome', label: '首页', group: homePages },
         { id: 'training', icon: 'navTrain', label: '训练', group: trainPages },
-        { id: 'exam', icon: 'navExam', label: '考核', group: examPages },
         { id: 'me', icon: 'navMe', label: '我的', group: mePages }
     ];
     
@@ -4590,7 +4299,6 @@ function getNavIcon(name, active) {
     var icons = {
         'navHome': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + (color) + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>',
         'navTrain': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + (color) + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11v11h-11z"></path><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M2 12h4"></path><path d="M18 12h4"></path></svg>',
-        'navExam': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + (color) + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
         'navMe': '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="' + (color) + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
     };
     return icons[name] || '';
@@ -4611,7 +4319,6 @@ function getIcon(name) {
         'tiktok': '<svg viewBox="0 0 24 24"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>',
         'food': '<svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>',
         'delivery': '<svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>',
-        'loan': '<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>',
         'crisis': '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
         'live': '<svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>',
         'more': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>',
@@ -4620,10 +4327,7 @@ function getIcon(name) {
         'updates': '<svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><circle cx="18" cy="3" r="3" fill="#1A2A3A" stroke="none"></circle></svg>',
         'kakaotalk': '<svg class="kakao-icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="14" rx="3" ry="3" fill="#FAE100" stroke="none"></rect><path d="M7 10h4M13 10h4M9 13h6" stroke="#392020" stroke-width="1.5" stroke-linecap="round" fill="none"></path><polygon points="8,18 10,22 12,18" fill="#FAE100" stroke="none"></polygon></svg>',
         'debut': '<svg viewBox="0 0 24 24"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></polygon><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle></svg>',
-        'gacha': '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><circle cx="12" cy="12" r="3" fill="currentColor" opacity="0.3"></circle><path d="M12 9v6M9 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
-        'vip': '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
         'earn': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M12 6v12M9 9c0-1.66 1.34-2 3-2s3 .34 3 2-1.34 2-3 2-3 .34-3 2 1.34 2 3 2 3-.34 3-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
-        'achievement': '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
         'comeback': '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle></svg>',
         'music': '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle></svg>',
         'mvstudio': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" fill="none" stroke="currentColor" stroke-width="1.5"></rect><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" opacity="0.6"></polygon></svg>',
@@ -4631,7 +4335,6 @@ function getIcon(name) {
         'relation': '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="1.5"></path><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
         'management': '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 17l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M2 12l10 5 10-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>',
         'antiblack': '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
-        'fanclub': '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M3.22 4.61a5.5 5.5 0 0 1 7.78 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"></path></svg>',
         'pr': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><line x1="9" y1="9" x2="9.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line><line x1="15" y1="9" x2="15.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg>',
         'kpopwiki': '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
         'company': '<svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="9" y1="6" x2="9.01" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="15" y1="6" x2="15.01" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="9" y1="10" x2="9.01" y2="10" stroke="currentColor" stroke-width="1.5"></line><line x1="15" y1="10" x2="15.01" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M9 18h6v4H9z" fill="currentColor" opacity="0.3"></path></svg>',
@@ -4640,7 +4343,6 @@ function getIcon(name) {
         'guide': '<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>',
         'phone': '<svg viewBox="0 0 24 24"><path d="M15.05 4.05A7 7 0 0 0 4.05 15.05l-1.41 1.41a1 1 0 0 0 0 1.42l3.54 3.54a1 1 0 0 0 1.42 0l1.41-1.41a7 7 0 0 0 10.99-10.99l1.41-1.41a1 1 0 0 0 0-1.42l-3.54-3.54a1 1 0 0 0-1.42 0l-1.41 1.41z"></path></svg>',
         'sms': '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>',
-        'wardrobe': '<svg viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="4" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="12" r="1" fill="currentColor"></circle><circle cx="15" cy="12" r="1" fill="currentColor"></circle></svg>',
         'daily': '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"></line><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"></line><path d="M8 14l2 2 4-4" fill="none" stroke="#1A2A3A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
         'bed': '<svg viewBox="0 0 24 24"><path d="M2 4v16" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M2 8h5a3 3 0 0 1 3 3v1H2V8z" fill="currentColor" opacity="0.3"></path><path d="M10 12h10a2 2 0 0 1 2 2v6H10v-8z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M10 14h2v2h-2z" fill="currentColor" opacity="0.2"></path></svg>',
         'door': '<svg viewBox="0 0 24 24"><path d="M5 2h14a1 1 0 0 1 1 1v18H4V3a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="12" x2="12.01" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></line></svg>',
@@ -4660,8 +4362,6 @@ function getIcon(name) {
         'fanchat': '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M8 13h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path><circle cx="9" cy="9" r="1" fill="currentColor"></circle><circle cx="15" cy="9" r="1" fill="currentColor"></circle></svg>',        'contacts': '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-width="1.5"></path><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
         'sns': '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" stroke-width="1.5"></line></svg>',
         'fancommunity': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"></circle><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.5"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
-
-        'store': '<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M9 22V12h6v10" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M3 9h18" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
         'prroom': '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>',
         'gift': '<svg viewBox="0 0 24 24"><polyline points="20 12 20 22 4 22 4 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></polyline><rect x="2" y="7" width="20" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="12" y1="22" x2="12" y2="7" stroke="currentColor" stroke-width="1.5"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.5"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" fill="none" stroke="currentColor" stroke-width="1.5"></path></svg>',
     };
@@ -4868,56 +4568,6 @@ function renderSchedulePage(container) {
     container.innerHTML = html;
 }
 
-function renderStorePage(container) {
-    var currentTab = gameState.storeTab || 'food';
-    gameState.storeTab = currentTab;
-
-    var tabs = [
-        { id: 'food', name: '\u5916\u5356' },
-        { id: 'delivery', name: '\u5feb\u9012' },
-        { id: 'gift', name: '\u793c\u7269' }
-    ];
-
-    // Tab bar SVG icons
-    var foodIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>';
-    var deliveryIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>';
-    var giftIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5" rx="1"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>';
-    var tabIcons = { food: foodIcon, delivery: deliveryIcon, gift: giftIcon };
-
-    var tabsHtml = '<div style="position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--bg-card);border-top:1px solid var(--color-border);display:flex;z-index:100;">';
-    for (var ti = 0; ti < tabs.length; ti++) {
-        var t = tabs[ti];
-        var isSelected = t.id === currentTab;
-        var tabColor = isSelected ? '#1E293B' : '#1F2937';
-        var tabWeight = isSelected ? '700' : '400';
-        tabsHtml += '<div onclick="gameState.storeTab=\'' + t.id + '\';render();" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;">'
-            + '<div style="color:' + tabColor + ';">' + (tabIcons[t.id] || '') + '</div>'
-            + '<div style="font-size:10px;color:' + tabColor + ';font-weight:' + tabWeight + ';margin-top:2px;">' + t.name + '</div>'
-            + '</div>';
-    }
-    tabsHtml += '</div>';
-
-    var contentHtml = '';
-    if (currentTab === 'food') {
-        contentHtml = _renderStoreFoodTab();
-    } else if (currentTab === 'delivery') {
-        contentHtml = _renderStoreDeliveryTab();
-    } else if (currentTab === 'gift') {
-        contentHtml = _renderStoreGiftTab();
-    }
-
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div>'
-        + '<div class="page-title">\u4fbf\u5229\u5e97</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content" style="padding-bottom:70px;">'
-        + contentHtml
-        + getAppLinkHtml('store')
-        + '</div></div>'
-        + tabsHtml;
-}
 
 function _renderStoreFoodTab() {
     var foods = [
@@ -5415,44 +5065,6 @@ function viewNoticeDetail(index) {
     render();
 }
 
-function render通告详情Page(container) {
-    var n = gameState.noticeDetail;
-    if (!n) { goToPage('schedule'); return; }
-
-    var typeBg = '';
-    if (n.type === 'musicshow') typeBg = 'background:#E2E8F0;color:#1A2A3A;';
-    else if (n.type === 'mcountdown') typeBg = 'background:#E4F5FF;color:#5BB8E8;';
-    else if (n.type === 'inkigayo') typeBg = 'background:#FFF4E0;color:#F0A030;';
-    else if (n.type === 'musiccore') typeBg = 'background:#E8FFE4;color:#4CAF50;';
-    else if (n.type === 'fanmeet') typeBg = 'background:#F0E4FF;color:#A070E0;';
-    else if (n.type === 'concert') typeBg = 'background:#E2E8F0;color:#1E293B;';
-    else typeBg = 'background:#E4F5FF;color:#5BB8E8;';
-
-    container.innerHTML = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'work\')">‹ 通告</div>'
-        + '<div class="page-title">通告详情</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content">'
-        + '<div class="notice-detail-header">'
-        + '<div class="notice-type" style="background:rgba(255,255,255,0.25);color:white;display:inline-block;">' + n.typeName + '</div>'
-        + '<div style="font-size:22px;font-weight:700;margin-top:8px;">' + n.name + '</div>'
-        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">体力消耗 -' + n.体力 + '</div>'
-        + '</div>'
-        + '<div class="card">'
-        + '<div style="font-weight:600;margin-bottom:10px;">报酬</div>'
-        + '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:14px;"><span>金币</span><span style="color:#4CD964;font-weight:600;">+' + n.reward.toLocaleString() + '</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:14px;"><span>名气</span><span style="color:#4CD964;font-weight:600;">+' + n.fame + '</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:14px;"><span>影响力</span><span style="color:#4CD964;font-weight:600;">+' + n.influence + '</span></div>'
-        + '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:14px;"><span>粉丝</span><span style="color:#4CD964;font-weight:600;">+' + n.fans + '</span></div>'
-        + '</div>'
-        + '<div style="display:flex;gap:8px;margin-top:12px;">'
-        + '<button class="btn btn-secondary btn-lg" onclick="goToPage(\'work\')" style="flex:1;">拒绝</button>'
-        + '<button class="btn btn-primary btn-lg" onclick="acceptNotice()" style="flex:1;">接受</button>'
-        + '</div>'
-        + '</div></div>';
-}
 
 function acceptNotice() {
     var n = gameState.noticeDetail;
@@ -7298,10 +6910,6 @@ function selectTiktokVideo() {
 }
 
 // ==================== MORE PAGE ====================
-function render更多服务Page(container) {
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">\u2039 \u9996\u9875</div>\n                <div class="page-title">\u66f4\u591a</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="section-title">\u670d\u52a1\u9879\u76ee</div>\n                \n                <div class="card" onclick="goToPage(\'store\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('store')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u4fbf\u5229\u5e97</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">\u5916\u5356\u00b7\u5feb\u9012\u00b7\u793c\u7269</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'loan\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('loan')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u8d37\u6b3e\u670d\u52a1</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">\u7533\u8bf7\u8d37\u6b3e</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'prroom\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('prroom')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u516c\u5173\u5ba4</div>\n                            <div style="font-size: 12px; color: ' + (gameState.danger > 30 ? 'var(--color-danger)' : 'var(--color-text-light)') + ';">\u5371\u9669\u7b49\u7ea7: ' + (gameState.danger) + '</div>\n                        </div>\n                    </div>\n                </div>\n                \n                <div class="card" onclick="goToPage(\'live\')" style="cursor: pointer;">\n                    <div style="display: flex; align-items: center;">\n                        <div class="app-icon-wrap" style="width: 44px; height: 44px; border-radius: 12px; margin-right: 12px; flex-shrink: 0;">' + (getIcon('live')) + '</div>\n                        <div>\n                            <div style="font-weight: 600;">\u76f4\u64ad</div>\n                            <div style="font-size: 12px; color: var(--color-text-light);">\u5f00\u59cb\u76f4\u64ad</div>\n                        </div>\n                    </div>\n                </div>\n            </div>\n        </div>\n    ';
-}
-
 // ==================== FOOD APP ====================
 function renderFoodPage(container) {
     var foods = [
@@ -7370,7 +6978,7 @@ function renderFoodPage(container) {
         + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
         + '</div>'
         + foodCardsHtml
-        + getAppLinkHtml('store') + '</div></div>';
+        + getAppLinkHtml() + '</div></div>';
 }
 
 function orderFood(name, price, 体力, loveVal) {
@@ -7479,7 +7087,7 @@ function render快递服务Page(container) {
         + '<div style="font-size:22px;font-weight:700;">' + (gameState.money || 0).toLocaleString() + '</div>'
         + '</div>'
         + delCardsHtml
-        + getAppLinkHtml('store') + '</div></div>';
+        + getAppLinkHtml() + '</div></div>';
 }
 
 function order快递服务(name, price, value, effect) {
@@ -7522,13 +7130,6 @@ function order快递服务(name, price, value, effect) {
 }
 
 // ==================== LOAN APP ====================
-function renderLoanPage(container) {
-    var maxLoan = Math.floor(gameState.credit * 1000);
-    var totalOwed = gameState.loanAmount + Math.floor(gameState.loanAmount * gameState.loanInterest / 100);
-    var canLoanMore = totalOwed < maxLoan;
-    
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>\n                <div class="page-title">贷款服务</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" style="background: linear-gradient(135deg, var(--color-primary), var(--color-accent)); color: white;">\n                    <div style="font-size: 12px; opacity: 0.8;">可贷额度（基于信誉 ' + (gameState.credit) + '）</div>\n                    <div style="font-size: 28px; font-weight: 700;">' + (maxLoan.toLocaleString()) + '</div>\n                </div>\n                \n                <div class="card">\n                    <div style="font-weight: 600; margin-bottom: 12px;">贷款状态</div>\n                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                        <span style="color: var(--color-text-light);">已贷金额</span>\n                        <span style="font-weight: 600;">' + (gameState.loanAmount.toLocaleString()) + '</span>\n                    </div>\n                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                        <span style="color: var(--color-text-light);">利率</span>\n                        <span style="font-weight: 600;">' + (gameState.loanInterest) + '%</span>\n                    </div>\n                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">\n                        <span style="color: var(--color-text-light);">待还总额</span>\n                        <span style="font-weight: 600; color: var(--color-danger);">' + (totalOwed.toLocaleString()) + '</span>\n                    </div>\n                    ' + ((function(){var t=totalOwed;return t>0?'<div style="font-size:12px;color:var(--color-text-light);margin-bottom:8px;">还款后余额: '+(gameState.money-t).toLocaleString()+'</div><button class="btn btn-primary" onclick="repayLoan()" style="width:100%;'+(gameState.money<t?'opacity:0.5;':'')+'">还款 '+t.toLocaleString()+'</button>':'<div style="text-align:center;color:var(--color-success);font-size:13px;">暂无贷款</div>';})()) + '\n                </div>\n                \n                <div class="section-title" style="margin-top: 16px;">申请贷款</div>\n                <div class="card">\n                    <div style="font-weight: 600; margin-bottom: 8px;">助学贷款</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-bottom: 8px;">练习生专属低利率 | 3% 年利率</div>\n                    <div style="display: flex; gap: 8px;">\n                        <button class="btn btn-sm ' + (canLoanMore ? 'btn-primary' : 'btn-secondary') + '" onclick="applyLoan(30000, 3)" ' + (canLoanMore ? '' : 'disabled') + '>贷 30,000</button>\n                        <button class="btn btn-sm ' + (canLoanMore ? 'btn-primary' : 'btn-secondary') + '" onclick="applyLoan(50000, 3)" ' + (canLoanMore ? '' : 'disabled') + '>贷 50,000</button>\n                    </div>\n                </div>\n                \n                <div class="card">\n                    <div style="font-weight: 600; margin-bottom: 8px;">商业贷款</div>\n                    <div style="font-size: 13px; color: var(--color-text-light); margin-bottom: 8px;">出道爱豆专属 | 5% 年利率</div>\n                    <div style="display: flex; gap: 8px;">\n                        <button class="btn btn-sm ' + (canLoanMore ? 'btn-primary' : 'btn-secondary') + '" onclick="applyLoan(80000, 5)" ' + (canLoanMore ? '' : 'disabled') + '>贷 80,000</button>\n                        <button class="btn btn-sm ' + (canLoanMore ? 'btn-primary' : 'btn-secondary') + '" onclick="applyLoan(100000, 5)" ' + (canLoanMore ? '' : 'disabled') + '>贷 100,000</button>\n                    </div>\n                </div>\n                \n                <div style="font-size: 11px; color: var(--color-text-light); margin-top: 12px; line-height: 1.6;">\n                    信誉影响：按时还款提升信誉(+10)，逾期降低信誉(-20)。信誉越高可贷额度越大。\n                </div>\n            </div>\n        </div>\n    ';
-}
 
 function applyLoan(amount, interest) {
     var maxLoan = Math.floor(gameState.credit * 1000);
@@ -8697,8 +8298,7 @@ var ACHIEVEMENTS = [
     { id: 'danger_high', name: '风口浪尖', desc: '危险值达到80以上', icon: '!', check: function() { return gameState.danger >= 80; } },
     // Schedule achievements
     { id: 'schedule_10', name: '行程达人', desc: '完成10个行程', icon: 'C', check: function() { return (gameState.scheduleCount || 0) >= 10; } },
-    { id: 'schedule_50', name: '劳模爱豆', desc: '完成50个行程', icon: 'C', check: function() { return (gameState.scheduleCount || 0) >= 50; } },
-];
+    { id: 'schedule_50', name: '劳模爱豆', desc: '完成50个行程', icon: 'C', check: function() { return (gameState.scheduleCount || 0) >= 50; } }];
 
 function checkAchievements() {
     if (!gameState.achievements) gameState.achievements = [];
@@ -8712,75 +8312,6 @@ function checkAchievements() {
     }
 }
 
-function renderAchievementsPage(container) {
-    if (!gameState.achievements) gameState.achievements = [];
-    var html = '<div class="page active">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div>'
-        + '<div class="page-title">成就</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="page-content">';
-    
-    var unlocked = gameState.achievements.length;
-    var total = ACHIEVEMENTS.length;
-    html += '<div style="text-align:center;margin-bottom:20px;">'
-        + '<div style="font-size:36px;font-weight:700;color:var(--color-primary);">' + unlocked + '/' + total + '</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);">已解锁成就</div>'
-        + '<div style="width:80%;height:6px;background:var(--color-border);border-radius:3px;margin:12px auto 0;overflow:hidden;">'
-        + '<div style="width:' + (total > 0 ? Math.round(unlocked/total*100) : 0) + '%;height:100%;background:linear-gradient(90deg,#1A2A3A,#1E293B);border-radius:3px;"></div>'
-        + '</div></div>';
-    
-    for (var i = 0; i < ACHIEVEMENTS.length; i++) {
-        var a = ACHIEVEMENTS[i];
-        var done = gameState.achievements.indexOf(a.id) !== -1;
-        html += '<div class="card" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;' + (done ? '' : 'opacity:0.5;') + '">'
-            + '<div style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:white;background:' + (done ? 'linear-gradient(135deg,#1A2A3A,#1E293B)' : '#ddd') + ';">' + a.icon + '</div>'
-            + '<div style="flex:1;"><div style="font-weight:600;font-size:14px;">' + a.name + '</div>'
-            + '<div style="font-size:12px;color:var(--color-text-light);">' + a.desc + '</div></div>'
-            + (done ? '<div style="color:var(--color-success);font-weight:700;">✓</div>' : '')
-            + '</div>';
-    }
-    
-    html += '</div></div>';
-    html += getAppLinkHtml('achievement');
-    container.innerHTML = html;
-}
-
-// ==================== FAN CHAT SYSTEM (粉丝私聊) ====================
-var FAN_CHAT_FANS = [
-    { id: 'sakura_jp', name: 'Sakura', lang: 'ja', avatar: 'S', level: 3, messages: [
-        { orig: '今日のパフォーマンス最高でした！', zh: '今天的表演太棒了！', time: '刚刚' },
-        { orig: 'お疲れ様です！休んでね', zh: '辛苦了！要好好休息哦', time: '1小时前' }
-    ]},
-    { id: 'minji_kr', name: 'Minji', lang: 'ko', avatar: 'M', level: 5, messages: [
-        { orig: '오늘 무대 진짜 대박이었어요!', zh: '今天的舞台真的太棒了！', time: '刚刚' },
-        { orig: '다음 컴백 언제인가요?', zh: '下次回归是什么时候？', time: '30分钟前' }
-    ]},
-    { id: 'alex_en', name: 'Alex', lang: 'en', avatar: 'A', level: 4, messages: [
-        { orig: 'Your voice is so healing!', zh: '你的声音太治愈了！', time: '刚刚' },
-        { orig: 'Can you do a cover of my favorite song?', zh: '能翻唱我最喜欢的歌吗？', time: '2小时前' }
-    ]},
-    { id: 'yuki_jp', name: 'Yuki', lang: 'ja', avatar: 'Y', level: 2, messages: [
-        { orig: 'ずっと応援しています！', zh: '会一直支持你的！', time: '刚刚' }
-    ]},
-    { id: 'jimin_kr', name: 'Jimin', lang: 'ko', avatar: 'J', level: 6, messages: [
-        { orig: '사랑해요~ 오늘도 화이팅!', zh: '爱你~ 今天也加油！', time: '刚刚' },
-        { orig: '다이어리 꼭 샀어요!', zh: '日记本一定买了！', time: '3小时前' },
-        { orig: '언니 너무 예뻐요', zh: '姐姐太漂亮了', time: '5小时前' }
-    ]},
-    { id: 'emma_en', name: 'Emma', lang: 'en', avatar: 'E', level: 3, messages: [
-        { orig: 'Best idol ever! No cap!', zh: '最棒的爱豆！没开玩笑！', time: '刚刚' }
-    ]},
-    { id: 'hua_cn', name: '小花', lang: 'zh', avatar: '花', level: 4, messages: [
-        { orig: '今天也超级棒！', zh: '今天也超级棒！', time: '刚刚' },
-        { orig: '什么时候来中国开演唱会呀', zh: '什么时候来中国开演唱会呀', time: '1小时前' }
-    ]},
-    { id: 'rina_jp', name: 'Rina', lang: 'ja', avatar: 'R', level: 5, messages: [
-        { orig: '来年の公演楽しみにしています！', zh: '期待明年的公演！', time: '刚刚' },
-        { orig: 'グッズ届きました！嬉しい！', zh: '周边收到了！好开心！', time: '4小时前' }
-    ]}
-];
 
 function renderFanChatPage(container) {
     if (!gameState.fanChatReplies) gameState.fanChatReplies = {};
@@ -10319,85 +9850,6 @@ function handleAnti(idx, action) {
 }
 
 // ==================== FAN CLUB SYSTEM (粉丝团后援会) ====================
-function renderFanClubPage(container) {
-    if (!gameState.fanClub) {
-        gameState.fanClub = {
-            name: gameState.player.group ? gameState.player.group + '后援会' : '个人后援会',
-            level: 1,
-            members: Math.floor(gameState.fans * 0.1),
-            funds: 0,
-            projects: [],
-            color: '#1A2A3A'
-        };
-    }
-    var fc = gameState.fanClub;
-    if (!fc.name) fc.name = gameState.player.group ? gameState.player.group + '后援会' : '个人后援会';
-    if (!fc.color) fc.color = '#1A2A3A';
-    fc.members = Math.floor(gameState.fans * 0.1);
-    var levelNames = ['', '初创', '成长', '活跃', '壮大', '明星', '传奇'];
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">后援会</div><div style="width:32px;"></div></div><div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,' + fc.color + ',#1E293B);color:white;padding:24px;">'
-        + '<div style="font-size:18px;font-weight:700;">' + fc.name + '</div>'
-        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">Lv.' + fc.level + ' ' + (levelNames[fc.level] || '') + '</div>'
-        + '<div style="display:flex;justify-content:center;gap:20px;margin-top:10px;">'
-        + '<div><div style="font-size:16px;font-weight:700;">' + (gameState.fans || 0).toLocaleString() + '</div><div style="font-size:10px;opacity:0.7;">粉丝数</div></div>'
-        + '<div><div style="font-size:16px;font-weight:700;">' + fc.members.toLocaleString() + '</div><div style="font-size:10px;opacity:0.7;">会员数</div></div>'
-        + '<div><div style="font-size:16px;font-weight:700;">' + fc.funds.toLocaleString() + '</div><div style="font-size:10px;opacity:0.7;">资金</div></div>'
-        + '</div></div>'
-        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">后援会等级</div>'
-        + '<div style="width:100%;height:8px;background:var(--color-border);border-radius:4px;overflow:hidden;">'
-        + '<div style="width:' + (fc.level * 20) + '%;height:100%;background:linear-gradient(90deg,' + fc.color + ',#1E293B);border-radius:4px;"></div></div>'
-        + '<div style="font-size:11px;color:var(--color-text-light);margin-top:4px;">下一级需要' + (fc.level * 10000) + '粉丝</div></div>'
-        + '<div class="card"><div style="font-weight:600;margin-bottom:12px;">应援项目</div>';
-    var projects = [
-        { name: '生日应援', cost: 20000, fansGain: 500, desc: '为成员生日策划应援' },
-        { name: '回归应援', cost: 50000, fansGain: 1000, desc: '为回归打歌加油助威' },
-        { name: '公益项目', cost: 30000, fansGain: 800, desc: '以偶像名义做公益' }
-    ];
-    for (var i = 0; i < projects.length; i++) {
-        var p = projects[i];
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-border);">'
-            + '<div><div style="font-weight:600;font-size:14px;">' + p.name + '</div>'
-            + '<div style="font-size:11px;color:var(--color-text-light);">' + p.desc + '</div></div>'
-            + '<button class="btn btn-sm" style="font-size:11px;" data-i="' + i + '" onclick="launchFanProject(this.dataset.i)">启动 (' + (p.cost / 10000) + '万)</button></div>';
-    }
-    html += '</div>';
-    // V1.7: 粉丝名 & 应援色
-    var currentFanName = (fc.fanName || '');
-    var currentCheerColor = (fc.cheerColor || fc.color || '#1A2A3A');
-    var cheerColors = ['#1A2A3A','#FF6B6B','#FF9500','#FFCC02','#4CD964','#5AC8FA','#007AFF','#5856D6','#AF52DE','#FF2D55'];
-    html += '<div class="card"><div style="font-weight:600;margin-bottom:12px;">粉丝名 & 应援色</div>';
-    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
-    html += '<div style="font-size:13px;color:var(--color-text-light);white-space:nowrap;">粉丝名</div>';
-    html += '<input id="fanNameInput" type="text" value="' + currentFanName + '" placeholder="给粉丝起名" maxlength="10" style="flex:1;border:1px solid var(--color-border);border-radius:8px;padding:6px 10px;font-size:13px;outline:none;background:var(--bg-main);">';
-    html += '<button class="btn btn-sm btn-primary" onclick="_setFanName()">确定</button>';
-    html += '</div>';
-    html += '<div style="font-size:13px;color:var(--color-text-light);margin-bottom:8px;">应援色</div>';
-    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
-    for (var ci = 0; ci < cheerColors.length; ci++) {
-        var sel = cheerColors[ci] === currentCheerColor ? 'box-shadow:0 0 0 2px white,0 0 0 4px ' + cheerColors[ci] + ';' : '';
-        html += '<div style="width:28px;height:28px;border-radius:50%;background:' + cheerColors[ci] + ';cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;' + sel + '" onclick="_setCheerColor(\'' + cheerColors[ci] + '\')"></div>';
-    }
-    html += '</div>';
-    // V1.7: 应援扩展
-    html += '<div style="font-weight:600;margin:16px 0 12px;">应援扩展</div>';
-    var extProjects = [
-        { name: '应援巴士广告', cost: 80000, fansGain: 2000, desc: '在首尔公交投放广告' },
-        { name: 'LED屏应援', cost: 150000, fansGain: 5000, desc: '江南区LED大屏播放应援视频' },
-        { name: '咖啡厅快闪', cost: 60000, fansGain: 1500, desc: '主题咖啡厅限时应援活动' },
-        { name: '线上直播应援', cost: 30000, fansGain: 800, desc: '粉丝在线观看打歌直播' }
-    ];
-    for (var ei = 0; ei < extProjects.length; ei++) {
-        var ep = extProjects[ei];
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--color-border);">';
-        html += '<div><div style="font-weight:600;font-size:14px;">' + ep.name + '</div>';
-        html += '<div style="font-size:11px;color:var(--color-text-light);">' + ep.desc + '</div></div>';
-        html += '<button class="btn btn-sm" style="font-size:11px;" onclick="launchExtProject(' + ei + ')">启动 (' + (ep.cost / 10000) + '万)</button></div>';
-    }
-    html += '</div></div>';
-    html += getAppLinkHtml('fanclub');
-    container.innerHTML = html;
-}
 
 function launchExtProject(idx) {
     var extProjects = [
@@ -11761,80 +11213,6 @@ function pullGacha(pool, count) {
     return results;
 }
 
-function renderVipPage(container) {
-    var currentTier = getVipTier();
-    var tierLabel = currentTier ? VIP_TIERS[currentTier].name : '免费用户';
-    var tierColor = currentTier === 'premium' ? 'linear-gradient(135deg,#FFD700,#FFA500)' : currentTier === 'advanced' ? 'linear-gradient(135deg,#C0C0C0,#A0A0A0)' : currentTier === 'basic' ? 'linear-gradient(135deg,#CD7F32,#B87333)' : 'linear-gradient(135deg,#8E8E93,#636366)';
-
-    var html = '<div class="page active">'
-        + '<div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">会员中心</div><div style="width:32px;"></div></div>'
-        + '<div class="page-content">'
-        + '<div class="card" style="text-align:center;background:' + tierColor + ';color:white;padding:24px;">'
-        + '<div style="font-size:22px;font-weight:700;">' + tierLabel + '</div>'
-        + '<div style="font-size:12px;opacity:0.8;margin-top:4px;">' + (currentTier ? 'AI对话 ' + VIP_TIERS[currentTier].dailyLimit + '条/天' : 'AI对话需开通会员') + '</div>'
-        + '</div>';
-
-    // VIP Tier Cards
-    if (!currentTier) {
-        html += '<div class="section-title" style="margin-top:16px;">开通会员</div>';
-        var tierKeys = ['premium', 'advanced', 'basic'];
-        for (var ti = 0; ti < tierKeys.length; ti++) {
-            var tk = tierKeys[ti];
-            var t = VIP_TIERS[tk];
-            html += '<div class="card" style="margin-bottom:8px;">'
-                + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-                + '<div><div style="font-weight:600;">' + t.name + '</div>'
-                + '<div style="font-size:12px;color:var(--color-text-light);margin-top:2px;">' + t.features.join(' / ') + '</div></div>'
-                + '<div style="font-weight:700;font-size:18px;color:var(--color-primary);">' + t.price + '元/月</div>'
-                + '</div></div>';
-        }
-        html += '<button class="btn btn-primary btn-lg" style="margin-top:12px;width:100%;" onclick="window.open(\'https://afdian.com/a/myidol\',\'_blank\')">前往爱发电开通</button>'
-            + '<button class="btn btn-secondary btn-lg" style="margin-top:8px;width:100%;" onclick="showVerifyOrder()">已付费？验证订单</button>';
-    } else {
-        html += '<div class="card" style="margin-top:12px;text-align:center;">'
-            + '<div style="font-size:13px;color:var(--color-text-light);">当前已开通 ' + VIP_TIERS[currentTier].name + '</div>'
-            + '<div style="font-size:13px;color:var(--color-text-light);margin-top:4px;">AI对话 ' + VIP_TIERS[currentTier].dailyLimit + '条/天</div>'
-            + '</div>';
-    }
-
-    // Value-Add Items (轻量增值项)
-    html += '<div class="section-title" style="margin-top:20px;">增值服务</div>';
-
-    // AI加油包
-    html += '<div class="card" style="margin-bottom:8px;">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        + '<div><div style="font-weight:600;">AI加油包(小)</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);">额外5条AI对话</div></div>'
-        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buyAiPack(\'small\')">1元</button>'
-        + '</div></div>';
-    html += '<div class="card" style="margin-bottom:8px;">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        + '<div><div style="font-weight:600;">AI加油包(大)</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);">额外20条AI对话</div></div>'
-        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buyAiPack(\'large\')">3元</button>'
-        + '</div></div>';
-
-    // 存档槽
-    var slotCount = gameState.saveSlots ? gameState.saveSlots.length : 3;
-    html += '<div class="card" style="margin-bottom:8px;">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        + '<div><div style="font-weight:600;">额外存档槽</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);">当前' + slotCount + '个 / 最多6个</div></div>'
-        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buySaveSlot()">3元</button>'
-        + '</div></div>';
-
-    // 加速跳过
-    html += '<div class="card" style="margin-bottom:8px;">'
-        + '<div style="display:flex;justify-content:space-between;align-items:center;">'
-        + '<div><div style="font-weight:600;">加速跳过</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);">跳过训练/工作等待</div></div>'
-        + '<button class="btn btn-sm" style="background:var(--color-primary);color:white;font-size:12px;" onclick="buySpeedSkip()">1元</button>'
-        + '</div></div>';
-
-    html += '</div></div>';
-    html += getAppLinkHtml('vip');
-    container.innerHTML = html;
-}
 
 function buyAiPack(size) {
     var packs = { small: { name: 'AI加油包(小)', count: 5, price: 1 }, large: { name: 'AI加油包(大)', count: 20, price: 3 } };
@@ -11875,85 +11253,6 @@ function _countTotalGachaCards() {
     }
     return total;
 }
-
-function renderGachaPage(container) {
-    if (Object.keys(COMPANIES).length === 0) {
-        if (window.COMPANIES && Object.keys(window.COMPANIES).length > 0) { COMPANIES = window.COMPANIES; }
-        else {
-            __waitForCOMPANIES(function() { render(); });
-            container.innerHTML = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">&#8249; 首页</div><div class="page-title">抽卡</div><div style="width:32px;"></div></div><div class="page-content" style="text-align:center;padding-top:60px;"><div style="color:var(--color-text-light);">卡池数据加载中...</div></div></div>';
-            return;
-        }
-    }
-    initGachaPool();
-    var kpop = gameState.gacha.kpop;
-    var topIdol = gameState.gacha.topIdol;
-    var totalCards = Object.keys(kpop.collection).length + Object.keys(topIdol.collection).length;
-    var hiddenCount = 0;
-    var kCollKeys = Object.keys(kpop.collection);
-    for (var hki = 0; hki < kCollKeys.length; hki++) { if (kpop.collection[kCollKeys[hki]].isHidden) hiddenCount++; }
-    var tCollKeys = Object.keys(topIdol.collection);
-    for (var hti = 0; hti < tCollKeys.length; hti++) { if (topIdol.collection[tCollKeys[hti]].isHidden) hiddenCount++; }
-
-    var html = '<div class="page active"><div class="page-header"><div class="back-btn" onclick="goToPage(\'home\')">‹ 首页</div><div class="page-title">抽卡</div><div style="width:32px;"></div></div><div class="page-content">'
-        + '<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:white;padding:20px;">'
-        + '<div style="font-size:20px;font-weight:700;">小卡收藏</div>'
-        + '<div style="font-size:13px;opacity:0.8;margin-top:4px;">已收集 ' + totalCards + ' 张' + (hiddenCount > 0 ? ' | 隐藏卡 ' + hiddenCount + ' 张' : '') + '</div></div>';
-
-    // Kpop Pool
-    html += '<div class="card" style="margin-top:12px;border-left:4px solid #5BB8E8;">'
-        + '<div style="font-weight:700;font-size:15px;">韩国爱豆小卡池</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);margin:4px 0 12px;">常驻 | 今日免费' + kpop.dailyFree + '次 | 保底' + (50 - kpop.pity) + '次</div>'
-        + '<button class="btn btn-primary btn-lg" style="width:100%;" onclick="doGachaPull(\'kpop\',1)">单抽' + (kpop.dailyFree > 0 ? ' (免费)' : '') + '</button></div>';
-
-    // TOP IDOL Pool
-    html += '<div class="card" style="margin-top:8px;border-left:4px solid #FFD700;">'
-        + '<div style="font-weight:700;font-size:15px;">TOP IDOL限定池</div>'
-        + '<div style="font-size:12px;color:var(--color-text-light);margin:4px 0 12px;">限时 | 单抽2千/10连1.8万 | 保底' + (50 - topIdol.pity) + '次</div>'
-        + '<div style="display:flex;gap:8px;">'
-        + '<button class="btn btn-primary btn-lg" style="flex:1;" onclick="doGachaPull(\'topIdol\',1)">单抽</button>'
-        + '<button class="btn btn-primary btn-lg" style="flex:1;background:linear-gradient(135deg,#FFD700,#FFA500);" onclick="doGachaPull(\'topIdol\',10)">10连</button></div></div>';
-
-    // Collection
-    var allCards = [];
-    var kc = kpop.collection; var tc = topIdol.collection;
-    for (var k in kc) allCards.push(kc[k]);
-    for (var k in tc) allCards.push(tc[k]);
-
-    if (allCards.length > 0) {
-        var tierColors = { S: '#FFD700', A: '#4CD964', B: '#5BB8E8', C: '#999' };
-        var tierOrder = { S: 0, A: 1, B: 2, C: 3 };
-        allCards.sort(function(a, b) { return (tierOrder[a.cardTier || 'C'] || 3) - (tierOrder[b.cardTier || 'C'] || 3); });
-        html += '<div class="card" style="margin-top:12px;"><div style="font-weight:600;margin-bottom:10px;">我的收藏 (' + allCards.length + '/' + _countTotalGachaCards() + ')</div>';
-        html += '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
-        for (var i = 0; i < allCards.length; i++) {
-            var c = allCards[i];
-            var t = c.cardTier || 'C';
-            var isHid = c.isHidden ? true : false;
-            var hidBorder = isHid ? 'border:2px solid #FFD700;box-shadow:0 0 8px rgba(255,215,0,0.5);' : '';
-            var _pool = kc[c.name + '_' + c.group] ? 'kpop' : 'topIdol';
-            var _cid = c.name + '_' + c.group;
-            var _starStr = '';
-            for (var _si = 0; _si < (c.stars || 1); _si++) _starStr += '\u2605';
-            html += '<div style="width:50px;height:65px;border-radius:8px;background:linear-gradient(135deg,' + tierColors[t] + ',' + tierColors[t] + '88);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;position:relative;cursor:pointer;' + hidBorder + '" onclick="showCardDetail(\'' + _pool + '\',\'' + _cid + '\')">'
-                + (function(){ var _iu = _getCardImgUrl(c.name); if (_iu) return '<div style="position:absolute;top:0;left:0;width:100%;height:100%;"><img src="' + _iu + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:8px;" onerror="this.parentNode.style.display=\'none\'"></div><div style="font-weight:700;font-size:14px;position:relative;z-index:1;">' + c.name.charAt(0) + '</div>'; return '<div style="font-weight:700;font-size:14px;">' + c.name.charAt(0) + '</div>'; })()
-                + '<div style="font-size:8px;opacity:0.8;position:relative;z-index:1;">' + t + '</div>'
-                + (isHid ? '<div style="position:absolute;top:1px;right:2px;font-size:7px;color:#FFD700;">*</div>' : '')
-                + (c.fragments > 0 ? '<div style="position:absolute;bottom:2px;right:2px;font-size:7px;opacity:0.7;">x' + (c.fragments + 1) + '</div>' : '')
-                + '<div style="position:absolute;bottom:1px;left:50%;transform:translateX(-50%);font-size:6px;color:#FFD700;">' + _starStr + '</div>'
-                + '<div style="position:absolute;top:1px;left:2px;font-size:8px;font-weight:700;text-shadow:0 0 3px rgba(0,0,0,0.5);color:' + ({S:'#FFD700',A:'#4CD964',B:'#5BB8E8',C:'#999'}[t] || '#999') + ';">' + t + '</div>'
-                + '</div>';
-        }
-
-        html += '</div></div></div>';
-    }
-
-    html += '</div></div>';
-    html += getAppLinkHtml('gacha');
-    container.innerHTML = html;
-}
-
-var GACHA_MAX_STARS = 3;
 
 
 function showCardDetail(pool, cardId) {
@@ -12020,7 +11319,7 @@ function upgradeCardStar(pool, cardId) {
     card.stars += 1;
     showToast(card.name + '\u5347\u661f\u6210\u529f! \u2605' + card.stars);
     triggerSilentSave();
-    goToPage('gacha');
+    goToPage();
 }
 
 var _gachaAnimating = false;
@@ -12610,55 +11909,6 @@ function _doAddFriend() {
     showToast('已添加好友 ' + name);
     render();
 }
-
-function renderKakaoChatPage(container) {
-    _ensureKakaoState();
-    document.getElementById('bottomNav').style.display = 'none';
-    document.getElementById('restButtons').style.display = 'none';
-    var npcName = gameState.kakaoCurrentChat;
-    var npc = null;
-    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
-        if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
-    }
-    if (!npc) { goToPage('contacts'); return; }
-
-    var chats = gameState.kakaoChats[npcName] || [];
-    var chatHtml = '';
-    for (var j = 0; j < chats.length; j++) {
-        var msg = chats[j];
-        var isMe = msg.from === 'me';
-        chatHtml += '<div class="kakao-msg-row ' + (isMe ? 'me' : 'npc') + '">'
-            + '<div style="max-width:75%;">'
-            + '<div class="kakao-msg-bubble ' + (isMe ? 'me' : 'npc') + '">' + msg.text + '</div>'
-            + '<div class="kakao-msg-time">' + msg.time + '</div>'
-            + '</div></div>';
-    }
-    if (chats.length === 0) {
-        chatHtml = '<div style="text-align:center;padding:40px 20px;color:var(--color-text-light);font-size:13px;">开始和 ' + npc.name + ' 聊天吧</div>';
-    }
-
-    container.innerHTML = '<div class="page active" style="display:flex;flex-direction:column;">'
-        + '<div class="page-header">'
-        + '<div class="back-btn" onclick="goToPage(\'contacts\')">‹</div>'
-        + '<div class="page-title" style="display:flex;align-items:center;">'
-        + npc.name + (npc.online ? ' <div class="kakao-online-dot" style="position:static;margin-left:8px;"></div>' : '') + '<span style="font-size:10px;color:var(--color-text-light);margin-left:8px;">AI ' + getAITotalUsageToday() + '/' + getAIMaxTotalToday() + '</span>'
-        + '</div>'
-        + '<div style="width:32px;"></div>'
-        + '</div>'
-        + '<div class="kakao-chat-area" id="kakaoChatArea">' + chatHtml + '</div>'
-        + '<div class="kakao-input-bar">'
-        + '<input class="kakao-input" id="kakaoMsgInput" placeholder="输入消息..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();sendKakaoMessage();}" />'
-        + '<button class="kakao-send-btn" onclick="sendKakaoMessage()">'
-        + '<svg width="18" height="18" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>'
-        + '</button>'
-        + '</div></div>';
-
-    setTimeout(function() {
-        var area = document.getElementById('kakaoChatArea');
-        if (area) area.scrollTop = area.scrollHeight;
-    }, 50);
-}
-
 
 
 function viewHiddenDialogue(npcName, level) {
