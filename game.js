@@ -2529,6 +2529,82 @@ function renderComprehensiveExam(container, attempt) {
 }
 
 // ==================== MY PAGE ====================
+
+// V2.0 Feature #10: Chapter recall modal
+function _showChapterRecall() {
+    var cs = gameState.chapterState;
+    if (!cs || cs.completedSteps.length === 0) {
+        showToast('\u8FD8\u6CA1\u6709\u5B8C\u6210\u7684\u7AE0\u8282');
+        return;
+    }
+    var chaptersDone = {};
+    for (var i = 0; i < cs.completedSteps.length; i++) {
+        var ch = cs.completedSteps[i].split('.')[0];
+        if (!chaptersDone[ch]) chaptersDone[ch] = [];
+        chaptersDone[ch].push(cs.completedSteps[i]);
+    }
+    var html = '';
+    var chKeys = Object.keys(chaptersDone);
+    for (var ci = 0; ci < chKeys.length; ci++) {
+        var chNum = parseInt(chKeys[ci]);
+        var chapter = CHAPTER_CONFIG[chNum];
+        if (!chapter) continue;
+        var steps = chaptersDone[chKeys[ci]];
+        var totalSteps = Object.keys(chapter.steps).length;
+        html += '\u003cdiv style="background:#1E293B;border-radius:8px;padding:12px;margin-bottom:8px;"\u003e';
+        html += '\u003cdiv style="font-size:14px;font-weight:600;color:#F8FAFC;"\u003eChapter ' + chNum + ': ' + (chapter.subtitle || '') + '\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:12px;color:#94A3B8;margin-top:4px;"\u003e\u5B8C\u6210 ' + steps.length + '/' + totalSteps + ' \u8282\u70B9\u003c/div\u003e';
+        html += '\u003c/div\u003e';
+    }
+    if (!html) html = '\u003cdiv style="text-align:center;color:#94A3B8;padding:20px;"\u003e\u6682\u65E0\u5DF2\u5B8C\u6210\u7AE0\u8282\u003c/div\u003e';
+    showModal('\u7AE0\u8282\u56DE\u5FC6', html);
+}
+
+// V2.0 Feature #17: My choices display
+var CHOICE_LABELS = {
+    '1.1': '\u9762\u8BD5\u56DE\u7B54',
+    '1.4': '\u821E\u8E48\u7ECF\u9A8C',
+    '1.5': '\u4FCA\u660A\u7684\u8D28\u7591',
+    '1.6': '\u76F4\u64AD\u98CE\u683C',
+    '2.2': '\u8857\u6F14\u66F2\u98CE',
+    '2.4': '\u7ECF\u7EAA\u4EBA\u8C08\u8BDD',
+    '2.5': '\u51FA\u9053\u8BC4\u4F30',
+    '2.6': '\u51FA\u9053\u4F01\u5212',
+    '3.4': '\u4E00\u4F4D\u5019\u9009',
+    '3.5': '\u604B\u7231\u4F20\u95FB',
+    '3.6': '\u5371\u673A\u5904\u7406',
+    '3.7': '\u5927\u8D4F\u63D0\u540D'
+};
+
+function _showMyChoices() {
+    var cs = gameState.chapterState;
+    if (!cs || !cs.choices || cs.choices.length === 0) {
+        showToast('\u8FD8\u6CA1\u6709\u505A\u51FA\u9009\u62E9');
+        return;
+    }
+    var html = '';
+    var currentCh = '';
+    for (var i = 0; i < cs.choices.length; i++) {
+        var ch = cs.choices[i].split('.')[0];
+        if (ch !== currentCh) {
+            currentCh = ch;
+            var chapter = CHAPTER_CONFIG[parseInt(ch)];
+            html += '\u003cdiv style="font-size:12px;color:#64748B;margin:8px 0 4px;font-weight:600;"\u003eChapter ' + ch + (chapter ? ': ' + (chapter.subtitle || '') : '') + '\u003c/div\u003e';
+        }
+        var label = CHOICE_LABELS[cs.choices[i]] || cs.choices[i];
+        var choiceData = cs.choiceDetails ? cs.choiceDetails[cs.choices[i]] : null;
+        html += '\u003cdiv style="background:#1E293B;border-radius:8px;padding:10px 12px;margin-bottom:4px;display:flex;align-items:center;gap:8px;"\u003e';
+        html += '\u003cdiv style="width:6px;height:6px;border-radius:50%;background:#A78BFA;flex-shrink:0;"\u003e\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:13px;color:#E2E8F0;"\u003e' + label + '\u003c/div\u003e';
+        if (choiceData) {
+            html += '\u003cdiv style="font-size:12px;color:#94A3B8;margin-left:auto;"\u003e' + choiceData + '\u003c/div\u003e';
+        }
+        html += '\u003c/div\u003e';
+    }
+    if (!html) html = '\u003cdiv style="text-align:center;color:#94A3B8;padding:20px;"\u003e\u6682\u65E0\u9009\u62E9\u8BB0\u5F55\u003c/div\u003e';
+    showModal('\u6211\u7684\u6289\u62E9', html);
+}
+
 function render我的Page(container) {
     var roleText = gameState.player.role === 'Trainee' ? '练习生' : '出道爱豆';
     var company = _getCompany(gameState.player.company);
@@ -11683,7 +11759,8 @@ function _ensureV16Fields() {
     }
     if (typeof initGachaPool === 'function') initGachaPool();
 
-    if (!gameState.chapterState) { gameState.chapterState = { currentChapter: 0, currentStep: 0, choices: [], unlockedApps: ['daily'], readApps: ['daily'], completedSteps: [], isIdolLine: false, chapterCounts: { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: 0, musicShowCount: 0, fameAtChapterStart: 0 } }; }
+    if (gameState.chapterState && !gameState.chapterState.choiceDetails) gameState.chapterState.choiceDetails = {};
+if (!gameState.chapterState) { gameState.chapterState = { currentChapter: 0, currentStep: 0, choices: [], choiceDetails: {}, unlockedApps: ['daily'], readApps: ['daily'], completedSteps: [], isIdolLine: false, chapterCounts: { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: 0, musicShowCount: 0, fameAtChapterStart: 0 } }; }
 }
 
 var _kakaoAddPersonality = '';
@@ -14945,7 +15022,7 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
             btn.style.cssText = 'background:#1E293B;border:1px solid #334155;color:#E2E8F0;padding:14px 18px;border-radius:8px;font-size:14px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;';
             btn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#94A3B8;font-size:13px;flex-shrink:0;">' + o.icon + '</span><span style="flex:1;">' + o.text + '</span>';
             btn.onclick = function() {
-                cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() });
+                cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() }); if (!cs.choiceDetails) cs.choiceDetails = {}; cs.choiceDetails[stepKey] = o.text.replace(/[\u201c\u201d]/g, '');
                 if (o.gain) {
                     if (stepKey === '2.2') {
                         if (o.id === 'ballad') { gameState.stats.vocal = Math.min(150, (gameState.stats.vocal || 0) + o.gain); }
