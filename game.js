@@ -1,6 +1,6 @@
 
 
-/* Safari Compatibility Polyfills - V2.0.1 */
+/* Safari Compatibility Polyfills - V2.0.2 */
 if (!Object.entries) { Object.entries = function(obj) { var ownProps = Object.keys(obj), i = ownProps.length, resArray = new Array(i); for (; i--; ) resArray[i] = [ownProps[i], obj[ownProps[i]]]; return resArray; }; }
 if (!Array.prototype.includes) { Array.prototype.includes = function(searchElement, fromIndex) { if (this == null) throw new TypeError('"this" is null or not defined'); var o = Object(this), len = o.length >>> 0; if (len === 0) return false; var n = fromIndex | 0, k = Math.max(n >= 0 ? n : len - Math.abs(n), 0); while (k < len) { if (o[k] === searchElement) return true; k++; } return false; }; }
 if (!String.prototype.padStart) { String.prototype.padStart = function padStart(targetLength, padString) { targetLength = targetLength >> 0; padString = String(typeof padString !== 'undefined' ? padString : ' '); if (this.length >= targetLength) return String(this); var padLen = targetLength - this.length; while (padString.length < padLen) padString += padString; return padString.slice(0, padLen) + String(this); }; }
@@ -3119,26 +3119,30 @@ var CHOICE_IMPACT_TAGS = {
     first_win: { '\u62FC\u4E86': 'ambition', '\u8C26\u865A': 'passion', '\u4E3A\u56E2\u961F': 'proof' },
     dating_scandal: { '\u5766\u8BDA': 'passion', '\u5426\u8BA4': 'ambition' },
     crisis_response: { '\u9053\u6B49': 'proof', '\u5766\u8BDA\u9762\u5BF9': 'passion', '\u6C89\u9ED8': 'ambition' },
-    handle_hate: { '\u5766\u7136': 'proof', '\u65E0\u89C6': 'ambition' },
-    secret_love: { '\u8868\u767D': 'passion', '\u85CF\u5728\u5FC3\u91CC': 'proof' },
-    love_exposed: { '\u5766\u8BDA': 'passion', '\u5426\u8BA4': 'ambition' },
-    self_rebuild: { '\u5199\u6B4C': 'passion', '\u76F4\u64AD': 'ambition', '\u6C89\u9ED8': 'proof' },
-    award_speech: { '\u611F\u6069': 'passion', '\u8FD8\u4E0D\u591F': 'ambition', '\u732E\u7ED9\u7C89\u4E1D': 'proof' },
-    thank_call: { '\u6253\u7ED9\u590f\u6069': 'ambition', '\u6253\u7ED9\u7D20\u96C5': 'passion', '\u6253\u7ED9\u5BB6\u4EBA': 'proof' },
-    look_back: { '\u5168\u90E8\u8BB0\u5F97': 'ambition', '\u53EA\u8BB0\u5F97\u91CD\u8981\u7684': 'passion' },
+    handle_hate: { '\u5766\u7136': 'proof', '\u65E0\u89C6': 'ambition', calm_face: 'proof', ignore_it: 'ambition' },
+    secret_love: { '\u8868\u767D': 'passion', '\u85CF\u5728\u5FC3\u91CC': 'proof', confess: 'passion', keep_inside: 'proof' },
+    love_exposed: { '\u5766\u8BDA': 'passion', '\u5426\u8BA4': 'ambition', admit: 'passion', deny: 'ambition' },
+    self_rebuild: { '\u5199\u6B4C': 'passion', '\u76F4\u64AD': 'ambition', '\u6C89\u9ED8': 'proof', write_song: 'passion', do_livestream: 'ambition', quiet: 'proof' },
+    award_speech: { '\u611F\u6069': 'passion', '\u8FD8\u4E0D\u591F': 'ambition', '\u732E\u7ED9\u7C89\u4E1D': 'proof', grateful: 'passion', not_done: 'ambition', for_fans: 'proof' },
+    thank_call: { '\u6253\u7ED9\u590F\u6069': 'ambition', '\u6253\u7ED9\u7D20\u96C5': 'passion', '\u6253\u7ED9\u5BB6\u4EBA': 'proof', call_haeeun: 'ambition', call_sua: 'passion', call_family: 'proof' },
+    look_back: { '\u5168\u90E8\u8BB0\u5F97': 'ambition', '\u53EA\u8BB0\u5F97\u91CD\u8981\u7684': 'passion', remember_all: 'ambition', remember_key: 'passion' },
     grand_prize: { '\u611F\u6069': 'passion', '\u8FD8\u4E0D\u591F': 'ambition', '\u4E3A\u7C89\u4E1D': 'proof' },
-    contract_talk: { '\u8C08\u5224': 'ambition', '\u63A5\u53D7': 'proof' }
+    contract_talk: { '\u8C08\u5224': 'ambition', '\u63A5\u53D7': 'proof', negotiate: 'ambition', accept_it: 'proof' }
 };
 
 function _getDominantEndingTag() {
     if (!gameState.chapterState || !gameState.chapterState.choices) return 'passion';
     var tags = { ambition: 0, passion: 0, proof: 0 };
+    var _idToLabel = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F', ballad: '\u6162\u6B4C', dance_track: '\u821E\u8E48\u66F2', rap_cover: 'Rap', all_round: '\u5168\u9762', vocal_focus: '\u4E3B\u5531', dance_focus: '\u9886\u821E', celebrate: '\u6211\u505A\u5230\u4E86', stay_calm: '\u7B2C\u4E00\u6B65', thank_team: '\u611F\u8C22\u56E2\u961F', cool_concept: '\u9177\u98CE', youth_concept: '\u9752\u6625', mystery_concept: '\u795E\u79D8', go_for_it: '\u62FC\u4E86', stay_humble: '\u8C26\u865A', for_team: '\u4E3A\u56E2\u961F', admit: '\u5766\u8BDA', deny: '\u5426\u8BA4', apologize: '\u9053\u6B49', honest: '\u5766\u8BDA\u9762\u5BF9', quiet: '\u6C89\u9ED8', reframe: '\u8F6C\u79FB\u8BDD\u9898', grateful: '\u611F\u6069', not_done: '\u8FD8\u4E0D\u591F', for_fans: '\u732E\u7ED9\u7C89\u4E1D', calm_face: '\u5766\u7136', ignore_it: '\u65E0\u89C6', negotiate: '\u8C08\u5224', accept_it: '\u63A5\u53D7', confess: '\u8868\u767D', keep_inside: '\u85CF\u5728\u5FC3\u91CC', write_song: '\u5199\u6B4C', do_livestream: '\u76F4\u64AD', call_haeeun: '\u6253\u7ED9\u590F\u6069', call_sua: '\u6253\u7ED9\u7D20\u96C5', call_family: '\u6253\u7ED9\u5BB6\u4EBA', remember_all: '\u5168\u90E8\u8BB0\u5F97', remember_key: '\u53EA\u8BB0\u5F97\u91CD\u8981\u7684' };
     var choices = gameState.chapterState.choices;
     for (var i = 0; i < choices.length; i++) {
         var ch = choices[i];
         var choiceData = CHOICE_IMPACT_TAGS[ch.choiceKey];
-        if (choiceData && choiceData[ch.choiceValue]) {
-            tags[choiceData[ch.choiceValue]]++;
+        if (choiceData) {
+            var label = _idToLabel[ch.choiceValue] || ch.choiceValue;
+            if (choiceData[label]) {
+                tags[choiceData[label]]++;
+            }
         }
     }
     if (tags.ambition >= tags.passion && tags.ambition >= tags.proof) return 'ambition';
@@ -15469,6 +15473,89 @@ function _renderNarrationStep(inner, stepKey, stepConfig, chapter) {
         html += '<div style="font-size:14px;color:#E2E8F0;line-height:1.6;">\u4E0B\u5468\u5F00\u59CB\uFF0C\u4F60\u4F1A\u66F4\u5FD9\u3002\u4F46\u6211\u77E5\u9053\u4F60\u625B\u5F97\u4F4F\u3002</div>';
         html += '</div>';
         html += '</div>';
+    } else if (stepKey === '4.0') {
+        html += '<div style="font-size:13px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">IDOL CHAPTER 1</div>';
+        html += '<div style="font-size:28px;font-weight:700;color:#F8FAFC;margin-bottom:8px;">\u51FA\u9053\u56DE\u5FC6</div>';
+        html += '<div style="font-size:14px;color:#94A3B8;margin-bottom:24px;">\u4ECE\u7EC3\u4E60\u751F\u5230\u7231\u8C46\uFF0C\u4F60\u7684\u6545\u4E8B\u624D\u521A\u521A\u5F00\u59CB</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u51FA\u9053\u5F53\u5929\u7684\u8BB0\u5FC6\u50CF\u68A6\u4E00\u6837\u3002\u7AD9\u5728\u821E\u53F0\u4E0A\uFF0C\u706F\u5149\u6253\u4E0B\u6765\u7684\u90A3\u4E00\u523B\uFF0C\u4F60\u770B\u4E0D\u89C1\u53F0\u4E0B\u7684\u4EBA\uFF0C\u53EA\u770B\u5F97\u89C1\u4E00\u7247\u5149\u3002<br><br>';
+        html += '<span style="color:#F472B6;">\u667A\u5A9B\uFF1A</span>\u201C' + (gameState.player.name || '') + '\uFF0C\u6211\u4EEC\u505A\u5230\u4E86\uFF01\uFF01\u201D<br>';
+        html += '<span style="color:#60A5FA;">\u4FCA\u660A\uFF1A</span>\u201C\u6211\u7684\u8138\u90FD\u50F5\u4E86\uFF0C\u4F60\u4EEC\u5462\uFF1F\u201D<br>';
+        html += '<span style="color:#34D399;">\u745E\u8D24\uFF1A</span>\u201C\u2026\u2026\u201D\uFF08\u4F4E\u5934\u64E6\u773C\u6CEA\uFF09<br>';
+        html += '<span style="color:#A78BFA;">\u7D20\u96C5\uFF1A</span>\u201C\u6211\u4EEC\u7EC8\u4E8E\u7AD9\u5728\u8FD9\u91CC\u4E86\u3002\u201D<br><br>';
+        html += '<span style="color:#F59E0B;">\u590F\u6069\uFF1A</span>\u201C\u8FD8\u6CA1\u5230\u7EC8\u70B9\u5462\u3002\u4F46\u2026\u2026\u4F60\u4EEC\u505A\u5F97\u5F88\u597D\u3002\u201D';
+        html += '</div>';
+    } else if (stepKey === '4.1') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u7EC3\u4E60\u5BA4</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u56DE\u5230\u539F\u70B9</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u51FA\u9053\u5178\u793C\u7ED3\u675F\u540E\u7684\u7B2C\u4E8C\u5929\uFF0C\u4F60\u4EEC\u53C8\u56DE\u5230\u4E86\u7EC3\u4E60\u5BA4\u3002\u6CA1\u6709\u706F\u5149\uFF0C\u6CA1\u6709\u6B22\u547C\uFF0C\u53EA\u6709\u955C\u5B50\u548C\u6C57\u6C34\u3002<br><br>';
+        html += '<span style="color:#F59E0B;">\u590F\u6069\uFF1A</span>\u201C\u4ECA\u5929\u5F00\u59CB\u7EC3\u65B0\u6B4C\u7684\u7F16\u821E\u3002\u51FA\u9053\u4E0D\u662F\u7ED3\u675F\uFF0C\u662F\u8D77\u70B9\u3002\u201D<br><br>';
+        html += '\u4F60\u770B\u7740\u955C\u5B50\u91CC\u7684\u81EA\u5DF1\uFF0C\u7A7F\u7740\u7EC3\u4E60\u670D\uFF0C\u548C\u4E00\u4E2A\u6708\u524D\u6CA1\u4EC0\u4E48\u4E24\u6837\u3002\u4F46\u4F60\u77E5\u9053\u4E00\u5207\u90FD\u4E0D\u4E00\u6837\u4E86\u3002';
+        html += '</div>';
+    } else if (stepKey === '4.2') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u97F3\u4E50\u653E\u9001</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u7B2C\u4E00\u6B21\u6253\u699C</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u4EEC\u7684\u51FA\u9053\u66F2\u7B2C\u4E00\u6B21\u767B\u4E0A\u4E86\u97F3\u4E50\u653E\u9001\u699C\u5355\u3002\u7B2C47\u540D\uFF0C\u4E0D\u9AD8\uFF0C\u4F46\u5DF2\u7ECF\u5728\u699C\u5355\u4E0A\u4E86\u3002<br><br>';
+        html += '<span style="color:#60A5FA;">\u4FCA\u660A\uFF1A</span>\u201C47\u540D\uFF01\u6BD4\u6211\u60F3\u7684\u9AD8\uFF01\u201D<br>';
+        html += '<span style="color:#F472B6;">\u667A\u5A9B\uFF1A</span>\u201C\u4E0B\u5468\u6211\u4EEC\u53EF\u4EE5\u8FDB\u524D30\u540D\u7684\uFF01\u201D<br>';
+        html += '<span style="color:#34D399;">\u745E\u8D24\uFF1A</span>\u201C\u2026\u2026\u7EE7\u7EED\u7EC3\u3002\u201D<br><br>';
+        html += '\u4F60\u7B2C\u4E00\u6B21\u611F\u53D7\u5230\uFF0C\u699C\u5355\u4E0A\u7684\u6570\u5B57\u539F\u6765\u771F\u7684\u4F1A\u8BA9\u4EBA\u5FC3\u8DF3\u52A0\u901F\u3002';
+        html += '</div>';
+    } else if (stepKey === '4.3') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u516C\u5BD3\u5BA4</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u65E5\u5E38\u5F00\u59CB</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u7EC3\u4E60\u3001\u5F55\u97F3\u3001\u8282\u76EE\u5F55\u5236\u3001\u76F4\u64AD\u2026\u2026\u65E5\u7A0B\u88AB\u586B\u5F97\u6EE1\u6EE1\u5F53\u5F53\u3002<br><br>';
+        html += '\u6709\u4E00\u5929\u4F60\u6536\u5230\u4E86\u4E00\u6761\u7C89\u4E1D\u7684\u79C1\u4FE1\uFF1A\u201C\u8C22\u8C22\u4F60\u8BA9\u6211\u76F8\u4FE1\u68A6\u60F3\u662F\u771F\u7684\u3002\u201D<br><br>';
+        html += '\u4F60\u628A\u624B\u673A\u5173\u4E86\uFF0C\u8EBA\u5728\u5E8A\u4E0A\uFF0C\u7A81\u7136\u89C9\u5F97\u8FD9\u4E00\u5207\u90FD\u503C\u5F97\u3002';
+        html += '</div>';
+    } else if (stepKey === '5.0') {
+        html += '<div style="font-size:13px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">IDOL CHAPTER 2</div>';
+        html += '<div style="font-size:28px;font-weight:700;color:#F8FAFC;margin-bottom:8px;">\u6210\u540D</div>';
+        html += '<div style="font-size:14px;color:#94A3B8;margin-bottom:24px;">\u540D\u6C14\u662F\u793C\u7269\uFF0C\u4E5F\u662F\u9637\u9637</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u67D0\u5929\u65E9\u4E0A\u9192\u6765\uFF0C\u4F60\u7684\u624B\u673A\u4E0D\u505C\u5730\u54CD\u3002\u6253\u5F00\u4E00\u770B\uFF0C\u5173\u4E8E\u4F60\u7684\u8BDD\u9898\u5DF2\u7ECF\u4E0A\u4E86\u70ED\u641C\u3002<br><br>';
+        html += '\u4F46\u4E0D\u662F\u56E0\u4E3A\u4F60\u7684\u6B4C\u3002\u662F\u56E0\u4E3A\u6709\u4EBA\u6316\u51FA\u4E86\u4F60\u7684\u8FC7\u53BB\u3002<br><br>';
+        html += '\u8BC4\u8BBA\u91CC\u5145\u6EE1\u4E86\u5BF9\u4F60\u7684\u8D28\u7591\uFF1A\u201C\u8FD9\u79CD\u4EBA\u4E5F\u80FD\u51FA\u9053\uFF1F\u201D\u201C\u516C\u53F8\u662F\u4E0D\u662F\u778E\u4E86\uFF1F\u201D';
+        html += '</div>';
+    } else if (stepKey === '5.5') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u7C89\u4E1D\u793E\u533A</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u4E24\u6781\u5206\u5316</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u7684\u604B\u7231\u4F20\u95FB\u5728\u7F51\u4E0A\u7206\u5F00\u4E86\u3002\u7C89\u4E1D\u5206\u6210\u4E86\u4E24\u6D3E\uFF1A<br><br>';
+        html += '\u4E00\u8FB9\u8BF4\uFF1A\u201C\u6211\u7684\u7231\u8C46\u5F00\u5FC3\u5C31\u597D\uFF0C\u5176\u4ED6\u4E0D\u91CD\u8981\u3002\u201D<br>';
+        html += '\u53E6\u4E00\u8FB9\u8BF4\uFF1A\u201C\u80CC\u53DB\u7C89\u4E1D\uFF0C\u53D6\u5173\uFF01\u201D<br><br>';
+        html += '\u4F60\u770B\u7740\u8FD9\u4E9B\u8BC4\u8BBA\uFF0C\u611F\u89C9\u81EA\u5DF1\u88AB\u6495\u6210\u4E86\u4E24\u534A\u3002\u4F60\u5F97\u505A\u70B9\u4EC0\u4E48\u6765\u627E\u56DE\u81EA\u5DF1\u3002';
+        html += '</div>';
+    } else if (stepKey === '6.0') {
+        html += '<div style="font-size:13px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">IDOL CHAPTER 3</div>';
+        html += '<div style="font-size:28px;font-weight:700;color:#F8FAFC;margin-bottom:8px;">\u5DC5\u5CF0</div>';
+        html += '<div style="font-size:14px;color:#94A3B8;margin-bottom:24px;">\u6700\u540E\u7684\u7B54\u5377\uFF0C\u4E00\u76F4\u5728\u4F60\u5FC3\u91CC</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u5E74\u672B\u9886\u5956\u5178\u793C\u3002\u4F60\u88AB\u63D0\u540D\u4E86\u201C\u5E74\u5EA6\u827A\u4EBA\u201D\u3002<br><br>';
+        html += '\u8FD9\u662F\u4F60\u4ECE\u6765\u6CA1\u60F3\u8FC7\u7684\u9AD8\u5EA6\u3002\u4F60\u7AD9\u5728\u540E\u53F0\uFF0C\u542C\u7740\u524D\u65B9\u7684\u97F3\u4E50\uFF0C\u5FC3\u8DF3\u5F88\u5FEB\u3002<br><br>';
+        html += '<span style="color:#A78BFA;">\u7D20\u96C5\uFF1A</span>\u201C\u6211\u4E00\u76F4\u76F8\u4FE1\u4F60\u53EF\u4EE5\u3002\u201D<br>';
+        html += '<span style="color:#F59E0B;">\u590F\u6069\uFF1A</span>\u201C\u53BB\u5427\uFF0C\u8BA9\u4ED6\u4EEC\u770B\u770B\u3002\u201D';
+        html += '</div>';
+    } else if (stepKey === '6.1') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u9886\u5956\u53F0</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u5168\u573A\u8D77\u7ACB</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u7684\u540D\u5B57\u88AB\u5FF5\u51FA\u6765\u7684\u90A3\u4E00\u523B\uFF0C\u5168\u573A\u5B89\u9759\u4E86\u4E00\u79D2\uFF0C\u7136\u540E\u662F\u5C71\u547C\u6D77\u5578\u3002<br><br>';
+        html += '\u4F60\u8D70\u4E0A\u53F0\uFF0C\u63A5\u8FC7\u5956\u676F\uFF0C\u706F\u5149\u592A\u4EAE\u4E86\uFF0C\u4F60\u5FEB\u770B\u4E0D\u6E05\u53F0\u4E0B\u7684\u4EBA\u4E86\u3002<br><br>';
+        html += '\u4F46\u4F60\u77E5\u9053\uFF0C\u4ED6\u4EEC\u90FD\u5728\u3002';
+        html += '</div>';
+    } else if (stepKey === '6.2') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u5F55\u97F3\u5BA4</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u4E3A\u4F60\u5199\u7684\u6B4C</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u5728\u5F55\u97F3\u5BA4\u91CC\u5F55\u4E86\u4E00\u9996\u65B0\u6B4C\u3002\u4E0D\u662F\u516C\u53F8\u5B89\u6392\u7684\uFF0C\u662F\u4F60\u81EA\u5DF1\u5199\u7684\u3002<br><br>';
+        html += '\u6B4C\u8BCD\u91CC\u5199\u7684\u662F\u4ECE\u7EC3\u4E60\u751F\u5230\u73B0\u5728\u7684\u6BCF\u4E00\u6B65\u3002\u6BCF\u4E00\u6B21\u8DF3\u821E\u8DF3\u5230\u811A\u75BC\uFF0C\u6BCF\u4E00\u6B21\u5728\u5357\u94FA\u8857\u5934\u5531\u6B4C\u5531\u5230\u55D3\u5B50\u54D1\uFF0C\u6BCF\u4E00\u6B21\u7FFB\u770B\u624B\u673A\u65F6\u770B\u5230\u7684\u90A3\u4E9B\u7559\u8A00\u3002<br><br>';
+        html += '\u4F60\u628A\u6B4C\u53D1\u7ED9\u4E86\u7D20\u96C5\u3002<br>';
+        html += '<span style="color:#A78BFA;">\u7D20\u96C5\uFF1A</span>\u201C\u2026\u2026\u6211\u542C\u5B8C\u4E86\u3002\u5F88\u597D\u542C\u3002\u8C22\u8C22\u4F60\u5199\u7ED9\u6211\u4EEC\u3002\u201D';
+        html += '</div>';
     } else {
         html += '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + '</div>';
         html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">' + (chapter.subtitle || '') + '</div>';
@@ -15626,6 +15713,95 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
             { id: 'not_done', text: '\u201C\u8FD9\u8FD8\u4E0D\u591F\uFF0C\u6211\u8FD8\u8981\u66F4\u9AD8\u3002\u201D', icon: 'B' },
             { id: 'for_fans', text: '\u201C\u8FD9\u4EFD\u8363\u8A89\u5C5E\u4E8E\u7C89\u4E1D\u3002\u201D', icon: 'C' }
         ];
+    } else if (stepKey === '5.1') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u8BC4\u8BBA\u533A</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u6076\u610F\u8BC4\u8BBA</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u4F60\u7684\u79C1\u751F\u6D3B\u88AB\u4EBA\u7206\u6599\u4E86\u3002\u8BC4\u8BBA\u91CC\u5145\u6EE1\u4E86\u5BF9\u4F60\u7684\u653B\u51FB\uFF0C\u7ECF\u7EAA\u4EBA\u95EE\u4F60\u60F3\u600E\u4E48\u5904\u7406\u3002';
+        html += '</div>';
+        options = [
+            { id: 'calm_face', text: '\u201C\u6211\u4E0D\u5728\u4E4E\uFF0C\u6211\u53EA\u4E13\u6CE8\u821E\u53F0\u3002\u201D', icon: 'A' },
+            { id: 'ignore_it', text: '\u201C\u4E0D\u7528\u7406\u4F1A\uFF0C\u7EE7\u7EED\u5F80\u524D\u8D70\u3002\u201D', icon: 'B' }
+        ];
+    } else if (stepKey === '5.2') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u516C\u53F8 \u00B7 \u4F1A\u8BAE\u5BA4</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u5408\u540C\u8C08\u5224</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;">';
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:8px;">\u7ECF\u7EAA\u4EBA</div>';
+        html += '<div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C\u5408\u540C\u5FEB\u5230\u671F\u4E86\uFF0C\u516C\u53F8\u60F3\u7EED\u7EA6\u3002\u4F46\u6761\u4EF6\u2026\u2026\u4F60\u5F97\u81EA\u5DF1\u8C08\u3002\u201D</div>';
+        html += '</div>';
+        html += '</div>';
+        options = [
+            { id: 'negotiate', text: '\u201C\u6211\u8981\u66F4\u597D\u7684\u6761\u4EF6\uFF0C\u8FD9\u662F\u6211\u5E94\u5F97\u7684\u3002\u201D', icon: 'A' },
+            { id: 'accept_it', text: '\u201C\u6CA1\u5173\u7CFB\uFF0C\u6211\u613F\u610F\u7559\u4E0B\u6765\u3002\u201D', icon: 'B' }
+        ];
+    } else if (stepKey === '5.3') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u901A\u8BAF\u5F55 \u00B7 \u7D20\u96C5</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u5FC3\u4E2D\u7684\u79D8\u5BC6</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u6DF1\u591C\uFF0C\u7D20\u96C5\u53D1\u6765\u6D88\u606F\uFF1A\u201C\u7761\u4E86\u5417\uFF1F\u201D<br><br>';
+        html += '\u4F60\u77E5\u9053\u81EA\u5DF1\u5BF9\u5979\u7684\u611F\u89C9\u4E0D\u53EA\u662F\u961F\u53CB\u3002\u4F46\u4F60\u4E0D\u786E\u5B9A\u8FD9\u4EFD\u611F\u89C9\u662F\u5426\u5E94\u8BE5\u8BF4\u51FA\u6765\u3002';
+        html += '</div>';
+        options = [
+            { id: 'confess', text: '\u201C\u6211\u559C\u6B22\u4F60\uFF0C\u4ECE\u7B2C\u4E00\u5929\u89C1\u5230\u4F60\u5F00\u59CB\u3002\u201D', icon: 'A' },
+            { id: 'keep_inside', text: '\u201C\u8FD8\u6CA1\u7761\uFF0C\u4F60\u4E5F\u5931\u7720\u4E86\uFF1F\u201D', icon: 'B' }
+        ];
+    } else if (stepKey === '5.4') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u65B0\u95FB\u9875\u9762</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u604B\u60C5\u66DD\u5149</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u4F60\u548C\u7D20\u96C5\u88AB\u62CD\u5230\u4E86\u3002\u7167\u7247\u5728\u7F51\u4E0A\u4F20\u5F00\u4E86\u3002<br><br>';
+        html += '\u8BC4\u8BBA\u91CC\u5206\u6210\u4E24\u6D3E\uFF1A\u4E00\u8FB9\u8BF4\u201C\u5076\u50CF\u4E5F\u6709\u79C1\u751F\u6D3B\u201D\uFF0C\u4E00\u8FB9\u8BF4\u201C\u7EE7\u7EED\u5543\u5F97\u5F88\u5F00\u5FC3\u201D\u3002';
+        html += '</div>';
+        options = [
+            { id: 'admit', text: '\u201C\u90A3\u662F\u6211\u7684\u79C1\u4E8B\uFF0C\u6211\u4E0D\u9700\u8981\u89E3\u91CA\u3002\u201D', icon: 'A' },
+            { id: 'deny', text: '\u201C\u53EA\u662F\u670B\u53CB\uFF0C\u4E0D\u8981\u8FC7\u5EA6\u89E3\u8BFB\u3002\u201D', icon: 'B' }
+        ];
+    } else if (stepKey === '5.6') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u5FC3\u7406\u54A8\u8BE2\u5BA4</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u91CD\u5EFA\u81EA\u5DF1</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u98CE\u6CE2\u6E10\u6E10\u5E73\u606F\u4E86\uFF0C\u4F46\u4F60\u5FC3\u91CC\u7684\u88C2\u7F1D\u8FD8\u5728\u3002\u4F60\u9700\u8981\u627E\u5230\u4E00\u79CD\u65B9\u5F0F\u6765\u91CD\u65B0\u7AD9\u8D77\u6765\u3002';
+        html += '</div>';
+        options = [
+            { id: 'write_song', text: '\u201C\u6211\u8981\u5199\u4E00\u9996\u6B4C\uFF0C\u628A\u8FD9\u4E00\u5207\u5531\u51FA\u6765\u3002\u201D', icon: 'A' },
+            { id: 'do_livestream', text: '\u201C\u6211\u8981\u5F00\u76F4\u64AD\uFF0C\u4EB2\u53E3\u544A\u8BC9\u7C89\u4E1D\u6211\u7684\u5FC3\u60C5\u3002\u201D', icon: 'B' },
+            { id: 'quiet', text: '\u201C\u6211\u9700\u8981\u65F6\u95F4\uFF0C\u5148\u5B89\u9759\u4E00\u6BB5\u65F6\u95F4\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '6.3') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u9886\u5956\u53F0</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u83B7\u5956\u611F\u8A00</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u4F60\u7AD9\u5728\u9EA6\u514B\u98CE\u524D\uFF0C\u5168\u573A\u9759\u9ED8\u7B49\u4F60\u8BF4\u8BDD\u3002\u8FD9\u4E00\u523B\uFF0C\u4F60\u60F3\u8BF4\u7684\u662F\u4EC0\u4E48\uFF1F';
+        html += '</div>';
+        options = [
+            { id: 'grateful', text: '\u201C\u8C22\u8C22\u6BCF\u4E00\u4E2A\u76F8\u4FE1\u6211\u7684\u4EBA\u3002\u201D', icon: 'A' },
+            { id: 'not_done', text: '\u201C\u8FD9\u8FD8\u4E0D\u591F\uFF0C\u6211\u8FD8\u8981\u66F4\u9AD8\u3002\u201D', icon: 'B' },
+            { id: 'for_fans', text: '\u201C\u8FD9\u4EFD\u8363\u8A89\u5C5E\u4E8E\u7C89\u4E1D\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '6.4') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u9886\u5956\u540E\u53F0</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u6700\u60F3\u6253\u7ED9\u8C01\uFF1F</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u62FF\u7740\u5956\u676F\uFF0C\u4F60\u60F3\u8D77\u4E86\u5F88\u591A\u4EBA\u3002\u624B\u673A\u5728\u624B\u91CC\uFF0C\u4F60\u60F3\u6253\u7ED9\u8C01\uFF1F';
+        html += '</div>';
+        options = [
+            { id: 'call_haeeun', text: '\u201C\u590F\u6069\u2026\u2026\u8C22\u8C22\u4F60\u5F53\u521D\u6CA1\u653E\u5F03\u6211\u3002\u201D', icon: 'A' },
+            { id: 'call_sua', text: '\u201C\u7D20\u96C5\uFF0C\u6211\u505A\u5230\u4E86\u3002\u201D', icon: 'B' },
+            { id: 'call_family', text: '\u201C\u5988\uFF0C\u6211\u62FF\u5956\u4E86\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '6.5') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u7EC3\u4E60\u5BA4</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u56DE\u671B\u6765\u8DEF</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u6DF1\u591C\uFF0C\u4F60\u4E00\u4E2A\u4EBA\u56DE\u5230\u4E86\u7EC3\u4E60\u5BA4\u3002\u7AD9\u5728\u5F53\u521D\u7684\u4F4D\u7F6E\uFF0C\u770B\u7740\u955C\u5B50\u91CC\u7684\u81EA\u5DF1\u3002<br><br>';
+        html += '\u4ECE\u964C\u751F\u4EBA\u5230\u5E74\u5EA6\u827A\u4EBA\uFF0C\u8FD9\u6761\u8DEF\u4F60\u8D70\u4E86\u591A\u4E45\uFF1F\u4F60\u8FD8\u8BB0\u5F97\u6765\u65F6\u7684\u6BCF\u4E00\u6B65\u5417\uFF1F';
+        html += '</div>';
+        options = [
+            { id: 'remember_all', text: '\u201C\u6211\u5168\u90E8\u8BB0\u5F97\uFF0C\u6BCF\u4E00\u4E2A\u7EC6\u8282\u3002\u201D', icon: 'A' },
+            { id: 'remember_key', text: '\u201C\u53EA\u8BB0\u5F97\u91CD\u8981\u7684\uFF0C\u5176\u4ED6\u7684\u2026\u2026\u968F\u98CE\u53BB\u5427\u3002\u201D', icon: 'B' }
+        ];
     }
     inner.innerHTML = html;
 
@@ -15638,7 +15814,7 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
             btn.style.cssText = 'background:#1E293B;border:1px solid #334155;color:#E2E8F0;padding:14px 18px;border-radius:8px;font-size:14px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;';
             btn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#94A3B8;font-size:13px;flex-shrink:0;">' + o.icon + '</span><span style="flex:1;">' + o.text + '</span>';
             btn.onclick = function() {
-                cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() }); if (!cs.choiceDetails) cs.choiceDetails = {}; cs.choiceDetails[stepKey] = o.text.replace(/[\u201c\u201d]/g, '');
+                cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, choiceKey: stepConfig.choiceKey || '', choiceValue: o.id, timestamp: Date.now() }); if (!cs.choiceDetails) cs.choiceDetails = {}; cs.choiceDetails[stepKey] = o.text.replace(/[\u201c\u201d]/g, '');
                 if (o.gain) {
                     if (stepKey === '2.2') {
                         if (o.id === 'ballad') { gameState.stats.vocal = Math.min(150, (gameState.stats.vocal || 0) + o.gain); }
@@ -15688,10 +15864,11 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     var chapterChoices = [];
     var ci;
     for (ci = 0; ci < cs.choices.length; ci++) { if (cs.choices[ci].chapter === cs.currentChapter) chapterChoices.push(cs.choices[ci]); }
-    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F', ballad: '\u6162\u6B4C', dance_track: '\u821E\u8E48\u66F2', rap_cover: 'Rap', all_round: '\u5168\u9762', vocal_focus: '\u4E3B\u5531', dance_focus: '\u9886\u821E', celebrate: '\u6211\u505A\u5230\u4E86', stay_calm: '\u7B2C\u4E00\u6B65', thank_team: '\u611F\u8C22\u56E2\u961F', cool_concept: '\u9177\u98CE', youth_concept: '\u9752\u6625', mystery_concept: '\u795E\u79D8', go_for_it: '\u62FC\u4E86', stay_humble: '\u8C26\u865A', for_team: '\u4E3A\u56E2\u961F', admit: '\u5766\u8BDA', deny: '\u5426\u8BA4', apologize: '\u9053\u6B49', honest: '\u5766\u8BDA\u9762\u5BF9', quiet: '\u6C89\u9ED8', reframe: '\u8F6C\u79FB\u8BDD\u9898', grateful: '\u611F\u6069', not_done: '\u8FD8\u4E0D\u591F', for_fans: '\u732E\u7ED9\u7C89\u4E1D' };
+    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F', ballad: '\u6162\u6B4C', dance_track: '\u821E\u8E48\u66F2', rap_cover: 'Rap', all_round: '\u5168\u9762', vocal_focus: '\u4E3B\u5531', dance_focus: '\u9886\u821E', celebrate: '\u6211\u505A\u5230\u4E86', stay_calm: '\u7B2C\u4E00\u6B65', thank_team: '\u611F\u8C22\u56E2\u961F', cool_concept: '\u9177\u98CE', youth_concept: '\u9752\u6625', mystery_concept: '\u795E\u79D8', go_for_it: '\u62FC\u4E86', stay_humble: '\u8C26\u865A', for_team: '\u4E3A\u56E2\u961F', admit: '\u5766\u8BDA', deny: '\u5426\u8BA4', apologize: '\u9053\u6B49', honest: '\u5766\u8BDA\u9762\u5BF9', quiet: '\u6C89\u9ED8', reframe: '\u8F6C\u79FB\u8BDD\u9898', grateful: '\u611F\u6069', not_done: '\u8FD8\u4E0D\u591F', for_fans: '\u732E\u7ED9\u7C89\u4E1D', calm_face: '\u5766\u7136', ignore_it: '\u65E0\u89C6', negotiate: '\u8C08\u5224', accept_it: '\u63A5\u53D7', confess: '\u8868\u767D', keep_inside: '\u85CF\u5728\u5FC3\u91CC', write_song: '\u5199\u6B4C', do_livestream: '\u76F4\u64AD', call_haeeun: '\u6253\u7ED9\u590F\u6069', call_sua: '\u6253\u7ED9\u7D20\u96C5', call_family: '\u6253\u7ED9\u5BB6\u4EBA', remember_all: '\u5168\u90E8\u8BB0\u5F97', remember_key: '\u53EA\u8BB0\u5F97\u91CD\u8981\u7684' };
     var appLabels = { contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A', daily: '\u4ECA\u65E5\u4EFB\u52A1', debut: '\u51FA\u9053\u4F01\u5212', recording: '\u5F55\u97F3\u5BA4', mvstudio: 'MV\u5DE5\u4F5C\u5BA4', musicshow: '\u97F3\u4E50\u653E\u9001', pr: '\u516C\u5173\u5BA4' };
+    var chSubtitles = { 1: '\u5165\u793E', 2: '\u6210\u957F', 3: '\u51FA\u9053', 4: '\u51FA\u9053\u56DE\u5FC6', 5: '\u6210\u540D', 6: '\u5DC5\u5CF0' };
     var html = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + ' COMPLETE</div>';
-    html += '<div style="font-size:24px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">\u5165\u793E</div>';
+    html += '<div style="font-size:24px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">' + (chSubtitles[cs.currentChapter] || '\u5B8C\u6210') + '</div>';
     html += '<div style="width:40px;height:2px;background:#1E293B;margin:12px auto;"></div>';
     if (chapterChoices.length > 0) {
         html += '<div style="font-size:13px;color:#64748B;margin:16px 0 8px;text-align:left;">\u4F60\u7684\u9009\u62E9</div>';
@@ -15703,14 +15880,27 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     html += '</div>';
     html += '<div style="background:#0F172A;border:1px solid #1E293B;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">';
     html += '<div style="font-size:12px;color:#64748B;margin-bottom:6px;">\u4E0B\u4E00\u7AE0\u9884\u544A</div>';
-    html += '<div style="font-size:14px;color:#94A3B8;line-height:1.5;">\u4F60\u6B63\u5F0F\u6210\u4E3AHaeoreum\u7684\u4E00\u5458\u3002\u4F46\u771F\u6B63\u7684\u6311\u6218\u624D\u521A\u521A\u5F00\u59CB\u2014\u2014\u4E0B\u4E00\u6B21\u516C\u5F00\u4EAE\u76F8\uFF0C\u4F60\u53EF\u80FD\u8FDE\u7AD9\u5728\u53F0\u4E0A\u7684\u8D44\u683C\u90FD\u6CA1\u6709\u3002\u4F60\u51C6\u5907\u597D\u4E86\u5417\uFF1F</div>';
+    var nextPreviews = {
+        1: '\u4F60\u6B63\u5F0F\u6210\u4E3AHaeoreum\u7684\u4E00\u5458\u3002\u4F46\u771F\u6B63\u7684\u6311\u6218\u624D\u521A\u521A\u5F00\u59CB\u2014\u2014\u4E0B\u4E00\u6B21\u516C\u5F00\u4EAE\u76F8\uFF0C\u4F60\u53EF\u80FD\u8FDE\u7AD9\u5728\u53F0\u4E0A\u7684\u8D44\u683C\u90FD\u6CA1\u6709\u3002\u4F60\u51C6\u5907\u597D\u4E86\u5417\uFF1F',
+        2: '\u4F60\u5DF2\u7ECF\u4E0D\u662F\u65B0\u4EBA\u4E86\u3002\u4F46\u51FA\u9053\u7684\u8DEF\u8FD8\u5F88\u957F\u2014\u2014\u4E0B\u4E00\u7AE0\uFF0C\u4F60\u5C06\u7AD9\u4E0A\u771F\u6B63\u7684\u821E\u53F0\u3002',
+        3: '\u51FA\u9053\u5B8C\u6210\u4E86\u3002\u4F46\u7231\u8C46\u7684\u6545\u4E8B\u624D\u521A\u521A\u5F00\u59CB\u2014\u2014\u540D\u6C14\u3001\u7231\u60C5\u3001\u81EA\u6211\uFF0C\u4F60\u51C6\u5907\u597D\u9762\u5BF9\u4E86\u5417\uFF1F',
+        4: '\u7231\u8C46\u751F\u6D3B\u6BD4\u4F60\u60F3\u8C61\u7684\u66F4\u590D\u6742\u3002\u540D\u6C14\u548C\u4E89\u8BAE\u4E00\u8D77\u6765\u4E86\u2014\u2014\u4F60\u80FD\u625B\u4F4F\u5417\uFF1F',
+        5: '\u4F60\u7ECF\u5386\u4E86\u4F4E\u8C37\u548C\u91CD\u5EFA\u3002\u73B0\u5728\uFF0C\u7EC8\u4E8E\u5230\u4E86\u6700\u540E\u4E00\u7AE0\u2014\u2014\u5DC5\u5CF0\uFF0C\u6216\u8005\u6DF1\u6E0A\u3002',
+        6: '\u8FD9\u4E0D\u662F\u7ED3\u675F\uFF0C\u662F\u65B0\u7684\u5F00\u59CB\u3002'
+    };
+    html += '<div style="font-size:14px;color:#94A3B8;line-height:1.5;">' + (nextPreviews[cs.currentChapter] || '\u7EE7\u7EED\u524D\u8FDB\u3002') + '</div>';
     html += '</div>';
     inner.innerHTML = html;
     var btn = document.createElement('button');
     btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;width:100%;';
     var nextCh = cs.currentChapter + 1;
     var nextTitles = { 2: '\u6210\u957F', 3: '\u51FA\u9053' };
-    btn.textContent = '\u8FDB\u5165\u7B2C' + nextCh + '\u7AE0';
+    var nextTitles2 = { 2: '\u6210\u957F', 3: '\u51FA\u9053', 4: '\u51FA\u9053\u56DE\u5FC6', 5: '\u6210\u540D', 6: '\u5DC5\u5CF0' };
+    if (cs.currentChapter === 6) {
+        btn.textContent = '\u67E5\u770B\u7ED3\u5C40';
+    } else {
+        btn.textContent = '\u8FDB\u5165\u7B2C' + nextCh + '\u7AE0';
+    }
     // V2.0: VIP subscription CTA after chapter 1
     if (cs.currentChapter === 1) {
         var vipCta = document.createElement('div');
@@ -15720,8 +15910,60 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
             + '\u003cbutton onclick="goToPage(\'me\');showToast(\'\u8BF7\u524D\u5F80\u201C\u6211\u7684\u201D\u9875\u9762\u67E5\u770B\u4F1A\u5458\u4FE1\u606F\')" style="background:#A78BFA;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;cursor:pointer;width:100%;"\u003e9.9\u5143/\u6708 \u8BA2\u9605\u4F1A\u5458\u003c/button\u003e';
         inner.appendChild(vipCta);
     }
-    btn.onclick = function() { cs.currentChapter = nextCh; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); _regretUsedThisChapter = false; triggerSilentSave(); render(); };
+    btn.onclick = function() {
+        if (cs.currentChapter === 6) {
+            // Show ending screen
+            _renderEndingScreen();
+            return;
+        }
+        cs.currentChapter = nextCh; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); _regretUsedThisChapter = false; triggerSilentSave(); render();
+    };
     inner.appendChild(btn);
+}
+
+
+function _renderEndingScreen() {
+    var tag = _getDominantEndingTag();
+    var endings = {
+        ambition: {
+            title: '\u5F81\u670D\u8005',
+            subtitle: '\u91CE\u5FC3\u8DEF\u7EBF \u00B7 \u7ED3\u5C40',
+            text: '\u4F60\u7AD9\u5728\u4E86\u6700\u9AD8\u5904\u3002\u4E16\u754C\u5728\u4F60\u811A\u4E0B\uFF0C\u7C89\u4E1D\u5728\u4F60\u8EAB\u540E\uFF0C\u5956\u676F\u5728\u4F60\u624B\u4E2D\u3002<br><br>\u6CA1\u6709\u4EBA\u518D\u8D28\u7591\u4F60\u4E86\u3002\u4F60\u7EC8\u4E8E\u8BC1\u660E\u4E86\u2014\u2014\u4F60\u5C31\u662F\u8981\u7AD9\u5728\u6700\u9AD8\u7684\u5730\u65B9\u3002<br><br>\u4F46\u6709\u65F6\u5019\uFF0C\u4F60\u4F1A\u5728\u6DF1\u591C\u9192\u6765\uFF0C\u60F3\u8D77\u90A3\u4E2A\u7AD9\u5728\u7EC3\u4E60\u5BA4\u95E8\u53E3\u8BF4\u201C\u8DDF\u6211\u6765\u201D\u7684\u4EBA\u3002\u4F60\u4F1A\u60F3\uFF0C\u5982\u679C\u5F53\u521D\u6162\u4E00\u70B9\uFF0C\u662F\u4E0D\u662F\u8FD8\u80FD\u770B\u89C1\u8DEF\u8FB9\u7684\u98CE\u666F\u3002<br><br><span style="color:#94A3B8;">\u4F46\u4F60\u4E0D\u540E\u6094\u3002\u56E0\u4E3A\u4F60\u4ECE\u4E00\u5F00\u59CB\u5C31\u77E5\u9053\uFF0C\u4F60\u8981\u7684\u662F\u5C71\u9876\u3002</span>',
+            color: '#F59E0B'
+        },
+        passion: {
+            title: '\u5FC3\u706B',
+            subtitle: '\u70ED\u7231\u8DEF\u7EBF \u00B7 \u7ED3\u5C40',
+            text: '\u4F60\u4ECE\u6765\u4E0D\u662F\u4E3A\u4E86\u5956\u676F\u800C\u5531\u6B4C\u7684\u3002<br><br>\u4F60\u662F\u56E0\u4E3A\u559C\u6B22\uFF0C\u6240\u4EE5\u5531\u3002\u56E0\u4E3A\u559C\u6B22\uFF0C\u6240\u4EE5\u8DF3\u3002\u56E0\u4E3A\u559C\u6B22\uFF0C\u6240\u4EE5\u7AD9\u5728\u8FD9\u91CC\u3002<br><br>\u6709\u4EBA\u8BF4\u4F60\u592A\u7406\u60F3\u4E3B\u4E49\u4E86\u3002\u4F46\u4F60\u77E5\u9053\uFF0C\u6B63\u662F\u8FD9\u4EFD\u70ED\u7231\u8BA9\u4F60\u8D70\u8FC7\u4E86\u6BCF\u4E00\u4E2A\u60F3\u653E\u5F03\u7684\u591C\u665A\u3002<br><br><span style="color:#F472B6;">\u7D20\u96C5\uFF1A</span>\u201C\u6211\u559C\u6B22\u4F60\u7684\u6B4C\u3002\u4E0D\u662F\u56E0\u4E3A\u5B83\u5F88\u597D\u542C\uFF0C\u800C\u662F\u56E0\u4E3A\u5B83\u662F\u771F\u7684\u3002\u201D<br><br><span style="color:#94A3B8;">\u4F60\u5FAE\u7B11\u7740\uFF0C\u628A\u5956\u676F\u653E\u5728\u4E86\u7EC3\u4E60\u5BA4\u7684\u7A97\u53F0\u4E0A\u3002\u7136\u540E\u6253\u5F00\u97F3\u4E50\uFF0C\u7EE7\u7EED\u7EC3\u3002</span>',
+            color: '#F472B6'
+        },
+        proof: {
+            title: '\u8BC1\u660E',
+            subtitle: '\u8BC1\u660E\u8DEF\u7EBF \u00B7 \u7ED3\u5C40',
+            text: '\u6240\u6709\u8BF4\u4F60\u4E0D\u884C\u7684\u4EBA\uFF0C\u73B0\u5728\u90FD\u95ED\u5634\u4E86\u3002<br><br>\u4F60\u4E0D\u662F\u6700\u6709\u5929\u8D4B\u7684\uFF0C\u4E0D\u662F\u6700\u6709\u8FD0\u6C14\u7684\uFF0C\u4F46\u4F60\u662F\u6700\u575A\u6301\u7684\u3002\u4F60\u7528\u6BCF\u4E00\u6B21\u6C57\u6C34\u8BC1\u660E\u4E86\uFF0C\u201C\u6211\u53EF\u4EE5\u201D\u4E0D\u662F\u4E00\u53E5\u7A7A\u8BDD\u3002<br><br><span style="color:#F59E0B;">\u590F\u6069\uFF1A</span>\u201C\u6211\u5F53\u521D\u8BF4\u4F60\u5E95\u5B50\u8584\u3002\u73B0\u5728\u6211\u627F\u8BA4\u2014\u2014\u4F60\u7684\u5E95\u5B50\uFF0C\u6BD4\u6211\u4EEC\u4EFB\u4F55\u4EBA\u90FD\u539A\u3002\u201D<br><br><span style="color:#94A3B8;">\u4F60\u62FF\u7740\u5956\u676F\uFF0C\u8D70\u5230\u7EC3\u4E60\u5BA4\u7684\u955C\u5B50\u524D\u3002\u955C\u5B50\u91CC\u7684\u4EBA\u548C\u5F53\u521D\u4E00\u6837\uFF0C\u53EA\u662F\u773C\u795E\u4E0D\u4E00\u6837\u4E86\u3002\u4F60\u7EC8\u4E8E\u8BC1\u660E\u4E86\u2014\u2014\u7ED9\u81EA\u5DF1\u770B\u3002</span>',
+            color: '#60A5FA'
+        }
+    };
+    var ending = endings[tag] || endings.passion;
+    var ol = document.getElementById('chapterOverlay');
+    if (ol) ol.remove();
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#0F172A;z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;box-sizing:border-box;overflow-y:auto;';
+    var inner = document.createElement('div');
+    inner.style.cssText = 'max-width:360px;width:100%;text-align:center;color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,sans-serif;';
+    inner.innerHTML = '<div style="font-size:13px;color:' + ending.color + ';letter-spacing:2px;margin-bottom:12px;">ENDING</div>'
+        + '<div style="font-size:28px;font-weight:700;color:' + ending.color + ';margin-bottom:8px;">' + ending.title + '</div>'
+        + '<div style="font-size:14px;color:#94A3B8;margin-bottom:24px;">' + ending.subtitle + '</div>'
+        + '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">' + ending.text + '</div>'
+        + '<div style="width:40px;height:2px;background:' + ending.color + ';margin:24px auto;opacity:0.3;"></div>'
+        + '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">' + (gameState.player.name || '') + ' \u7684\u6545\u4E8B\uFF0C\u8FD8\u5728\u7EE7\u7EED</div>';
+    var restartBtn = document.createElement('button');
+    restartBtn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;width:100%;';
+    restartBtn.textContent = '\u91CD\u65B0\u5F00\u59CB';
+    restartBtn.onclick = function() { overlay.remove(); currentPage = 'home'; render(); };
+    inner.appendChild(restartBtn);
+    overlay.appendChild(inner);
+    document.body.appendChild(overlay);
 }
 
 function startChapter(chapterNum) {
