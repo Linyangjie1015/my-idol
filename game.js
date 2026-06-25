@@ -14388,6 +14388,102 @@ function verifyAfdianOrder() {
 }
 
 
+
+// V2.0 Feature #18: Step NPC feedback messages
+var STEP_NPC_FEEDBACK = {
+    '1.0': { npc: '夏恩', color: '#F59E0B', text: '欢迎来到SEONGWOO ENT。我是你的队长夏恩，以后有什么不懂的可以找我。' },
+    '1.1': { npc: '夏恩', color: '#F59E0B', text: '面试通过了？不错，欢迎加入。' },
+    '1.2': { npc: '俊昊', color: '#60A5FA', text: '你来了！练习室在这边，我带你过去。' },
+    '1.3': { npc: '智媛', color: '#F472B6', text: '看到你发动态了！大家都很开心哦~' },
+    '1.4': { npc: '夏恩', color: '#F59E0B', text: '舞蹈进步不小，继续保持。' },
+    '1.5': { npc: '俊昊', color: '#60A5FA', text: '别在意别人怎么说，你做得很好。' },
+    '1.6': { npc: '智媛', color: '#F472B6', text: '直播好开心！下次再一起吧~' },
+    '1.7': { npc: '素雅', color: '#A78BFA', text: '有粉丝开始关注你了，这是好事。' },
+    '1.8': { npc: '夏恩', color: '#F59E0B', text: '第一章结束了。你比我想象的坚强。' },
+    '2.0': { npc: '瑞贤', color: '#34D399', text: '新阶段了。加油。' },
+    '2.1': { npc: '素雅', color: '#A78BFA', text: '你的声音有潜力，要不要一起练？' },
+    '2.2': { npc: '俊昊', color: '#60A5FA', text: '路演的感觉怎么样？紧张了吧？' },
+    '2.3': { npc: '瑞贤', color: '#34D399', text: '你的视频有人开始转发了。' },
+    '2.4': { npc: '夏恩', color: '#F59E0B', text: '经纪人找我谈你的事了，看来你引起注意了。' },
+    '2.5': { npc: '素雅', color: '#A78BFA', text: '考核通过了，你真的很努力。' },
+    '2.6': { npc: '夏恩', color: '#F59E0B', text: '出道计划定了，让我们一起拼。' },
+    '2.7': { npc: '素雅', color: '#A78BFA', text: '录音室里你的声音很好听。' },
+    '2.8': { npc: '夏恩', color: '#F59E0B', text: '出道日期确定了。我们的故事才刚开始。' },
+    '3.0': { npc: '夏恩', color: '#F59E0B', text: '出道前夕。明天，舞台是我们的。' },
+    '3.1': { npc: '智媛', color: '#F472B6', text: 'MV拍完了！你的表情管理好厉害~' },
+    '3.2': { npc: '俊昊', color: '#60A5FA', text: '出道舞台就在眼前了。加油！' },
+    '3.3': { npc: '素雅', color: '#A78BFA', text: '粉丝数量爆炸了……大家都在说你。' },
+    '3.4': { npc: '夏恩', color: '#F59E0B', text: '一位候选……我们很近了。' },
+    '3.5': { npc: '瑞贤', color: '#34D399', text: '练闻不是你的错，别自责。' },
+    '3.6': { npc: '夏恩', color: '#F59E0B', text: '危机处理得不错，公司那边我帮你说了。' },
+    '3.7': { npc: '夏恩', color: '#F59E0B', text: '大赏提名……你做到了。' },
+    '3.8': { npc: '夏恩', color: '#F59E0B', text: '从练习生到出道爱豆，你走过来了。我为你骄傲。' }
+};
+
+function _sendStepNpcMsg(stepKey) {
+    var feedback = STEP_NPC_FEEDBACK[stepKey];
+    if (!feedback) return;
+    if (!gameState.sms) gameState.sms = [];
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    gameState.sms.unshift({
+        from: feedback.npc,
+        text: feedback.text,
+        icon: feedback.color,
+        time: ts,
+        read: false
+    });
+    if (gameState.sms.length > 30) gameState.sms = gameState.sms.slice(0, 30);
+    gameState.smsUnread = (gameState.smsUnread || 0) + 1;
+}
+
+
+// V2.0 Feature #11: Daily login greeting from highest-affection NPC
+var DAILY_GREETINGS = {
+    '夏恩': ['早。今天也要加油。', '你来了。练习室见。', '每天进步一点就好。'],
+    '素雅': ['早安。今天心情怎么样？', '你的声音最近好了很多。', '记得喝水。'],
+    '智媛': ['早安！今天也要开心哦~', '你来啦！我有点想你了！', '今天一起练习吧~'],
+    '俊昊': ['早。今天的练习安排了吗？', '你来了！等你很久了。', '一起加油吧。'],
+    '瑞贤': ['……早。', '来了。', '……加油。']
+};
+
+function _checkDailyLoginGreeting() {
+    if (!gameState.chapterState || gameState.chapterState.currentChapter === 0) return;
+    if (!gameState.npc好感度) return;
+    var today = new Date().toDateString();
+    if (gameState._lastLoginGreeting === today) return;
+    gameState._lastLoginGreeting = today;
+    var npcNames = Object.keys(gameState.npc好感度);
+    var maxLove = 0, topNpc = '';
+    for (var i = 0; i < npcNames.length; i++) {
+        var love = gameState.npc好感度[npcNames[i]] || 0;
+        if (love > maxLove) { maxLove = love; topNpc = npcNames[i]; }
+    }
+    if (!topNpc || maxLove < 10) return;
+    var greetings = DAILY_GREETINGS[topNpc];
+    if (!greetings || greetings.length === 0) return;
+    var msg = greetings[Math.floor(Math.random() * greetings.length)];
+    if (!gameState.sms) gameState.sms = [];
+    var now = new Date();
+    var h = now.getHours(); var m = now.getMinutes();
+    var ts = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+    var npcColor = '#F59E0B';
+    if (topNpc === '素雅') npcColor = '#A78BFA';
+    else if (topNpc === '智媛') npcColor = '#F472B6';
+    else if (topNpc === '俊昊') npcColor = '#60A5FA';
+    else if (topNpc === '瑞贤') npcColor = '#34D399';
+    gameState.sms.unshift({
+        from: topNpc,
+        text: msg,
+        icon: npcColor,
+        time: ts,
+        read: false
+    });
+    if (gameState.sms.length > 30) gameState.sms = gameState.sms.slice(0, 30);
+    gameState.smsUnread = (gameState.smsUnread || 0) + 1;
+}
+
 var CHAPTER_CONFIG = {
     1: {
         title: 'Chapter 1',
@@ -14466,6 +14562,9 @@ function checkChapterProgress() {
     if (stepConfig.condition) {
         var current = _getChapterConditionValue(stepConfig.condition);
         if (current >= stepConfig.target && (stepConfig.type === 'auto_open' || stepConfig.type === 'narration' || stepConfig.type === 'choice')) {
+            // V2.0 Feature #9: Auto-skip popup when conditions already met
+            var stepLabel = stepConfig.label || stepKey;
+            showToast('\u5DF2\u6EE1\u8DB3\u6761\u4EF6\uFF0C\u81EA\u52A8\u8FDB\u5165\u4E0B\u4E00\u8282\u70B9', 2000);
             _completeAndAdvanceStep(stepKey, stepConfig);
         }
     }
@@ -14480,6 +14579,8 @@ function _completeAndAdvanceStep(stepKey, stepConfig) {
     if (stepConfig.app) {
         if (cs.unlockedApps.indexOf(stepConfig.app) === -1) { cs.unlockedApps.push(stepConfig.app); }
     }
+    // V2.0 Feature #18: NPC emotional feedback on step completion
+    _sendStepNpcMsg(stepKey);
     if (stepConfig.nextStep) { cs.currentStep = parseInt(stepConfig.nextStep.split('.')[1]); }
     if (stepConfig.type === 'auto_open' && stepConfig.app) {
         setTimeout(function() { currentPage = stepConfig.app; markAppRead(stepConfig.app); render(); }, 300);
@@ -14525,7 +14626,43 @@ function renderChapterOverlay(container) {
     return false;
 }
 
+
+// V2.0 Feature #4: Key node visual pause (3s dim overlay)
+var KEY_NODE_PAUSE_STEPS = {'1.1':true,'1.5':true,'1.8':true,'2.5':true,'2.6':true,'3.4':true,'3.5':true,'3.6':true,'3.7':true,'3.8':true};
+
+function _showKeyNodeVisualPause(callback) {
+    var pause = document.createElement('div');
+    pause.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10001;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.5s;';
+    var dotWrap = document.createElement('div');
+    dotWrap.style.cssText = 'display:flex;gap:8px;';
+    for (var di = 0; di < 3; di++) {
+        var dot = document.createElement('div');
+        dot.style.cssText = 'width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.5);animation:_keyPulse 1.2s ease-in-out ' + (di * 0.2) + 's infinite;';
+        dotWrap.appendChild(dot);
+    }
+    pause.appendChild(dotWrap);
+    document.body.appendChild(pause);
+    pause.offsetHeight;
+    pause.style.opacity = '1';
+    setTimeout(function() {
+        pause.style.opacity = '0';
+        setTimeout(function() {
+            if (pause.parentNode) pause.parentNode.removeChild(pause);
+            if (callback) callback();
+        }, 500);
+    }, 3000);
+}
+
 function _renderChapterStepUI(container, stepKey, stepConfig, chapter) {
+    // V2.0 Feature #4: Key node visual pause before showing overlay
+    if (KEY_NODE_PAUSE_STEPS[stepKey]) {
+        _showKeyNodeVisualPause(function() { _renderChapterStepUIInner(container, stepKey, stepConfig, chapter); });
+        return;
+    }
+    _renderChapterStepUIInner(container, stepKey, stepConfig, chapter);
+}
+
+function _renderChapterStepUIInner(container, stepKey, stepConfig, chapter) {
     var overlay = document.createElement('div');
     overlay.id = 'chapterOverlay';
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;box-sizing:border-box;overflow-y:auto;';
