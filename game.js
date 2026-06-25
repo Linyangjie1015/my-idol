@@ -18768,3 +18768,354 @@ function _v2EnterChapter(chNum) {
     };
   }
 })();
+
+
+// ============================================================
+// V2.1.3 patch — 立绘铺满全屏 + halfbody证件照 + 删浮动按钮 + 创建角色直进新首页
+// ============================================================
+;(function(){
+  if (window._v213Patched) return;
+  window._v213Patched = true;
+
+  // ---------- 1. 覆盖/追加全屏立绘CSS ----------
+  var cssId = 'v213-fullscreen-portrait';
+  if (!document.getElementById(cssId)) {
+    var s = document.createElement('style');
+    s.id = cssId;
+    s.textContent = ''
+      // 立绘改为全屏背景（object-fit:cover 铺满，top对齐保留脸部）
+      + '.v21h-portrait{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;max-height:100%!important;max-width:100%!important;object-fit:cover!important;object-position:top center;z-index:1;filter:none!important;animation:none!important;}'
+      // portrait-wrap 改为覆盖全屏作为背景层
+      + '.v21h-portrait-wrap{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:auto;cursor:pointer;overflow:hidden;}'
+      // 暗色渐变遮罩（顶部暗→中部半透→底部暗）确保文字清晰
+      + '.v21h-bg-mask{position:absolute;top:0;left:0;width:100%;height:100%;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(8,6,26,0.55) 0%,rgba(8,6,26,0.15) 35%,rgba(8,6,26,0.25) 60%,rgba(8,6,26,0.75) 100%);}'
+      // 顶部和底部bar更暗一点增强可读性
+      + '.v21-home-top{background:rgba(8,6,26,0.7)!important;}'
+      + '.v21h-bottom{background:rgba(8,6,26,0.7)!important;}'
+      // swap动画保留淡入淡出
+      + '.v21h-portrait.swapping{opacity:0;transition:opacity 0.25s ease;}'
+      // 隐藏全局旧UI浮动元素（restButtons/homeIndicator等）
+      + '.v21-home ~ #restButtons,.v21-home ~ #homeIndicator,.v21-home ~ #backToSceneBtn{display:none!important;}'
+      // body上的restButtons等旧浮层 - 进入大厅全部隐藏
+      + 'body.v21-in-home #restButtons,body.v21-in-home #homeIndicator,body.v21-in-home #statusBar,body.v21-in-home #backToSceneBtn{display:none!important;}'
+      // 去掉glow光点（全屏立绘已经够丰富）
+      + '.v21h-glow,.v21h-glow-tl,.v21h-glow-br{display:none!important;}'
+      // NPC名字tag稍微下移并增加阴影
+      + '.v21h-aff-tag{text-shadow:0 2px 8px rgba(0,0,0,0.8);top:max(70px,calc(env(safe-area-inset-top)+70px))!important;}'
+      // 左右图标背景加深在亮图上可读
+      + '.v21h-icon-circle{background:rgba(15,12,41,0.55)!important;border:1px solid rgba(255,255,255,0.15)!important;box-shadow:0 2px 10px rgba(0,0,0,0.4);}'
+      + '.v21h-icon-label{text-shadow:0 1px 4px rgba(0,0,0,0.8);}'
+      // 气泡加深
+      + '.v21h-bubble{background:rgba(8,6,26,0.9)!important;text-shadow:0 1px 3px rgba(0,0,0,0.6);box-shadow:0 8px 30px rgba(0,0,0,0.5);}'
+      + '.v21h-bubble::after{background:rgba(8,6,26,0.9)!important;}'
+      // 章节文字阴影
+      + '.v21h-chapter-text{text-shadow:0 2px 8px rgba(0,0,0,0.8);}'
+      + '.v21h-chapter-sub{text-shadow:0 1px 4px rgba(0,0,0,0.8);}'
+      // 顶部文字阴影
+      + '.v21h-name{text-shadow:0 1px 4px rgba(0,0,0,0.8);}'
+      + '.v21h-stat-val{text-shadow:0 1px 4px rgba(0,0,0,0.8);}'
+      // me按钮加深
+      + '.v21h-me-btn .v21h-icon-circle{background:rgba(15,12,41,0.55)!important;box-shadow:0 2px 10px rgba(0,0,0,0.4);}';
+    document.head.appendChild(s);
+  }
+
+  // ---------- 2. Monkey-patch: 把v21首页的portrait改为halfbody优先 ----------
+  // 通过重写 _getCurrentNpcIdx 上下文下的 portrait 选择逻辑
+  // 最简单方式：拦截_renderHome的img src —— 直接修改现有renderHomePage使用的图片选择
+  // 我们覆写_renderHome的肖像选择：通过重写window._v21SwitchNpc 和再次覆写renderHomePage，把src换为halfbody
+  
+  function _halfbodySrc(key) {
+    return 'imgs/portraits/' + key + '_halfbody.jpg';
+  }
+
+  // 替换已有的renderHomePage wrapper，改为使用halfbody全屏
+  var _origV21Home = window.renderHomePage;
+  window.renderHomePage = function(container) {
+    // 标记body在大厅
+    document.body.classList.add('v21-in-home');
+    // 强制隐藏backToSceneBtn/restButtons/statusBar等旧UI
+    ['backToSceneBtn','restButtons','statusBar','homeIndicator'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    // 调用原有v21 render (它内部会再次调用_renderHome)
+    // 但我们要替换portrait src — 用一个hook：在_renderHome之后，把img的src从cinematic换成halfbody
+    // 先运行一次原渲染
+    try {
+      if (typeof _origV21Home === 'function') _origV21Home(container);
+    } catch(e) { console.warn('v213 home orig render error', e); }
+
+    // 确保旧的浮动按钮被移除
+    var sb = document.getElementById('backToSceneBtn');
+    if (sb) sb.remove();
+    var rb = document.getElementById('restButtons');
+    if (rb) rb.style.display = 'none';
+    var stb = document.getElementById('statusBar');
+    if (stb) stb.style.display = 'none';
+    var hi = document.getElementById('homeIndicator');
+    if (hi) hi.style.display = 'none';
+
+    // 把portrait的src从cinematic切换为halfbody（只在还是cinematic时）
+    var img = document.getElementById('v21hPortrait');
+    if (img) {
+      var wrap = document.getElementById('v21hPortraitWrap');
+      // 插入暗色遮罩（如果不存在）
+      if (wrap && !wrap.querySelector('.v21h-bg-mask')) {
+        var mask = document.createElement('div');
+        mask.className = 'v21h-bg-mask';
+        wrap.insertBefore(mask, img);
+      }
+      // 读取当前npc key
+      var idx = 0;
+      try {
+        var saved = parseInt((window.gameState && window.gameState._v21HomeNpcIdx), 10);
+        if (!isNaN(saved) && saved >= 0 && saved < 5) idx = saved;
+      } catch(e){}
+      var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
+      var key = NPC_KEYS[idx];
+      var wantSrc = _halfbodySrc(key);
+      if (img.src && img.src.indexOf('_cinematic') !== -1) {
+        img.onerror = null;
+        img.src = wantSrc;
+      }
+      // 把breath动画class去掉 (已通过CSS覆盖animation:none)
+    }
+  };
+
+  // ---------- 3. 覆写_v21SwitchNpc用halfbody ----------
+  var _origSwitch = window._v21SwitchNpc;
+  window._v21SwitchNpc = function(i) {
+    // 直接走原逻辑，但改src
+    if (_origSwitch) _origSwitch(i);
+    setTimeout(function(){
+      var img = document.getElementById('v21hPortrait');
+      if (img) {
+        var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
+        var key = NPC_KEYS[i] || 'haeun';
+        img.onerror = null;
+        img.src = _halfbodySrc(key);
+      }
+    }, 250);
+  };
+
+  // ---------- 4. 创建角色完成后直接进入新大厅（非场景模式） ----------
+  if (typeof window.completeCreation === 'function') {
+    var _origCC = window.completeCreation;
+    window.completeCreation = function() {
+      try {
+        // 先跑原有的 initAsTrainee/initAsIdol/_ensureV16Fields/_checkAdmin
+        if (window.gameState.player.role === 'Trainee') {
+          if (typeof window.initAsTrainee === 'function') window.initAsTrainee();
+        } else {
+          if (typeof window.initAsIdol === 'function') window.initAsIdol();
+        }
+        if (typeof window._ensureV16Fields === 'function') window._ensureV16Fields();
+        var cu = localStorage.getItem('myIdolCurrentUser');
+        if (typeof window._checkAdmin === 'function') window._checkAdmin(cu);
+
+        // 关键：进新大厅（非场景模式），隐藏所有旧UI浮层
+        window._inSceneMode = false;
+        window.currentPage = 'home';
+        document.body.classList.add('v21-in-home');
+
+        // 隐藏旧UI
+        ['statusBar','restButtons','homeIndicator'].forEach(function(id){
+          var el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+
+        // render 走renderHomePage分支（即新大厅）
+        if (typeof window.render === 'function') window.render();
+
+        // bottomNav 隐藏（新大厅自带底部章节栏）
+        var bn = document.getElementById('bottomNav');
+        if (bn) bn.style.display = 'none';
+        if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
+
+        if (typeof window.initScheduleItems === 'function') window.initScheduleItems();
+        if (typeof window.startAutoSave === 'function') window.startAutoSave();
+        if (typeof window.triggerSilentSave === 'function') window.triggerSilentSave();
+      } catch(e) {
+        alert('初始化出错: ' + e.message);
+        console.error('completeCreation v213 error:', e);
+      }
+    };
+  }
+
+  // ---------- 5. 离开新大厅时清除body标记，重新显示bottomNav等 ----------
+  // 进入场景/训练/考核/me/story/love等页面时，去掉 v21-in-home 让旧UI恢复
+  var _origGoPage = window.goToPage;
+  if (typeof _origGoPage === 'function') {
+    window.goToPage = function(p) {
+      if (p !== 'home') {
+        document.body.classList.remove('v21-in-home');
+      }
+      return _origGoPage.apply(this, arguments);
+    };
+  }
+
+  // ---------- 6. 场景页(家)进入时移除body标记，显示bottomNav ----------
+  // 在 _v21Nav('scene') 调用后bottomNav应该恢复 — 已在原代码处理
+  
+  // ---------- 7. 版本号升级 ----------
+  window.V2_VERSION = 'v2.1.3 (build 0625-fullscreen+fix)';
+
+})();
+
+
+// ============================================================
+// V2.1.3 fix-2: 修复剧情进入 + 精简场景hotspot + 场景返回大厅
+// ============================================================
+;(function(){
+  if (window._v213Fix2) return;
+  window._v213Fix2 = true;
+
+  // ---------- 1. 在render switch外monkey-patch，添加scene case的兜底 ----------
+  // _v2EnterChapter 里把currentPage设为'scene' — 应视为"进入场景模式并触发剧情"
+  var _oldRender = window.render;
+  window.render = function() {
+    try {
+      if (currentPage === 'scene') {
+        // 剧情触发：设_inSceneMode=true 并走home分支（会renderScenePage）
+        // 然后由_v2CheckChapterNodes触发剧情overlay
+        window._inSceneMode = true;
+        var app = document.getElementById('app');
+        if (app && typeof renderScenePage === 'function') {
+          renderScenePage(app);
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'flex';
+          if (typeof renderBottomNav === 'function') renderBottomNav();
+        }
+        return;
+      }
+    } catch(e){ console.warn('scene case error', e); }
+    return _oldRender.apply(this, arguments);
+  };
+
+  // ---------- 2. 剧情入口按钮_v21Nav('story')添加兜底：避免_v2RenderStoryHub未定义时crash ----------
+  var _oldNav = window._v21Nav;
+  window._v21Nav = function(page) {
+    try {
+      if (page === 'story') {
+        if (typeof _v2RenderStoryHub !== 'function') {
+          showModal('暂未开放', '剧情系统加载中，请稍后再试');
+          return;
+        }
+        document.body.classList.remove('v21-in-home');
+        currentPage = 'story';
+        // 直接调用monkey-patched render（它会拦截story）
+        if (typeof window.render === 'function') window.render();
+        return;
+      }
+      if (page === 'love') {
+        document.body.classList.remove('v21-in-home');
+      }
+    } catch(e) { console.warn('v21 nav story fix', e); }
+    if (_oldNav) return _oldNav.apply(this, arguments);
+  };
+
+  // ---------- 3. 精简场景hotspot：只保留有用的（手机/导航/场景专属入口/床），删音响/镜子/饮水机/便利店 ----------
+  // 通过拦截SCENES渲染，过滤掉无关hotspot
+  function _isUsefulHotspot(hs) {
+    if (!hs) return false;
+    var label = (hs.label || '').toLowerCase();
+    var icon = hs.icon || '';
+    var target = hs.target || '';
+    var action = hs.action || '';
+    // 保留：导航/电梯/手机/床（睡觉）/回客厅/回宿舍/门/走廊/练习室入口/录音室/写歌/冰箱/电脑
+    var keepKeywords = ['导航','电梯','手机','睡','回','走廊','门','练习','录音','写歌','冰箱','电脑','客厅','宿舍','公司','大厅','餐厅','美容','健身房','美发','化妆','理事','代表','浴室','卫生间','卧室','床','衣帽间','阳台','工作室'];
+    for (var i = 0; i < keepKeywords.length; i++) {
+      if (label.indexOf(keepKeywords[i]) !== -1) return true;
+    }
+    // action=phone/sleep/nav 直接保留
+    if (action === 'phone' || action === 'sleep' || action === 'nav') return true;
+    // target 是 _nav / _elevator 保留
+    if (target === '_nav' || target === '_elevator') return true;
+    // 删：音响/镜子/饮水机/便利店/植物/书架/沙发/电视/窗户/画/灯/垃圾/鞋架/衣架/灶台/洗手台/淋浴/马桶/垃圾桶/鱼缸
+    var removeKeywords = ['音响','镜子','饮水机','便利店','植物','书架','沙发','电视','窗户','画','灯','垃圾','鞋架','衣架','灶台','洗手台','淋浴','马桶','垃圾桶','鱼缸','地毯','桌子','椅子','餐桌','茶几','柜','空调','窗帘','枕头','被子','书桌','板凳','凳','饮水机','水吧','吧','咖啡','自动售货','售货','书','花','装饰','海报'];
+    for (var j = 0; j < removeKeywords.length; j++) {
+      if (label.indexOf(removeKeywords[j]) !== -1) return false;
+    }
+    return true; // 未知默认保留（宁多勿少）
+  }
+  // Monkey-patch: 在renderScenePage生成hotspotsHtml之前过滤SCENES[sceneId].hotspots
+  var _oldRenderScene = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    document.body.classList.remove('v21-in-home');
+    // 在渲染前过滤hotspots
+    var sceneId = gameState._currentScene || _getHomeScene();
+    if (window.SCENES && SCENES[sceneId] && SCENES[sceneId].hotspots) {
+      // 不过滤原数组，做一份临时副本
+      if (!SCENES[sceneId]._v21OriginalHotspots) {
+        SCENES[sceneId]._v21OriginalHotspots = SCENES[sceneId].hotspots.slice();
+      }
+      var filtered = [];
+      for (var i = 0; i < SCENES[sceneId]._v21OriginalHotspots.length; i++) {
+        if (_isUsefulHotspot(SCENES[sceneId]._v21OriginalHotspots[i])) {
+          filtered.push(SCENES[sceneId]._v21OriginalHotspots[i]);
+        }
+      }
+      SCENES[sceneId].hotspots = filtered;
+      // 额外追加一个"大厅"按钮（回到新首页）
+      var hasReturn = false;
+      for (var k = 0; k < filtered.length; k++) {
+        if (filtered[k].label === '大厅' || filtered[k]._v21HallBtn) { hasReturn = true; break; }
+      }
+      if (!hasReturn) {
+        SCENES[sceneId].hotspots = [{ x:10, y:90, icon:'home', label:'大厅', action:'app', target:'_hall', _v21HallBtn:true }].concat(filtered);
+      }
+    }
+    // 让goToPage('_hall')能回大厅
+    if (!window._v21HallPatched) {
+      window._v21HallPatched = true;
+      var _oldGoPage = window.goToPage;
+      window.goToPage = function(p) {
+        if (p === '_hall') {
+          window._inSceneMode = false;
+          currentPage = 'home';
+          document.body.classList.add('v21-in-home');
+          var app = document.getElementById('app');
+          if (app && typeof renderHomePage === 'function') renderHomePage(app);
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'none';
+          return;
+        }
+        if (p === 'home') {
+          // 从其他页回home时，如果不在场景模式，也走大厅
+          if (!window._inSceneMode) {
+            document.body.classList.add('v21-in-home');
+          } else {
+            document.body.classList.remove('v21-in-home');
+          }
+        }
+        return _oldGoPage.apply(this, arguments);
+      };
+    }
+    if (_oldRenderScene) return _oldRenderScene.apply(this, arguments);
+  };
+
+  // ---------- 4. 场景页底部加一个"回大厅"按钮（除了手机/导航/我的） ----------
+  // 通过注入额外按钮到场景底部bar
+  // 简单方式：monkey-patch在renderScenePage后追加一个浮动按钮
+  var _origRsp2 = window.renderScenePage;
+  // 已经wrap过了，再包一层
+  window.renderScenePage = (function(origRsp){
+    return function(container) {
+      var r = origRsp.apply(this, arguments);
+      // 在底部bar里加一个"大厅"按钮
+      try {
+        var bar = container.querySelector('div[style*="backdrop-filter"][style*="padding:6px 16px"]');
+        if (bar && !bar.querySelector('._v21-hall-btn')) {
+          var hallBtn = document.createElement('div');
+          hallBtn.className = '_v21-hall-btn';
+          hallBtn.style.cssText = 'color:white;cursor:pointer;display:flex;align-items:center;gap:3px;font-size:10px;-webkit-tap-highlight-color:transparent;padding:3px 0;';
+          hallBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M5 10v10h14V10"/></svg>大厅';
+          hallBtn.onclick = function(){ goToPage('_hall'); };
+          bar.insertBefore(hallBtn, bar.firstChild);
+        }
+      } catch(e){}
+      return r;
+    };
+  })(window.renderScenePage);
+
+})();
