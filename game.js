@@ -14196,20 +14196,36 @@ function getCheckInInfo() {
 var CHAPTER_CONFIG = {
     1: {
         title: 'Chapter 1',
-        subtitle: 'Joining the Family',
+        subtitle: '\u5165\u793E',
         steps: {
-            '1.0': { type: 'narration', nextStep: '1.1' },
-            '1.1': { type: 'choice', nextStep: '1.2', choiceKey: 'interview' },
-            '1.2': { type: 'auto_open', app: 'schedule', nextStep: '1.3', condition: 'scheduleCount', target: 1, label: 'Schedule 0/1' },
-            '1.3': { type: 'auto_open', app: 'sns', nextStep: '1.4', condition: 'snsPostCount', target: 1, label: 'SNS Post 0/1' },
-            '1.4': { type: 'auto_open', app: 'training', nextStep: '1.5', condition: 'trainCount', target: 1, label: 'Train 0/1' },
-            '1.5': { type: 'choice', nextStep: '1.6', choiceKey: 'junho_doubt', condition: 'trainCount', target: 3, label: 'Train 0/3' },
-            '1.6': { type: 'choice', nextStep: '1.7', choiceKey: 'live_style', condition: 'liveCount', target: 1, label: 'Live 0/1' },
-            '1.7': { type: 'auto_open', app: 'fancommunity', nextStep: '1.8', condition: 'fans', target: 50, label: 'Fans 0/50' },
-            '1.8': { type: 'chapter_end', app: 'contacts' }
+            '1.0': { type: 'narration', nextStep: '1.1', scene: 'lobby' },
+            '1.1': { type: 'choice', nextStep: '1.2', choiceKey: 'interview', scene: 'office', unlockApp: 'contacts' },
+            '1.2': { type: 'narration', nextStep: '1.3', condition: 'scheduleCount', target: 1, label: '\u5B8C\u6210\u65E5\u7A0B 0/1', scene: 'practice_room', unlockApp: 'schedule' },
+            '1.3': { type: 'narration', nextStep: '1.4', condition: 'snsPostCount', target: 1, label: 'SNS\u52A8\u6001 0/1', unlockApp: 'sns' },
+            '1.4': { type: 'choice', nextStep: '1.5', choiceKey: 'first_training', condition: 'dance', target: 30, label: '\u821E\u8E48 0/30' },
+            '1.5': { type: 'choice', nextStep: '1.6', choiceKey: 'junho_doubt', condition: 'dance', target: 40, label: '\u821E\u8E48 0/40', app: 'contacts' },
+            '1.6': { type: 'choice', nextStep: '1.7', choiceKey: 'live_style', condition: 'liveCount', target: 1, label: '\u5B8C\u6210\u76F4\u64AD 0/1', unlockApp: 'live' },
+            '1.7': { type: 'narration', nextStep: '1.8', condition: 'fans', target: 50, label: '\u7C89\u4E1D 0/50', app: 'fancommunity' },
+            '1.8': { type: 'chapter_end', condition: 'dance', target: 50, app: 'contacts' }
         }
     }
 };
+
+function _getChapterConditionValue(condition) {
+    if (!condition) return 0;
+    if (condition === 'fans') return gameState.fans || 0;
+    if (condition === 'fame') return gameState.fame || 0;
+    if (condition === 'influence') return gameState.influence || 0;
+    var statKeys = ['dance', 'vocal', 'rap', 'acting', 'variety'];
+    var si;
+    for (si = 0; si < statKeys.length; si++) {
+        if (condition === statKeys[si]) return gameState.stats[statKeys[si]] || 0;
+    }
+    if (gameState.chapterState && gameState.chapterState.chapterCounts) {
+        return gameState.chapterState.chapterCounts[condition] || 0;
+    }
+    return 0;
+}
 
 function checkChapterProgress() {
     if (!gameState.chapterState) return;
@@ -14223,11 +14239,8 @@ function checkChapterProgress() {
     var i;
     for (i = 0; i < cs.completedSteps.length; i++) { if (cs.completedSteps[i] === stepKey) return; }
     if (stepConfig.condition) {
-        var current = 0;
-        if (stepConfig.condition === 'fans') { current = gameState.fans; }
-        else if (stepConfig.condition === 'fame') { current = gameState.fame; }
-        else { current = cs.chapterCounts[stepConfig.condition] || 0; }
-        if (current >= stepConfig.target && stepConfig.type === 'auto_open') {
+        var current = _getChapterConditionValue(stepConfig.condition);
+        if (current >= stepConfig.target && (stepConfig.type === 'auto_open' || stepConfig.type === 'narration' || stepConfig.type === 'choice')) {
             _completeAndAdvanceStep(stepKey, stepConfig);
         }
     }
@@ -14236,20 +14249,20 @@ function checkChapterProgress() {
 function _completeAndAdvanceStep(stepKey, stepConfig) {
     var cs = gameState.chapterState;
     cs.completedSteps.push(stepKey);
-    if (stepConfig.nextStep) { cs.currentStep = parseInt(stepConfig.nextStep.split('.')[1]); }
+    if (stepConfig.unlockApp) {
+        if (cs.unlockedApps.indexOf(stepConfig.unlockApp) === -1) { cs.unlockedApps.push(stepConfig.unlockApp); }
+    }
     if (stepConfig.app) {
         if (cs.unlockedApps.indexOf(stepConfig.app) === -1) { cs.unlockedApps.push(stepConfig.app); }
-        if (stepConfig.type === 'auto_open') {
-            setTimeout(function() { currentPage = stepConfig.app; render(); }, 300);
-        }
+    }
+    if (stepConfig.nextStep) { cs.currentStep = parseInt(stepConfig.nextStep.split('.')[1]); }
+    if (stepConfig.type === 'auto_open' && stepConfig.app) {
+        setTimeout(function() { currentPage = stepConfig.app; markAppRead(stepConfig.app); render(); }, 300);
     }
     var nextStepKey = cs.currentChapter + '.' + cs.currentStep;
     var nextConfig = CHAPTER_CONFIG[cs.currentChapter] && CHAPTER_CONFIG[cs.currentChapter].steps[nextStepKey];
-    if (nextConfig && nextConfig.condition && nextConfig.type === 'auto_open') {
-        var nextCurrent = 0;
-        if (nextConfig.condition === 'fans') { nextCurrent = gameState.fans; }
-        else if (nextConfig.condition === 'fame') { nextCurrent = gameState.fame; }
-        else { nextCurrent = cs.chapterCounts[nextConfig.condition] || 0; }
+    if (nextConfig && nextConfig.condition && (nextConfig.type === 'auto_open' || nextConfig.type === 'narration' || nextConfig.type === 'choice')) {
+        var nextCurrent = _getChapterConditionValue(nextConfig.condition);
         if (nextCurrent >= nextConfig.target) { _completeAndAdvanceStep(nextStepKey, nextConfig); return; }
     }
     triggerSilentSave();
@@ -14265,23 +14278,32 @@ function renderChapterOverlay(container) {
     if (!stepConfig) return false;
     var i;
     for (i = 0; i < cs.completedSteps.length; i++) { if (cs.completedSteps[i] === stepKey) return false; }
-    if (stepConfig.type === 'narration') { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
+    if (stepConfig.type === 'narration' && !stepConfig.condition) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
+    if (stepConfig.type === 'narration' && stepConfig.condition) {
+        var current = _getChapterConditionValue(stepConfig.condition);
+        if (current >= stepConfig.target) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
+        return false;
+    }
     if (stepConfig.type === 'choice' && !stepConfig.condition) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
     if (stepConfig.type === 'choice' && stepConfig.condition) {
-        var current = 0;
-        if (stepConfig.condition === 'fans') { current = gameState.fans; }
-        else if (stepConfig.condition === 'fame') { current = gameState.fame; }
-        else { current = cs.chapterCounts[stepConfig.condition] || 0; }
-        if (current >= stepConfig.target) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
+        var current2 = _getChapterConditionValue(stepConfig.condition);
+        if (current2 >= stepConfig.target) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
     }
-    if (stepConfig.type === 'chapter_end' && currentPage === stepConfig.app) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
+    if (stepConfig.type === 'chapter_end') {
+        var condMet = true;
+        if (stepConfig.condition) {
+            var current3 = _getChapterConditionValue(stepConfig.condition);
+            condMet = current3 >= stepConfig.target;
+        }
+        if (condMet && currentPage === stepConfig.app) { _renderChapterStepUI(container, stepKey, stepConfig, chapter); return true; }
+    }
     return false;
 }
 
 function _renderChapterStepUI(container, stepKey, stepConfig, chapter) {
     var overlay = document.createElement('div');
     overlay.id = 'chapterOverlay';
-    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;box-sizing:border-box;';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;box-sizing:border-box;overflow-y:auto;';
     var inner = document.createElement('div');
     inner.style.cssText = 'max-width:360px;width:100%;text-align:center;color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,sans-serif;';
     if (stepConfig.type === 'narration') { _renderNarrationStep(inner, stepKey, stepConfig, chapter); }
@@ -14293,15 +14315,113 @@ function _renderChapterStepUI(container, stepKey, stepConfig, chapter) {
 
 function _renderNarrationStep(inner, stepKey, stepConfig, chapter) {
     var cs = gameState.chapterState;
+    var html = '';
     if (stepKey === '1.0') {
-        inner.innerHTML = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + '</div><div style="font-size:28px;font-weight:700;color:#F8FAFC;margin-bottom:8px;">\u5165\u793E</div><div style="font-size:14px;color:#94A3B8;margin-bottom:32px;">\u5F52\u5C5E\u611F\uFF0C\u4ECE\u964C\u751F\u4EBA\u5230\u6709\u5BB6</div>';
-        var narration = document.createElement('div');
-        narration.style.cssText = 'font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:32px;text-align:left;';
-        narration.textContent = '\u4F60\u63A8\u5F00SEONGWOO ENT\u7684\u7384\u7483\u7384\u7483\u95E8\uFF0C\u524D\u53F0\u62AC\u5934\u770B\u4F60\u3002\u4E00\u4E2A\u6234\u773C\u955C\u7684\u7537\u4EBA\u8D70\u6765\uFF1A\u201C\u65B0\u6765\u7684\u7EC3\u4E60\u751F\uFF1F\u8DDF\u6211\u6765\u3002\u201D';
-        inner.appendChild(narration);
+        html += '<div style="font-size:13px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER 1</div>';
+        html += '<div style="font-size:28px;font-weight:700;color:#F8FAFC;margin-bottom:8px;">\u5165\u793E</div>';
+        html += '<div style="font-size:14px;color:#94A3B8;margin-bottom:24px;">\u5F52\u5C5E\u611F\uFF0C\u4ECE\u964C\u751F\u4EBA\u5230\u6709\u5BB6</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u7AD9\u5728\u4E00\u6A1F\u7070\u8272\u5EFA\u7B51\u524D\uFF0C\u7384\u7483\u7384\u7483\u95E8\u53CD\u5C04\u7740\u5348\u540E\u7684\u9633\u5149\u3002\u95E8\u53E3\u6302\u7740\u9ED1\u8272\u62DB\u724C\uFF1ASEONGWOO ENT\u3002<br><br>';
+        html += '\u4F60\u6DF1\u5438\u4E00\u53E3\u6C14\uFF0C\u63A8\u5F00\u95E8\u3002\u5927\u5385\u6BD4\u4F60\u60F3\u8C61\u4E2D\u5B89\u9759\uFF0C\u524D\u53F0\u4E00\u4E2A\u77ED\u53D1\u5973\u751F\u62AC\u5934\u770B\u4F60\u3002<br><br>';
+        html += '<span style="color:#94A3B8;">\u524D\u53F0\uFF1A</span>\u201C\u4F60\u597D\uFF0C\u8BF7\u95EE\u6709\u9884\u7EA6\u5417\uFF1F\u201D<br><br>';
+        html += '\u4F60\u6B63\u8981\u56DE\u7B54\uFF0C\u4E00\u4E2A\u58F0\u97F3\u4ECE\u8EAB\u540E\u4F20\u6765\u3002<br><br>';
+        html += '<span style="color:#F59E0B;">\u91D1\u7406\u4E8B\uFF1A</span>\u201C\u4F60\u5C31\u662F\u65B0\u6765\u7684\u7EC3\u4E60\u751F\u5427\uFF1F\u8DDF\u6211\u6765\u3002\u201D<br><br>';
+        html += '\u4F60\u8DDF\u7740\u4ED6\u8D70\u5411\u7535\u68AF\u3002\u7535\u68AF\u95E8\u5173\u4E0A\u65F6\uFF0C\u4F60\u770B\u5230\u81EA\u5DF1\u7684\u8138\u5728\u91D1\u5C5E\u95E8\u4E0A\u6A21\u7CCA\u5730\u6620\u51FA\u6765\u3002';
+        html += '</div>';
+    } else if (stepKey === '1.2') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">SEONGWOO ENT \u00B7 \u7EC3\u4E60\u5BA4A</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u63A8\u5F00\u95E8\uFF0C\u4ED6\u4EEC\u5728\u7B49\u4F60</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u6253\u5F00\u65E5\u7A0B\uFF0C\u770B\u5230\u4E00\u6761\u65B0\u4E8B\u4EF6\uFF1A\u201C10:00 \u5165\u56E2\u4EEA\u5F0F \u2014\u2014 \u7EC3\u4E60\u5BA4A\u201D<br><br>';
+        html += '\u4F60\u63D0\u524D\u5230\u4E86\u7EC3\u4E60\u5BA4\uFF0C\u63A8\u5F00\u95E8\u3002\u97F3\u4E50\u58F0\u5F88\u5927\uFF0C\u4E94\u4E2A\u4EBA\u6B63\u5728\u8DF3\u821E\u3002\u97F3\u4E50\u505C\u4E0B\uFF0C\u4E00\u4E2A\u624E\u77ED\u9A6C\u5C3E\u7684\u5973\u751F\u6700\u5148\u770B\u5230\u4F60\u3002<br><br>';
+        html += '<span style="color:#F59E0B;">\u590F\u6069\uFF1A</span>\u201C\u65B0\u6765\u7684\uFF1F\u8FC7\u6765\u5427\uFF0C\u4E00\u8D77\u3002\u201D<br>';
+        html += '<span style="color:#60A5FA;">\u4FCA\u660A\uFF1A</span>\u201C\u4F60\u597D\uFF01\u6211\u4EEC\u7B49\u4E86\u597D\u4E45\u3002\u201D<br>';
+        html += '<span style="color:#F472B6;">\u667A\u5A9B\uFF1A</span>\u201C\u54C7\u4F60\u6BD4\u7167\u7247\u597D\u770B\uFF01\u4F60\u591A\u5927\uFF1F\u201D<br>';
+        html += '<span style="color:#34D399;">\u745E\u8D24\uFF1A</span>\u201C\u2026\u2026\u201D\uFF08\u70B9\u5934\u793A\u610F\uFF09<br>';
+        html += '<span style="color:#A78BFA;">\u7D20\u96C5\uFF1A</span>\u201C\u6211\u662F\u7D20\u96C5\u3002\u6B22\u8FCE\u4F60\u3002\u201D<br><br>';
+        html += '<span style="color:#F59E0B;">\u590F\u6069\uFF1A</span>\u201C\u884C\u4E86\uFF0C\u522B\u5413\u5230\u4EBA\u5BB6\u3002\u4F60\u53EB\u4EC0\u4E48\u540D\u5B57\uFF1F\u201D';
+        html += '</div>';
+        var nameInput = document.createElement('div');
+        nameInput.style.cssText = 'margin-bottom:20px;';
+        nameInput.innerHTML = '<input id="ch1_name_input" type="text" placeholder="\u8F93\u5165\u4F60\u7684\u540D\u5B57" style="width:100%;padding:12px 16px;background:#1E293B;border:1px solid #334155;border-radius:8px;color:#F8FAFC;font-size:15px;outline:none;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">';
+        inner.innerHTML = html;
+        inner.appendChild(nameInput);
+        var btn = document.createElement('button');
+        btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;';
+        btn.textContent = '\u6211\u662F' + (gameState.player.name || '') + '\uFF0C\u8BF7\u591A\u5173\u7167';
+        btn.onclick = function() {
+            var nameEl = document.getElementById('ch1_name_input');
+            if (nameEl && nameEl.value.trim()) {
+                gameState.player.name = nameEl.value.trim();
+            }
+            _completeAndAdvanceStep(stepKey, stepConfig);
+            var ol = document.getElementById('chapterOverlay');
+            if (ol) ol.remove();
+            render();
+        };
+        inner.appendChild(btn);
+        return;
+    } else if (stepKey === '1.3') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">SNS</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u4F60\u53D1\u4E86\u4E00\u6761\u52A8\u6001</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;">';
+        html += '\u4F60\u53D1\u4E86\u4E00\u6761\u52A8\u6001\uFF1A\u201C\u5927\u5BB6\u597D\uFF0C\u6211\u662F\u65B0\u7EC3\u4E60\u751F' + (gameState.player.name || '') + '\uFF0C\u8BF7\u591A\u5173\u7167\u3002\u201D';
+        html += '</div>';
+        html += '<div style="font-size:14px;line-height:1.8;color:#94A3B8;margin-bottom:24px;text-align:left;background:#1E293B;border-radius:8px;padding:14px;">';
+        html += '<div style="color:#F59E0B;margin-bottom:6px;">\u590F\u6069\uFF1A\u6B22\u8FCE' + (gameState.player.name || '') + '\u52A0\u5165\u6211\u4EEC\u3002\u4ECA\u5929\u5F00\u59CB\u662F\u4E00\u5BB6\u4EBA\u4E86\u3002</div>';
+        html += '<div style="color:#60A5FA;margin-bottom:6px;">\u4FCA\u660A\uFF1A\u7EC8\u4E8E\u6709\u4EBA\u63A5\u6211\u7684\u6897\u4E86\u3002</div>';
+        html += '<div style="color:#F472B6;margin-bottom:6px;">\u667A\u5A9B\uFF1A\u6211\u771F\u7684\u597D\u5F00\u5FC3\uFF01\uFF01\uFF01</div>';
+        html += '<div style="color:#A78BFA;margin-bottom:6px;">\u7D20\u96C5\uFF1A\u5F88\u9AD8\u5174\u8BA4\u8BC6\u4F60\u3002</div>';
+        html += '<div style="color:#34D399;margin-bottom:6px;">\u745E\u8D24\uFF1A\u2026\u2026\uFF08\u70B9\u8D5E\uFF09</div>';
+        html += '</div>';
+        html += '<div style="font-size:13px;color:#64748B;text-align:left;margin-bottom:12px;">\u7C89\u4E1D\u7559\u8A00</div>';
+        html += '<div style="font-size:14px;color:#94A3B8;text-align:left;line-height:1.6;">';
+        html += '\u201C\u65B0\u6210\u5458\uFF1F\u597D\u671F\u5F85\uFF01\u201D<br>\u201C\u957F\u5F97\u597D\u597D\u770B\uFF01\u201D';
+        html += '</div>';
+    } else if (stepKey === '1.7') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u7C89\u4E1D\u793E\u533A</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u6709\u4EBA\u7559\u8A00\u4E86</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '\u4F60\u6253\u5F00\u7C89\u4E1D\u793E\u533A\uFF0C\u770B\u5230\u4E09\u6761\u65B0\u7559\u8A00\uFF1A<br><br>';
+        html += '<div style="background:#1E293B;border-radius:8px;padding:12px;margin-bottom:8px;">';
+        html += '<div style="font-size:13px;color:#64748B;">\u7C89\u4E1D #1</div>';
+        html += '<div style="font-size:14px;color:#E2E8F0;">\u7EC8\u4E8E\u627E\u5230\u7EC4\u7EC7\u4E86\uFF01\u6211\u662F\u770B\u4E86\u76F4\u64AD\u8FC7\u6765\u7684\uFF0C' + (gameState.player.name || '') + '\u4F60\u597D\u53EF\u7231\uFF01\u4EE5\u540E\u4F1A\u4E00\u76F4\u652F\u6301\u4F60\u7684\uFF01</div>';
+        html += '</div>';
+        html += '<div style="background:#1E293B;border-radius:8px;padding:12px;margin-bottom:8px;">';
+        html += '<div style="font-size:13px;color:#64748B;">\u7C89\u4E1D #2</div>';
+        html += '<div style="font-size:14px;color:#E2E8F0;">\u65B0\u6210\u5458\u7684\u6027\u683C\u597D\u771F\u5B9E\uFF0C\u4E0D\u50CF\u5176\u4ED6\u7231\u8C46\u90A3\u6837\u7AEF\u7740\uFF0C\u6211\u7231\u4E86\u3002</div>';
+        html += '</div>';
+        html += '<div style="background:#1E293B;border-radius:8px;padding:12px;margin-bottom:8px;">';
+        html += '<div style="font-size:13px;color:#64748B;">\u7C89\u4E1D #3</div>';
+        html += '<div style="font-size:14px;color:#E2E8F0;">\u6709\u6CA1\u6709\u4EBA\u89C9\u5F97' + (gameState.player.name || '') + '\u548C\u667A\u5A9B\u5728\u4E00\u8D77\u7684\u65F6\u5019\u7279\u522B\u6709\u5316\u5B66\u53CD\u5E94\uFF1F</div>';
+        html += '</div>';
+        html += '<div style="font-size:14px;color:#F59E0B;margin-top:8px;">\u7C89\u4E1D\u6570\u7A81\u783450\uFF01\u4F60\u5DF2\u7ECF\u6709\u7C89\u4E1D\u4E86\u3002</div>';
+        html += '</div>';
+    } else if (stepKey === '1.8') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u901A\u8BAF\u5F55 \u00B7 \u590F\u6069</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">\u590F\u6069\u7684\u6D88\u606F</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:24px;text-align:left;">';
+        html += '<div style="background:#1E293B;border-radius:8px;padding:14px;margin-bottom:8px;">';
+        html += '<div style="font-size:13px;color:#F59E0B;margin-bottom:6px;">\u590F\u6069</div>';
+        html += '<div style="font-size:14px;color:#E2E8F0;line-height:1.6;">' + (gameState.player.name || '') + '\u3002\u4E00\u5468\u4E86\u3002\u4F60\u6BD4\u6211\u60F3\u8C61\u7684\u575A\u6301\u5F97\u4E45\u3002\u5F88\u591A\u4EBA\u7B2C\u4E00\u5468\u5C31\u8D70\u4E86\uFF0C\u4F60\u6CA1\u6709\u3002</div>';
+        html += '</div>';
+        html += '<div style="background:#1E293B;border-radius:8px;padding:14px;margin-bottom:8px;">';
+        html += '<div style="font-size:13px;color:#F59E0B;margin-bottom:6px;">\u590F\u6069</div>';
+        html += '<div style="font-size:14px;color:#E2E8F0;line-height:1.6;">\u6211\u4E00\u5F00\u59CB\u786E\u5B9E\u4E0D\u770B\u597D\u4F60\uFF0C\u4F46\u4F60\u505A\u5230\u4E86\u3002\u6B22\u8FCE\u771F\u6B63\u52A0\u5165Haeoreum\u3002</div>';
+        html += '</div>';
+        html += '<div style="background:#1E293B;border-radius:8px;padding:14px;">';
+        html += '<div style="font-size:13px;color:#F59E0B;margin-bottom:6px;">\u590F\u6069</div>';
+        html += '<div style="font-size:14px;color:#E2E8F0;line-height:1.6;">\u4E0B\u5468\u5F00\u59CB\uFF0C\u4F60\u4F1A\u66F4\u5FD9\u3002\u4F46\u6211\u77E5\u9053\u4F60\u625B\u5F97\u4F4F\u3002</div>';
+        html += '</div>';
+        html += '</div>';
+    } else {
+        html += '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + '</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;">' + (chapter.subtitle || '') + '</div>';
+        html += '<div style="font-size:15px;line-height:1.8;color:#CBD5E1;">\u7EE7\u7EED\u524D\u8FDB\u3002</div>';
     }
+    inner.innerHTML = html;
     var btn = document.createElement('button');
-    btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;';
+    btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;margin-top:8px;';
     btn.textContent = '\u7EE7\u7EED';
     btn.onclick = function() { _completeAndAdvanceStep(stepKey, stepConfig); var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); render(); };
     inner.appendChild(btn);
@@ -14309,27 +14429,94 @@ function _renderNarrationStep(inner, stepKey, stepConfig, chapter) {
 
 function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
     var cs = gameState.chapterState;
+    var html = '';
+    var options = [];
     if (stepKey === '1.1') {
-        inner.innerHTML = '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">SEONGWOO ENT</div><div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;"><div style="font-size:13px;color:#64748B;margin-bottom:8px;">\u793E\u957F</div><div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C\u4E3A\u4EC0\u4E48\u60F3\u5F53\u7231\u8C46\uFF1F\u201D</div></div>';
-        var options = [
-            { id: 'ambition', text: '\u91CE\u5FC3', icon: 'A' },
-            { id: 'passion', text: '\u70ED\u7231', icon: 'B' },
-            { id: 'proof', text: '\u8BC1\u660E', icon: 'C' }
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">SEONGWOO ENT \u00B7 \u793E\u957F\u529E\u516C\u5BA4</div>';
+        html += '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;">';
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:8px;">\u793E\u957F</div>';
+        html += '<div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C\u6211\u770B\u8FC7\u4F60\u7684\u8D44\u6599\u3002\u4E3A\u4EC0\u4E48\u60F3\u5F53\u7231\u8C46\uFF1F\u201D</div>';
+        html += '</div>';
+        options = [
+            { id: 'ambition', text: '\u201C\u6211\u60F3\u7AD9\u5728\u821E\u53F0\u4E0A\uFF0C\u88AB\u5F88\u591A\u4EBA\u770B\u5230\u3002\u201D', icon: 'A', reply: '\u201C\u91CE\u5FC3\u4F1A\u63A8\u7740\u4F60\u8D70\u5F88\u8FDC\u3002\u53BB\u7EC3\u4E60\u5BA4\u5427\uFF0C\u4F60\u7684\u961F\u53CB\u5728\u7B49\u4F60\u3002\u201D' },
+            { id: 'passion', text: '\u201C\u6211\u559C\u6B22\u5531\u6B4C\u8DF3\u821E\uFF0C\u8FD9\u662F\u6211\u552F\u4E00\u80FD\u505A\u7684\u4E8B\u3002\u201D', icon: 'B', reply: '\u201C\u70ED\u7231\u662F\u6700\u6301\u4E45\u7684\u529B\u91CF\u3002\u53BB\u7EC3\u4E60\u5BA4\u5427\uFF0C\u4F60\u7684\u961F\u53CB\u5728\u7B49\u4F60\u3002\u201D' },
+            { id: 'proof', text: '\u201C\u6211\u60F3\u8BC1\u660E\u81EA\u5DF1\u53EF\u4EE5\u505A\u5230\u3002\u201D', icon: 'C', reply: '\u201C\u90A3\u5C31\u8BC1\u660E\u7ED9\u6211\u770B\u3002\u53BB\u7EC3\u4E60\u5BA4\u5427\uFF0C\u4F60\u7684\u961F\u53CB\u5728\u7B49\u4F60\u3002\u201D' }
         ];
-        var optContainer = document.createElement('div');
-        optContainer.style.cssText = 'display:flex;flex-direction:column;gap:10px;width:100%;';
-        var oi, opt;
-        for (oi = 0; oi < options.length; oi++) {
-            (function(o) {
-                var btn = document.createElement('button');
-                btn.style.cssText = 'background:#1E293B;border:1px solid #334155;color:#E2E8F0;padding:14px 18px;border-radius:8px;font-size:14px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;';
-                btn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#94A3B8;font-size:13px;flex-shrink:0;">' + o.icon + '</span><span>' + o.text + '</span>';
-                btn.onclick = function() { cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() }); _completeAndAdvanceStep(stepKey, stepConfig); var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); render(); };
-                optContainer.appendChild(btn);
-            })(options[oi]);
-        }
-        inner.appendChild(optContainer);
+    } else if (stepKey === '1.4') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u7EC3\u4E60\u5BA4</div>';
+        html += '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;">';
+        html += '<div style="font-size:13px;color:#F59E0B;margin-bottom:8px;">\u590F\u6069</div>';
+        html += '<div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C\u597D\uFF0C\u65B0\u6765\u7684\u7B2C\u4E00\u5468\uFF0C\u5B66\u6211\u4EEC\u4E3B\u6253\u6B4C\u7684\u7F16\u821E\u3002\u5148\u5B66\u7B2C\u4E00\u6BB5\u3002\u4F60\u4E4B\u524D\u8DF3\u8FC7\u821E\u5417\uFF1F\u201D</div>';
+        html += '</div>';
+        options = [
+            { id: 'has_experience', text: '\u201C\u6709\u57FA\u7840\uFF0C\u5B66\u8FC7\u51E0\u5E74\u3002\u201D', icon: 'A', reply: '\u201C\u90A3\u5E94\u8BE5\u5F88\u5FEB\u3002\u7AD9\u6211\u65C1\u8FB9\u770B\u3002\u201D', gain: 20 },
+            { id: 'no_experience', text: '\u201C\u6CA1\u6709\uFF0C\u96F6\u57FA\u7840\u3002\u201D', icon: 'B', reply: '\u201C\u6CA1\u5173\u7CFB\uFF0C\u8BA9\u4FCA\u660A\u5E26\u4F60\u3002\u201D', gain: 5 },
+            { id: 'some_experience', text: '\u201C\u5B66\u8FC7\u4E00\u70B9\uFF0C\u4E0D\u592A\u719F\u7EC3\u3002\u201D', icon: 'C', reply: '\u201C\u8DDF\u7740\u6211\uFF0C\u6211\u653E\u6162\u3002\u201D', gain: 10 }
+        ];
+    } else if (stepKey === '1.5') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u901A\u8BAF\u5F55 \u00B7 \u4FCA\u660A</div>';
+        html += '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;">';
+        html += '<div style="font-size:13px;color:#60A5FA;margin-bottom:8px;">\u4FCA\u660A</div>';
+        html += '<div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C' + (gameState.player.name || '') + '\uFF0C\u4F60\u7EC3\u5F97\u633A\u8BA4\u771F\u7684\u3002\u4E0D\u8FC7\u4F60\u77E5\u4E0D\u77E5\u9053\uFF0C\u4F60\u6765\u7684\u90A3\u5929\uFF0C\u6709\u4EBA\u8BF4\u4F60\u4E0D\u591F\u683C\uFF1F\u201D</div>';
+        html += '</div>';
+        options = [
+            { id: 'who_said', text: '\u201C\u8C01\u8BF4\u7684\uFF1F\u201D', icon: 'A', reply: '\u201C\u2026\u2026\u590F\u6069\u3002\u5979\u8BF4\u4F60\u5E95\u5B50\u592A\u8584\uFF0C\u53EF\u80FD\u8DDF\u4E0D\u4E0A\u3002\u201D' },
+            { id: 'prove_myself', text: '\u201C\u6211\u77E5\u9053\uFF0C\u6211\u4F1A\u8BC1\u660E\u81EA\u5DF1\u7684\u3002\u201D', icon: 'B', reply: '\u201C\u2026\u2026\u4F60\u77E5\u9053\u4E86\uFF1F\u6211\u8FD8\u60F3\u63D0\u9192\u4F60\u5462\u3002\u201D' },
+            { id: 'will_practice', text: '\u201C\u90A3\u53C8\u600E\u6837\uFF0C\u6211\u6765\u4E86\uFF0C\u6211\u5C31\u4F1A\u7EC3\u5230\u884C\u3002\u201D', icon: 'C', reply: '\u201C\u884C\uFF0C\u6709\u4F60\u8FD9\u53E5\u8BDD\u5C31\u591F\u4E86\u3002\u201D' }
+        ];
+    } else if (stepKey === '1.6') {
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:16px;">\u76F4\u64AD</div>';
+        html += '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;">';
+        html += '<div style="font-size:13px;color:#F472B6;margin-bottom:8px;">\u667A\u5A9B</div>';
+        html += '<div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u201C\u4ECA\u5929\u6765\u4E86\u4E00\u4E2A\u7279\u522B\u5609\u5BBE\u2014\u2014\u6211\u4EEC\u56E2\u7684\u65B0\u6210\u5458' + (gameState.player.name || '') + '\uFF01\u201D</div>';
+        html += '</div>';
+        html += '<div style="font-size:13px;color:#64748B;margin-bottom:12px;">\u5F39\u5E55\uFF1A\u201C\u597D\u53EF\u7231\uFF01\u201D \u201C\u65B0\u6210\u5458\u591A\u5927\u4E86\uFF1F\u201D \u201C\u4ECB\u7ECD\u4E00\u4E0B\u81EA\u5DF1\uFF01\u201D</div>';
+        options = [
+            { id: 'lively', text: '\u201C\u5927\u5BB6\u597D\uFF01\u6211\u662F\u65B0\u6765\u7684' + (gameState.player.name || '') + '\uFF01\u201D', icon: 'A', fansGain: 30 },
+            { id: 'shy', text: '\u201C\u5927\u5BB6\u597D\uFF0C\u6211\u662F' + (gameState.player.name || '') + '\u3002\u8BF7\u591A\u5173\u7167\u3002\u201D', icon: 'B', fansGain: 20 },
+            { id: 'serious', text: '\u201C\u5927\u5BB6\u597D\uFF0C\u6211\u662F' + (gameState.player.name || '') + '\u3002\u4EE5\u540E\u4F1A\u597D\u597D\u52AA\u529B\u7684\u3002\u201D', icon: 'C', fansGain: 10 }
+        ];
     }
+    inner.innerHTML = html;
+
+    var optContainer = document.createElement('div');
+    optContainer.style.cssText = 'display:flex;flex-direction:column;gap:10px;width:100%;';
+    var oi, opt;
+    for (oi = 0; oi < options.length; oi++) {
+        (function(o) {
+            var btn = document.createElement('button');
+            btn.style.cssText = 'background:#1E293B;border:1px solid #334155;color:#E2E8F0;padding:14px 18px;border-radius:8px;font-size:14px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;';
+            btn.innerHTML = '<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#334155;color:#94A3B8;font-size:13px;flex-shrink:0;">' + o.icon + '</span><span style="flex:1;">' + o.text + '</span>';
+            btn.onclick = function() {
+                cs.choices.push({ chapter: cs.currentChapter, step: parseInt(stepKey.split('.')[1]), choiceId: o.id, timestamp: Date.now() });
+                if (o.gain) { gameState.stats.dance = Math.min(150, (gameState.stats.dance || 0) + o.gain); }
+                if (o.fansGain) { gameState.fans = (gameState.fans || 0) + o.fansGain; }
+                if (o.reply) {
+                    var ol = document.getElementById('chapterOverlay');
+                    if (ol) {
+                        var replyDiv = document.createElement('div');
+                        replyDiv.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.95);z-index:10000;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;box-sizing:border-box;';
+                        replyDiv.innerHTML = '<div style="max-width:360px;width:100%;text-align:center;color:#F8FAFC;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">' +
+                            '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;">' +
+                            '<div style="font-size:13px;color:#64748B;margin-bottom:8px;">' + (stepKey === '1.5' ? '\u4FCA\u660A' : '\u793E\u957F') + '</div>' +
+                            '<div style="font-size:15px;line-height:1.6;color:#E2E8F0;">' + o.reply + '</div>' +
+                            '</div>' +
+                            (stepKey === '1.5' ? '<div style="background:#1E293B;border-radius:12px;padding:20px;text-align:left;margin-bottom:20px;"><div style="font-size:13px;color:#60A5FA;margin-bottom:8px;">\u4FCA\u660A</div><div style="font-size:15px;line-height:1.6;color:#E2E8F0;">\u5176\u5B9E\u590F\u6069\u4E0D\u662F\u9488\u5BF9\u4F60\uFF0C\u5979\u5C31\u662F\u5634\u786C\u3002\u5979\u6BD4\u8C01\u90FD\u5E0C\u671B\u4F60\u7559\u4E0B\u6765\uFF0C\u56E0\u4E3A\u5979\u5728\u4F60\u8EAB\u4E0A\u770B\u5230\u4E86\u4EE5\u524D\u7684\u81EA\u5DF1\u3002</div></div>' : '') +
+                            '<button style="background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;" onclick="var ol2=document.getElementById(\'chapterReplyOverlay\');if(ol2)ol2.remove();">\u7EE7\u7EED</button>' +
+                            '</div>';
+                        replyDiv.id = 'chapterReplyOverlay';
+                        ol.parentNode.appendChild(replyDiv);
+                    }
+                }
+                _completeAndAdvanceStep(stepKey, stepConfig);
+                var ol2 = document.getElementById('chapterOverlay');
+                if (ol2) ol2.remove();
+                render();
+            };
+            optContainer.appendChild(btn);
+        })(options[oi]);
+    }
+    inner.appendChild(optContainer);
 }
 
 function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
@@ -14337,8 +14524,8 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     var chapterChoices = [];
     var ci;
     for (ci = 0; ci < cs.choices.length; ci++) { if (cs.choices[ci].chapter === cs.currentChapter) chapterChoices.push(cs.choices[ci]); }
-    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F' };
-    var appLabels = { daily: '\u4ECA\u65E5\u4EFB\u52A1', contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A' };
+    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F' };
+    var appLabels = { contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A', daily: '\u4ECA\u65E5\u4EFB\u52A1' };
     var html = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + ' COMPLETE</div>';
     html += '<div style="font-size:24px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">\u5165\u793E</div>';
     html += '<div style="width:40px;height:2px;background:#1E293B;margin:12px auto;"></div>';
@@ -14350,7 +14537,10 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     var ai;
     for (ai = 0; ai < cs.unlockedApps.length; ai++) { html += '<span style="background:#1E293B;border:1px solid #334155;padding:4px 10px;border-radius:6px;font-size:12px;color:#94A3B8;">' + (appLabels[cs.unlockedApps[ai]] || cs.unlockedApps[ai]) + '</span>'; }
     html += '</div>';
-    html += '<div style="background:#0F172A;border:1px solid #1E293B;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;"><div style="font-size:12px;color:#64748B;margin-bottom:6px;">\u4E0B\u4E00\u7AE0\u9884\u544A</div><div style="font-size:14px;color:#94A3B8;line-height:1.5;">\u4F60\u6B63\u5F0F\u6210\u4E3AHaeoreum\u7684\u4E00\u5458\u3002\u4F46\u771F\u6B63\u7684\u6311\u6218\u624D\u521A\u521A\u5F00\u59CB\u3002</div></div>';
+    html += '<div style="background:#0F172A;border:1px solid #1E293B;border-radius:12px;padding:14px;margin-bottom:20px;text-align:left;">';
+    html += '<div style="font-size:12px;color:#64748B;margin-bottom:6px;">\u4E0B\u4E00\u7AE0\u9884\u544A</div>';
+    html += '<div style="font-size:14px;color:#94A3B8;line-height:1.5;">\u4F60\u6B63\u5F0F\u6210\u4E3AHaeoreum\u7684\u4E00\u5458\u3002\u4F46\u771F\u6B63\u7684\u6311\u6218\u624D\u521A\u521A\u5F00\u59CB\u2014\u2014\u4E0B\u4E00\u6B21\u516C\u5F00\u4EAE\u76F8\uFF0C\u4F60\u53EF\u80FD\u8FDE\u7AD9\u5728\u53F0\u4E0A\u7684\u8D44\u683C\u90FD\u6CA1\u6709\u3002\u4F60\u51C6\u5907\u597D\u4E86\u5417\uFF1F</div>';
+    html += '</div>';
     inner.innerHTML = html;
     var btn = document.createElement('button');
     btn.style.cssText = 'background:#1E293B;color:#F8FAFC;border:none;padding:14px 40px;border-radius:8px;font-size:15px;cursor:pointer;width:100%;';
@@ -14377,11 +14567,9 @@ function getChapterProgressForApp(appId) {
     if (!stepConfig) return null;
     var i;
     for (i = 0; i < cs.completedSteps.length; i++) { if (cs.completedSteps[i] === stepKey) return null; }
-    if (stepConfig.app === appId && stepConfig.condition) {
-        var current = 0;
-        if (stepConfig.condition === 'fans') { current = gameState.fans; }
-        else if (stepConfig.condition === 'fame') { current = gameState.fame; }
-        else { current = cs.chapterCounts[stepConfig.condition] || 0; }
+    var matchedApp = stepConfig.app === appId || stepConfig.unlockApp === appId;
+    if (matchedApp && stepConfig.condition) {
+        var current = _getChapterConditionValue(stepConfig.condition);
         return { label: stepConfig.label, current: current, target: stepConfig.target };
     }
     return null;
