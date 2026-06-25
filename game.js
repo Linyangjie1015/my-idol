@@ -13909,78 +13909,768 @@ function _removedRepayLoan() { showToast('此功能已下线'); }
 
 
 
-// ==================== V2.0 FULL FEATURE SET ====================
 
+// ==================== V2.0 NARRATIVE & PERFORMANCE SYSTEM ====================
+
+// V2.0: NPC Portrait Mapping
 var NPC_PORTRAITS = {
-    'haeun': { name: '\u590f\u6069', main: 'imgs/portraits/haeun_halfbody.jpg', smile: 'imgs/portraits/haeun_smile.jpg', sad: 'imgs/portraits/haeun_sad.jpg', blink_half: 'imgs/portraits/haeun_blink_half.jpg', blink_full: 'imgs/portraits/haeun_blink_full.jpg' },
-    'soah': { name: '\u7d20\u96c5', main: 'imgs/portraits/soah_halfbody.jpg', smile: 'imgs/portraits/soah_smile.jpg', sad: 'imgs/portraits/soah_sad.jpg', blink_half: 'imgs/portraits/soah_blink_half.jpg', blink_full: 'imgs/portraits/soah_blink_full.jpg' },
-    'jiwon': { name: '\u667a\u5a9b', main: 'imgs/portraits/jiwon_halfbody.jpg', smile: 'imgs/portraits/jiwon_smile.jpg', sad: 'imgs/portraits/jiwon_sad.jpg', blink_half: 'imgs/portraits/jiwon_blink_half.jpg', blink_full: 'imgs/portraits/jiwon_blink_full.jpg' },
-    'junho': { name: '\u4fca\u660a', main: 'imgs/portraits/junho_halfbody.jpg', smile: 'imgs/portraits/junho_smile.jpg', sad: 'imgs/portraits/junho_sad.jpg', blink_half: 'imgs/portraits/junho_blink_half.jpg', blink_full: 'imgs/portraits/junho_blink_full.jpg' },
-    'seokhyun': { name: '\u745e\u8d24', main: 'imgs/portraits/seokhyun_halfbody.jpg', smile: 'imgs/portraits/seokhyun_smile.jpg', sad: 'imgs/portraits/seokhyun_sad.jpg', blink_half: 'imgs/portraits/seokhyun_blink_half.jpg', blink_full: 'imgs/portraits/seokhyun_blink_full.jpg' }
+    'haeun': { main: 'imgs/portraits/haeun_halfbody.jpg', smile: 'imgs/portraits/haeun_smile.jpg', sad: 'imgs/portraits/haeun_sad.jpg', blink_half: 'imgs/portraits/haeun_blink_half.jpg', blink_full: 'imgs/portraits/haeun_blink_full.jpg' },
+    'soah': { main: 'imgs/portraits/soah_halfbody.jpg', smile: 'imgs/portraits/soah_smile.jpg', sad: 'imgs/portraits/soah_sad.jpg', blink_half: 'imgs/portraits/soah_blink_half.jpg', blink_full: 'imgs/portraits/soah_blink_full.jpg' },
+    'jiwon': { main: 'imgs/portraits/jiwon_halfbody.jpg', smile: 'imgs/portraits/jiwon_smile.jpg', sad: 'imgs/portraits/jiwon_sad.jpg', blink_half: 'imgs/portraits/jiwon_blink_half.jpg', blink_full: 'imgs/portraits/jiwon_blink_full.jpg' },
+    'junho': { main: 'imgs/portraits/junho_halfbody.jpg', smile: 'imgs/portraits/junho_smile.jpg', sad: 'imgs/portraits/junho_sad.jpg', blink_half: 'imgs/portraits/junho_blink_half.jpg', blink_full: 'imgs/portraits/junho_blink_full.jpg' },
+    'seokhyun': { main: 'imgs/portraits/seokhyun_halfbody.jpg', smile: 'imgs/portraits/seokhyun_smile.jpg', sad: 'imgs/portraits/seokhyun_sad.jpg', blink_half: 'imgs/portraits/seokhyun_blink_half.jpg', blink_full: 'imgs/portraits/seokhyun_blink_full.jpg' }
 };
 
-function getNpcPortraitHtml(npcKey, expression, widthPct) {
-    var p = NPC_PORTRAITS[npcKey];
-    if (!p) return '';
-    var expr = expression || 'main';
-    var src = p[expr] || p.main;
-    var w = widthPct || 40;
-    return '<div style="position:relative;width:' + w + '%;height:100%;overflow:hidden;">'
-        + '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover;object-position:top center;animation:portrait-breathe 3s ease-in-out infinite;" onerror="this.style.display=\'none\'">'
+// V2.0: Inject Portrait CSS Animations
+(function() {
+    var styleId = 'v2-portrait-animations';
+    if (document.getElementById(styleId)) return;
+    var css = '@keyframes portrait-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}'
+        + '@keyframes portrait-blink{0%,100%{opacity:1}50%{opacity:0}}'
+        + '.portrait-wrap{animation:portrait-breathe 4s ease-in-out infinite}'
+        + '.portrait-blink{animation:portrait-blink 0.15s ease-in-out}';
+    var styleEl = document.createElement('style');
+    styleEl.id = styleId;
+    styleEl.textContent = css;
+    document.head.appendChild(styleEl);
+})();
+
+// V2.0: Chapter data structure
+var V2_CHAPTERS = [
+    { id: 1, title: '\u521d\u5165\u516c\u53f8', preview: '\u65b0\u7684\u5f00\u59cb\uff0c\u65b0\u7684\u68a6\u60f3' },
+    { id: 2, title: '\u7ec3\u4e60\u5ba4\u65e5\u5e38', preview: '\u6c57\u6c34\u4e0e\u6cea\u6c34\u4ea4\u7ec7\u7684\u65e5\u5b50' },
+    { id: 3, title: '\u7b2c\u4e00\u6b21\u8003\u6838', preview: '\u8bc1\u660e\u81ea\u5df1\u7684\u65f6\u523b' },
+    { id: 4, title: '\u56e2\u4f53\u78e8\u5408', preview: '\u5f7c\u6b64\u4e86\u89e3\uff0c\u5fc3\u7ed3\u6253\u5f00' },
+    { id: 5, title: '\u51fa\u9053\u51c6\u5907', preview: '\u8ddd\u79bb\u68a6\u60f3\u8d8a\u6765\u8d8a\u8fd1' },
+    { id: 6, title: '\u821e\u53f0\u521d\u767b', preview: '\u5c5e\u4e8e\u6211\u7684\u805a\u5149\u706f' },
+    { id: 7, title: '\u540d\u6c14\u98d8\u5347', preview: '\u638c\u58f0\u4e0e\u7b49\u5f85' },
+    { id: 8, title: '\u6697\u6d41\u6d8c\u52a8', preview: '\u5371\u673a\u56db\u4f0f' },
+    { id: 9, title: '\u547d\u8fd0\u4ea4\u6c47', preview: '\u4e00\u5207\u7686\u6709\u53ef\u80fd' },
+    { id: 10, title: '\u6700\u7ec8\u7ae0\u8282', preview: '\u6211\u7684\u6545\u4e8b\uff0c\u6211\u7684\u9009\u62e9' }
+];
+
+// V2.0: Ensure chapterState exists
+function _ensureChapterState() {
+    if (!gameState.chapterState) {
+        gameState.chapterState = {
+            currentChapter: 1,
+            choices: {},
+            unlockedMemories: {}
+        };
+    }
+    if (!gameState.chapterState.choices) gameState.chapterState.choices = {};
+    if (!gameState.chapterState.unlockedMemories) gameState.chapterState.unlockedMemories = {};
+}
+
+// V2.0 Module 1.1: Chapter Review Modal
+function renderChapterReviewModal(chapterNum) {
+    _ensureChapterState();
+    var chapter = V2_CHAPTERS[chapterNum - 1];
+    if (!chapter) return;
+    var choices = gameState.chapterState.choices[chapterNum] || [];
+    var html = '<div style="background:#0F0C29;border-radius:16px;padding:24px;max-height:70vh;overflow-y:auto;">';
+    html += '<div style="font-size:22px;font-weight:700;color:#FFF;font-family:apple-system;text-align:center;margin-bottom:20px;">\u7b2c ' + chapterNum + ' \u7ae0 \u00b7 ' + chapter.title + '</div>';
+    html += '<div style="width:40px;height:2px;background:#A78BFA;margin:0 auto 20px;border-radius:1px;"></div>';
+    if (choices.length === 0) {
+        html += '<div style="text-align:center;color:#888;font-size:15px;font-family:apple-system;padding:20px 0;">\u6682\u65e0\u9009\u62e9\u8bb0\u5f55</div>';
+    } else {
+        for (var ci = 0; ci < choices.length; ci++) {
+            var ch = choices[ci];
+            var choiceText = ch.text || '\uff1f\uff1f\uff1f';
+            var textColor = ch.made ? '#FFF' : '#888';
+            html += '<div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;padding:14px 16px;margin-bottom:10px;">';
+            html += '<div style="font-size:15px;color:' + textColor + ';font-family:apple-system;">\u4f60\u9009\u62e9\u4e86 ' + choiceText + '</div>';
+            if (ch.made) {
+                html += '<div style="font-size:12px;color:#A78BFA;margin-top:6px;font-family:apple-system;">\u8fd9\u4e2a\u9009\u62e9\u5c06\u5728\u540e\u7eed\u7ae0\u8282\u4e2d\u4ea7\u751f\u56de\u54cd</div>';
+            }
+            html += '</div>';
+        }
+    }
+    var totalChoices = 3;
+    for (var pi = choices.length; pi < totalChoices; pi++) {
+        html += '<div style="background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;padding:14px 16px;margin-bottom:10px;">';
+        html += '<div style="font-size:15px;color:#888;font-family:apple-system;">\uff1f\uff1f\uff1f</div>';
+        html += '</div>';
+    }
+    html += '</div>';
+    showModal('\u7ae0\u8282\u56de\u987e', html, [{ text: '\u5173\u95ed', action: closeModal }]);
+}
+
+// V2.0 Module 1.2: Affection Tone 5-Tier System
+function _getAffectionTone(npcName) {
+    var aff = (gameState.npc\u597d\u611f\u5ea6 && gameState.npc\u597d\u611f\u5ea6[npcName]) || 0;
+    if (aff >= 80) {
+        return { label: '\u4e13\u5c5e', prefix: '\u3010\u6df1\u60c5\u3011', color: '#FFD700' };
+    } else if (aff >= 60) {
+        return { label: '\u4eb2\u5bc6', prefix: '\u3010\u6e29\u67d4\u3011', color: '#F472B6' };
+    } else if (aff >= 40) {
+        return { label: '\u6697\u6627', prefix: '\u3010\u5173\u5fc3\u3011', color: '#E879F9' };
+    } else if (aff >= 20) {
+        return { label: '\u719f\u6089', prefix: '', color: '#A78BFA' };
+    } else {
+        return { label: '\u964c\u751f', prefix: '\u3010\u51b7\u6de1\u3011', color: '#888' };
+    }
+}
+
+// V2.0 Module 1.3: Visual Pause Effect
+function showVisualPause(text, duration) {
+    duration = duration || 3000;
+    if (duration < 2000) duration = 2000;
+    if (duration > 5000) duration = 5000;
+    var overlay = document.createElement('div');
+    overlay.id = 'v2-visual-pause';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;z-index:10000;transition:background 0.5s ease;-webkit-transition:background 0.5s ease;';
+    overlay.innerHTML = '<div style="font-size:20px;color:#FFF;letter-spacing:0.1em;font-family:apple-system;font-weight:700;text-align:center;padding:0 32px;opacity:0;transition:opacity 0.5s ease;">' + text + '</div>';
+    document.body.appendChild(overlay);
+    setTimeout(function() {
+        overlay.style.background = 'rgba(0,0,0,0.7)';
+        var textEl = overlay.firstChild;
+        if (textEl) textEl.style.opacity = '1';
+    }, 50);
+    overlay.addEventListener('click', function() {
+        _removeVisualPause(overlay);
+    });
+    setTimeout(function() {
+        _removeVisualPause(overlay);
+    }, duration);
+}
+
+function _removeVisualPause(el) {
+    if (!el || !el.parentNode) return;
+    el.style.background = 'rgba(0,0,0,0)';
+    var textEl = el.firstChild;
+    if (textEl) textEl.style.opacity = '0';
+    setTimeout(function() {
+        if (el.parentNode) el.parentNode.removeChild(el);
+    }, 500);
+}
+
+// V2.0 Module 1.4: Atmosphere Transition
+function showAtmosphereTransition(text) {
+    var phoneFrame = document.querySelector('.phone-frame');
+    if (!phoneFrame) return;
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0);display:flex;align-items:center;justify-content:center;z-index:9999;transition:background 0.3s ease;-webkit-transition:background 0.3s ease;pointer-events:none;';
+    overlay.innerHTML = '<div style="font-size:16px;color:rgba(255,255,255,0.8);font-family:apple-system;letter-spacing:0.08em;text-align:center;padding:0 40px;opacity:0;transition:opacity 0.3s ease;">' + text + '</div>';
+    phoneFrame.style.position = 'relative';
+    phoneFrame.appendChild(overlay);
+    var pageContent = phoneFrame.querySelector('.page-content');
+    if (pageContent) {
+        pageContent.style.transition = 'opacity 0.5s ease';
+        pageContent.style.opacity = '0.2';
+    }
+    setTimeout(function() {
+        overlay.style.background = 'rgba(15,12,41,0.6)';
+        var tEl = overlay.firstChild;
+        if (tEl) tEl.style.opacity = '1';
+    }, 500);
+    setTimeout(function() {
+        overlay.style.background = 'rgba(0,0,0,0)';
+        var tEl = overlay.firstChild;
+        if (tEl) tEl.style.opacity = '0';
+        if (pageContent) {
+            pageContent.style.opacity = '1';
+        }
+    }, 2500);
+    setTimeout(function() {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        if (pageContent) pageContent.style.transition = '';
+    }, 3000);
+}
+
+// ==================== V2.0 VISUAL & EMOTION SYSTEM ====================
+
+// V2.0 Module 2.5: Affection Stage Visualization
+function _getAffectionStageHtml(npcName) {
+    var aff = (gameState.npc\u597d\u611f\u5ea6 && gameState.npc\u597d\u611f\u5ea6[npcName]) || 0;
+    var stages = [
+        { min: 0, max: 19, label: '\u964c\u751f', color: '#888', threshold: 0 },
+        { min: 20, max: 39, label: '\u719f\u6089', color: '#A78BFA', threshold: 20 },
+        { min: 40, max: 59, label: '\u6697\u6627', color: '#E879F9', threshold: 40 },
+        { min: 60, max: 79, label: '\u4eb2\u5bc6', color: '#F472B6', threshold: 60 },
+        { min: 80, max: 100, label: '\u4e13\u5c5e', color: '#FFD700', threshold: 80 }
+    ];
+    var currentStage = stages[0];
+    for (var si = 0; si < stages.length; si++) {
+        if (aff >= stages[si].min && aff <= stages[si].max) {
+            currentStage = stages[si];
+            break;
+        }
+    }
+    var html = '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;">';
+    html += '<div style="display:flex;gap:3px;">';
+    for (var di = 0; di < stages.length; di++) {
+        var filled = aff >= stages[di].threshold;
+        var dotColor = filled ? stages[di].color : 'rgba(255,255,255,0.15)';
+        html += '<div style="width:8px;height:8px;border-radius:50%;background:' + dotColor + ';transition:background 0.3s;"></div>';
+    }
+    html += '</div>';
+    html += '<div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">';
+    html += '<div style="height:100%;width:' + aff + '%;background:' + currentStage.color + ';border-radius:2px;transition:width 0.5s ease;"></div>';
+    html += '</div>';
+    html += '<span style="font-size:12px;color:' + currentStage.color + ';font-family:apple-system;min-width:36px;text-align:right;">' + currentStage.label + '</span>';
+    html += '</div>';
+    return html;
+}
+
+// V2.0 Module 2.6: My Choices Page
+function renderMyChoicesPage(container) {
+    _ensureChapterState();
+    var html = '<div class="page active">';
+    html += '<div class="page-header">';
+    html += '<div class="back-btn" onclick="goToPage(\'' + 'home' + '\')">\u2039 \u9996\u9875</div>';
+    html += '<div class="page-title">\u6211\u7684\u6289\u62e9</div>';
+    html += '<div style="width:32px;"></div>';
+    html += '</div>';
+    html += '<div class="page-content" style="padding:16px 20px;">';
+    for (var chi = 0; chi < V2_CHAPTERS.length; chi++) {
+        var chap = V2_CHAPTERS[chi];
+        var isUnlocked = chi + 1 <= (gameState.chapterState.currentChapter || 1);
+        var choices = gameState.chapterState.choices[chap.id] || [];
+        if (isUnlocked) {
+            html += '<div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;padding:14px 16px;margin-bottom:12px;">';
+            html += '<div style="font-size:15px;font-weight:700;color:#FFF;font-family:apple-system;margin-bottom:8px;">\u7b2c ' + chap.id + ' \u7ae0 \u00b7 ' + chap.title + '</div>';
+            if (choices.length > 0) {
+                for (var ci = 0; ci < choices.length; ci++) {
+                    var choiceText = choices[ci].made ? (choices[ci].text || '\uff1f') : '\uff1f\uff1f\uff1f';
+                    var choiceColor = choices[ci].made ? '#FFF' : '#888';
+                    html += '<div style="font-size:14px;color:' + choiceColor + ';font-family:apple-system;margin-bottom:4px;">\u2022 ' + choiceText + '</div>';
+                }
+            } else {
+                html += '<div style="font-size:14px;color:#888;font-family:apple-system;">\u5c1a\u65e0\u5173\u952e\u6289\u62e9</div>';
+            }
+            if (chap.preview) {
+                html += '<div style="font-size:12px;color:#A78BFA;font-family:apple-system;margin-top:6px;">' + chap.preview + '</div>';
+            }
+            html += '</div>';
+        } else {
+            html += '<div style="background:rgba(255,255,255,0.05);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;padding:14px 16px;margin-bottom:12px;opacity:0.5;">';
+            html += '<div style="font-size:15px;font-weight:700;color:#888;font-family:apple-system;">\u7b2c ' + chap.id + ' \u7ae0 \u00b7 \uff1f\uff1f\uff1f</div>';
+            html += '<div style="font-size:12px;color:#666;font-family:apple-system;margin-top:4px;">\u672a\u89e3\u9501</div>';
+            html += '</div>';
+        }
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// V2.0 Module 2.7: Affection Exclusive Dialogue
+function _getAffectionDialogue(npcName, affectionLevel) {
+    var exclusiveDialogues = {
+        'haeun': [
+            { minAff: 60, title: '\u7ec3\u4e60\u5ba4\u7684\u79d8\u5bc6', dialogue: '\u6d77\u6069\u8f7b\u58f0\u8bf4\uff1a\u201c\u5176\u5b9e\u6211\u6bcf\u6b21\u7ec3\u4e60\u65f6\u90fd\u4f1a\u5077\u5077\u770b\u4f60\u2026\u2026\u201d', type: 'secret' },
+            { minAff: 80, title: '\u6df1\u591c\u7684\u544a\u767d', dialogue: '\u6d77\u6069\u7ea2\u7740\u8138\u8bf4\uff1a\u201c\u53ea\u6709\u5728\u4f60\u9762\u524d\uff0c\u6211\u624d\u4e0d\u7528\u4f2a\u88c5\u3002\u201d', type: 'confession' }
+        ],
+        'soah': [
+            { minAff: 60, title: '\u661f\u7a7a\u4e0b\u7684\u7ea6\u5b9a', dialogue: '\u667a\u7231\u770b\u7740\u5929\u7a7a\uff1a\u201c\u6bcf\u6b21\u770b\u5230\u661f\u661f\uff0c\u6211\u90fd\u4f1a\u60f3\u5230\u4f60\u2026\u2026\u201d', type: 'secret' },
+            { minAff: 80, title: '\u4e0d\u53ef\u66ff\u4ee3', dialogue: '\u667a\u7231\u8ba4\u771f\u5730\u8bf4\uff1a\u201c\u4f60\u662f\u6211\u552f\u4e00\u4e0d\u60f3\u5931\u53bb\u7684\u4eba\u3002\u201d', type: 'confession' }
+        ],
+        'jiwon': [
+            { minAff: 60, title: '\u7b2c\u4e00\u6b21\u7684\u771f\u5fc3\u8bdd', dialogue: '\u667a\u5143\u5c0f\u58f0\u8bf4\uff1a\u201c\u6211\u4ece\u6765\u6ca1\u6709\u5bf9\u522b\u4eba\u8bf4\u8fc7\u8fd9\u4e9b\u8bdd\u2026\u2026\u201d', type: 'secret' },
+            { minAff: 80, title: '\u5c5e\u4e8e\u4f60\u7684\u4f4d\u7f6e', dialogue: '\u667a\u5143\u62c9\u4f4f\u4f60\u7684\u624b\uff1a\u201c\u6211\u8eab\u8fb9\u7684\u4f4d\u7f6e\uff0c\u6c38\u8fdc\u662f\u4f60\u7684\u3002\u201d', type: 'confession' }
+        ],
+        'junho': [
+            { minAff: 60, title: '\u96be\u4ee5\u542f\u9f7f', dialogue: '\u4fca\u8c6a\u72b9\u8c6b\u5730\u8bf4\uff1a\u201c\u5176\u5b9e\u6211\u4e00\u76f4\u5728\u7b49\u4f60\u4e3b\u52a8\u627e\u6211\u8bf4\u8bdd\u2026\u2026\u201d', type: 'secret' },
+            { minAff: 80, title: '\u53ea\u4e3a\u4f60', dialogue: '\u4fca\u8c6a\u5fae\u7b11\uff1a\u201c\u6211\u7684\u6240\u6709\u52aa\u529b\uff0c\u90fd\u662f\u4e3a\u4e86\u80fd\u7ad9\u5728\u4f60\u8eab\u8fb9\u3002\u201d', type: 'confession' }
+        ],
+        'seokhyun': [
+            { minAff: 60, title: '\u6545\u4f5c\u575a\u5f3a', dialogue: '\u5e99\u8d24\u522b\u8fc7\u5934\uff1a\u201c\u522b\u4ee5\u4e3a\u6211\u4e0d\u5728\u4e4e\uff0c\u6211\u53ea\u662f\u4e0d\u64c5\u957f\u8868\u8fbe\u2026\u2026\u201d', type: 'secret' },
+            { minAff: 80, title: '\u5fc3\u5899\u5d29\u5854', dialogue: '\u5e99\u8d24\u771f\u8bda\u5730\u8bf4\uff1a\u201c\u4f60\u662f\u552f\u4e00\u80fd\u8ba9\u6211\u653e\u4e0b\u9632\u5907\u7684\u4eba\u3002\u201d', type: 'confession' }
+        ]
+    };
+    var dialogues = exclusiveDialogues[npcName] || [];
+    var result = [];
+    for (var di = 0; di < dialogues.length; di++) {
+        if (affectionLevel >= dialogues[di].minAff) {
+            result.push(dialogues[di]);
+        }
+    }
+    return result;
+}
+
+// V2.0 Module 2.8: Relationship Web
+function renderRelationshipWeb(container) {
+    var npcKeys = Object.keys(gameState.npc\u597d\u611f\u5ea6 || {});
+    var centerX = 150;
+    var centerY = 200;
+    var radius = 120;
+    var svgWidth = 300;
+    var svgHeight = 400;
+    var html = '<div class="page active">';
+    html += '<div class="page-header">';
+    html += '<div class="back-btn" onclick="goToPage(\'' + 'home' + '\')">\u2039 \u9996\u9875</div>';
+    html += '<div class="page-title">\u5173\u7cfb\u7f51</div>';
+    html += '<div style="width:32px;"></div>';
+    html += '</div>';
+    html += '<div class="page-content" style="padding:16px 20px;">';
+    html += '<div style="text-align:center;margin-bottom:16px;">';
+    html += '<svg width="' + svgWidth + '" height="' + svgHeight + '" viewBox="0 0 ' + svgWidth + ' ' + svgHeight + '">';
+    html += '<circle cx="' + centerX + '" cy="' + centerY + '" r="20" fill="#A78BFA" opacity="0.8"/>';
+    html += '<text x="' + centerX + '" y="' + (centerY + 5) + '" text-anchor="middle" fill="#FFF" font-size="10" font-family="apple-system">\u6211</text>';
+    var angleStep = (2 * Math.PI) / Math.max(npcKeys.length, 1);
+    for (var ni = 0; ni < npcKeys.length; ni++) {
+        var npcName = npcKeys[ni];
+        var aff = gameState.npc\u597d\u611f\u5ea6[npcName] || 0;
+        var tone = _getAffectionTone(npcName);
+        var angle = angleStep * ni - Math.PI / 2;
+        var nx = centerX + Math.cos(angle) * radius;
+        var ny = centerY + Math.sin(angle) * radius;
+        var lineOpacity = Math.max(0.1, aff / 100);
+        var lineColor = tone.color;
+        html += '<line x1="' + centerX + '" y1="' + centerY + '" x2="' + nx + '" y2="' + ny + '" stroke="' + lineColor + '" stroke-width="' + (1 + aff / 30) + '" opacity="' + lineOpacity + '"/>';
+        html += '<circle cx="' + nx + '" cy="' + ny + '" r="16" fill="' + tone.color + '" opacity="0.8"/>';
+        html += '<text x="' + nx + '" y="' + (ny + 4) + '" text-anchor="middle" fill="#FFF" font-size="8" font-family="apple-system">' + npcName + '</text>';
+        html += '<text x="' + nx + '" y="' + (ny + 26) + '" text-anchor="middle" fill="' + tone.color + '" font-size="9" font-family="apple-system">' + tone.label + ' ' + aff + '</text>';
+    }
+    html += '</svg>';
+    html += '</div>';
+    html += '<div style="font-size:15px;font-weight:700;color:#FFF;font-family:apple-system;margin-bottom:12px;">\u5173\u7cfb\u8be6\u60c5</div>';
+    for (var li = 0; li < npcKeys.length; li++) {
+        var lName = npcKeys[li];
+        var lAff = gameState.npc\u597d\u611f\u5ea6[lName] || 0;
+        var lTone = _getAffectionTone(lName);
+        var interactions = (gameState.loveChats && gameState.loveChats[lName]) ? gameState.loveChats[lName].length : 0;
+        html += '<div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;padding:12px 16px;margin-bottom:8px;">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+        html += '<div>';
+        html += '<div style="font-size:15px;font-weight:600;color:#FFF;font-family:apple-system;">' + lName + '</div>';
+        html += _getAffectionStageHtml(lName);
+        html += '</div>';
+        html += '<div style="text-align:right;">';
+        html += '<div style="font-size:12px;color:' + lTone.color + ';font-family:apple-system;">' + lTone.label + '</div>';
+        html += '<div style="font-size:11px;color:#888;font-family:apple-system;">\u4e92\u52a8 ' + interactions + '\u6b21</div>';
+        html += '</div>';
+        html += '</div>';
+        html += '</div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+// ==================== V2.0 IMMERSION & MEMORY SYSTEM ====================
+
+// V2.0 Module 3.9: Memory Panel
+function renderMemoryPanel(container) {
+    _ensureChapterState();
+    var html = '<div class="page active">';
+    html += '<div class="page-header">';
+    html += '<div class="back-btn" onclick="goToPage(\'' + 'home' + '\')">\u2039 \u9996\u9875</div>';
+    html += '<div class="page-title">\u56de\u5fc6</div>';
+    html += '<div style="width:32px;"></div>';
+    html += '</div>';
+    html += '<div class="page-content" style="padding:16px 20px;">';
+    var hasMemories = false;
+    for (var mi = 0; mi < V2_CHAPTERS.length; mi++) {
+        var mChap = V2_CHAPTERS[mi];
+        var isUnlocked = mChap.id <= (gameState.chapterState.currentChapter || 1);
+        var memKey = 'ch' + mChap.id;
+        var memory = gameState.chapterState.unlockedMemories[memKey];
+        if (isUnlocked) {
+            hasMemories = true;
+            html += '<div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:12px;padding:14px 16px;margin-bottom:12px;cursor:pointer;" onclick="_viewMemoryDetail(' + mChap.id + ')">';
+            html += '<div style="font-size:15px;font-weight:700;color:#FFF;font-family:apple-system;">\u7b2c ' + mChap.id + ' \u7ae0 \u00b7 ' + mChap.title + '</div>';
+            if (memory) {
+                html += '<div style="font-size:14px;color:rgba(255,255,255,0.8);font-family:apple-system;margin-top:6px;">' + memory.summary + '</div>';
+            } else {
+                html += '<div style="font-size:14px;color:#888;font-family:apple-system;margin-top:6px;">\u70b9\u51fb\u67e5\u770b\u56de\u5fc6</div>';
+            }
+            html += '</div>';
+        }
+    }
+    if (!hasMemories) {
+        html += '<div style="text-align:center;padding:40px 0;">';
+        html += '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>';
+        html += '<div style="font-size:15px;color:#888;font-family:apple-system;margin-top:12px;">\u5c1a\u65e0\u56de\u5fc6\u89e3\u9501</div>';
+        html += '<div style="font-size:12px;color:#666;font-family:apple-system;margin-top:4px;">\u7ee7\u7eed\u524d\u8fdb\uff0c\u7559\u4e0b\u4f60\u7684\u6545\u4e8b</div>';
+        html += '</div>';
+    }
+    html += '</div></div>';
+    container.innerHTML = html;
+}
+
+function _viewMemoryDetail(chapterId) {
+    _ensureChapterState();
+    var chapter = V2_CHAPTERS[chapterId - 1];
+    if (!chapter) return;
+    var memKey = 'ch' + chapterId;
+    var memory = gameState.chapterState.unlockedMemories[memKey];
+    var detailHtml = '<div style="background:#0F0C29;border-radius:16px;padding:24px;">';
+    detailHtml += '<div style="font-size:22px;font-weight:700;color:#FFF;font-family:apple-system;margin-bottom:16px;">\u7b2c ' + chapterId + ' \u7ae0 \u00b7 ' + chapter.title + '</div>';
+    if (memory && memory.detail) {
+        detailHtml += '<div style="font-size:15px;color:rgba(255,255,255,0.8);font-family:apple-system;line-height:1.8;">' + memory.detail + '</div>';
+    } else {
+        detailHtml += '<div style="font-size:15px;color:#888;font-family:apple-system;line-height:1.8;">' + chapter.preview + '</div>';
+    }
+    var choices = gameState.chapterState.choices[chapterId] || [];
+    if (choices.length > 0) {
+        detailHtml += '<div style="margin-top:16px;font-size:12px;color:#A78BFA;font-family:apple-system;">\u4f60\u7684\u9009\u62e9\uff1a</div>';
+        for (var vi = 0; vi < choices.length; vi++) {
+            if (choices[vi].made) {
+                detailHtml += '<div style="font-size:14px;color:#FFF;font-family:apple-system;margin-top:4px;">\u2022 ' + (choices[vi].text || '') + '</div>';
+            }
+        }
+    }
+    detailHtml += '</div>';
+    showModal('\u56de\u5fc6\u8be6\u60c5', detailHtml, [{ text: '\u5173\u95ed', action: closeModal }]);
+}
+
+// V2.0 Module 3.10: Daily Greeting
+function getDailyGreeting() {
+    var hour = new Date().getHours();
+    var timeSlot = 'morning';
+    if (hour >= 6 && hour < 12) timeSlot = 'morning';
+    else if (hour >= 12 && hour < 18) timeSlot = 'afternoon';
+    else timeSlot = 'evening';
+    var npcKeys = Object.keys(gameState.npc\u597d\u611f\u5ea6 || {});
+    var topNpc = '';
+    var topAff = 0;
+    for (var gi = 0; gi < npcKeys.length; gi++) {
+        var a = gameState.npc\u597d\u611f\u5ea6[npcKeys[gi]] || 0;
+        if (a > topAff) { topAff = a; topNpc = npcKeys[gi]; }
+    }
+    if (!topNpc) return { npc: '', text: '\u65b0\u7684\u4e00\u5929\u5f00\u59cb\u4e86' };
+    var greetings = {
+        morning: {
+            0: '\u55ef\u3002',
+            20: '\u65e9\u5b89\u3002',
+            40: '\u65e9\u5b89\uff5e\u4eca\u5929\u4e5f\u8981\u52a0\u6cb9\u54e6\u3002',
+            60: '\u65e9\u5b89\uff5e\u6628\u665a\u7761\u5f97\u597d\u5417\uff1f\u6211\u6709\u70b9\u62c5\u5fc3\u4f60\u3002',
+            80: '\u65e9\u5b89\uff5e\u6bcf\u5929\u9192\u6765\u80fd\u770b\u5230\u4f60\u7684\u6d88\u606f\uff0c\u771f\u597d\u3002'
+        },
+        afternoon: {
+            0: '\u5565\u4e8b\uff1f',
+            20: '\u4e0b\u5348\u597d\u3002',
+            40: '\u4e0b\u5348\u597d\uff5e\u7ec3\u4e60\u8f9b\u82e6\u4e86\u3002',
+            60: '\u4e0b\u5348\u597d\uff5e\u522b\u592a\u7d2f\u4e86\uff0c\u8bb0\u5f97\u4f11\u606f\u3002',
+            80: '\u4e0b\u5348\u597d\uff5e\u60f3\u4f60\u4e86\uff0c\u8fd9\u4e2a\u65f6\u95f4\u4f60\u5e94\u8be5\u5728\u7ec3\u4e60\u5427\uff1f'
+        },
+        evening: {
+            0: '\u2026\u2026',
+            20: '\u665a\u5b89\u3002',
+            40: '\u665a\u5b89\uff5e\u4eca\u5929\u4e5f\u8f9b\u82e6\u4e86\u3002',
+            60: '\u665a\u5b89\uff5e\u8981\u597d\u597d\u4f11\u606f\u54e6\uff0c\u660e\u5929\u89c1\u3002',
+            80: '\u665a\u5b89\uff5e\u771f\u5e0c\u671b\u80fd\u4e00\u76f4\u966a\u5728\u4f60\u8eab\u8fb9\u3002'
+        }
+    };
+    var tierThresholds = [0, 20, 40, 60, 80];
+    var tier = 0;
+    for (var ti = tierThresholds.length - 1; ti >= 0; ti--) {
+        if (topAff >= tierThresholds[ti]) { tier = tierThresholds[ti]; break; }
+    }
+    var greetingText = (greetings[timeSlot] && greetings[timeSlot][tier]) || '\u4f60\u597d\u3002';
+    return { npc: topNpc, text: greetingText };
+}
+
+// V2.0 Module 3.11: NPC Memory Context
+function getNpcMemoryContext(npcName) {
+    _ensureChapterState();
+    var contextParts = [];
+    var choices = gameState.chapterState.choices;
+    var chapterKeys = Object.keys(choices);
+    for (var cki = 0; cki < chapterKeys.length; cki++) {
+        var chNum = chapterKeys[cki];
+        var chChoices = choices[chNum];
+        for (var cci = 0; cci < chChoices.length; cci++) {
+            if (chChoices[cci].made && chChoices[cci].relatedNpc === npcName) {
+                var chTitle = (V2_CHAPTERS[chNum - 1] && V2_CHAPTERS[chNum - 1].title) || ('\u7b2c' + chNum + '\u7ae0');
+                contextParts.push('\u4f60\u66fe\u5728[' + chTitle + ']\u9009\u62e9\u4e86[' + (chChoices[cci].text || '') + ']');
+            }
+        }
+    }
+    var aff = (gameState.npc\u597d\u611f\u5ea6 && gameState.npc\u597d\u611f\u5ea6[npcName]) || 0;
+    var tone = _getAffectionTone(npcName);
+    if (aff > 0) {
+        contextParts.push('\u4f60\u4e0e' + npcName + '\u7684\u5173\u7cfb\u5df2\u8fbe\u5230[' + tone.label + ']\u9636\u6bb5(' + aff + ')');
+    }
+    return contextParts.join('\u3002');
+}
+
+// V2.0 Module 3.12: Chapter Unlock Animation
+function showChapterUnlockAnimation(chapterNum) {
+    _ensureChapterState();
+    var chapter = V2_CHAPTERS[chapterNum - 1];
+    if (!chapter) return;
+    var currentCh = gameState.chapterState.currentChapter || 1;
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:10000;perspective:1000px;-webkit-perspective:1000px;';
+    var cardHtml = '<div id="v2-chapter-card" style="background:linear-gradient(135deg,#0F0C29,#1a1440);border:1px solid rgba(167,139,250,0.3);border-radius:16px;padding:32px 28px;text-align:center;transform:rotateY(90deg);transition:transform 0.6s ease;-webkit-transition:-webkit-transform 0.6s ease;min-width:260px;">';
+    cardHtml += '<div style="font-size:12px;color:#A78BFA;font-family:apple-system;letter-spacing:0.1em;margin-bottom:8px;">CHAPTER ' + chapterNum + '</div>';
+    if (chapterNum <= currentCh - 1) {
+        cardHtml += '<div style="font-size:22px;font-weight:700;color:#FFF;font-family:apple-system;margin-bottom:8px;">' + chapter.title + ' <span style="color:#4CD964;">\u2713</span></div>';
+    } else if (chapterNum === currentCh) {
+        cardHtml += '<div style="font-size:22px;font-weight:700;color:#A78BFA;font-family:apple-system;margin-bottom:8px;">' + chapter.title + '</div>';
+        cardHtml += '<div style="display:inline-block;background:#A78BFA;color:#FFF;font-size:10px;padding:2px 8px;border-radius:10px;font-family:apple-system;">\u5f53\u524d\u7ae0\u8282</div>';
+    } else {
+        cardHtml += '<div style="font-size:22px;font-weight:700;color:#888;font-family:apple-system;margin-bottom:8px;">\uff1f\uff1f\uff1f</div>';
+    }
+    if (chapter.preview && chapterNum <= currentCh) {
+        cardHtml += '<div style="font-size:14px;color:rgba(255,255,255,0.6);font-family:apple-system;margin-top:12px;">' + chapter.preview + '</div>';
+    }
+    cardHtml += '</div>';
+    overlay.innerHTML = cardHtml;
+    document.body.appendChild(overlay);
+    setTimeout(function() {
+        var card = document.getElementById('v2-chapter-card');
+        if (card) card.style.transform = 'rotateY(0deg)';
+    }, 100);
+    setTimeout(function() {
+        var card = document.getElementById('v2-chapter-card');
+        if (card) card.style.transform = 'rotateY(-90deg)';
+        setTimeout(function() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 600);
+    }, 2000);
+}
+
+// ==================== V2.0 PORTRAIT & BGM SYSTEM ====================
+
+// V2.0 Module 4.15: BGM Manager
+var BGMManager = {
+    currentAudio: null,
+    volume: 0.5,
+    playlists: {
+        practice: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+        company: 'https://cdn.pixabay.com/audio/2022/02/22/audio_d1718ab41b.mp3',
+        dorm: 'https://cdn.pixabay.com/audio/2023/09/04/audio_5bf4b0ac6b.mp3',
+        stage: 'https://cdn.pixabay.com/audio/2024/01/22/audio_d3a4a49a27.mp3'
+    },
+    play: function(scene) {
+        var url = BGMManager.playlists[scene];
+        if (!url) return;
+        if (BGMManager.currentAudio) {
+            try { BGMManager.currentAudio.pause(); } catch(e) {}
+            BGMManager.currentAudio = null;
+        }
+        try {
+            var audio = new Audio(url);
+            audio.loop = true;
+            audio.volume = BGMManager.volume;
+            audio.play().catch(function() {});
+            BGMManager.currentAudio = audio;
+        } catch(e) {}
+    },
+    stop: function() {
+        if (BGMManager.currentAudio) {
+            try {
+                BGMManager.currentAudio.pause();
+                BGMManager.currentAudio.currentTime = 0;
+            } catch(e) {}
+            BGMManager.currentAudio = null;
+        }
+    },
+    setVolume: function(v) {
+        BGMManager.volume = v;
+        if (BGMManager.currentAudio) {
+            try { BGMManager.currentAudio.volume = v; } catch(e) {}
+        }
+        try { localStorage.setItem('v2_bgm_volume', String(v)); } catch(e) {}
+    }
+};
+
+// Restore saved BGM volume
+(function() {
+    try {
+        var saved = localStorage.getItem('v2_bgm_volume');
+        if (saved !== null && saved !== '') BGMManager.volume = parseFloat(saved);
+    } catch(e) {}
+})();
+
+// V2.0 Module 4.16: SFX Player
+function playSFX(type) {
+    var sfxVolume = 0.5;
+    try {
+        var savedSfx = localStorage.getItem('v2_sfx_volume');
+        if (savedSfx !== null && savedSfx !== '') sfxVolume = parseFloat(savedSfx);
+    } catch(e) {}
+    var sfxMap = {
+        click: { freq: 800, dur: 0.05 },
+        chapter_unlock: { freq: 523, dur: 0.3 },
+        affection_up: { freq: 660, dur: 0.15 },
+        fanfare: { freq: 440, dur: 0.5 },
+        heartbeat: { freq: 100, dur: 0.2 }
+    };
+    var sfxInfo = sfxMap[type];
+    if (!sfxInfo) return;
+    try {
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        var ctx = new AudioContext();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = sfxInfo.freq;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(sfxVolume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + sfxInfo.dur);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + sfxInfo.dur);
+    } catch(e) {}
+}
+
+// V2.0 Module 4.17 & 4.18: Enhanced Settings Page with Volume Controls
+var _origRenderSettingsPage = render\u8bbe\u7f6ePage;
+render\u8bbe\u7f6ePage = function(container) {
+    var cloudStatus = _isCloudLoggedIn() ? '<span style="color:var(--color-success);">\u5df2\u8fde\u63a5</span>' : '<span style="color:var(--color-text-light);">\u672a\u8fde\u63a5</span>';
+    var bgmVol = BGMManager.volume;
+    var sfxVol = 0.5;
+    try {
+        var sv = localStorage.getItem('v2_sfx_volume');
+        if (sv !== null && sv !== '') sfxVol = parseFloat(sv);
+    } catch(e) {}
+    var bgmPercent = Math.round(bgmVol * 100);
+    var sfxPercent = Math.round(sfxVol * 100);
+    container.innerHTML = '<div class="page active">'
+        + '<div class="page-header">'
+        + '<div class="back-btn" onclick="goToPage(\'' + 'home' + '\')">\u2039 \u9996\u9875</div>'
+        + '<div class="page-title">\u8bbe\u7f6e</div>'
+        + '<div style="width:32px;"></div>'
+        + '</div>'
+        + '<div class="page-content">'
+        + '<div class="section-title">\u97f3\u91cf\u63a7\u5236</div>'
+        + '<div class="card">'
+        + '<div style="margin-bottom:14px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+        + '<span style="font-size:13px;font-weight:600;color:var(--color-text);font-family:apple-system;">\u97f3\u4e50\u97f3\u91cf</span>'
+        + '<span id="bgmVolLabel" style="font-size:12px;color:#A78BFA;font-family:apple-system;">' + bgmPercent + '%</span>'
+        + '</div>'
+        + '<input type="range" min="0" max="100" value="' + bgmPercent + '" style="width:100%;accent-color:#A78BFA;" oninput="BGMManager.setVolume(this.value/100);document.getElementById(\'bgmVolLabel\').textContent=this.value+\'%\';playSFX(\'click\');">'
+        + '</div>'
+        + '<div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+        + '<span style="font-size:13px;font-weight:600;color:var(--color-text);font-family:apple-system;">\u97f3\u6548\u97f3\u91cf</span>'
+        + '<span id="sfxVolLabel" style="font-size:12px;color:#A78BFA;font-family:apple-system;">' + sfxPercent + '%</span>'
+        + '</div>'
+        + '<input type="range" min="0" max="100" value="' + sfxPercent + '" style="width:100%;accent-color:#A78BFA;" oninput="_setSfxVolume(this.value);document.getElementById(\'sfxVolLabel\').textContent=this.value+\'%\';playSFX(\'click\');">'
+        + '</div>'
+        + '</div>'
+        + '<div class="section-title">\u5b58\u6863\u7ba1\u7406</div>'
+        + '<div class="card" onclick="saveGame(current\u5b58\u6863)" style="cursor:pointer;">'
+        + '<div style="font-weight:600;">\u4fdd\u5b58\u6e38\u620f</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">\u4fdd\u5b58\u5230\u5b58\u6863 ' + (current\u5b58\u6863 + 1) + '</div>'
+        + '</div>'
+        + '<div class="card" onclick="_switchSaveSlot()" style="cursor:pointer;">'
+        + '<div style="font-weight:600;">\u5207\u6362\u5b58\u6863</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">\u5207\u6362\u5230\u5b58\u68632\u62163\uff0c\u5f53\u524d\u8fdb\u5ea6\u4e0d\u4f1a\u4e22\u5931</div>'
+        + '</div>'
+        + '<div class="card" onclick="_doCloudSyncDown()" style="cursor:pointer;">'
+        + '<div style="font-weight:600;">\u4e91\u7aef\u540c\u6b65</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">\u4ece\u4e91\u7aef\u62c9\u53d6\u6700\u65b0\u5b58\u6863 ' + cloudStatus + '</div>'
+        + '</div>'
+        + '<div class="card" onclick="_resetSave()">'
+        + '<div style="font-weight:600;color:var(--color-danger);">\u91cd\u65b0\u5f00\u59cb</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">\u5220\u9664\u5f53\u524d\u5b58\u6863\uff0c\u91cd\u65b0\u521b\u5efa\u89d2\u8272</div>'
+        + '</div>'
+        + '<div class="section-title">\u8d26\u53f7</div>'
+        + '<div class="card" onclick="_doLogout()">'
+        + '<div style="font-weight:600;color:var(--color-danger);">\u9000\u51fa\u767b\u5f55</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">\u5207\u6362\u8d26\u53f7\u6216\u6ce8\u518c\u65b0\u8d26\u53f7</div>'
+        + '</div>'
+        + '<div class="card" onclick="confirmExit()">'
+        + '<div style="font-weight:600;">\u9000\u51fa\u6e38\u620f</div>'
+        + '<div style="font-size:12px;color:var(--color-text-light);">\u8fd4\u56de\u6807\u9898\u753b\u9762</div>'
+        + '</div>'
+        + '<div style="text-align:center;margin-top:24px;padding:16px 0;">'
+        + '<div style="font-size:12px;color:#888;font-family:apple-system;">My Idol V2.0</div>'
+        + '<div style="font-size:11px;color:#666;font-family:apple-system;margin-top:2px;">\u97e9\u5a31\u7231\u8c46\u6a21\u62df\u5668</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+};
+
+function _setSfxVolume(val) {
+    try { localStorage.setItem('v2_sfx_volume', String(val / 100)); } catch(e) {}
+}
+
+// V2.0: Helper to record a chapter choice
+function recordChapterChoice(chapterNum, choiceText, relatedNpc) {
+    _ensureChapterState();
+    if (!gameState.chapterState.choices[chapterNum]) {
+        gameState.chapterState.choices[chapterNum] = [];
+    }
+    gameState.chapterState.choices[chapterNum].push({
+        text: choiceText,
+        made: true,
+        relatedNpc: relatedNpc || '',
+        timestamp: Date.now()
+    });
+    triggerSilentSave();
+}
+
+// V2.0: Helper to unlock a memory
+function unlockMemory(chapterNum, summary, detail) {
+    _ensureChapterState();
+    var memKey = 'ch' + chapterNum;
+    gameState.chapterState.unlockedMemories[memKey] = {
+        summary: summary,
+        detail: detail || summary,
+        timestamp: Date.now()
+    };
+    triggerSilentSave();
+}
+
+// V2.0: Helper to advance chapter
+function advanceToChapter(chapterNum) {
+    _ensureChapterState();
+    if (chapterNum > gameState.chapterState.currentChapter) {
+        gameState.chapterState.currentChapter = chapterNum;
+        showChapterUnlockAnimation(chapterNum);
+        triggerSilentSave();
+    }
+}
+
+// V2.0: Helper to get NPC portrait HTML
+function getNpcPortraitHtml(npcName, expression) {
+    var portraits = NPC_PORTRAITS[npcName];
+    if (!portraits) return '';
+    var imgSrc = portraits[expression] || portraits.main;
+    return '<div class="portrait-wrap" style="width:120px;height:160px;border-radius:12px;overflow:hidden;margin:0 auto;">'
+        + '<img src="' + imgSrc + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" />'
         + '</div>';
 }
 
-function getNpcKeyByName(npcName) {
-    var nameMap = { '\u590f\u6069': 'haeun', '\u7d20\u96c5': 'soah', '\u667a\u5a9b': 'jiwon', '\u4fca\u660a': 'junho', '\u745e\u8d24': 'seokhyun' };
-    return nameMap[npcName] || '';
+// V2.0: Blink portrait helper
+function triggerPortraitBlink(npcName) {
+    var portraits = NPC_PORTRAITS[npcName];
+    if (!portraits) return;
+    var imgEls = document.querySelectorAll('.portrait-wrap img');
+    for (var bi = 0; bi < imgEls.length; bi++) {
+        var el = imgEls[bi];
+        if (el.src.indexOf(npcName) !== -1) {
+            el.classList.add('portrait-blink');
+            setTimeout(function(ref) {
+                ref.classList.remove('portrait-blink');
+            }, 150, el);
+            break;
+        }
+    }
 }
 
-var BGMManager = {
-    currentAudio: null,
-    currentScene: '',
-    volume: parseFloat(localStorage.getItem('myidol_bgm_vol') || '0.5'),
-    playlists: {
-        practice: { name: '\u7ec3\u4e60\u5ba4', url: '' },
-        company: { name: '\u516c\u53f8', url: '' },
-        dorm: { name: '\u5bbf\u820d', url: '' },
-        stage: { name: '\u821e\u53f0', url: '' }
-    },
-    play: function(scene) {
-        if (this.currentScene === scene && this.currentAudio) return;
-        this.stop();
-        this.currentScene = scene;
-        var track = this.playlists[scene];
-        if (!track || !track.url) return;
-        var audio = new Audio(track.url);
-        audio.loop = true;
-        audio.volume = this.volume;
-        audio.play().catch(function() {});
-        this.currentAudio = audio;
-    },
-    stop: function() {
-        if (this.currentAudio) { this.currentAudio.pause(); this.currentAudio = null; }
-        this.currentScene = '';
-    },
-    setVolume: function(v) {
-        this.volume = v;
-        localStorage.setItem('myidol_bgm_vol', v.toString());
-        if (this.currentAudio) this.currentAudio.volume = v;
+// V2.0: Init V2 state on game start
+function _initV2State() {
+    _ensureChapterState();
+    if (typeof gameState._v2initialized === 'undefined') {
+        gameState._v2initialized = true;
+        gameState.chapterState.currentChapter = 1;
+        triggerSilentSave();
     }
-};
+}
 
-var SFXManager = {
-    volume: parseFloat(localStorage.getItem('myidol_sfx_vol') || '0.7'),
-    play: function(type) {
-        if (!type) return;
-        // Sound effects will be added when audio files are available
-    },
-    setVolume: function(v) {
-        this.volume = v;
-        localStorage.setItem('myidol_sfx_vol', v.toString());
+// Auto-init V2 on load
+try { _initV2State(); } catch(e) {}
+
+function _createParticles(count) {
+    for (var i = 0; i < count; i++) {
+        var p = document.createElement('div');
+        p.className = 'v2-particle';
+        p.style.left = Math.random() * 100 + 'vw';
+        p.style.top = (80 + Math.random() * 20) + 'vh';
+        p.style.animationDelay = (Math.random() * 8) + 's';
+        p.style.animationDuration = (6 + Math.random() * 6) + 's';
+        document.body.appendChild(p);
+        (function(el) { setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 15000); })(p);
     }
-};
-
-function playSFX(type) { SFXManager.play(type); }
+}
 
 function _injectV2Styles() {
     if (document.getElementById('v2-styles')) return;
@@ -14002,110 +14692,22 @@ function _injectV2Styles() {
     document.head.appendChild(style);
 }
 
-function showVisualPause(text, duration) {
-    var dur = duration || 4000;
+function _playEntryAnimation(callback) {
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:0;transition:opacity 0.5s;cursor:pointer;';
-    overlay.innerHTML = '<div style="color:#FFF;font-size:20px;letter-spacing:0.1em;text-align:center;max-width:80%;">' + (text || '') + '</div>';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0C29;display:flex;align-items:center;justify-content:center;z-index:99999;';
+    overlay.innerHTML = '<div style="text-align:center;opacity:0;transition:opacity 2s;"><div style="font-size:32px;font-weight:700;color:#FFF;letter-spacing:0.15em;font-family:-apple-system,sans-serif;">myidol</div></div>';
     document.body.appendChild(overlay);
-    setTimeout(function() { overlay.style.opacity = '1'; }, 50);
-    var dismiss = function() { overlay.style.opacity = '0'; setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 500); };
-    overlay.addEventListener('click', dismiss);
-    setTimeout(dismiss, dur);
-}
-
-function showAtmosphereTransition(text) {
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,12,41,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;transition:opacity 0.5s;';
-    overlay.innerHTML = '<div style="color:rgba(255,255,255,0.7);font-size:14px;letter-spacing:0.05em;text-align:center;">' + (text || '') + '</div>';
-    document.body.appendChild(overlay);
-    setTimeout(function() { overlay.style.opacity = '1'; }, 50);
-    setTimeout(function() { overlay.style.opacity = '0'; setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 500); }, 3000);
-}
-
-function showStatusEffect(type) {
-    var animName = type === 'gold' ? 'v2-glow-gold' : type === 'purple' ? 'v2-glow-purple' : 'v2-glow-red';
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9998;animation:' + animName + ' 3s ease-in-out;';
-    document.body.appendChild(overlay);
-    setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 3000);
-}
-
-function showAffectionFloat(amount, x, y) {
-    var el = document.createElement('div');
-    el.className = 'v2-affection-float';
-    el.textContent = '+' + amount;
-    el.style.left = (x || Math.floor(window.innerWidth / 2)) + 'px';
-    el.style.top = (y || Math.floor(window.innerHeight / 2)) + 'px';
-    document.body.appendChild(el);
-    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 2000);
-}
-
-function showChapterUnlockAnimation(chapterNum) {
-    var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(15,12,41,0.95);display:flex;align-items:center;justify-content:center;z-index:10001;';
-    var chapterNames = {1:'\u5165\u793e',2:'\u6210\u957f',3:'\u51fa\u9053'};
-    var chName = chapterNames[chapterNum] || '\u7b2c' + chapterNum + '\u7ae0';
-    overlay.innerHTML = '<div style="text-align:center;animation:v2-fade-in 1s ease-out;"><div style="font-size:14px;color:#A78BFA;letter-spacing:0.2em;margin-bottom:8px;">CHAPTER ' + chapterNum + '</div><div style="font-size:28px;font-weight:700;color:#FFF;letter-spacing:0.1em;">' + chName + '</div><div style="width:40px;height:2px;background:linear-gradient(90deg,transparent,#A78BFA,transparent);margin:16px auto;"></div></div>';
-    document.body.appendChild(overlay);
-    setTimeout(function() { overlay.style.transition = 'opacity 0.5s'; overlay.style.opacity = '0'; setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 500); }, 2000);
-}
-
-function _createParticles(count) {
-    for (var i = 0; i < count; i++) {
-        var p = document.createElement('div');
-        p.className = 'v2-particle';
-        p.style.left = Math.random() * 100 + 'vw';
-        p.style.top = (80 + Math.random() * 20) + 'vh';
-        p.style.animationDelay = (Math.random() * 8) + 's';
-        p.style.animationDuration = (6 + Math.random() * 6) + 's';
-        document.body.appendChild(p);
-        (function(el) { setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 15000); })(p);
-    }
-}
-
-function getDailyGreeting() {
-    if (!gameState.npc\u597d\u611f\u5ea6) return null;
-    var highest = 0, topNpc = '';
-    for (var name in gameState.npc\u597d\u611f\u5ea6) {
-        if (gameState.npc\u597d\u611f\u5ea6[name] > highest) { highest = gameState.npc\u597d\u611f\u5ea6[name]; topNpc = name; }
-    }
-    if (!topNpc || highest < 20) return null;
-    var hour = new Date().getHours();
-    var period = hour < 12 ? '\u65e9\u4e0a' : hour < 18 ? '\u4e0b\u5348' : '\u665a\u4e0a';
-    var greetings = { '\u65e9\u4e0a': ['\u65e9\u5b89\uff01\u4eca\u5929\u4e5f\u8981\u52a0\u6cb9\u54e6~', '\u8d77\u5f97\u597d\u65e9\uff01\u7ec3\u4e60\u53bb\u4e86\u5417\uff1f', '\u65b0\u7684\u4e00\u5929\u5f00\u59cb\u4e86\uff01'], '\u4e0b\u5348': ['\u4e0b\u5348\u597d\uff01\u8fa3\u6761\u600e\u4e48\u6837\u4e86\uff1f', '\u8fd8\u597d\u5417\uff1f\u8bb0\u5f97\u4f11\u606f\u54e6~', '\u4e0b\u5348\u4e5f\u8981\u51b2\u5440\uff01'], '\u665a\u4e0a': ['\u665a\u5b89~\u4eca\u5929\u8f9b\u82e6\u4e86\uff01', '\u8be5\u4f11\u606f\u4e86\u54e6\uff01\u665a\u5b89~', '\u597d\u597d\u7761\u4e00\u89c9\uff0c\u660e\u5929\u7ee7\u7eed\u52a0\u6cb9\uff01'] };
-    var pool = greetings[period] || greetings['\u4e0b\u5348'];
-    var msg = pool[Math.floor(Math.random() * pool.length)];
-    return { npc: topNpc, message: msg };
-}
-
-function getNpcMemoryContext(npcName) {
-    if (!gameState.chapterState || !gameState.chapterState.choiceHistory) return '';
-    var memories = [];
-    var choices = gameState.chapterState.choiceHistory;
-    for (var i = 0; i < choices.length; i++) {
-        var c = choices[i];
-        if (c.affectedNpc === npcName || c.npcName === npcName) {
-            memories.push('\u4f60\u66fe\u5728\u7b2c' + (c.chapter || 1) + '\u7ae0\u9009\u62e9\u4e86\u300c' + (c.choice || '') + '\u300d');
-        }
-    }
-    return memories.join('\u3002');
-}
-
-function _getAffectionTone(npcName) {
-    var aff = (gameState.npc\u597d\u611f\u5ea6 && gameState.npc\u597d\u611f\u5ea6[npcName]) || 0;
-    if (aff >= 80) return { stage: '\u4e13\u5c5e', color: '#FFD700', prefix: '\uff08\u6df1\u60c5\u5730\uff09' };
-    if (aff >= 60) return { stage: '\u4eb2\u5bc6', color: '#F472B6', prefix: '\uff08\u6e29\u67d4\u5730\uff09' };
-    if (aff >= 40) return { stage: '\u6697\u6627', color: '#E879F9', prefix: '\uff08\u7565\u5e26\u5173\u5fc3\uff09' };
-    if (aff >= 20) return { stage: '\u719f\u6089', color: '#A78BFA', prefix: '' };
-    return { stage: '\u964c\u751f', color: '#888888', prefix: '\uff08\u51b7\u6de1\u5730\uff09' };
-}
-
-function _getAffectionStageHtml(npcName) {
-    var tone = _getAffectionTone(npcName);
-    var aff = (gameState.npc\u597d\u611f\u5ea6 && gameState.npc\u597d\u611f\u5ea6[npcName]) || 0;
-    var pct = Math.min(100, aff);
-    return '<div style="display:flex;align-items:center;gap:6px;"><div style="width:8px;height:8px;border-radius:50%;background:' + tone.color + ';"></div><span style="font-size:12px;color:' + tone.color + ';font-weight:600;">' + tone.stage + '</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:' + tone.color + ';border-radius:2px;transition:width 0.3s;"></div></div><span style="font-size:11px;color:#888;">' + aff + '</span></div>';
+    setTimeout(function() { overlay.firstChild.style.opacity = '1'; }, 100);
+    setTimeout(function() { overlay.firstChild.style.opacity = '0'; }, 3000);
+    setTimeout(function() {
+        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        var welcome = document.createElement('div');
+        welcome.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0C29;display:flex;align-items:center;justify-content:center;z-index:99999;opacity:0;transition:opacity 1s;';
+        welcome.innerHTML = '<div style="color:rgba(255,255,255,0.7);font-size:16px;letter-spacing:0.1em;">\u6b22\u8fce\u6765\u5230 SEONGWOO ENT</div>';
+        document.body.appendChild(welcome);
+        setTimeout(function() { welcome.style.opacity = '1'; }, 50);
+        setTimeout(function() { welcome.style.opacity = '0'; setTimeout(function() { if (welcome.parentNode) welcome.parentNode.removeChild(welcome); if (callback) callback(); }, 1000); }, 2000);
+    }, 3500);
 }
 
 function _showSubPage(page) {
@@ -14128,35 +14730,409 @@ function _showSubPage(page) {
     showModal(title, content);
 }
 
-function renderChapterReviewModal(chapterNum) {
-    var cs = gameState.chapterState;
-    if (!cs || !cs.choiceHistory) return;
-    var choices = [];
-    for (var i = 0; i < cs.choiceHistory.length; i++) { if (cs.choiceHistory[i].chapter === chapterNum) choices.push(cs.choiceHistory[i]); }
-    var html = '<div style="padding:16px;"><div style="font-size:16px;font-weight:700;color:#FFF;margin-bottom:12px;">\u7b2c' + chapterNum + '\u7ae0 \u9009\u62e9\u56de\u987e</div>';
-    if (choices.length === 0) { html += '<div style="color:#888;font-size:13px;">\u672c\u7ae0\u6682\u65e0\u5173\u952e\u9009\u62e9</div>'; }
-    else { for (var j = 0; j < choices.length; j++) { var c = choices[j]; html += '<div style="padding:8px 12px;margin:6px 0;background:rgba(255,255,255,0.05);border-radius:8px;border-left:3px solid #A78BFA;"><div style="font-size:13px;color:#FFF;">\u4f60\u9009\u62e9\u4e86\u300c' + (c.choice || '...') + '\u300d</div></div>'; }
-    html += '<div style="font-size:11px;color:#888;margin-top:12px;text-align:center;">\u8fd9\u4e9b\u9009\u62e9\u5c06\u5728\u540e\u7eed\u7ae0\u8282\u4e2d\u4ea7\u751f\u56de\u54cd</div>'; }
-    html += '</div>';
-    showModal('\u7ae0\u8282\u56de\u987e', html);
+function getNpcKeyByName(npcName) {
+    var nameMap = { '\u590f\u6069': 'haeun', '\u7d20\u96c5': 'soah', '\u667a\u5a9b': 'jiwon', '\u4fca\u660a': 'junho', '\u745e\u8d24': 'seokhyun' };
+    return nameMap[npcName] || '';
 }
 
-function _playEntryAnimation(callback) {
+function showAffectionFloat(amount, x, y) {
+    var el = document.createElement('div');
+    el.className = 'v2-affection-float';
+    el.textContent = '+' + amount;
+    el.style.left = (x || Math.floor(window.innerWidth / 2)) + 'px';
+    el.style.top = (y || Math.floor(window.innerHeight / 2)) + 'px';
+    document.body.appendChild(el);
+    setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 2000);
+}
+
+function showStatusEffect(type) {
+    var animName = type === 'gold' ? 'v2-glow-gold' : type === 'purple' ? 'v2-glow-purple' : 'v2-glow-red';
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0C29;display:flex;align-items:center;justify-content:center;z-index:99999;';
-    overlay.innerHTML = '<div style="text-align:center;opacity:0;transition:opacity 2s;"><div style="font-size:32px;font-weight:700;color:#FFF;letter-spacing:0.15em;font-family:-apple-system,sans-serif;">myidol</div></div>';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9998;animation:' + animName + ' 3s ease-in-out;';
     document.body.appendChild(overlay);
-    setTimeout(function() { overlay.firstChild.style.opacity = '1'; }, 100);
-    setTimeout(function() { overlay.firstChild.style.opacity = '0'; }, 3000);
-    setTimeout(function() {
-        if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-        var welcome = document.createElement('div');
-        welcome.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0C29;display:flex;align-items:center;justify-content:center;z-index:99999;opacity:0;transition:opacity 1s;';
-        welcome.innerHTML = '<div style="color:rgba(255,255,255,0.7);font-size:16px;letter-spacing:0.1em;">\u6b22\u8fce\u6765\u5230 SEONGWOO ENT</div>';
-        document.body.appendChild(welcome);
-        setTimeout(function() { welcome.style.opacity = '1'; }, 50);
-        setTimeout(function() { welcome.style.opacity = '0'; setTimeout(function() { if (welcome.parentNode) welcome.parentNode.removeChild(welcome); if (callback) callback(); }, 1000); }, 2000);
-    }, 3500);
+    setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 3000);
 }
 
-if (typeof window !== 'undefined' && window.document) { _injectV2Styles(); }
+var SFXManager = {
+    volume: parseFloat(localStorage.getItem('myidol_sfx_vol') || '0.7'),
+    play: function(type) {
+        if (!type) return;
+        // Sound effects will be added when audio files are available
+    },
+    setVolume: function(v) {
+        this.volume = v;
+        localStorage.setItem('myidol_sfx_vol', v.toString());
+    }
+};
+
+
+// ==================== V2.0 UI & INTERACTION FEATURES ====================
+
+function _v2RenderWelcomeOverlay() {
+    var container = document.getElementById('app');
+    if (!container) return;
+    var portraitUrl = 'imgs/portraits/haeun_halfbody.jpg';
+    var html = '<div class="v2-gradient-bg" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;position:relative;overflow:hidden;padding:40px 20px;">'
+        + '<div id="v2-welcome-particles" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;"></div>'
+        + '<div style="position:absolute;right:-5%;bottom:0;height:85%;display:flex;align-items:flex-end;" class="v2-breathing">'
+        + '<img src="' + portraitUrl + '" style="height:100%;object-fit:contain;opacity:0.6;filter:brightness(0.8);" onerror="this.style.display=\'none\'" />'
+        + '</div>'
+        + '<div style="position:relative;z-index:2;text-align:center;">'
+        + '<div style="font-size:32px;font-weight:700;color:#FFF;letter-spacing:0.15em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;margin-bottom:8px;" class="v2-fade-in">myidol</div>'
+        + '<div style="font-size:12px;color:#888;letter-spacing:0.1em;font-family:-apple-system,BlinkMacSystemFont,sans-serif;" class="v2-fade-in">K-POP IDOL SIMULATOR</div>'
+        + '<div style="margin-top:40px;" class="v2-fade-in">'
+        + '<button class="v2-welcome-btn" onclick="_v2EntryAnimTimer&amp;&amp;clearTimeout(_v2EntryAnimTimer);startNewGame()">'
+        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>'
+        + 'Start'
+        + '</button>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    container.innerHTML = html;
+    _createParticlesInContainer('v2-welcome-particles', 15);
+}
+
+function updateAppRedDots() {
+    _v2AppRedDots = {};
+    if (!gameState || !gameState.player || !gameState.player.name) return;
+    var appIds = ['contacts', 'sns', 'fancommunity', 'schedule', 'prroom', 'live', 'daily'];
+    for (var i = 0; i < appIds.length; i++) {
+        var count = (typeof getAppRedDot === 'function') ? getAppRedDot(appIds[i]) : 0;
+        if (count) _v2AppRedDots[appIds[i]] = count;
+    }
+    if (gameState.chapterState) {
+        var chapterKeys = Object.keys(gameState.chapterState);
+        for (var ci = 0; ci < chapterKeys.length; ci++) {
+            var ch = gameState.chapterState[chapterKeys[ci]];
+            if (ch && !ch.completed) {
+                var appId = ch.appId || 'daily';
+                _v2AppRedDots[appId] = (_v2AppRedDots[appId] || 0) + 1;
+            }
+        }
+    }
+    if (gameState.player.role === 'Trainee') {
+        var stats = gameState.stats;
+        var avg = Math.round((stats.dance + stats.vocal + stats.rap + stats.acting + stats.variety) / 5);
+        if (avg >= 120) {
+            _v2AppRedDots['debut'] = (_v2AppRedDots['debut'] || 0) + 1;
+        }
+    }
+}
+
+function getAppRedDotCount(appId) {
+    return _v2AppRedDots[appId] || 0;
+}
+
+function _v2RenderAppRedDot(appId) {
+    var count = getAppRedDotCount(appId);
+    if (count <= 0) return '';
+    return '<div class="v2-red-dot">' + (count > 9 ? '9+' : count) + '</div>';
+}
+
+function markAppRead(appId) {
+    if (_v2AppRedDots[appId]) {
+        delete _v2AppRedDots[appId];
+    }
+}
+
+function _v2GetChapterProgress() {
+    if (!gameState.chapterState) gameState.chapterState = {};
+    var currentChapter = gameState.currentChapter || 1;
+    var chapterInfo = _v2ChapterData[currentChapter];
+    if (!chapterInfo) return { chapter: currentChapter, title: '', completed: 0, total: 0, currentNode: '' };
+    var completed = 0;
+    var currentNode = '';
+    for (var i = 0; i < chapterInfo.nodes.length; i++) {
+        var nodeId = chapterInfo.nodes[i];
+        if (gameState.chapterState[nodeId] && gameState.chapterState[nodeId].completed) {
+            completed++;
+        } else if (!currentNode) {
+            currentNode = nodeId;
+        }
+    }
+    return { chapter: currentChapter, title: chapterInfo.title, completed: completed, total: chapterInfo.nodes.length, currentNode: currentNode };
+}
+
+function _v2GetTrainingProgressBarHtml() {
+    if (!gameState || !gameState.stats) return '';
+    var html = '<div class="section-title" style="margin-top:16px;">出道目标进度</div>'
+        + '<div class="card">';
+    var keys = Object.keys(_v2TrainingThresholds);
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i];
+        var info = _v2TrainingThresholds[key];
+        var current = gameState.stats[key] || 0;
+        var target = info.target;
+        var pct = Math.min(100, Math.round((current / target) * 100));
+        var met = current >= target;
+        var fillColor = met ? '#4ADE80' : '#A78BFA';
+        html += '<div style="margin-bottom:' + (i < keys.length - 1 ? '10' : '0') + 'px;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+            + '<span style="font-size:13px;color:#FFF;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">' + info.label + '</span>'
+            + '<span style="font-size:12px;color:' + (met ? '#4ADE80' : '#888') + ';font-family:-apple-system,BlinkMacSystemFont,sans-serif;">' + current + '/' + target + (met ? ' &#x2713;' : '') + '</span>'
+            + '</div>'
+            + '<div style="width:100%;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;">'
+            + '<div style="width:' + pct + '%;height:100%;border-radius:2px;background:' + fillColor + ';transition:width 0.5s ease;"></div>'
+            + '</div>'
+            + '</div>';
+    }
+    html += '</div>';
+    return html;
+}
+
+function _v2CheckAndSkipCondition(nodeId, conditionFn, enterFn) {
+    if (!gameState.chapterState) gameState.chapterState = {};
+    if (gameState.chapterState[nodeId] && gameState.chapterState[nodeId].completed) {
+        return true;
+    }
+    var satisfied = (typeof conditionFn === 'function') ? conditionFn() : false;
+    if (satisfied) {
+        gameState.chapterState[nodeId] = { completed: true, completedAt: Date.now() };
+        if (typeof showToast === 'function') {
+            showToast('你已满足条件，自动进入下一节点');
+        }
+        if (typeof enterFn === 'function') {
+            setTimeout(function() { enterFn(); }, 800);
+        }
+        return true;
+    }
+    return false;
+}
+
+function _v2CheckDebutConditions() {
+    if (!gameState || !gameState.stats || gameState.player.role !== 'Trainee') return false;
+    var s = gameState.stats;
+    return s.dance >= 120 && s.vocal >= 120 && s.rap >= 120 && s.acting >= 120 && s.variety >= 120
+        && gameState.fans >= 5000 && (gameState.fame || 30) >= 100 && (gameState.influence || 50) >= 100
+        && gameState.preDebut;
+}
+
+function _enableChoiceUndo(choiceId, callback) {
+    var chapter = gameState.currentChapter || 1;
+    if (_v2ChoiceUndoState.currentChapter !== chapter) {
+        _v2ChoiceUndoState.currentChapter = chapter;
+        _v2ChoiceUndoState.undoUsedThisChapter = false;
+    }
+    if (_v2ChoiceUndoState.undoUsedThisChapter) return;
+    if (_v2ChoiceUndoState.undoTimer) {
+        clearInterval(_v2ChoiceUndoState.undoTimer);
+        _v2ChoiceUndoState.undoTimer = null;
+    }
+    _v2ChoiceUndoState.activeUndo = { choiceId: choiceId, callback: callback, timeLeft: 30 };
+    _v2ShowUndoButton();
+    _v2ChoiceUndoState.undoTimer = setInterval(function() {
+        _v2ChoiceUndoState.activeUndo.timeLeft--;
+        _v2UpdateUndoButton();
+        if (_v2ChoiceUndoState.activeUndo.timeLeft <= 0) {
+            clearInterval(_v2ChoiceUndoState.undoTimer);
+            _v2ChoiceUndoState.undoTimer = null;
+            _v2ChoiceUndoState.activeUndo = null;
+            _v2HideUndoButton();
+        }
+    }, 1000);
+}
+
+function _v2ShowUndoButton() {
+    _v2HideUndoButton();
+    var btn = document.createElement('div');
+    btn.id = 'v2-undo-container';
+    btn.style.cssText = 'position:fixed;bottom:max(80px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:9999;';
+    btn.innerHTML = '<button class="v2-undo-btn" onclick="_v2DoUndo()">'
+        + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px;"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>'
+        + '撤销选择 (<span id="v2-undo-countdown">30</span>s)</button>';
+    document.body.appendChild(btn);
+}
+
+function _v2UpdateUndoButton() {
+    var el = document.getElementById('v2-undo-countdown');
+    if (el && _v2ChoiceUndoState.activeUndo) {
+        el.textContent = _v2ChoiceUndoState.activeUndo.timeLeft;
+    }
+}
+
+function _v2HideUndoButton() {
+    var el = document.getElementById('v2-undo-container');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+}
+
+function _v2DoUndo() {
+    if (!_v2ChoiceUndoState.activeUndo) return;
+    if (_v2ChoiceUndoState.undoTimer) {
+        clearInterval(_v2ChoiceUndoState.undoTimer);
+        _v2ChoiceUndoState.undoTimer = null;
+    }
+    _v2ChoiceUndoState.undoUsedThisChapter = true;
+    if (typeof _v2ChoiceUndoState.activeUndo.callback === 'function') {
+        _v2ChoiceUndoState.activeUndo.callback();
+    }
+    _v2ChoiceUndoState.activeUndo = null;
+    _v2HideUndoButton();
+    if (typeof showToast === 'function') {
+        showToast('选择已撤销');
+    }
+}
+
+function _isKeyChoice(choiceId) {
+    for (var i = 0; i < _v2KeyChoiceIds.length; i++) {
+        if (_v2KeyChoiceIds[i] === choiceId) return true;
+    }
+    return false;
+}
+
+function _v2GetChoiceHintHtml(choiceId) {
+    if (!_isKeyChoice(choiceId)) return '';
+    return '<div class="v2-choice-hint">'
+        + '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+        + '这个选择将影响后续剧情</div>';
+}
+
+function showCutsceneImage(imageUrl, text, duration) {
+    var overlay = document.createElement('div');
+    overlay.className = 'v2-cutscene-overlay';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.8s ease';
+
+    var innerHtml = '';
+    if (imageUrl) {
+        innerHtml += '<img src="' + imageUrl + '" style="opacity:0;transition:opacity 0.6s ease 0.3s;" onload="this.style.opacity=1" onerror="this.style.display=\'none\'" />';
+    }
+    if (text) {
+        innerHtml += '<div class="v2-cutscene-text" style="opacity:0;transition:opacity 0.6s ease 0.6s;">' + text + '</div>';
+    }
+    innerHtml += '<div class="v2-cutscene-tap" style="opacity:0;transition:opacity 0.4s ease 1.2s;">点击继续</div>';
+    overlay.innerHTML = innerHtml;
+
+    overlay.onclick = function() {
+        overlay.style.opacity = '0';
+        setTimeout(function() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 800);
+    };
+
+    document.body.appendChild(overlay);
+    setTimeout(function() { overlay.style.opacity = '1'; }, 50);
+
+    if (duration && duration > 0) {
+        setTimeout(function() {
+            overlay.style.opacity = '0';
+            setTimeout(function() {
+                if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }, 800);
+        }, duration);
+    }
+}
+
+function _createParticlesInContainer(containerId, count) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    var existing = container.querySelectorAll('.v2-particle');
+    for (var ei = 0; ei < existing.length; ei++) {
+        if (existing[ei].parentNode) existing[ei].parentNode.removeChild(existing[ei]);
+    }
+    for (var i = 0; i < count; i++) {
+        var p = document.createElement('div');
+        p.className = 'v2-particle';
+        var x = Math.floor(Math.random() * 100);
+        var delay = Math.floor(Math.random() * 8);
+        var size = 2 + Math.floor(Math.random() * 3);
+        p.style.left = x + '%';
+        p.style.bottom = '-10px';
+        p.style.animationDelay = delay + 's';
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.position = 'absolute';
+        container.appendChild(p);
+    }
+}
+
+function _v2ShowAffectionFloat(npcName, amount) {
+    var el = document.createElement('div');
+    el.className = 'v2-affection-float';
+    el.textContent = '+' + amount + ' ' + npcName;
+    el.style.left = '50%';
+    el.style.top = '50%';
+    el.style.transform = 'translateX(-50%)';
+    document.body.appendChild(el);
+    setTimeout(function() {
+        if (el.parentNode) el.parentNode.removeChild(el);
+    }, 2100);
+}
+
+function _triggerNpcProactiveMessage() {
+    if (!gameState || !gameState.player || !gameState.player.name) return;
+    if (!gameState.kakaoFriends || gameState.kakaoFriends.length <= 1) return;
+
+    var now = Date.now();
+    if (now - _v2NpcProactiveState.lastTriggerTime < _v2NpcProactiveState.minInterval) return;
+
+    var candidates = [];
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        var friend = gameState.kakaoFriends[i];
+        if (friend.isManager) continue;
+        var affection = (gameState.npc好感度 && gameState.npc好感度[friend.name]) || 0;
+        if (affection >= 20) {
+            candidates.push({ friend: friend, affection: affection });
+        }
+    }
+
+    if (candidates.length === 0) return;
+
+    _v2NpcProactiveState.lastTriggerTime = now;
+
+    var chosen = candidates[Math.floor(Math.random() * candidates.length)];
+    var npc = chosen.friend;
+    var affection = chosen.affection;
+
+    var msg = '';
+    if (typeof NPC_PROACTIVE_MSGS !== 'undefined') {
+        var tier = 'low';
+        var isDating = gameState.dating === npc.name;
+        if (isDating) tier = 'dating';
+        else if (affection >= 70) tier = 'high';
+        else if (affection >= 30) tier = 'mid';
+        else tier = 'low';
+
+        var pool = NPC_PROACTIVE_MSGS.kakaotalk[tier] || NPC_PROACTIVE_MSGS.kakaotalk.low;
+        msg = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+        msg = _v2NpcDailyMessages[Math.floor(Math.random() * _v2NpcDailyMessages.length)];
+    }
+
+    var nowDate = new Date();
+    var h = nowDate.getHours();
+    var m = nowDate.getMinutes();
+    var timeStr = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats[npc.name]) gameState.kakaoChats[npc.name] = [];
+    gameState.kakaoChats[npc.name].push({ from: npc.name, text: msg, time: timeStr, read: false });
+
+    if (typeof notifyKakao === 'function') {
+        notifyKakao(npc.name, msg.substring(0, 30));
+    }
+
+    updateAppRedDots();
+}
+
+function _v2CheckProactiveOnEnter() {
+    if (!gameState || !gameState.player || !gameState.player.name) return;
+    if (!gameState.npc好感度 || !gameState.kakaoFriends) return;
+    var hasHighAffection = false;
+    var npcKeys = Object.keys(gameState.npc好感度);
+    for (var i = 0; i < npcKeys.length; i++) {
+        if (gameState.npc好感度[npcKeys[i]] >= 20) {
+            hasHighAffection = true;
+            break;
+        }
+    }
+    if (!hasHighAffection) return;
+    if (Math.random() < 0.3) {
+        _triggerNpcProactiveMessage();
+    }
+}
+
+function _v2Init() {
+    _injectV2Styles();
+    updateAppRedDots();
+}
+
