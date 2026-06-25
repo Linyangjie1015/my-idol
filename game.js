@@ -14651,7 +14651,7 @@ function _showSubPage(page) {
             { id: 'fans_10k', name: '\u660e\u65e5\u4e4b\u661f', desc: '\u7c89\u4e1d\u8fbe\u523010000' },
             { id: 'fans_100k', name: '\u9876\u6d41\u7231\u8c46', desc: '\u7c89\u4e1d\u8fbe\u5230100000' },
             { id: 'money_1m', name: '\u4ebf\u4e07\u5bcc\u7fc1', desc: '\u91d1\u5e01\u8d85\u8fc71000000' },
-            { id: 'ch1', name: '\u521d\u5165\u516c\u53f8', desc: '\u5b8c\u6210\u7b2c1\u7ae0' },
+            { id: 'ch1', name: '\u5165\u793e', desc: '\u5b8c\u6210\u7b2c1\u7ae0' },
             { id: 'ch2', name: '\u521d\u6b21\u767b\u53f0', desc: '\u5b8c\u6210\u7b2c2\u7ae0' },
             { id: 'ch3', name: '\u7b2c\u4e00\u6b21\u516c\u6f14', desc: '\u5b8c\u6210\u7b2c3\u7ae0' },
             { id: 'ch4', name: '\u5168\u56e2\u51fa\u51fb', desc: '\u5b8c\u6210\u7b2c4\u7ae0' },
