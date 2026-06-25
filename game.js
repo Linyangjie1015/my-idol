@@ -19119,3 +19119,211 @@ function _v2EnterChapter(chNum) {
   })(window.renderScenePage);
 
 })();
+
+
+// V2.1.4 patch — 首页质感提升 + 光影层次 + 文字质感 + 白色气泡 + 专属台词 + 场景精简 + 世界观深色化
+// ============================================================
+;(function(){
+  if (window._v214Patched) return;
+  window._v214Patched = true;
+
+  // ---------- 1. 追加/覆写CSS：质感提升 ----------
+  var cssId = 'v214-quality-polish';
+  if (!document.getElementById(cssId)) {
+    var s = document.createElement('style');
+    s.id = cssId;
+    s.textContent = ''
+      // === 图标缩小到32px，SVG16px，透明度区分主次 ===
+      + '.v21h-icon-circle{width:32px!important;height:32px!important;background:rgba(255,255,255,0.06)!important;border:1px solid rgba(255,255,255,0.08)!important;}'
+      + '.v21h-icon-circle svg{width:16px!important;height:16px!important;}'
+      + '.v21h-icon-label{font-size:8px!important;color:rgba(255,255,255,0.5)!important;}'
+      // 左侧核心功能（家/主线/支线/手机）更亮
+      + '.v21h-side-left .v21h-icon-circle{background:rgba(255,255,255,0.12)!important;border-color:rgba(255,255,255,0.18)!important;}'
+      + '.v21h-side-left .v21h-icon-label{color:rgba(255,255,255,0.75)!important;}'
+      // 右侧扩展功能（活动/任务/排行/抽卡）更暗
+      + '.v21h-side-right .v21h-icon-circle{background:rgba(255,255,255,0.04)!important;border-color:rgba(255,255,255,0.06)!important;opacity:0.7;}'
+      + '.v21h-side-right .v21h-icon-label{color:rgba(255,255,255,0.4)!important;}'
+      + '.v21h-side-icons{gap:16px!important;padding:0 12px!important;}'
+      // me按钮同步缩小
+      + '.v21h-me-btn .v21h-icon-circle{width:30px!important;height:30px!important;}'
+      + '.v21h-me-btn .v21h-icon-circle svg{width:14px!important;height:14px!important;}'
+      + '.v21h-me-btn{top:max(52px,calc(env(safe-area-inset-top)+52px))!important;right:12px!important;}'
+      // 顶部底部bar文字改蓝调细体
+      + '.v21h-name{color:#E8EAF6!important;font-weight:300!important;font-size:13px!important;text-shadow:0 0 20px rgba(167,139,250,0.1)!important;}'
+      + '.v21h-stat-val{color:#E8EAF6!important;font-weight:300!important;font-size:12px!important;text-shadow:0 0 15px rgba(167,139,250,0.08)!important;}'
+      + '.v21h-chapter-text{color:#E8EAF6!important;font-weight:300!important;letter-spacing:0.08em!important;text-shadow:0 0 20px rgba(167,139,250,0.1)!important;}'
+      + '.v21h-chapter-sub{color:rgba(232,234,246,0.5)!important;font-weight:300!important;}'
+      + '.v21h-aff-tag{color:rgba(232,234,246,0.5)!important;font-weight:300!important;text-shadow:0 0 15px rgba(167,139,250,0.08)!important;top:max(60px,calc(env(safe-area-inset-top)+60px))!important;}'
+      // 箭头改细
+      + '.v21h-arrow{font-weight:200!important;color:#A78BFA!important;}'
+      + '.v21h-npc-dot.active{background:#A78BFA!important;box-shadow:0 0 8px rgba(167,139,250,0.4);}'
+      // === 呼吸动画：2s周期上下2px ===
+      + '@keyframes v21h-breath2{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}'
+      + '.v21h-portrait{animation:v21h-breath2 2s ease-in-out infinite!important;max-height:82%!important;max-width:72%!important;object-fit:contain!important;}'
+      // === 立绘背后光晕层 ===
+      + '.v21h-portrait-glow{position:absolute;top:50%;left:50%;width:60vw;height:60vw;max-width:380px;max-height:380px;transform:translate(-50%,-45%);z-index:1;pointer-events:none;border-radius:50%;}'
+      + '.v21h-portrait-glow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at center,rgba(167,139,250,0.22) 0%,rgba(124,58,237,0.12) 30%,rgba(124,58,237,0.04) 55%,transparent 70%);filter:blur(30px);}'
+      + '.v21h-portrait-glow::after{content:"";position:absolute;inset:-20%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(244,114,182,0.08) 0%,transparent 50%);filter:blur(40px);}'
+      // === 白色毛玻璃对话气泡（参考光与夜之恋） ===
+      + '.v21h-bubble{background:rgba(255,255,255,0.85)!important;-webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;border:1px solid rgba(255,255,255,0.5)!important;border-radius:18px!important;padding:10px 16px!important;color:#1A1A3E!important;font-weight:400!important;font-size:13px!important;box-shadow:0 8px 32px rgba(0,0,0,0.18),0 2px 8px rgba(167,139,250,0.1)!important;text-shadow:none!important;white-space:normal!important;max-width:72%!important;line-height:1.5;}'
+      + '.v21h-bubble::after{content:""!important;position:absolute!important;bottom:-7px!important;left:50%!important;transform:translateX(-50%) rotate(45deg)!important;width:12px!important;height:12px!important;background:rgba(255,255,255,0.85)!important;border-right:1px solid rgba(255,255,255,0.5)!important;border-bottom:1px solid rgba(255,255,255,0.5)!important;-webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;}'
+      // 背景遮罩稍微调亮中部，让立绘细节更透
+      + '.v21h-bg-mask{background:linear-gradient(180deg,rgba(8,6,26,0.5) 0%,rgba(8,6,26,0.08) 30%,rgba(8,6,26,0.2) 55%,rgba(8,6,26,0.7) 100%)!important;}'
+      // 顶部底部bar更通透
+      + '.v21-home-top{background:rgba(8,6,26,0.4)!important;}'
+      + '.v21h-bottom{background:rgba(8,6,26,0.4)!important;}'
+      // === 世界观页白色卡片深色化 ===
+      + '.v21-welcome-story .v21-story-card{background:rgba(255,255,255,0.06)!important;border:1px solid rgba(255,255,255,0.08)!important;border-radius:16px!important;box-shadow:none!important;color:#E8EAF6!important;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);}'
+      + '.v21-welcome-story .v21-story-card *{color:#E8EAF6!important;}'
+      + '.v21-welcome-story .v21-story-title{color:#E8EAF6!important;font-weight:300!important;text-shadow:0 0 20px rgba(167,139,250,0.15)!important;}';
+    document.head.appendChild(s);
+  }
+
+  // ---------- 2. 替换DAILY_LINES为用户专属3句台词 ----------
+  if (typeof window.DAILY_LINES !== 'undefined') {
+    window.DAILY_LINES = {
+      haeun: ['你来了。等你好久了。','今天比昨天练得好一点。','别站着了，过来坐。'],
+      soah:  ['你来了……我正好有话想跟你说。','这首歌，我写的时候想到了你。','外面在下雨，你带伞了吗？'],
+      jiwon: ['你终于来啦！我等你好久了！','今天有开心的事要跟你分享！','你脸上有东西……骗你的，就是想让你笑。'],
+      junho: ['你来啦。今天状态不错？','我刚在想你，你就出现了。','别站在那里，过来。'],
+      seokhyun:['……你来了。正好。','这首歌的词，我写了一半。你听一下。','今天不想说话。……但你可以坐我旁边。']
+    };
+  }
+
+  // ---------- 3. 重写_v21OnPortraitTap（去掉「」，用纯台词，去掉性别替换烂逻辑） ----------
+  window._v21OnPortraitTap = function() {
+    var idx = 0;
+    try {
+      var saved = parseInt((window.gameState && window.gameState._v21HomeNpcIdx), 10);
+      if (!isNaN(saved) && saved >= 0 && saved < 5) idx = saved;
+      else {
+        var best = 0, bestLove = -1;
+        var NPC_KEYS_LOCAL = ['haeun','soah','jiwon','junho','seokhyun'];
+        var NPC_NAMES_LOCAL = ['夏恩','素雅','智媛','俊昊','瑞贤'];
+        for (var i = 0; i < 5; i++) {
+          var lv = (window.gameState && window.gameState.npc好感度 && window.gameState.npc好感度[NPC_NAMES_LOCAL[i]]) || 0;
+          if (lv > bestLove) { bestLove = lv; best = i; }
+        }
+        idx = best;
+      }
+    } catch(e){}
+    var NPC_KEYS_LOCAL = ['haeun','soah','jiwon','junho','seokhyun'];
+    var key = NPC_KEYS_LOCAL[idx];
+    var lines = (window.DAILY_LINES && window.DAILY_LINES[key]) || ['……'];
+    var line = lines[Math.floor(Math.random()*lines.length)];
+    // 性别称谓暂不替换（用户说idol线等大纲再做，日常线统一用原文）
+    if (typeof window._showBubble === 'function') {
+      window._showBubble(line);
+    }
+  };
+
+  // ---------- 4. 立绘背后插入光晕层（如果还没有） ----------
+  function _ensureGlow() {
+    var wrap = document.getElementById('v21hPortraitWrap');
+    if (!wrap) return;
+    if (wrap.querySelector('.v21h-portrait-glow')) return;
+    var glow = document.createElement('div');
+    glow.className = 'v21h-portrait-glow';
+    // 插入到img之前（在img背后）
+    var img = document.getElementById('v21hPortrait');
+    if (img) {
+      wrap.insertBefore(glow, img);
+    } else {
+      wrap.appendChild(glow);
+    }
+  }
+  // 立即尝试，并且在渲染后也尝试
+  _ensureGlow();
+  var _origRenderHome2 = window.renderHomePage;
+  if (typeof _origRenderHome2 === 'function') {
+    window.renderHomePage = function(c) {
+      var r = _origRenderHome2.apply(this, arguments);
+      setTimeout(_ensureGlow, 100);
+      return r;
+    };
+  }
+
+  // ---------- 5. 场景hotspot更激进删减（音响/镜子/饮水机/便利店等强制删除） ----------
+  var _BAD_KEYWORDS = [
+    '音响','镜子','饮水机','便利店','植物','沙发','电视','窗户','画','灯','垃圾','鞋架',
+    '衣架','灶台','洗手台','淋浴','马桶','垃圾桶','鱼缸','地毯','桌椅','空调','窗帘','枕头',
+    '被子','书桌','书','花','装饰','海报','书架','装饰画','台灯','吊灯','落地灯','盆栽',
+    '茶几','靠垫','柜子','冰箱贴','餐具','餐盘','电饭煲','微波炉','洗衣机','烘干机','阳台晾',
+    '花盆','香薰','相框','照片墙','挂件','挂饰','门垫','地垫','挂钟','时钟','日历','绿植'
+  ];
+  // 再次扫描所有scene，强制过滤
+  function _v214FilterHotspots() {
+    if (typeof window.SCENES !== 'object') return;
+    for (var sid in window.SCENES) {
+      if (!window.SCENES.hasOwnProperty(sid)) continue;
+      var sc = window.SCENES[sid];
+      if (!sc || !sc.hotspots) continue;
+      var keep = [];
+      for (var i = 0; i < sc.hotspots.length; i++) {
+        var h = sc.hotspots[i];
+        if (!h) continue;
+        var txt = (h.label || h.name || h.text || h.action || '') + ' ' + (h.goto || h.target || '');
+        var bad = false;
+        for (var k = 0; k < _BAD_KEYWORDS.length; k++) {
+          if (txt.indexOf(_BAD_KEYWORDS[k]) !== -1) { bad = true; break; }
+        }
+        if (!bad) keep.push(h);
+      }
+      sc.hotspots = keep;
+    }
+  }
+  // 延迟执行，等SCENES就绪
+  setTimeout(_v214FilterHotspots, 500);
+  setTimeout(_v214FilterHotspots, 2000);
+
+  // ---------- 6. 世界观页白色卡片深色化 ----------
+  function _darkenWelcomeStory() {
+    // 找所有白色background卡片，标记为深色
+    var cards = document.querySelectorAll('div[style*="background:white"], div[style*="background: white"], div[style*="background:#fff"], div[style*="background: #fff"]');
+    for (var i = 0; i < cards.length; i++) {
+      var el = cards[i];
+      var txt = el.textContent || '';
+      // 只处理世界观卡片（含SEONGWOO/Haeoreum/星隅关键词）
+      if (txt.indexOf('SEONGWOO') !== -1 || txt.indexOf('Haeoreum') !== -1 || txt.indexOf('星隅') !== -1 || txt.indexOf('爱豆故事') !== -1) {
+        el.style.background = 'rgba(255,255,255,0.06)';
+        el.style.border = '1px solid rgba(255,255,255,0.08)';
+        el.style.borderRadius = '16px';
+        el.style.boxShadow = 'none';
+        el.style.webkitBackdropFilter = 'blur(20px)';
+        el.style.backdropFilter = 'blur(20px)';
+        // 文字改深色字的反色
+        var allChild = el.querySelectorAll('*');
+        for (var j = 0; j < allChild.length; j++) {
+          var ce = allChild[j];
+          var cs = ce.style;
+          if (cs.color && (cs.color.indexOf('#333') !== -1 || cs.color.indexOf('#1A2A3A') !== -1 || cs.color === 'black' || cs.color === '#000')) {
+            cs.color = '#E8EAF6';
+          }
+        }
+        // 改标题颜色（"欢迎来到星隙"）
+        var parent = el.parentElement;
+        if (parent) {
+          var titles = parent.querySelectorAll('div[style*="color:#1A2A3A"], div[style*="color: #1A2A3A"]');
+          for (var t = 0; t < titles.length; t++) {
+            titles[t].style.color = '#E8EAF6';
+            titles[t].style.fontWeight = '300';
+            titles[t].style.textShadow = '0 0 20px rgba(167,139,250,0.15)';
+          }
+        }
+      }
+    }
+  }
+  // render时检查
+  var _origRender = window.render;
+  if (typeof _origRender === 'function') {
+    window.render = function() {
+      var r = _origRender.apply(this, arguments);
+      setTimeout(_darkenWelcomeStory, 50);
+      setTimeout(_ensureGlow, 100);
+      return r;
+    };
+  }
+
+  // ---------- 7. 版本号升级 ----------
+  window.V2_VERSION = 'v2.1.4 (build 0626-quality+lines)';
+})();
