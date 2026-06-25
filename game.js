@@ -1,6 +1,6 @@
 
 
-/* Safari Compatibility Polyfills */
+/* Safari Compatibility Polyfills - V2.0.1 */
 if (!Object.entries) { Object.entries = function(obj) { var ownProps = Object.keys(obj), i = ownProps.length, resArray = new Array(i); for (; i--; ) resArray[i] = [ownProps[i], obj[ownProps[i]]]; return resArray; }; }
 if (!Array.prototype.includes) { Array.prototype.includes = function(searchElement, fromIndex) { if (this == null) throw new TypeError('"this" is null or not defined'); var o = Object(this), len = o.length >>> 0; if (len === 0) return false; var n = fromIndex | 0, k = Math.max(n >= 0 ? n : len - Math.abs(n), 0); while (k < len) { if (o[k] === searchElement) return true; k++; } return false; }; }
 if (!String.prototype.padStart) { String.prototype.padStart = function padStart(targetLength, padString) { targetLength = targetLength >> 0; padString = String(typeof padString !== 'undefined' ? padString : ' '); if (this.length >= targetLength) return String(this); var padLen = targetLength - this.length; while (padString.length < padLen) padString += padString; return padString.slice(0, padLen) + String(this); }; }
