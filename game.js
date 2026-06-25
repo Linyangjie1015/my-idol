@@ -14367,6 +14367,21 @@ var CHAPTER_CONFIG = {
             '2.7': { type: 'narration', nextStep: '2.8', scene: 'recording_studio', unlockApp: 'recording' },
             '2.8': { type: 'chapter_end', condition: 'dance', target: 70, app: 'contacts' }
         }
+    },
+    3: {
+        title: 'Chapter 3',
+        subtitle: '\u51FA\u9053',
+        steps: {
+            '3.0': { type: 'narration', nextStep: '3.1', condition: 'dance', target: 80, label: '\u821E\u8E48 0/80', scene: 'lobby' },
+            '3.1': { type: 'narration', nextStep: '3.2', scene: 'mv_studio', unlockApp: 'mvstudio' },
+            '3.2': { type: 'narration', nextStep: '3.3', condition: 'influence', target: 150, label: '\u5F71\u54CD\u529B 0/150', scene: 'music_show', unlockApp: 'musicshow' },
+            '3.3': { type: 'narration', nextStep: '3.4', condition: 'fame', target: 300, label: '\u540D\u6C14 0/300', app: 'fancommunity' },
+            '3.4': { type: 'choice', nextStep: '3.5', choiceKey: 'first_win', scene: 'award' },
+            '3.5': { type: 'choice', nextStep: '3.6', choiceKey: 'dating_scandal', unlockApp: 'pr' },
+            '3.6': { type: 'choice', nextStep: '3.7', choiceKey: 'crisis_response', app: 'pr' },
+            '3.7': { type: 'choice', nextStep: '3.8', choiceKey: 'grand_prize', condition: 'dance', target: 90, label: '\u821E\u8E48 0/90' },
+            '3.8': { type: 'chapter_end', app: 'contacts' }
+        }
     }
 };
 
@@ -14682,6 +14697,54 @@ function _renderChoiceStep(inner, stepKey, stepConfig, chapter) {
             { id: 'youth_concept', text: '\u201C\u6211\u4EEC\u8D70\u9752\u6625\u98CE\uFF0C\u8BA9\u4EBA\u89C9\u5F97\u6709\u5E0C\u671B\u3002\u201D', icon: 'B' },
             { id: 'mystery_concept', text: '\u201C\u795E\u79D8\u611F\uFF0C\u8BA9\u4EBA\u60F3\u4E86\u89E3\u6211\u4EEC\u3002\u201D', icon: 'C' }
         ];
+    } else if (stepKey === '3.4') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u97F3\u4E50\u8282\u76EE\u73B0\u573A\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;"\u003e\u4E00\u4F4D\u5019\u9009\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;"\u003e';
+        html += '\u4E3B\u6301\u4EBA\u5BA3\u5E03\u4E86\u672C\u5468\u7684\u4E00\u4F4D\u5019\u9009\u540D\u5355\u2014\u2014\u4F60\u7684\u540D\u5B57\u5728\u5176\u4E2D\u3002\u5168\u573A\u6B22\u547C\u3002\u003cbr\u003e\u003cbr\u003e';
+        html += '\u8FD9\u662F\u4F60\u7B2C\u4E00\u6B21\u79BB\u201C\u4E00\u4F4D\u201D\u8FD9\u4E48\u8FD1\u3002';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'go_for_it', text: '\u201C\u62FC\u4E86\uFF01\u6211\u4E00\u5B9A\u8981\u62FF\u5230\uFF01\u201D', icon: 'A' },
+            { id: 'stay_humble', text: '\u201C\u80FD\u88AB\u63D0\u540D\u5C31\u5DF2\u7ECF\u5F88\u5F00\u5FC3\u4E86\u3002\u201D', icon: 'B' },
+            { id: 'for_team', text: '\u201C\u8FD9\u662F\u6211\u4EEC\u56E2\u7684\u8363\u8A89\uFF0C\u4E0D\u53EA\u662F\u6211\u7684\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '3.5') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u901A\u8BAF\u5F55\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;"\u003e\u604B\u7231\u4F20\u95FB\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;"\u003e';
+        html += '\u4F60\u7684\u624B\u673A\u7206\u4E86\u3002SNS\u4E0A\u6709\u4EBA\u62CD\u5230\u4F60\u548C\u4E00\u4E2A\u4EBA\u5355\u72EC\u5728\u5496\u5561\u5385\uFF0C\u7167\u7247\u5DF2\u7ECF\u4F20\u5F00\u4E86\u3002\u003cbr\u003e\u003cbr\u003e';
+        html += '\u8BC4\u8BBA\u91CC\u5206\u6210\u4E24\u6D3E\uFF1A\u4E00\u8FB9\u8BF4\u201C\u5076\u50CF\u4E5F\u6709\u79C1\u751F\u6D3B\u201D\uFF0C\u4E00\u8FB9\u8BF4\u201C\u7EE7\u7EED\u5543\u5F97\u5F88\u5F00\u5FC3\u201D\u3002';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'admit', text: '\u201C\u90A3\u662F\u6211\u7684\u79C1\u4E8B\uFF0C\u6211\u4E0D\u9700\u8981\u89E3\u91CA\u3002\u201D', icon: 'A' },
+            { id: 'deny', text: '\u201C\u53EA\u662F\u670B\u53CB\uFF0C\u4E0D\u8981\u8FC7\u5EA6\u89E3\u8BFB\u3002\u201D', icon: 'B' },
+            { id: 'apologize', text: '\u201C\u5BF9\u4E0D\u8D77\u7C89\u4E1D\uFF0C\u6211\u4F1A\u66F4\u52AA\u529B\u7684\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '3.6') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u516C\u5173\u5BA4\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;"\u003e\u5371\u673A\u5904\u7406\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;"\u003e';
+        html += '\u516C\u53F8\u7D27\u6025\u53EC\u5F00\u4E86\u4F1A\u8BAE\u3002\u7ECF\u7EAA\u4EBA\u8BF4\uFF1A\u201C\u6211\u4EEC\u9700\u8981\u4E00\u4E2A\u5E94\u5BF9\u7B56\u7565\u3002\u201D\u003cbr\u003e\u003cbr\u003e';
+        html += '\u4F60\u5FC5\u987B\u51B3\u5B9A\u5982\u4F55\u5904\u7406\u8FD9\u6B21\u5371\u673A\u3002';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'honest', text: '\u201C\u5766\u8BDA\u9762\u5BF9\uFF0C\u53D1\u58F0\u660E\u8BF4\u771F\u76F8\u3002\u201D', icon: 'A' },
+            { id: 'quiet', text: '\u201C\u6C89\u9ED8\u5E94\u5BF9\uFF0C\u8BA9\u65F6\u95F4\u51B2\u6DE1\u4E00\u5207\u3002\u201D', icon: 'B' },
+            { id: 'reframe', text: '\u201C\u8F6C\u79FB\u8BDD\u9898\uFF0C\u7528\u65B0\u4F5C\u54C1\u8BC1\u660E\u5B9E\u529B\u3002\u201D', icon: 'C' }
+        ];
+    } else if (stepKey === '3.7') {
+        html += '\u003cdiv style="font-size:13px;color:#64748B;margin-bottom:16px;"\u003e\u5E74\u672B\u9881\u5956\u5178\u793C\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:20px;font-weight:700;color:#F8FAFC;margin-bottom:16px;"\u003e\u5927\u8D4F\u63D0\u540D\u003c/div\u003e';
+        html += '\u003cdiv style="font-size:15px;line-height:1.8;color:#CBD5E1;margin-bottom:16px;text-align:left;"\u003e';
+        html += '\u5E74\u672B\u5927\u8D4F\u63D0\u540D\u540D\u5355\u516C\u5E03\u3002\u4F60\u7684\u540D\u5B57\u51FA\u73B0\u5728\u201C\u6700\u4F73\u65B0\u4EBA\u201D\u548C\u201C\u6700\u4F73\u821E\u53F0\u8868\u73B0\u201D\u4E24\u4E2A\u5956\u9879\u91CC\u3002\u003cbr\u003e\u003cbr\u003e';
+        html += '\u003cspan style="color:#F59E0B;"\u003e\u590F\u6069\uFF1A\u003c/span\u003e\u201C\u6211\u5C31\u77E5\u9053\u4F60\u53EF\u4EE5\u3002\u201D';
+        html += '\u003c/div\u003e';
+        options = [
+            { id: 'grateful', text: '\u201C\u8C22\u8C22\u6BCF\u4E00\u4E2A\u76F8\u4FE1\u6211\u7684\u4EBA\u3002\u201D', icon: 'A' },
+            { id: 'not_done', text: '\u201C\u8FD9\u8FD8\u4E0D\u591F\uFF0C\u6211\u8FD8\u8981\u66F4\u9AD8\u3002\u201D', icon: 'B' },
+            { id: 'for_fans', text: '\u201C\u8FD9\u4EFD\u8363\u8A89\u5C5E\u4E8E\u7C89\u4E1D\u3002\u201D', icon: 'C' }
+        ];
     }
     inner.innerHTML = html;
 
@@ -14738,8 +14801,8 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     var chapterChoices = [];
     var ci;
     for (ci = 0; ci < cs.choices.length; ci++) { if (cs.choices[ci].chapter === cs.currentChapter) chapterChoices.push(cs.choices[ci]); }
-    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F', ballad: '\u6162\u6B4C', dance_track: '\u821E\u8E48\u66F2', rap_cover: 'Rap', all_round: '\u5168\u9762', vocal_focus: '\u4E3B\u5531', dance_focus: '\u9886\u821E', celebrate: '\u6211\u505A\u5230\u4E86', stay_calm: '\u7B2C\u4E00\u6B65', thank_team: '\u611F\u8C22\u56E2\u961F', cool_concept: '\u9177\u98CE', youth_concept: '\u9752\u6625', mystery_concept: '\u795E\u79D8' };
-    var appLabels = { contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A', daily: '\u4ECA\u65E5\u4EFB\u52A1', debut: '\u51FA\u9053\u4F01\u5212', recording: '\u5F55\u97F3\u5BA4' };
+    var choiceLabels = { ambition: '\u91CE\u5FC3', passion: '\u70ED\u7231', proof: '\u8BC1\u660E', has_experience: '\u6709\u57FA\u7840', no_experience: '\u96F6\u57FA\u7840', some_experience: '\u5B66\u8FC7\u4E00\u70B9', who_said: '\u8FFD\u95EE', prove_myself: '\u8BC1\u660E\u81EA\u5DF1', will_practice: '\u76F4\u63A5\u56DE\u5E94', lively: '\u6D3B\u6CFC', shy: '\u5BB3\u7F9E', serious: '\u8BA4\u771F', ballad: '\u6162\u6B4C', dance_track: '\u821E\u8E48\u66F2', rap_cover: 'Rap', all_round: '\u5168\u9762', vocal_focus: '\u4E3B\u5531', dance_focus: '\u9886\u821E', celebrate: '\u6211\u505A\u5230\u4E86', stay_calm: '\u7B2C\u4E00\u6B65', thank_team: '\u611F\u8C22\u56E2\u961F', cool_concept: '\u9177\u98CE', youth_concept: '\u9752\u6625', mystery_concept: '\u795E\u79D8', go_for_it: '\u62FC\u4E86', stay_humble: '\u8C26\u865A', for_team: '\u4E3A\u56E2\u961F', admit: '\u5766\u8BDA', deny: '\u5426\u8BA4', apologize: '\u9053\u6B49', honest: '\u5766\u8BDA\u9762\u5BF9', quiet: '\u6C89\u9ED8', reframe: '\u8F6C\u79FB\u8BDD\u9898', grateful: '\u611F\u6069', not_done: '\u8FD8\u4E0D\u591F', for_fans: '\u732E\u7ED9\u7C89\u4E1D' };
+    var appLabels = { contacts: '\u901A\u8BAF\u5F55', schedule: '\u65E5\u7A0B', sns: 'SNS', training: '\u8BAD\u7EC3', live: '\u76F4\u64AD', fancommunity: '\u7C89\u4E1D\u793E\u533A', daily: '\u4ECA\u65E5\u4EFB\u52A1', debut: '\u51FA\u9053\u4F01\u5212', recording: '\u5F55\u97F3\u5BA4', mvstudio: 'MV\u5DE5\u4F5C\u5BA4', musicshow: '\u97F3\u4E50\u653E\u9001', pr: '\u516C\u5173\u5BA4' };
     var html = '<div style="font-size:14px;color:#64748B;letter-spacing:2px;margin-bottom:12px;">CHAPTER ' + cs.currentChapter + ' COMPLETE</div>';
     html += '<div style="font-size:24px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">\u5165\u793E</div>';
     html += '<div style="width:40px;height:2px;background:#1E293B;margin:12px auto;"></div>';
