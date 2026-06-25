@@ -983,6 +983,29 @@ function syncFromApp(sourceApp, data) {
 }
 
 // ==================== HOME PAGE (APP GRID) ====================
+
+function _renderChapterProgressBar() {
+    var cs = gameState.chapterState;
+    if (!cs || cs.currentChapter === 0) return '';
+    var chapter = CHAPTER_CONFIG[cs.currentChapter];
+    if (!chapter) return '';
+    var totalSteps = 0;
+    var completedInChapter = 0;
+    var sk;
+    for (sk in chapter.steps) { totalSteps++; if (cs.completedSteps.indexOf(sk) >= 0) completedInChapter++; }
+    var chapterNames = { 1: '\u5165\u793E', 2: '\u6210\u957F', 3: '\u51FA\u9053' };
+    var chName = chapterNames[cs.currentChapter] || chapter.subtitle || '';
+    var pct = Math.min(100, Math.floor((completedInChapter / totalSteps) * 100));
+    return '\u003cdiv style="background:#1E293B;border-radius:10px;padding:12px 16px;margin:8px 20px 0;display:flex;align-items:center;gap:12px;"\u003e' +
+        '\u003cdiv style="font-size:12px;color:#94A3B8;white-space:nowrap;"\u003e\u7B2C' + cs.currentChapter + '\u7AE0\u003c/div\u003e' +
+        '\u003cdiv style="flex:1;"\u003e' +
+            '\u003cdiv style="font-size:13px;font-weight:600;color:#F8FAFC;margin-bottom:4px;"\u003e' + chName + '\u003c/div\u003e' +
+            '\u003cdiv style="background:#334155;border-radius:4px;height:4px;"\u003e\u003cdiv style="background:#64748B;border-radius:4px;height:4px;width:' + pct + '%;"\u003e\u003c/div\u003e\u003c/div\u003e' +
+        '\u003c/div\u003e' +
+        '\u003cdiv style="font-size:12px;color:#64748B;white-space:nowrap;"\u003e' + completedInChapter + '/' + totalSteps + '\u003c/div\u003e' +
+    '\u003c/div\u003e';
+}
+
 function renderHomePage(container) {
     // 危险值/信誉警告邮件（每天只触发一次）
     var today = new Date().toDateString();
