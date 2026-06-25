@@ -426,6 +426,9 @@ function render() {
             case 'daily':
                 renderDailyPage(app);
                 break;
+            case 'kakaochat':
+                renderKakaoChatConversationPage(app);
+                break;
             default:
                 app.innerHTML = '<div class="page active"><div class="page-content" style="text-align:center;padding:60px 20px;"><div style="font-size:18px;color:var(--color-text-light);">页面不存在</div><button class="btn btn-primary" onclick="goToPage(\'home\')" style="margin-top:16px;">返回首页</button></div></div>';
         }
@@ -2758,11 +2761,436 @@ function addDanger(amount, source) {
     gameState.danger = Math.min(100, Math.max(0, (gameState.danger || 0) + actualAmount));
     return actualAmount;
 }
+
+// V2.0: Chat quota + affection floating feedback + milestone exclusive content
+var DAILY_CHAT_QUOTA = { free: 5, monthly: 50, quarterly: 80, yearly: 999 };
+
+function _getDailyChatLimit() {
+    var tier = getVipTier();
+    if (tier === 'yearly') return DAILY_CHAT_QUOTA.yearly;
+    if (tier === 'quarterly') return DAILY_CHAT_QUOTA.quarterly;
+    if (tier === 'monthly') return DAILY_CHAT_QUOTA.monthly;
+    return DAILY_CHAT_QUOTA.free;
+}
+
+function _getDailyChatCount() {
+    if (!gameState._chatDay) gameState._chatDay = '';
+    if (!gameState._chatDayCount) gameState._chatDayCount = 0;
+    var today = new Date().toDateString();
+    if (gameState._chatDay !== today) {
+        gameState._chatDay = today;
+        gameState._chatDayCount = 0;
+    }
+    return gameState._chatDayCount;
+}
+
+function _canChatToday() {
+    return _getDailyChatCount() < _getDailyChatLimit();
+}
+
+function _useChatQuota() {
+    _getDailyChatCount(); // ensure day reset
+    gameState._chatDayCount = (gameState._chatDayCount || 0) + 1;
+}
+
+// V2.0: Floating affection feedback
+function _showAffectionFloat(npcName, amount) {
+    var npcColor = '#F59E0B';
+    if (npcName === '\u7D20\u96C5') npcColor = '#A78BFA';
+    else if (npcName === '\u667A\u5A9B') npcColor = '#F472B6';
+    else if (npcName === '\u4FCA\u660A') npcColor = '#60A5FA';
+    else if (npcName === '\u745E\u8D24') npcColor = '#34D399';
+    var floatDiv = document.createElement('div');
+    floatDiv.style.cssText = 'position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);z-index:10002;display:flex;flex-direction:column;align-items:center;pointer-events:none;';
+    floatDiv.innerHTML = '\u003cdiv style="font-size:14px;color:' + npcColor + ';font-weight:600;margin-bottom:4px;"\u003e' + npcName + '\u003c/div\u003e'
+        + '\u003cdiv style="font-size:28px;font-weight:700;color:' + npcColor + ';text-shadow:0 2px 8px rgba(0,0,0,0.3);animation:_affFloat 1.5s ease-out forwards;"\u003e+' + amount + ' \u2764\u003c/div\u003e';
+    document.body.appendChild(floatDiv);
+    setTimeout(function() { if (floatDiv.parentNode) floatDiv.parentNode.removeChild(floatDiv); }, 1800);
+}
+
+// V2.0: Affection milestone exclusive content
+var MILESTONE_EXCLUSIVE = {
+    20: {
+        '\u590f\u6069': '\u4F60\u8FD8\u6CA1\u8D70\u554A\u3002\u2026\u2026\u8FD8\u884C\uFF0C\u7B97\u6211\u770B\u9519\u4F60\u4E86\u3002',
+        '\u7D20\u96C5': '\u6211\u7B2C\u4E00\u6B21\u89C9\u5F97\u548C\u4E00\u4E2A\u4EBA\u804A\u5929\u4E0D\u7D2F\u3002',
+        '\u667A\u5A9B': '\u6211\u4EEC\u7B97\u670B\u53CB\u4E86\u5427\uFF1F\u771F\u7684\u7B97\uFF1F',
+        '\u4FCA\u660A': '\u4F60\u8FD8\u633A\u6709\u8DA3\u7684\u3002\u4EE5\u540E\u591A\u804A\u804A\u3002',
+        '\u745E\u8D24': '\u2026\u2026\u4F60\u8FD8\u5728\u554A\u3002\u90A3\u5C31\u7559\u4E0B\u6765\u5427\u3002'
+    },
+    40: {
+        '\u590f\u6069': '\u6211\u4E0D\u662F\u5BF9\u6240\u6709\u4EBA\u90FD\u8FD9\u6837\u7684\u3002\u4F60\u77E5\u9053\u5427\u3002',
+        '\u7D20\u96C5': '\u6211\u5199\u4E86\u4E00\u9996\u6B4C\u2026\u2026\u4F60\u8981\u4E0D\u8981\u542C\uFF1F\u53EA\u7ED9\u4F60\u4E00\u4E2A\u4EBA\u542C\u3002',
+        '\u667A\u5A9B': '\u6211\u53EA\u8DDF\u4F60\u4E00\u4E2A\u4EBA\u8BF4\u8FD9\u4E9B\u7684\u54E6\uFF01\u522B\u544A\u8BC9\u522B\u4EBA~',
+        '\u4FCA\u660A': '\u6709\u4F60\u5728\u7684\u65F6\u5019\uFF0C\u7EC3\u4E60\u4E5F\u4E0D\u89C9\u5F97\u7D2F\u4E86\u3002',
+        '\u745E\u8D24': '\u2026\u2026\u4F60\u662F\u7B2C\u4E00\u4E2A\u8BA9\u6211\u89C9\u5F97\u201C\u7559\u4E0B\u6765\u4E5F\u884C\u201D\u7684\u4EBA\u3002'
+    },
+    60: {
+        '\u590f\u6069': '\u6211\u4EE5\u524D\u4ECE\u4E0D\u89C9\u5F97\u4E00\u4E2A\u4EBA\u91CD\u8981\u3002\u73B0\u5728\u2026\u2026\u4F60\u6539\u53D8\u4E86\u8FD9\u4E2A\u3002',
+        '\u7D20\u96C5': '\u6BCF\u6B21\u5531\u6B4C\u7684\u65F6\u5019\uFF0C\u6211\u90FD\u60F3\u7740\u4F60\u5728\u542C\u3002',
+        '\u667A\u5A9B': '\u6211\u4E0D\u60F3\u53EA\u662F\u961F\u53CB\u4E86\u2026\u2026\u6211\u60F3\u66F4\u8FD1\u4E00\u70B9\u3002',
+        '\u4FCA\u660A': '\u5982\u679C\u4E16\u754C\u53EA\u5269\u4E00\u4E2A\u4EBA\uFF0C\u6211\u5E0C\u671B\u662F\u4F60\u3002',
+        '\u745E\u8D24': '\u2026\u2026\u522B\u8D70\u3002\u6C42\u4F60\u4E86\u3002'
+    },
+    80: {
+        '\u590f\u6069': '\u4F60\u662F\u6211\u552F\u4E00\u4E0D\u60F3\u8BA9\u522B\u4EBA\u770B\u5230\u4F60\u96BE\u8FC7\u7684\u4EBA\u3002',
+        '\u7D20\u96C5': '\u6211\u7684\u6BCF\u4E00\u9996\u6B4C\uFF0C\u90FD\u662F\u5199\u7ED9\u4F60\u7684\u60C5\u4E66\u3002',
+        '\u667A\u5A9B': '\u6211\u5DF2\u7ECF\u65E0\u6CD5\u60F3\u8C61\u6CA1\u6709\u4F60\u7684\u65E5\u5B50\u4E86\u3002',
+        '\u4FCA\u660A': '\u8DDF\u6211\u5728\u4E00\u8D77\u5427\u3002\u4E0D\u662F\u961F\u53CB\uFF0C\u662F\u201C\u5728\u4E00\u8D77\u201D\u3002',
+        '\u745E\u8D24': '\u2026\u2026\u4F60\u662F\u6211\u7684\u4F8B\u5916\u3002\u6C38\u8FDC\u662F\u3002'
+    },
+    100: {
+        '\u590f\u6069': '\u6211\u628A\u6574\u4E2A\u4E16\u754C\u90FD\u7ED9\u4E86\u4F60\u3002\u4F60\u662F\u6211\u7684\uFF0C\u6C38\u8FDC\u662F\u3002',
+        '\u7D20\u96C5': '\u4ECE\u4ECA\u5929\u8D77\uFF0C\u6211\u7684\u6B4C\u53EA\u4E3A\u4F60\u4E00\u4E2A\u4EBA\u800C\u5531\u3002',
+        '\u667A\u5A9B': '\u6211\u7231\u4F60\u3002\u4E0D\u662F\u559C\u6B22\uFF0C\u662F\u7231\u3002\u8FD9\u8F88\u5B50\u53EA\u7231\u4F60\u3002',
+        '\u4FCA\u660A': '\u6211\u5168\u90E8\u7684\u52C7\u6C14\u90FD\u7528\u6765\u7231\u4F60\u4E86\u3002\u4F59\u751F\u8BF7\u591A\u6307\u6559\u3002',
+        '\u745E\u8D24': '\u2026\u2026\u6211\u4E5F\u4F1A\u8BF4\u4E86\u3002\u6211\u7231\u4F60\u3002'
+    }
+};
+
+
+// V2.0: NPC status text in scene
+var NPC_STATUS_TEXT = {
+    '\u590f\u6069': {
+        low: '\u9762\u65E0\u8868\u60C5\u5730\u7EC3\u4E60\u7740',
+        mid: '\u770B\u4E86\u4F60\u4E00\u773C\uFF0C\u53C8\u8F6C\u56DE\u53BB',
+        high: '\u5FAE\u5FAE\u626C\u8D77\u5634\u89D2\uFF0C\u4F3C\u4E4E\u5728\u7B49\u4F60'
+    },
+    '\u7D20\u96C5': {
+        low: '\u8F7B\u8F7B\u54FC\u7740\u6B4C\uFF0C\u6CA1\u6CE8\u610F\u5230\u4F60',
+        mid: '\u548C\u4F60\u6253\u4E86\u4E2A\u62DB\u547C\uFF0C\u773C\u795E\u6E29\u67D4',
+        high: '\u7B11\u7740\u671D\u4F60\u6325\u624B\uFF0C\u7709\u773C\u5F2F\u5F2F'
+    },
+    '\u667A\u5A9B': {
+        low: '\u5728\u89D2\u843D\u91CC\u7784\u7740\u624B\u673A',
+        mid: '\u51B2\u4F60\u629B\u4E86\u4E2A\u9B3C\u8138\uFF0C\u7136\u540E\u5077\u7B11',
+        high: '\u8DD1\u8FC7\u6765\u62C9\u4F60\u7684\u8896\u5B50\uFF0C\u7B11\u5F97\u5F88\u5F00\u5FC3'
+    },
+    '\u4FCA\u660A': {
+        low: '\u4E13\u6CE8\u5730\u7EC3\u4E60\uFF0C\u6CA1\u62AC\u5934',
+        mid: '\u70B9\u4E86\u4E0B\u5934\uFF0C\u7B97\u662F\u6253\u62DB\u547C',
+        high: '\u62AC\u5934\u770B\u4F60\uFF0C\u773C\u91CC\u6709\u4E86\u7B11\u610F'
+    },
+    '\u745E\u8D24': {
+        low: '\u9760\u5728\u5899\u89D2\uFF0C\u5E3D\u6A90\u538B\u5F97\u5F88\u4F4E',
+        mid: '\u626B\u4E86\u4F60\u4E00\u773C\uFF0C\u6CA1\u8BF4\u8BDD',
+        high: '\u5634\u89D2\u52A8\u4E86\u52A8\uFF0C\u4F3C\u4E4E\u60F3\u8BF4\u4EC0\u4E48\u53C8\u6CA1\u5F00\u53E3'
+    }
+};
+
+function _getNpcStatusText(npcName) {
+    var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+    var data = NPC_STATUS_TEXT[npcName];
+    if (!data) return '';
+    if (love >= 60) return data.high;
+    if (love >= 20) return data.mid;
+    return data.low;
+}
+
+// V2.0: Chapter unlock animation
+function _showChapterUnlockAnim(chapterNum, chapterTitle, callback) {
+    var chapterNames = {
+        1: '\u7B2C\u4E00\u7AE0',
+        2: '\u7B2C\u4E8C\u7AE0',
+        3: '\u7B2C\u4E09\u7AE0'
+    };
+    var label = chapterNames[chapterNum] || ('\u7B2C' + chapterNum + '\u7AE0');
+    var overlay = document.createElement('div');
+    overlay.id = 'chapterUnlockOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:10003;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#0F0C29;';
+    overlay.innerHTML = '\u003cdiv style="font-size:12px;color:#888;letter-spacing:0.3em;margin-bottom:16px;animation:_chFadeIn 1s ease-out forwards;"\u003e' + label + '\u003c/div\u003e'
+        + '\u003cdiv style="font-size:26px;font-weight:700;color:#FFF;letter-spacing:0.15em;animation:_chFadeIn 1.5s ease-out forwards;"\u003e' + chapterTitle + '\u003c/div\u003e'
+        + '\u003cdiv style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#A78BFA,transparent);margin-top:20px;animation:_chFadeIn 2s ease-out forwards;"\u003e\u003c/div\u003e';
+    document.body.appendChild(overlay);
+    setTimeout(function() {
+        overlay.style.transition = 'opacity 0.8s';
+        overlay.style.opacity = '0';
+        setTimeout(function() {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            if (callback) callback();
+        }, 800);
+    }, 3000);
+}
+
+// V2.0: Typewriter effect system
+var _twSpeed = 80;
+var _twSpeedKey = 50;
+var _twPunctPause = 200;
+var _twTimer = null;
+var _twSkip = false;
+var _twPunctuation = '\u3002\uFF0C\uFF01\uFF1F\u2026\u3001\uFF1B\uFF1A';
+
+function _isPunctuation(ch) {
+    return _twPunctuation.indexOf(ch) >= 0;
+}
+
+function _typewriterRender(el, text, speed, onDone) {
+    if (_twTimer) { clearTimeout(_twTimer); _twTimer = null; }
+    _twSkip = false;
+    var idx = 0;
+    var s = speed || _twSpeed;
+    el.textContent = '';
+    function tick() {
+        if (_twSkip || idx >= text.length) {
+            el.textContent = text;
+            _twTimer = null;
+            if (onDone) onDone();
+            return;
+        }
+        el.textContent += text[idx];
+        var delay = s;
+        if (_isPunctuation(text[idx])) delay = _twPunctPause;
+        idx++;
+        _twTimer = setTimeout(tick, delay);
+    }
+    tick();
+    el._twSkip = function() { _twSkip = true; };
+}
+
+// V2.0: VIP tier benefits (final spec)
+var VIP_BENEFITS = {
+    free: {
+        label: '\u514D\u8D39\u73A9\u5BB6',
+        aiChat: 5,
+        sideStory: false,
+        skin: false,
+        desc: '\u4E3B\u7EBF\u5B8C\u6574\u89E3\u9501\uFF0CAI\u5BF9\u8BDD5\u6761/\u5929'
+    },
+    monthly: {
+        label: '\u6708\u5EA6\u4F1A\u5458',
+        aiChat: 50,
+        sideStory: 'current',
+        skin: 'monthly',
+        desc: 'AI\u5BF9\u8BDD50\u6761/\u5929\uFF0C\u5F53\u6708\u89D2\u8272\u652F\u7EBF\u53EF\u8BFB'
+    },
+    quarterly: {
+        label: '\u5B63\u5EA6\u4F1A\u5458',
+        aiChat: 80,
+        sideStory: 'quarter',
+        skin: 'quarterly',
+        desc: 'AI\u5BF9\u8BDD80\u6761/\u5929\uFF0C\u5F53\u5B63\u89D2\u8272\u652F\u7EBF\u53EF\u8BFB'
+    },
+    yearly: {
+        label: '\u5E74\u5EA6\u4F1A\u5458',
+        aiChat: 999,
+        sideStory: 'all',
+        skin: 'all',
+        desc: 'AI\u5BF9\u8BDD\u4E0D\u9650\uFF0C\u5168\u90E8\u89D2\u8272\u652F\u7EBF\u89E3\u9501'
+    }
+};
+
+function _canReadSideStory(npcName) {
+    var tier = getVipTier();
+    var benefits = VIP_BENEFITS[tier];
+    if (!benefits) return false;
+    if (benefits.sideStory === true || benefits.sideStory === 'all') return true;
+    // For 'current' and 'quarter', check if side story is published this period
+    // Simplified: monthly/quarterly can read all published side stories
+    if (benefits.sideStory === 'current' || benefits.sideStory === 'quarter') return true;
+    return false;
+}
+
+function _getVipBenefitsHtml() {
+    var tier = getVipTier();
+    var b = VIP_BENEFITS[tier] || VIP_BENEFITS.free;
+    var chatLimit = b.aiChat === 999 ? '\u4E0D\u9650' : (b.aiChat + '\u6761/\u5929');
+    var sideStory = b.sideStory ? '\u5DF2\u89E3\u9501' : '\u672A\u89E3\u9501';
+    return '\u003cdiv style="padding:16px;"\u003e'
+        + '\u003cdiv style="font-size:18px;font-weight:700;margin-bottom:12px;"\u003e' + b.label + '\u003c/div\u003e'
+        + '\u003cdiv style="display:flex;justify-content:space-between;margin-bottom:8px;"\u003e'
+        + '\u003cspan style="color:var(--color-text-light);"\u003eAI\u5BF9\u8BDD\u003c/span\u003e'
+        + '\u003cspan\u003e' + chatLimit + '\u003c/span\u003e'
+        + '\u003c/div\u003e'
+        + '\u003cdiv style="display:flex;justify-content:space-between;margin-bottom:8px;"\u003e'
+        + '\u003cspan style="color:var(--color-text-light);"\u003e\u89D2\u8272\u652F\u7EBF\u003c/span\u003e'
+        + '\u003cspan\u003e' + sideStory + '\u003c/span\u003e'
+        + '\u003c/div\u003e'
+        + '\u003cdiv style="margin-top:12px;font-size:13px;color:var(--color-text-light);"\u003e' + b.desc + '\u003c/div\u003e'
+        + '\u003c/div\u003e';
+}
+
+
+// V2.0: Selection regret mechanism - 30s undo for key choices
+var _regretTimer = null;
+var _regretCallback = null;
+var _regretUsedThisChapter = false;
+
+function _showChoiceWithUndo(choiceIdx, choiceText, chapterNum) {
+    if (_regretUsedThisChapter) return;
+    var undoBar = document.getElementById('choiceUndoBar');
+    if (undoBar) undoBar.parentNode.removeChild(undoBar);
+    var bar = document.createElement('div');
+    bar.id = 'choiceUndoBar';
+    bar.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:10001;display:flex;align-items:center;gap:8px;padding:8px 16px;background:rgba(26,42,58,0.9);border-radius:20px;color:white;font-size:12px;';
+    bar.innerHTML = '\u003cspan\u003e\u5DF2\u9009\u62E9\uFF1A' + choiceText.substring(0,10) + '\u003c/span\u003e'
+        + '\u003cbutton onclick="_undoChoice()" style="padding:4px 12px;background:#FF3B30;border:none;border-radius:12px;color:white;font-size:11px;cursor:pointer;"\u003e\u64A4\u9500\u003c/button\u003e'
+        + '\u003cspan id="choiceUndoTimer" style="color:#FF9500;"\u003e30s\u003c/span\u003e';
+    document.body.appendChild(bar);
+    var timeLeft = 30;
+    if (_regretTimer) clearInterval(_regretTimer);
+    _regretTimer = setInterval(function() {
+        timeLeft--;
+        var timerEl = document.getElementById('choiceUndoTimer');
+        if (timerEl) timerEl.textContent = timeLeft + 's';
+        if (timeLeft <= 0) {
+            clearInterval(_regretTimer);
+            _regretTimer = null;
+            var b = document.getElementById('choiceUndoBar');
+            if (b) b.parentNode.removeChild(b);
+        }
+    }, 1000);
+}
+
+function _undoChoice() {
+    if (_regretTimer) { clearInterval(_regretTimer); _regretTimer = null; }
+    var bar = document.getElementById('choiceUndoBar');
+    if (bar) bar.parentNode.removeChild(bar);
+    _regretUsedThisChapter = true;
+    showToast('\u5DF2\u64A4\u9500\u4E0A\u4E00\u4E2A\u9009\u62E9\uFF0C\u672C\u7AE0\u4E0D\u518D\u53EF\u64A4\u9500');
+    // Re-render current step
+    if (typeof _renderChapterStepUI === 'function') _renderChapterStepUI();
+}
+
+// V2.0: NPC active messaging - triggered when affection >= 20
+var NPC_ACTIVE_MESSAGES = {
+    '\u590f\u6069': [
+        '\u2026\u2026\u4F60\u5728\u5417\uFF1F',
+        '\u4ECA\u5929\u7EC3\u4E60\u5F97\u600E\u4E48\u6837\uFF1F',
+        '\u522B\u5077\u61D2\u3002',
+        '\u6211\u770B\u5230\u4F60\u7684\u8FDB\u6B65\u4E86\u3002'
+    ],
+    '\u7D20\u96C5': [
+        '\u4F60\u597D\uFF0C\u5728\u5417\uFF1F',
+        '\u6211\u521A\u5199\u4E86\u4E00\u6BB5\u65B0\u65CB\u5F8B\uFF0C\u60F3\u8BA9\u4F60\u542C\u542C\u3002',
+        '\u8BB0\u5F97\u4F11\u606F\u3002',
+        '\u4ECA\u5929\u7684\u5929\u7A7A\u5F88\u597D\u770B\u3002'
+    ],
+    '\u667A\u5A9B': [
+        '\u5566\u5566\u5566\uFF01\u4F60\u5728\u5E72\u561B\uFF1F',
+        '\u6211\u521A\u770B\u4E86\u4E00\u4E2A\u8D85\u597D\u7B11\u7684\u89C6\u9891\uFF01',
+        '\u4F60\u4E0D\u7406\u6211\u6211\u5C31\u53D1\u66F4\u591A\uFF01',
+        '\u4ECA\u5929\u4E5F\u8981\u52A0\u6CB9\u54E6~'
+    ],
+    '\u4FCA\u660A': [
+        '\u7EC3\u4E60\u5F97\u600E\u4E48\u6837\u4E86\uFF1F',
+        '\u6709\u7A7A\u7684\u8BDD\u4E00\u8D77\u7EC3\u5427\u3002',
+        '\u6CE8\u610F\u4F53\u529B\u3002',
+        '\u4F60\u7684\u8FDB\u6B65\u6BD4\u6211\u60F3\u8C61\u7684\u5FEB\u3002'
+    ],
+    '\u745E\u8D24': [
+        '\u2026\u2026',
+        '\u5728\u5417\u3002',
+        '\u522B\u592A\u62FC\u4E86\u3002',
+        '\u2026\u2026\u6211\u53EA\u662F\u770B\u770B\u4F60\u5728\u4E0D\u5728\u3002'
+    ]
+};
+
+function _triggerNpcActiveMessage() {
+    if (!gameState.npc好感度 || !gameState.kakaoFriends) return;
+    var eligibleNpcs = [];
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        var npcName = gameState.kakaoFriends[i].name;
+        var love = gameState.npc好感度[npcName] || 0;
+        if (love >= 20 && NPC_ACTIVE_MESSAGES[npcName]) {
+            eligibleNpcs.push(npcName);
+        }
+    }
+    if (eligibleNpcs.length === 0) return;
+    // 30% chance to trigger a random message
+    if (Math.random() > 0.3) return;
+    var npcName = eligibleNpcs[Math.floor(Math.random() * eligibleNpcs.length)];
+    var msgs = NPC_ACTIVE_MESSAGES[npcName];
+    var msg = msgs[Math.floor(Math.random() * msgs.length)];
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats[npcName]) gameState.kakaoChats[npcName] = [];
+    var now = new Date();
+    var ts = (now.getHours() < 10 ? '0' : '') + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
+    gameState.kakaoChats[npcName].push({ from: npcName, text: msg, time: ts, read: false });
+    gameState.smsUnread = (gameState.smsUnread || 0) + 1;
+}
+
+// V2.0: Choice accumulation -> ending type
+var CHOICE_IMPACT_TAGS = {
+    interview: { '\u7D27\u5F20': 'proof', '\u81EA\u4FE1': 'ambition' },
+    first_training: { '\u6709\u57FA\u7840': 'ambition', '\u96F6\u57FA\u7840': 'passion', '\u5B66\u8FC7\u4E00\u70B9': 'proof' },
+    junho_doubt: { '\u8FFD\u95EE': 'ambition', '\u8BC1\u660E\u81EA\u5DF1': 'proof', '\u865A\u5FC3\u8BF7\u6559': 'passion' },
+    live_style: { '\u6D3B\u6CFC': 'passion', '\u5BB3\u7F9E': 'proof', '\u8BA4\u771F': 'ambition' },
+    street_performance: { '\u6162\u6B4C': 'passion', '\u821E\u8E48\u66F2': 'ambition', 'Rap': 'ambition' },
+    debut_plan: { '\u9177\u98CE': 'ambition', '\u9752\u6625': 'passion', '\u795E\u79D8': 'proof' },
+    first_win: { '\u62FC\u4E86': 'ambition', '\u8C26\u865A': 'passion', '\u4E3A\u56E2\u961F': 'proof' },
+    dating_scandal: { '\u5766\u8BDA': 'passion', '\u5426\u8BA4': 'ambition' },
+    crisis_response: { '\u9053\u6B49': 'proof', '\u5766\u8BDA\u9762\u5BF9': 'passion', '\u6C89\u9ED8': 'ambition' },
+    handle_hate: { '\u5766\u7136': 'proof', '\u65E0\u89C6': 'ambition' },
+    secret_love: { '\u8868\u767D': 'passion', '\u85CF\u5728\u5FC3\u91CC': 'proof' },
+    love_exposed: { '\u5766\u8BDA': 'passion', '\u5426\u8BA4': 'ambition' },
+    self_rebuild: { '\u5199\u6B4C': 'passion', '\u76F4\u64AD': 'ambition', '\u6C89\u9ED8': 'proof' },
+    award_speech: { '\u611F\u6069': 'passion', '\u8FD8\u4E0D\u591F': 'ambition', '\u732E\u7ED9\u7C89\u4E1D': 'proof' },
+    thank_call: { '\u6253\u7ED9\u590f\u6069': 'ambition', '\u6253\u7ED9\u7D20\u96C5': 'passion', '\u6253\u7ED9\u5BB6\u4EBA': 'proof' },
+    look_back: { '\u5168\u90E8\u8BB0\u5F97': 'ambition', '\u53EA\u8BB0\u5F97\u91CD\u8981\u7684': 'passion' },
+    grand_prize: { '\u611F\u6069': 'passion', '\u8FD8\u4E0D\u591F': 'ambition', '\u4E3A\u7C89\u4E1D': 'proof' },
+    contract_talk: { '\u8C08\u5224': 'ambition', '\u63A5\u53D7': 'proof' }
+};
+
+function _getDominantEndingTag() {
+    if (!gameState.chapterState || !gameState.chapterState.choices) return 'passion';
+    var tags = { ambition: 0, passion: 0, proof: 0 };
+    var choices = gameState.chapterState.choices;
+    for (var i = 0; i < choices.length; i++) {
+        var ch = choices[i];
+        var choiceData = CHOICE_IMPACT_TAGS[ch.choiceKey];
+        if (choiceData && choiceData[ch.choiceValue]) {
+            tags[choiceData[ch.choiceValue]]++;
+        }
+    }
+    if (tags.ambition >= tags.passion && tags.ambition >= tags.proof) return 'ambition';
+    if (tags.passion >= tags.proof) return 'passion';
+    return 'proof';
+}
+function _checkMilestoneExclusive(npcName, oldLove, newLove) {
+    var milestones = [20, 40, 60, 80, 100];
+    for (var i = 0; i < milestones.length; i++) {
+        var m = milestones[i];
+        if (oldLove < m && newLove >= m) {
+            var content = MILESTONE_EXCLUSIVE[m] && MILESTONE_EXCLUSIVE[m][npcName];
+            if (content) {
+                if (!gameState.sms) gameState.sms = [];
+                var now = new Date();
+                var h = now.getHours(); var mi = now.getMinutes();
+                var ts = (h < 10 ? '0' : '') + h + ':' + (mi < 10 ? '0' : '') + mi;
+                gameState.sms.unshift({
+                    from: npcName,
+                    text: content,
+                    icon: (MILESTONE_EXCLUSIVE[m][npcName] ? npcName : ''),
+                    time: ts,
+                    read: false,
+                    isMilestone: true
+                });
+                if (gameState.sms.length > 30) gameState.sms = gameState.sms.slice(0, 30);
+                gameState.smsUnread = (gameState.smsUnread || 0) + 1;
+                // Set icon color
+                var npcColor = '#F59E0B';
+                if (npcName === '\u7D20\u96C5') npcColor = '#A78BFA';
+                else if (npcName === '\u667A\u5A9B') npcColor = '#F472B6';
+                else if (npcName === '\u4FCA\u660A') npcColor = '#60A5FA';
+                else if (npcName === '\u745E\u8D24') npcColor = '#34D399';
+                // Find the just-inserted SMS and set the icon
+                for (var si = 0; si < gameState.sms.length; si++) {
+                    if (gameState.sms[si].isMilestone && gameState.sms[si].from === npcName) {
+                        gameState.sms[si].icon = npcColor;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
 function addLove(npcName, amount) {
     if (!gameState.npc好感度) gameState.npc好感度 = {};
     var oldLove = gameState.npc好感度[npcName] || 0;
     var newLove = Math.min(100, oldLove + amount);
     gameState.npc好感度[npcName] = newLove;
+    // V2.0: Check milestone exclusive content
+    _checkMilestoneExclusive(npcName, oldLove, newLove);
     // Check love node milestones
     for (var ni = 0; ni < LOVE_NODES.length; ni++) {
         var node = LOVE_NODES[ni];
@@ -7932,37 +8360,24 @@ function _doSwitchSlot(slot) {
 
 
 function render设置Page(container) {
-    var cloudStatus = _isCloudLoggedIn() ? '<span style="color:var(--color-success);">已连接</span>' : '<span style="color:var(--color-text-light);">未连接</span>';
-    container.innerHTML = '\n        <div class="page active">\n            <div class="page-header">\n                <div class="back-btn" onclick="goToPage(\'home\')">\u2039 首页</div>\n                <div class="page-title">设置</div>\n                <div style="width: 32px;"></div>\n            </div>\n            <div class="page-content">\n                <div class="card" onclick="saveGame(current存档)" style="cursor: pointer;">\n                    <div style="font-weight: 600;">保存游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">保存到存档 ' + (current存档 + 1) + '</div>\n                </div>\n                <div class="card" onclick="_switchSaveSlot()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">切换存档</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换到存档2或3，当前进度不会丢失</div>\n                </div>\n                <div class="card" onclick="_doCloudSyncDown()" style="cursor: pointer;">\n                    <div style="font-weight: 600;">云端同步</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">从云端拉取最新存档 ' + cloudStatus + '</div>\n                </div>\n                <div class="card" onclick="_resetSave()">\n                    <div style="font-weight: 600; color: var(--color-danger);">重新开始</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">删除当前存档，重新创建角色</div>\n                </div>\n                <div class="card" onclick="_doLogout()">\n                    <div style="font-weight: 600; color: var(--color-danger);">退出登录</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">切换账号或注册新账号</div>\n                </div>\n                <div class="card" onclick="confirmExit()">\n                    <div style="font-weight: 600;">退出游戏</div>\n                    <div style="font-size: 12px; color: var(--color-text-light);">返回标题画面</div>\n                </div>\n            </div>\n        </div>\n    ';
+    var cloudStatus = _isCloudLoggedIn() ? '\u003cspan style="color:var(--color-success);"\u003e\u5DF2\u8FDE\u63A5\u003c/span\u003e' : '\u003cspan style="color:var(--color-text-light);"\u003e\u672A\u8FDE\u63A5\u003c/span\u003e';
+    var vipTier = getVipTier();
+    var vipBenefit = VIP_BENEFITS[vipTier] || VIP_BENEFITS.free;
+    var chatLabel = vipBenefit.aiChat === 999 ? '\u4E0D\u9650' : (vipBenefit.aiChat + '\u6761/\u5929');
+    var vipHtml = '\u003cdiv class="card" style="background:linear-gradient(135deg,#1A1A3E,#2D1B69);border:1px solid ' + (vipTier !== 'free' ? '#A78BFA' : '#334155') + ';"\u003e'
+        + '\u003cdiv style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"\u003e'
+        + '\u003cdiv style="font-weight:600;color:' + (vipTier !== 'free' ? '#A78BFA' : '#F8FAFC') + ';"\u003e' + vipBenefit.label + '\u003c/div\u003e'
+        + '\u003cdiv style="font-size:11px;padding:2px 8px;border-radius:10px;background:' + (vipTier !== 'free' ? '#A78BFA' : '#334155') + ';color:white;"\u003eAI ' + chatLabel + '\u003c/div\u003e'
+        + '\u003c/div\u003e'
+        + '\u003cdiv style="font-size:12px;color:#94A3B8;"\u003e' + vipBenefit.desc + '\u003c/div\u003e';
+    if (vipTier === 'free') {
+        vipHtml += '\u003cdiv onclick="window.open(\'https://afdian.com/a/myidol\',\'_blank\')" style="margin-top:8px;padding:8px;background:#A78BFA;color:white;border-radius:6px;text-align:center;font-size:12px;cursor:pointer;"\u003e9.9\u5143/\u6708 \u8BA2\u9605\u4F1A\u5458\u003c/div\u003e';
+    }
+    vipHtml += '\u003c/div\u003e';
+    container.innerHTML = '\n        \u003cdiv class="page active"\u003e\n            \u003cdiv class="page-header"\u003e\n                \u003cdiv class="back-btn" onclick="goToPage(\'home\')"\u003e\u2039 \u9996\u9875\u003c/div\u003e\n                \u003cdiv class="page-title"\u003e\u8BBE\u7F6E\u003c/div\u003e\n                \u003cdiv style="width: 32px;"\u003e\u003c/div\u003e\n            \u003c/div\u003e\n            \u003cdiv class="page-content"\u003e\n'
+        + vipHtml
+        + '\n                \u003cdiv class="card" onclick="saveGame(current\u5B58\u6863)" style="cursor: pointer;"\u003e\n                    \u003cdiv style="font-weight: 600;"\u003e\u4FDD\u5B58\u6E38\u620F\u003c/div\u003e\n                    \u003cdiv style="font-size: 12px; color: var(--color-text-light);"\u003e\u4FDD\u5B58\u5230\u5B58\u6863 ' + (current\u5B58\u6863 + 1) + '\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class="card" onclick="_switchSaveSlot()" style="cursor: pointer;"\u003e\n                    \u003cdiv style="font-weight: 600;"\u003e\u5207\u6362\u5B58\u6863\u003c/div\u003e\n                    \u003cdiv style="font-size: 12px; color: var(--color-text-light);"\u003e\u5207\u6362\u5230\u5B58\u68632\u62163\uFF0C\u5F53\u524D\u8FDB\u5EA6\u4E0D\u4F1A\u4E22\u5931\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class="card" onclick="_doCloudSyncDown()" style="cursor: pointer;"\u003e\n                    \u003cdiv style="font-weight: 600;"\u003e\u4E91\u7AEF\u540C\u6B65\u003c/div\u003e\n                    \u003cdiv style="font-size: 12px; color: var(--color-text-light);"\u003e\u4ECE\u4E91\u7AEF\u62C9\u53D6\u6700\u65B0\u5B58\u6863 ' + cloudStatus + '\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class="card" onclick="_resetSave()"\u003e\n                    \u003cdiv style="font-weight: 600; color: var(--color-danger);"\u003e\u91CD\u65B0\u5F00\u59CB\u003c/div\u003e\n                    \u003cdiv style="font-size: 12px; color: var(--color-text-light);"\u003e\u5220\u9664\u5F53\u524D\u5B58\u6863\uFF0C\u91CD\u65B0\u521B\u5EFA\u89D2\u8272\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class="card" onclick="_doLogout()"\u003e\n                    \u003cdiv style="font-weight: 600; color: var(--color-danger);"\u003e\u9000\u51FA\u767B\u5F55\u003c/div\u003e\n                    \u003cdiv style="font-size: 12px; color: var(--color-text-light);"\u003e\u5207\u6362\u8D26\u53F7\u6216\u6CE8\u518C\u65B0\u8D26\u53F7\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class="card" onclick="confirmExit()"\u003e\n                    \u003cdiv style="font-weight: 600;"\u003e\u8FD4\u56DE\u6807\u9898\u003c/div\u003e\n                \u003c/div\u003e\n            \u003c/div\u003e\n        \u003c/div\u003e';
 }
-
-var _exitCooldown = false;
-function confirmExit() {
-    if (_exitCooldown) return;
-    _exitCooldown = true;
-    setTimeout(function() { _exitCooldown = false; }, 3000);
-    showModal('退出游戏', '确定要退出吗？游戏会自动保存', [
-        { text: '取消', action: closeModal },
-        { text: '退出', action: function() {
-            try {
-                var saveData = {};
-                var keys = Object.keys(gameState);
-                for (var si = 0; si < keys.length; si++) {
-                    if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
-                }
-                localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
-            } catch(e) {}
-            if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
-            currentPage = 'welcome';
-            document.getElementById('statusBar').style.display = 'none';
-            document.getElementById('restButtons').style.display = 'none';
-            document.getElementById('bottomNav').style.display = 'none';
-            document.getElementById('homeIndicator').style.display = 'none';
-            render();
-        }}
-    ]);
-}
-
 // ==================== GAME ACTIONS ====================
 function do训练() {
     if (gameState.体力 < 20) {
@@ -12492,6 +12907,68 @@ function showNpcCard(npcName) {
     document.body.appendChild(overlay);
 }
 
+
+// V2.0: Kakao chat conversation page
+function renderKakaoChatConversationPage(container) {
+    var npcName = gameState.kakaoCurrentChat || '';
+    if (!npcName) { goToPage('contacts'); return; }
+    var npc = null;
+    for (var i = 0; i < gameState.kakaoFriends.length; i++) {
+        if (gameState.kakaoFriends[i].name === npcName) { npc = gameState.kakaoFriends[i]; break; }
+    }
+    if (!npc) { goToPage('contacts'); return; }
+    var npcColor = npc.avatarColor || '#F59E0B';
+    var chats = gameState.kakaoChats[npcName] || [];
+    var usedQuota = _getDailyChatCount();
+    var totalQuota = _getDailyChatLimit();
+    var quotaText = totalQuota === 999 ? '\u221E' : (usedQuota + '/' + totalQuota);
+    var quotaColor = usedQuota >= totalQuota ? '#FF3B30' : 'var(--color-text-light)';
+    var statusText = _getNpcStatusText(npcName);
+    
+    var html = '\u003cdiv class="page active" style="display:flex;flex-direction:column;height:100%;"\u003e'
+        + '\u003cdiv style="display:flex;align-items:center;padding:12px 16px;background:var(--bg-card);border-bottom:1px solid var(--color-border);flex-shrink:0;"\u003e'
+        + '\u003cdiv onclick="goToPage(\'contacts\')" style="cursor:pointer;margin-right:12px;color:var(--color-primary);font-size:14px;-webkit-tap-highlight-color:transparent;"\u003e\u003csvg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"\u003e\u003cpath d="M15 18l-6-6 6-6"/\u003e\u003c/svg\u003e\u003c/div\u003e'
+        + '\u003cdiv style="width:36px;height:36px;border-radius:50%;background:' + npcColor + ';display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:14px;margin-right:10px;"\u003e' + npcName.charAt(0) + '\u003c/div\u003e'
+        + '\u003cdiv style="flex:1;"\u003e'
+        + '\u003cdiv style="font-size:15px;font-weight:600;"\u003e' + npcName + '\u003c/div\u003e'
+        + (statusText ? '\u003cdiv style="font-size:11px;color:var(--color-text-light);"\u003e' + statusText + '\u003c/div\u003e' : '')
+        + '\u003c/div\u003e'
+        + '\u003cdiv style="font-size:11px;color:' + quotaColor + ';"\u003eAI ' + quotaText + '\u003c/div\u003e'
+        + '\u003c/div\u003e'
+        + '\u003cdiv id="kakaoChatArea" style="flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:6px;"\u003e';
+    
+    for (var i = 0; i < chats.length; i++) {
+        var msg = chats[i];
+        var isMe = msg.from === 'me';
+        html += '\u003cdiv class="kakao-msg-row ' + (isMe ? 'me' : 'npc') + '"\u003e'
+            + '\u003cdiv\u003e'
+            + '\u003cdiv class="kakao-msg-bubble ' + (isMe ? 'me' : 'npc') + '"\u003e' + msg.text + '\u003c/div\u003e'
+            + '\u003cdiv class="kakao-msg-time"\u003e' + (msg.time || '') + '\u003c/div\u003e'
+            + '\u003c/div\u003e\u003c/div\u003e';
+    }
+    
+    html += '\u003c/div\u003e'
+        + '\u003cdiv style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-card);border-top:1px solid var(--color-border);flex-shrink:0;"\u003e'
+        + '\u003cinput type="text" id="kakaoMsgInput" placeholder="' + (_canChatToday() ? '\u8F93\u5165\u6D88\u606F...' : '\u4ECA\u5929\u7684\u804A\u5929\u6B21\u6570\u5DF2\u7528\u5B8C') + '" style="flex:1;border:1px solid var(--color-border);border-radius:18px;padding:8px 14px;font-size:13px;outline:none;background:var(--bg-main);' + (_canChatToday() ? '' : 'opacity:0.5;') + '" ' + (_canChatToday() ? 'onkeydown="if(event.key===\'Enter\')sendKakaoMessage()"' : 'disabled') + '\u003e'
+        + '\u003cbutton onclick="sendKakaoMessage()" style="width:36px;height:36px;border-radius:50%;background:var(--color-primary);border:none;color:white;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;"\u003e\u003csvg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"\u003e\u003cline x1="22" y1="2" x2="11" y2="13"\u003e\u003c/line\u003e\u003cpolygon points="22 2 15 22 11 13 2 9 22 2"\u003e\u003c/polygon\u003e\u003c/svg\u003e\u003c/button\u003e'
+        + '\u003c/div\u003e\u003c/div\u003e';
+    
+    container.innerHTML = html;
+    
+    // Mark messages as read
+    if (gameState.kakaoChats[npcName]) {
+        for (var i = 0; i < gameState.kakaoChats[npcName].length; i++) {
+            if (gameState.kakaoChats[npcName][i].from !== 'me') {
+                gameState.kakaoChats[npcName][i].read = true;
+            }
+        }
+    }
+    
+    // Scroll to bottom
+    var area = document.getElementById('kakaoChatArea');
+    if (area) area.scrollTop = area.scrollHeight;
+}
+
 function sendKakaoMessage() {
     var input = document.getElementById('kakaoMsgInput');
     if (!input) return;
@@ -12499,6 +12976,13 @@ function sendKakaoMessage() {
     if (!text) return;
 
     var npcName = gameState.kakaoCurrentChat;
+    // V2.0: Check daily chat quota
+    if (!_canChatToday()) {
+        var limit = _getDailyChatLimit();
+        showToast('\u4ECA\u5929\u7684\u804A\u5929\u6B21\u6570\u5DF2\u7528\u5B8C\uFF08' + limit + '\u6B21/\u5929\uFF09\uFF0C\u660E\u5929\u518D\u6765\u5427~');
+        return;
+    }
+    _useChatQuota();
     if (!gameState.kakaoChats[npcName]) gameState.kakaoChats[npcName] = [];
     var now = new Date();
     var timeStr = (now.getHours() < 10 ? '0' : '') + now.getHours() + ':' + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes();
@@ -12547,6 +13031,10 @@ function sendKakaoMessage() {
             getAIReply('kakaotalk', npcContext, text, function(reply) {
                 gameState.kakaoChats[npcName].push({ from: 'npc', text: reply, time: timeStr });
                 notifyKakao(npcName, reply.substring(0,30));
+                // V2.0: Affection gain + floating feedback
+                var chatGain = Math.floor(Math.random() * 4) + 2;
+                addLove(npcName, chatGain);
+                _showAffectionFloat(npcName, chatGain);
                 var ca = document.getElementById('kakaoChatArea');
                 if (ca) {
                     var npcDiv = document.createElement('div');
@@ -14696,6 +15184,44 @@ var CHAPTER_CONFIG = {
             '3.7': { type: 'choice', nextStep: '3.8', choiceKey: 'grand_prize', condition: 'dance', target: 90, label: '\u821E\u8E48 0/90' },
             '3.8': { type: 'chapter_end', app: 'contacts' }
         }
+    },
+    4: {
+        title: 'Idol Chapter 1',
+        subtitle: '\u51FA\u9053\u56DE\u5FC6',
+        steps: {
+            '4.0': { type: 'narration', nextStep: '4.1', scene: 'lobby', unlockApp: 'contacts' },
+            '4.1': { type: 'narration', nextStep: '4.2', scene: 'practice_room', unlockApp: 'schedule' },
+            '4.2': { type: 'narration', nextStep: '4.3', scene: 'music_show', unlockApp: 'live' },
+            '4.3': { type: 'narration', nextStep: '4.4', unlockApp: 'daily' },
+            '4.4': { type: 'chapter_end', unlockApp: 'comeback' }
+        }
+    },
+    5: {
+        title: 'Idol Chapter 2',
+        subtitle: '\u6210\u540D',
+        steps: {
+            '5.0': { type: 'narration', nextStep: '5.1', scene: 'lobby' },
+            '5.1': { type: 'choice', nextStep: '5.2', choiceKey: 'handle_hate', unlockApp: 'pr' },
+            '5.2': { type: 'choice', nextStep: '5.3', choiceKey: 'contract_talk', app: 'company' },
+            '5.3': { type: 'choice', nextStep: '5.4', choiceKey: 'secret_love', app: 'contacts' },
+            '5.4': { type: 'choice', nextStep: '5.5', choiceKey: 'love_exposed', app: 'pr' },
+            '5.5': { type: 'narration', nextStep: '5.6', app: 'fancommunity' },
+            '5.6': { type: 'choice', nextStep: '5.7', choiceKey: 'self_rebuild' },
+            '5.7': { type: 'chapter_end', app: 'contacts' }
+        }
+    },
+    6: {
+        title: 'Idol Chapter 3',
+        subtitle: '\u5DC5\u5CF0',
+        steps: {
+            '6.0': { type: 'narration', nextStep: '6.1', scene: 'award' },
+            '6.1': { type: 'narration', nextStep: '6.2' },
+            '6.2': { type: 'narration', nextStep: '6.3', unlockApp: 'recording' },
+            '6.3': { type: 'choice', nextStep: '6.4', choiceKey: 'award_speech' },
+            '6.4': { type: 'choice', nextStep: '6.5', choiceKey: 'thank_call', app: 'contacts' },
+            '6.5': { type: 'choice', nextStep: '6.6', choiceKey: 'look_back' },
+            '6.6': { type: 'chapter_end' }
+        }
     }
 };
 
@@ -15185,7 +15711,16 @@ function _renderChapterEnd(inner, stepKey, stepConfig, chapter) {
     var nextCh = cs.currentChapter + 1;
     var nextTitles = { 2: '\u6210\u957F', 3: '\u51FA\u9053' };
     btn.textContent = '\u8FDB\u5165\u7B2C' + nextCh + '\u7AE0';
-    btn.onclick = function() { cs.currentChapter = nextCh; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); triggerSilentSave(); render(); };
+    // V2.0: VIP subscription CTA after chapter 1
+    if (cs.currentChapter === 1) {
+        var vipCta = document.createElement('div');
+        vipCta.style.cssText = 'background:linear-gradient(135deg,#1A1A3E,#2D1B69);border:1px solid #A78BFA;border-radius:12px;padding:14px;margin-bottom:12px;text-align:left;';
+        vipCta.innerHTML = '\u003cdiv style="font-size:13px;color:#A78BFA;font-weight:600;margin-bottom:6px;"\u003e\u60F3\u4E86\u89E3\u89D2\u8272\u7684\u66F4\u591A\u6545\u4E8B\uFF1F\u003c/div\u003e'
+            + '\u003cdiv style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:10px;"\u003e\u8BA2\u9605\u4F1A\u5458\u89E3\u9501\u89D2\u8272\u652F\u7EBF\u5267\u60C5\uFF0CAI\u65E0\u9650\u5BF9\u8BDD\u003c/div\u003e'
+            + '\u003cbutton onclick="goToPage(\'me\');showToast(\'\u8BF7\u524D\u5F80\u201C\u6211\u7684\u201D\u9875\u9762\u67E5\u770B\u4F1A\u5458\u4FE1\u606F\')" style="background:#A78BFA;color:white;border:none;padding:8px 20px;border-radius:6px;font-size:12px;cursor:pointer;width:100%;"\u003e9.9\u5143/\u6708 \u8BA2\u9605\u4F1A\u5458\u003c/button\u003e';
+        inner.appendChild(vipCta);
+    }
+    btn.onclick = function() { cs.currentChapter = nextCh; cs.currentStep = 0; cs.chapterCounts = { trainCount: 0, scheduleCount: 0, snsPostCount: 0, snsPostCount: 0, liveCount: 0, fansAtChapterStart: gameState.fans, musicShowCount: 0, fameAtChapterStart: gameState.fame }; var ol = document.getElementById('chapterOverlay'); if (ol) ol.remove(); _regretUsedThisChapter = false; triggerSilentSave(); render(); };
     inner.appendChild(btn);
 }
 
