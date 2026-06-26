@@ -20360,3 +20360,220 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// V2.2.4 - 手机弹窗+今日任务页 光夜风毛玻璃重构
+// ============================================================
+(function(){
+  if (window._v224Patched) return;
+  window._v224Patched = true;
+
+  // ============ 1. 手机弹窗光夜风重构 ============
+  var _origBuildPhoneModal = window._buildPhoneModal;
+  window._buildPhoneModal = function() {
+    var apps = [
+      {id:'daily',icon:'daily',name:'今日任务',unlock:0},
+      {id:'contacts',icon:'contacts',name:'通讯录',unlock:0},
+      {id:'sns',icon:'sns',name:'SNS',unlock:0},
+      {id:'schedule',icon:'schedule',name:'日程',unlock:0},
+      {id:'store',icon:'store',name:'便利店',unlock:0},
+      {id:'prroom',icon:'prroom',name:'公关室',unlock:0},
+
+      {id:'training',icon:'training',name:'训练',unlock:0},
+      {id:'music',icon:'music',name:'音乐放送',unlock:0},
+      {id:'live',icon:'live',name:'直播',unlock:0},
+      {id:'wardrobe',icon:'wardrobe',name:'换装',unlock:0},
+      {id:'songprod',icon:'songprod',name:'录音创作',unlock:0},
+
+      {id:'gacha',icon:'gacha',name:'抽卡',unlock:0},
+      {id:'vip',icon:'vip',name:'会员',unlock:0}
+    ];
+    var categories = [
+      {title:'日常',ids:['daily','contacts','sns','schedule','store','prroom']},
+      {title:'事业',ids:['training','music','live','wardrobe','songprod']},
+      {title:'更多',ids:['gacha','vip']}
+    ];
+    var appMap = {};
+    for (var ai = 0; ai < apps.length; ai++) { appMap[apps[ai].id] = apps[ai]; }
+
+    var h = '<div id="phoneModal" style="position:fixed;bottom:0;left:0;right:0;height:78vh;'
+      + 'background:linear-gradient(180deg,rgba(26,20,56,0.98) 0%,rgba(13,11,30,0.99) 100%);'
+      + '-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);'
+      + 'border-radius:20px 20px 0 0;z-index:9998;display:flex;flex-direction:column;'
+      + 'border-top:1px solid rgba(255,255,255,0.08);'
+      + 'box-shadow:0 -8px 40px rgba(0,0,0,0.5);">';
+
+    // 顶部拖拽条+标题
+    h += '<div style="padding:8px 20px 0;display:flex;justify-content:center;">'
+      + '<div style="width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);"></div>'
+      + '</div>';
+    h += '<div style="padding:10px 20px 8px;display:flex;align-items:center;justify-content:space-between;">'
+      + '<div style="display:flex;align-items:center;gap:10px;">'
+      + '<div onclick="_closePhoneAndReturn()" style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:20px;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.05);">✕</div>'
+      + '<div style="font-size:16px;font-weight:300;color:#fff;letter-spacing:0.05em;">手机</div>'
+      + '</div>'
+      + '<div onclick="_exitSceneToUI()" style="color:rgba(255,255,255,0.4);cursor:pointer;font-size:13px;font-weight:300;">关闭</div>'
+      + '</div>';
+
+    // 分隔线
+    h += '<div style="height:1px;background:rgba(255,255,255,0.06);margin:0 20px;"></div>';
+
+    // 内容区
+    h += '<div style="flex:1;overflow-y:auto;padding:12px 16px 30px;-webkit-overflow-scrolling:touch;">';
+    for (var ci = 0; ci < categories.length; ci++) {
+      var cat = categories[ci];
+      h += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin:' + (ci > 0 ? '16' : '4') + 'px 0 8px 4px;font-weight:400;letter-spacing:0.1em;">' + cat.title + '</div>';
+      h += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">';
+      for (var ji = 0; ji < cat.ids.length; ji++) {
+        var _a = appMap[cat.ids[ji]];
+        if (!_a) continue;
+        var _lk = _a.unlock > 0 && gameState.fans < _a.unlock;
+        var _rd = (!_lk) ? getAppRedDot(_a.id) : null;
+        h += '<div style="text-align:center;padding:8px 2px;cursor:pointer;' + (_lk ? 'opacity:0.3;' : '') + '" onclick="' + (_lk ? '' : 'document.getElementById(\'phoneModal\').style.display=\'none\';_phoneModalVisible=false;goToPage(\'' + _a.id + '\')') + '">';
+        h += '<div style="width:44px;height:44px;border-radius:12px;'
+          + 'background:rgba(255,255,255,0.06);'
+          + 'border:1px solid rgba(255,255,255,0.08);'
+          + '-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);'
+          + 'margin:0 auto 6px;display:flex;align-items:center;justify-content:center;position:relative;">'
+          + getIcon(_a.icon)
+          + (_rd ? '<div style="position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:#FF2D55;border-radius:50%;box-shadow:0 0 6px rgba(255,45,85,0.5);"></div>' : '')
+          + '</div>';
+        h += '<div style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _a.name + '</div>';
+        h += '</div>';
+      }
+      h += '</div>';
+    }
+    h += '</div></div>';
+    document.body.insertAdjacentHTML('beforeend', h);
+  };
+
+  // ============ 2. 今日任务页光夜风重构 ============
+  var _origRenderDailyPage = window.renderDailyPage;
+  window.renderDailyPage = function(container) {
+    _safeTriggerDailyEvent();
+    _initWeeklyGoals();
+    var ci = getCheckInInfo();
+
+    var html = '<div style="min-height:100vh;background:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%);color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;">';
+
+    // 顶部导航
+    html += '<div style="position:sticky;top:0;z-index:10;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;'
+      + 'background:rgba(13,11,30,0.85);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);'
+      + 'border-bottom:1px solid rgba(255,255,255,0.06);">'
+      + '<div onclick="goToPage(\'home\')" style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:300;cursor:pointer;">‹ 首页</div>'
+      + '<div style="font-size:16px;font-weight:300;letter-spacing:0.08em;">今日任务</div>'
+      + '<div style="width:40px;"></div>'
+      + '</div>';
+
+    html += '<div style="padding:16px 16px 100px;">';
+
+    // 每日签到
+    html += '<div style="margin-bottom:20px;">'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;font-weight:400;letter-spacing:0.1em;">每日签到</div>';
+    if (ci.checkedIn) {
+      html += '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;'
+        + '-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;">'
+        + '<div><div style="font-size:15px;font-weight:300;color:#fff;">今日已签到</div>'
+        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;font-weight:300;">连续签到 ' + ci.streak + ' 天</div></div>'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:rgba(201,169,110,0.2);border:1px solid rgba(201,169,110,0.4);display:flex;align-items:center;justify-content:center;">'
+        + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A96E" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>'
+        + '</div>';
+    } else {
+      html += '<div onclick="doDailyCheckIn()" style="background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.2);border-radius:14px;padding:16px;cursor:pointer;'
+        + '-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;'
+        + '-webkit-tap-highlight-color:transparent;">'
+        + '<div><div style="font-size:15px;font-weight:300;color:#C9A96E;">签到领金币</div>'
+        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px;font-weight:300;">连续签到奖励更多</div></div>'
+        + '<div style="font-size:14px;color:#C9A96E;font-weight:300;">签到 ›</div>'
+        + '</div>';
+    }
+    html += '</div>';
+
+    // 今日事件
+    if (gameState._todayEvents && gameState._todayEvents.length > 0) {
+      html += '<div style="margin-bottom:20px;">'
+        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;font-weight:400;letter-spacing:0.1em;">今日事件</div>';
+      for (var j = 0; j < gameState._todayEvents.length; j++) {
+        var ev = gameState._todayEvents[j];
+        var rewardParts = [];
+        if (ev.reward.fame) rewardParts.push('+' + ev.reward.fame + ' 名气');
+        if (ev.reward.fans) rewardParts.push('+' + ev.reward.fans + ' 粉丝');
+        if (ev.reward.money) rewardParts.push('+' + ev.reward.money.toLocaleString() + ' 金币');
+        if (ev.reward.stamina) rewardParts.push('+' + ev.reward.stamina + ' 体力');
+        html += '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;margin-bottom:8px;'
+          + '-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);">'
+          + '<div style="font-size:13px;font-weight:300;color:#fff;line-height:1.5;">' + ev.desc + '</div>'
+          + '<div style="font-size:11px;color:#C9A96E;margin-top:6px;font-weight:400;">' + rewardParts.join('  ') + '</div>'
+          + '</div>';
+      }
+      html += '</div>';
+    }
+
+    // 周目标
+    if (gameState.weeklyGoals && gameState.weeklyGoals.length > 0) {
+      html += '<div style="margin-bottom:20px;">'
+        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;font-weight:400;letter-spacing:0.1em;">周目标</div>';
+      for (var i = 0; i < gameState.weeklyGoals.length; i++) {
+        var g = gameState.weeklyGoals[i];
+        var pct = Math.min(100, Math.floor((g.progress / g.target) * 100));
+        var done = g.progress >= g.target;
+        html += '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;margin-bottom:8px;'
+          + '-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);' + (g.claimed ? 'opacity:0.4;' : '') + '">'
+          + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+          + '<div style="font-size:13px;font-weight:300;color:' + (done ? '#C9A96E' : '#fff') + ';">' + g.desc + '</div>';
+        if (g.claimed) {
+          html += '<span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:300;">已领取</span>';
+        } else if (done) {
+          html += '<button onclick="claimWeeklyGoal(' + i + ')" style="font-size:11px;padding:5px 14px;border-radius:16px;border:1px solid rgba(201,169,110,0.4);background:rgba(201,169,110,0.1);color:#C9A96E;cursor:pointer;font-weight:300;-webkit-tap-highlight-color:transparent;">领取</button>';
+        } else {
+          html += '<span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:300;">' + g.progress + '/' + g.target + '</span>';
+        }
+        html += '</div>';
+        // 进度条
+        html += '<div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">'
+          + '<div style="height:100%;width:' + pct + '%;background:' + (done ? '#C9A96E' : 'rgba(255,255,255,0.2)') + ';border-radius:2px;transition:width 0.3s;"></div></div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+
+    // 成就进度
+    var achieveDone = 0;
+    var achieveTotal = ACHIEVEMENTS ? ACHIEVEMENTS.length : 0;
+    if (gameState.achievements) achieveDone = gameState.achievements.length;
+    if (achieveTotal > 0) {
+      html += '<div style="margin-bottom:20px;">'
+        + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;font-weight:400;letter-spacing:0.1em;">成就进度</div>'
+        + '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;'
+        + '-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);">'
+        + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
+        + '<div style="font-size:13px;font-weight:300;color:rgba(255,255,255,0.6);">已解锁 ' + achieveDone + ' / ' + achieveTotal + '</div>'
+        + '<div style="font-size:13px;font-weight:300;color:#C9A96E;">' + Math.floor(achieveDone / achieveTotal * 100) + '%</div></div>'
+        + '<div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">'
+        + '<div style="height:100%;width:' + Math.floor(achieveDone / achieveTotal * 100) + '%;background:#C9A96E;border-radius:2px;"></div></div>'
+        + '</div></div>';
+    }
+
+    // 快捷操作
+    html += '<div style="margin-bottom:20px;">'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;font-weight:400;letter-spacing:0.1em;">快捷操作</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+    var quickActions = [
+      {page:'work',name:'去通告',desc:'赚金币+名气'},
+      {page:'training',name:'去训练',desc:'提升实力'},
+      {page:'live',name:'去直播',desc:'吸粉+互动'},
+      {page:'contacts',name:'聊天',desc:'和队友互动'}
+    ];
+    for (var qi = 0; qi < quickActions.length; qi++) {
+      var qa = quickActions[qi];
+      html += '<div onclick="goToPage(\'' + qa.page + '\')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;text-align:center;cursor:pointer;'
+        + '-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);-webkit-tap-highlight-color:transparent;">'
+        + '<div style="font-size:13px;font-weight:300;color:#fff;">' + qa.name + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;font-weight:300;">' + qa.desc + '</div>'
+        + '</div>';
+    }
+    html += '</div></div>';
+
+    html += '</div></div>';
+    container.innerHTML = html;
+  };
+
+})();
