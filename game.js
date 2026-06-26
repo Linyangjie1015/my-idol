@@ -20786,3 +20786,821 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// V2.3.0 - 第1章入社系统：9节点对话+选项分支+章节结算
+// ============================================================
+(function(){
+  if (window._v230Patched) return;
+  window._v230Patched = true;
+
+  // ============ 1. chapterState 初始化增强 ============
+  var _origEnsure = window._ensureChapterState;
+  window._ensureChapterState = function() {
+    if (!gameState.chapterState) {
+      gameState.chapterState = {
+        currentChapter: 1,
+        currentNode: 0,
+        choices: {},
+        completed: false,
+        nodesCompleted: {},
+        unlockedMemories: {}
+      };
+    }
+    if (gameState.chapterState.currentNode === undefined) gameState.chapterState.currentNode = 0;
+    if (!gameState.chapterState.nodesCompleted) gameState.chapterState.nodesCompleted = {};
+    if (!gameState.chapterState.choices) gameState.chapterState.choices = {};
+    if (!gameState.chapterState.unlockedMemories) gameState.chapterState.unlockedMemories = {};
+    if (gameState.chapterState.completed === undefined) gameState.chapterState.completed = false;
+  };
+
+  // ============ 2. V2.3 C1 节点定义（9节点） ============
+  var V23_C1_NODES = [
+    {
+      id: '1.0', title: '推开那扇门',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.0']) return false;
+        return gameState.player && gameState.player.name && gameState.player.role === 'Trainee';
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.0'] = true;
+        _v23ShowStoryNode('1.0');
+      }
+    },
+    {
+      id: '1.1', title: '你为什么想当爱豆',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.1']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.0'];
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.1'] = true;
+        _v23ShowStoryNode('1.1');
+      }
+    },
+    {
+      id: '1.2', title: '推开门，他们在等你',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.2']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.1']
+          && gameState.scheduleDoneCount && gameState.scheduleDoneCount >= 1;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.2'] = true;
+        _v23ShowStoryNode('1.2');
+      }
+    },
+    {
+      id: '1.3', title: '你发了一条动态',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.3']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.2']
+          && gameState._v2SnsPosted === true;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.3'] = true;
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('sns') === -1) gameState.unlockedApps.push('sns');
+        _v2MarkAppRedDot('sns');
+        _v23ShowStoryNode('1.3');
+      }
+    },
+    {
+      id: '1.4', title: '夏恩的测试',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.4']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.3']
+          && gameState.stats && gameState.stats.dance >= 30
+          && gameState._v23TrainDone === true;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.4'] = true;
+        _v23ShowStoryNode('1.4');
+      }
+    },
+    {
+      id: '1.5', title: '俊昊的提醒',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.5']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.4']
+          && gameState.stats && gameState.stats.dance >= 40
+          && gameState._v23TrainDone2 === true;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.5'] = true;
+        _v23ShowStoryNode('1.5');
+      }
+    },
+    {
+      id: '1.6', title: '智媛的邀请',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.6']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.5']
+          && gameState._v2LiveDone === true;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.6'] = true;
+        _v23ShowStoryNode('1.6');
+      }
+    },
+    {
+      id: '1.7', title: '有人留言了',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.7']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.6']
+          && (gameState.fans || 0) >= 50;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.7'] = true;
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('fancommunity') === -1) gameState.unlockedApps.push('fancommunity');
+        _v2MarkAppRedDot('fancommunity');
+        _v23ShowStoryNode('1.7');
+      }
+    },
+    {
+      id: '1.8', title: '夏恩的消息',
+      check: function() {
+        if (gameState._v23NodeTriggered && gameState._v23NodeTriggered['1.8']) return false;
+        return gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.7']
+          && gameState.stats && gameState.stats.dance >= 50
+          && gameState._v2HaeunMsgRead === true;
+      },
+      trigger: function() {
+        gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+        gameState._v23NodeTriggered['1.8'] = true;
+        _v23ShowStoryNode('1.8');
+      }
+    }
+  ];
+
+  // ============ 3. V2.3 故事节点内容 ============
+  var V23_STORY_NODES = {
+    '1.0': {
+      bgm: 'company', portrait: null,
+      scenes: [
+        { type: 'atmosphere', text: 'SEONGWOO ENT.\n新的故事，从这里开始。' },
+        { type: 'narrate', text: '你站在SEONGWOO ENT的大门前。玻璃门倒映着你的脸——有些紧张，但更多是期待。' },
+        { type: 'narrate', text: '深呼吸，你推开了那扇门。' },
+        { type: 'narrate', text: '大厅里灯光柔和，前台的女生抬起头看了你一眼。' },
+        { type: 'dialogue', speaker: '前台', text: '你好，请问你是来面试的？' },
+        { type: 'narrate', text: '你点了点头。前台递过来一张访客牌。' },
+        { type: 'dialogue', speaker: '前台', text: '请在那边稍等，金理事马上来接你。' },
+        { type: 'narrate', text: '你在沙发上坐下。几分钟后，一个穿西装的中年男人快步走来。' },
+        { type: 'dialogue', speaker: '金理事', text: '你就是今天的面试者？跟我来吧，社长在等你。' },
+        { type: 'narrate', text: '你跟着金理事走进电梯。电梯上升的时候，你听到了自己心跳的声音。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.0'] = true;
+        gameState.chapterState.currentNode = 1;
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('schedule') === -1) gameState.unlockedApps.push('schedule');
+        _v2MarkAppRedDot('schedule');
+        showToast('日程已解锁');
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.1': {
+      bgm: 'company', portrait: null,
+      scenes: [
+        { type: 'atmosphere', text: '社长办公室……\n命运的十字路口。' },
+        { type: 'narrate', text: '社长办公室比想象中小。一张红木桌，一面墙的奖杯，还有一个审视着你的中年人。' },
+        { type: 'dialogue', speaker: '社长', text: '坐吧。' },
+        { type: 'narrate', text: '你坐下。社长翻开你的资料，沉默了一会儿。' },
+        { type: 'dialogue', speaker: '社长', text: '我看过你的线上试镜。有潜力。但我想亲自问你——' },
+        { type: 'dialogue', speaker: '社长', text: '你为什么想当爱豆？' },
+        {
+          type: 'choice', text: '面对社长的提问，你——',
+          options: [
+            { text: '我想站在最高的舞台上，成为最耀眼的人。', tag: 'ambition', loveNpc: '', loveAmt: 0, next: 'ambition' },
+            { text: '我热爱舞台，音乐是我生命里最真实的部分。', tag: 'love', loveNpc: '', loveAmt: 0, next: 'love' },
+            { text: '我要证明给所有人看，我能做到。', tag: 'prove', loveNpc: '', loveAmt: 0, next: 'prove' }
+          ]
+        },
+        { key: 'ambition', type: 'dialogue', speaker: '社长', text: '（靠回椅背）有野心是好事。这个行业，没野心的人走不远。' },
+        { key: 'ambition', type: 'narrate', text: '社长合上资料，看了你一眼。那目光里有审视，也有一丝欣赏。' },
+        { key: 'love', type: 'dialogue', speaker: '社长', text: '（微微点头）热爱能让你撑过最难的时候。记住今天说的这句话。' },
+        { key: 'love', type: 'narrate', text: '社长的表情柔和了一些。他似乎想起了什么很久以前的事。' },
+        { key: 'prove', type: 'dialogue', speaker: '社长', text: '（挑眉）证明？好。那就在练习室里证明给我看。' },
+        { key: 'prove', type: 'narrate', text: '社长的语气不轻不重，但你知道——他给你设了一道坎。' },
+        { type: 'narrate', text: '不管你说了什么，社长的结论是一样的——' },
+        { type: 'dialogue', speaker: '社长', text: '去练习室吧。从今天开始。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.1'] = true;
+        gameState.chapterState.currentNode = 2;
+        // 解锁通讯录 + 添加夏恩联系人
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('contacts') === -1) gameState.unlockedApps.push('contacts');
+        if (!gameState.kakaoChats) gameState.kakaoChats = {};
+        if (!gameState.kakaoChats['夏恩']) gameState.kakaoChats['夏恩'] = [];
+        var ts = _v2NowTime();
+        gameState.kakaoChats['夏恩'].push({ from: '夏恩', text: '听说你通过了面试。明天来练习室报到。', time: ts, read: false });
+        _v2MarkAppRedDot('contacts');
+        showToast('通讯录已解锁，夏恩发来消息');
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.2': {
+      bgm: 'practice', portrait: null,
+      scenes: [
+        { type: 'atmosphere', text: '练习室……\n五个人，一扇门。' },
+        { type: 'narrate', text: '你完成了第一次日程安排。第二天一早，你来到练习室。' },
+        { type: 'narrate', text: '推开门——五个人齐刷刷看向你。' },
+        { type: 'dialogue', speaker: '夏恩', text: '来了。我介绍一下——我是夏恩，队长。23岁。', portrait: 'haeun', expression: 'main' },
+        { type: 'dialogue', speaker: '俊昊', text: '俊昊。领唱。22。', portrait: 'junho', expression: 'main' },
+        { type: 'dialogue', speaker: '智媛', text: '我是智媛！忙内，19岁！请多关照！', portrait: 'jiwon', expression: 'smile' },
+        { type: 'dialogue', speaker: '瑞贤', text: '……瑞贤。主Rapper。21。', portrait: 'seokhyun', expression: 'main' },
+        { type: 'dialogue', speaker: '素雅', text: '素雅，主唱，22岁。欢迎你。', portrait: 'soah', expression: 'smile' },
+        { type: 'narrate', text: '五个人。五种性格。但有一件事是共同的——他们都在看你，等你开口。' },
+        { type: 'narrate', text: '你告诉了他们你的名字。' },
+        { type: 'dialogue', speaker: '夏恩', text: '好，' + (gameState.player ? gameState.player.name : '你') + '。今天开始你就是Haeoreum的成员了。', portrait: 'haeun', expression: 'main' },
+        { type: 'narrate', text: 'Haeoreum——"日出"的意思。新的名字，新的开始。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.2'] = true;
+        gameState.chapterState.currentNode = 3;
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('sns') === -1) gameState.unlockedApps.push('sns');
+        _v2MarkAppRedDot('sns');
+        showToast('SNS已解锁！试试发一条动态');
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.3': {
+      bgm: 'dorm', portrait: null,
+      scenes: [
+        { type: 'atmosphere', text: 'SNS……\n被看见的第一步。' },
+        { type: 'narrate', text: '你在SNS上发了第一条动态。几分钟后——通知炸了。' },
+        { type: 'dialogue', speaker: '素雅', text: '新成员发了第一条动态！我来第一个留言～加油加油！', portrait: 'soah', expression: 'smile' },
+        { type: 'dialogue', speaker: '智媛', text: '哇哇哇！我关注了！以后要经常发哦！', portrait: 'jiwon', expression: 'smile' },
+        { type: 'dialogue', speaker: '俊昊', text: '加油。实力说话。', portrait: 'junho', expression: 'main' },
+        { type: 'dialogue', speaker: '瑞贤', text: '……关注了。', portrait: 'seokhyun', expression: 'main' },
+        { type: 'dialogue', speaker: '夏恩', text: '好好经营SNS。这是你和粉丝之间的桥梁。', portrait: 'haeun', expression: 'main' },
+        { type: 'narrate', text: '下面还有几条陌生人的留言——' },
+        { type: 'dialogue', speaker: '路人甲', text: '新练习生？关注了关注了！' },
+        { type: 'dialogue', speaker: '路人乙', text: '期待未来的表现～加油！' },
+        { type: 'narrate', text: '被看见的感觉……真好。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.3'] = true;
+        gameState.chapterState.currentNode = 4;
+        // 添加NPC留言到SNS
+        if (!gameState.snsPosts) gameState.snsPosts = [];
+        gameState.snsPosts.unshift({ author: '素雅', text: '新成员发了第一条动态！我来第一个留言～加油加油！', likes: 23, time: '刚刚', liked: false });
+        gameState.snsPosts.unshift({ author: '智媛', text: '哇哇哇！我关注了！以后要经常发哦！', likes: 45, time: '刚刚', liked: false });
+        gameState.snsPosts.unshift({ author: '俊昊', text: '加油。实力说话。', likes: 12, time: '刚刚', liked: false });
+        gameState.snsPosts.unshift({ author: '瑞贤', text: '……关注了。', likes: 8, time: '刚刚', liked: false });
+        gameState.snsPosts.unshift({ author: '夏恩', text: '好好经营SNS。这是你和粉丝之间的桥梁。', likes: 15, time: '刚刚', liked: false });
+        _v2MarkAppRedDot('sns');
+        showToast('成员们回复了你的动态！');
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.4': {
+      bgm: 'practice', portrait: 'haeun', expression: 'main',
+      scenes: [
+        { type: 'atmosphere', text: '夏恩的测试……\n真正的起点。' },
+        { type: 'narrate', text: '你的舞蹈能力达到了30，并完成了训练。夏恩在练习室门口拦住了你。' },
+        { type: 'dialogue', speaker: '夏恩', text: '你之前有舞蹈基础吗？', portrait: 'haeun', expression: 'main' },
+        {
+          type: 'choice', text: '面对夏恩的提问，你——',
+          options: [
+            { text: '有基础，我学过好几年。', tag: 'experienced', loveNpc: '夏恩', loveAmt: 3, next: 'experienced' },
+            { text: '完全没有，我是从零开始的。', tag: 'zero', loveNpc: '夏恩', loveAmt: 5, next: 'zero' },
+            { text: '学过一点，但不算专业。', tag: 'some', loveNpc: '夏恩', loveAmt: 4, next: 'some' }
+          ]
+        },
+        { key: 'experienced', type: 'dialogue', speaker: '夏恩', text: '那好，我提高标准。别让我失望。', portrait: 'haeun', expression: 'main' },
+        { key: 'zero', type: 'dialogue', speaker: '夏恩', text: '从零开始？……勇气可嘉。我会多盯你一些。', portrait: 'haeun', expression: 'smile' },
+        { key: 'some', type: 'dialogue', speaker: '夏恩', text: '那就更要努力了——半吊子比零基础更危险。', portrait: 'haeun', expression: 'main' },
+        { type: 'narrate', text: '训练开始了。夏恩的标准比任何人都高。汗水浸透了衣服，但你的动作越来越稳。' },
+        { type: 'narrate', text: '训练结束。你的舞蹈能力提升了。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.4'] = true;
+        gameState.chapterState.currentNode = 5;
+        // 根据选择增加舞蹈值
+        var choice = gameState.chapterState.choices['1_4'] || 'some';
+        var danceGain = 0;
+        if (choice === 'experienced') danceGain = 20;
+        else if (choice === 'zero') danceGain = 5;
+        else danceGain = 10;
+        if (gameState.stats) gameState.stats.dance = Math.min(150, (gameState.stats.dance || 0) + danceGain);
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('training') === -1) gameState.unlockedApps.push('training');
+        _v2MarkAppRedDot('training');
+        showToast('训练完成！舞蹈+' + danceGain);
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.5': {
+      bgm: 'dorm', portrait: 'junho', expression: 'main',
+      scenes: [
+        { type: 'atmosphere', text: '俊昊的提醒……\n背后的真相。' },
+        { type: 'narrate', text: '又完成了一次训练。你的舞蹈能力已经到了40。' },
+        { type: 'narrate', text: '训练结束后，俊昊在通讯录上给你发了一条消息——' },
+        { type: 'dialogue', speaker: '俊昊', text: '出来一下。有话跟你说。', portrait: 'junho', expression: 'main' },
+        { type: 'narrate', text: '走廊里，俊昊靠墙站着，双手插在口袋里。' },
+        { type: 'dialogue', speaker: '俊昊', text: '你有没有觉得夏恩对你太严了？', portrait: 'junho', expression: 'sad' },
+        {
+          type: 'choice', text: '你怎么回答？',
+          options: [
+            { text: '是谁说的？她在背后说我什么了？', tag: 'ask', loveNpc: '俊昊', loveAmt: 3, next: 'ask' },
+            { text: '我知道，我会证明给她看的。', tag: 'prove', loveNpc: '俊昊', loveAmt: 5, next: 'prove2' },
+            { text: '那又怎样？我不在乎。', tag: 'defiant', loveNpc: '俊昊', loveAmt: 2, next: 'defiant' }
+          ]
+        },
+        { key: 'ask', type: 'dialogue', speaker: '俊昊', text: '不是你想的那样。夏恩她……其实不是针对你。', portrait: 'junho', expression: 'main' },
+        { key: 'prove2', type: 'dialogue', speaker: '俊昊', text: '嗯，有这股劲儿就好。不过我告诉你一件事——', portrait: 'junho', expression: 'smile' },
+        { key: 'defiant', type: 'dialogue', speaker: '俊昊', text: '……你不在乎就好。但我还是得告诉你——', portrait: 'junho', expression: 'main' },
+        { type: 'narrate', text: '俊昊的声音放低了。' },
+        { type: 'dialogue', speaker: '俊昊', text: '夏恩其实很看好你。她对你严格，是因为她觉得你能撑住。她是那种……用严苛表达期待的人。', portrait: 'junho', expression: 'main' },
+        { type: 'narrate', text: '你愣住了。' },
+        { type: 'dialogue', speaker: '俊昊', text: '别告诉她我说的。走了。', portrait: 'junho', expression: 'smile' },
+        { type: 'narrate', text: '俊昊转身走了。你站在走廊里，看着他的背影消失在拐角。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.5'] = true;
+        gameState.chapterState.currentNode = 6;
+        // 添加俊昊聊天消息
+        if (!gameState.kakaoChats) gameState.kakaoChats = {};
+        if (!gameState.kakaoChats['俊昊']) gameState.kakaoChats['俊昊'] = [];
+        var ts = _v2NowTime();
+        gameState.kakaoChats['俊昊'].push({ from: '俊昊', text: '今天说的那些……别想太多。好好练就行。', time: ts, read: false });
+        _v2MarkAppRedDot('contacts');
+        showToast('俊昊发来消息');
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.6': {
+      bgm: 'dorm', portrait: 'jiwon', expression: 'smile',
+      scenes: [
+        { type: 'atmosphere', text: '智媛的邀请……\n第一次面对观众。' },
+        { type: 'narrate', text: '你的第一次直播结束了。智媛拉住你——' },
+        { type: 'dialogue', speaker: '智媛', text: '欧尼/欧巴！第一次直播感觉怎么样？', portrait: 'jiwon', expression: 'smile' },
+        { type: 'narrate', text: '回顾直播，你的风格是——' },
+        {
+          type: 'choice', text: '你的直播风格是——',
+          options: [
+            { text: '活泼开朗，和观众打成一片！', tag: 'lively', loveNpc: '智媛', loveAmt: 3, next: 'lively' },
+            { text: '有点害羞，但还是认真回答了每个问题。', tag: 'shy', loveNpc: '智媛', loveAmt: 5, next: 'shy' },
+            { text: '认真专业，展示了练习成果。', tag: 'serious', loveNpc: '智媛', loveAmt: 2, next: 'serious' }
+          ]
+        },
+        { key: 'lively', type: 'dialogue', speaker: '智媛', text: '哈哈我就知道！你超有综艺感的！粉丝肯定超喜欢你！', portrait: 'jiwon', expression: 'smile' },
+        { key: 'shy', type: 'dialogue', speaker: '智媛', text: '害羞的样子好可爱～粉丝们都被你圈粉了！', portrait: 'jiwon', expression: 'smile' },
+        { key: 'serious', type: 'dialogue', speaker: '智媛', text: '哇好专业！有些人就是喜欢这种认真的感觉～', portrait: 'jiwon', expression: 'smile' },
+        { type: 'narrate', text: '直播的数据出来了。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.6'] = true;
+        gameState.chapterState.currentNode = 7;
+        // 根据直播风格增加粉丝
+        var choice = gameState.chapterState.choices['1_6'] || 'serious';
+        var fansGain = 0;
+        if (choice === 'lively') fansGain = 30;
+        else if (choice === 'shy') fansGain = 20;
+        else fansGain = 10;
+        gameState.fans = (gameState.fans || 0) + fansGain;
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('live') === -1) gameState.unlockedApps.push('live');
+        _v2MarkAppRedDot('live');
+        showToast('直播完成！粉丝+' + fansGain);
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.7': {
+      bgm: 'dorm', portrait: null,
+      scenes: [
+        { type: 'atmosphere', text: '有人留言了……\n被认可的瞬间。' },
+        { type: 'narrate', text: '粉丝数突破50了。你打开粉丝社区，看到几条留言——' },
+        { type: 'dialogue', speaker: '星愿少女', text: '新人好棒！直播超可爱的！我来应援啦！' },
+        { type: 'dialogue', speaker: '练习生观察员', text: '有潜力。舞蹈看得出在努力，继续加油。' },
+        { type: 'dialogue', speaker: 'K-pop新粉', text: '声音很好听，期待出道！会一直关注你的！' },
+        { type: 'narrate', text: '50个粉丝。不多，但每一个都是真实的人，在看着你。' },
+        { type: 'narrate', text: '这种感觉……很奇妙。像是黑暗里忽然亮了一盏灯。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.7'] = true;
+        gameState.chapterState.currentNode = 8;
+        // 添加粉丝留言
+        if (!gameState.fanPosts) gameState.fanPosts = [];
+        var fanMsgs = [
+          { author: '星愿少女', text: '新人好棒！直播超可爱的！我来应援啦！', likes: 12 },
+          { author: '练习生观察员', text: '有潜力。舞蹈看得出在努力，继续加油。', likes: 8 },
+          { author: 'K-pop新粉', text: '声音很好听，期待出道！会一直关注你的！', likes: 15 }
+        ];
+        for (var fi = 0; fi < fanMsgs.length; fi++) {
+          gameState.fanPosts.unshift({ author: fanMsgs[fi].author, text: fanMsgs[fi].text, likes: fanMsgs[fi].likes, time: '刚刚', liked: false, isMine: false });
+        }
+        gameState.unlockedApps = gameState.unlockedApps || [];
+        if (gameState.unlockedApps.indexOf('fancommunity') === -1) gameState.unlockedApps.push('fancommunity');
+        _v2MarkAppRedDot('fancommunity');
+        showToast('粉丝社区已解锁！');
+        triggerSilentSave(); render();
+        setTimeout(_v23CheckChapterNodes, 400);
+      }
+    },
+    '1.8': {
+      bgm: 'dorm', portrait: 'haeun', expression: 'smile',
+      scenes: [
+        { type: 'atmosphere', text: '夏恩的消息……\n迟来的认可。' },
+        { type: 'narrate', text: '你的舞蹈达到了50。通讯录里，夏恩发来了消息——' },
+        { type: 'dialogue', speaker: '夏恩', text: '你最近的进步我看在眼里。', portrait: 'haeun', expression: 'main' },
+        { type: 'dialogue', speaker: '夏恩', text: '当初对你严，是因为我觉得你能做到。看来我没看错。', portrait: 'haeun', expression: 'smile' },
+        { type: 'dialogue', speaker: '夏恩', text: '继续。Haeoreum需要你。', portrait: 'haeun', expression: 'main' },
+        { type: 'narrate', text: '你看着这条消息，嘴角不自觉地上扬。' },
+        { type: 'narrate', text: '被认可的感觉——比任何掌声都温暖。' }
+      ],
+      onComplete: function() {
+        _ensureChapterState();
+        gameState.chapterState.nodesCompleted['1.8'] = true;
+        gameState.chapterState.currentNode = 9;
+        // 添加夏恩聊天
+        if (!gameState.kakaoChats) gameState.kakaoChats = {};
+        if (!gameState.kakaoChats['夏恩']) gameState.kakaoChats['夏恩'] = [];
+        var ts = _v2NowTime();
+        gameState.kakaoChats['夏恩'].push({ from: '夏恩', text: '继续。Haeoreum需要你。', time: ts, read: false });
+        _v2MarkAppRedDot('contacts');
+        // 显示章节结算
+        _v23ShowChapterSettlement();
+        triggerSilentSave();
+      }
+    }
+  };
+
+  // ============ 4. V2.3 故事渲染引擎 ============
+  var _v23StoryState = null;
+
+  function _v23ShowStoryNode(nodeId) {
+    var node = V23_STORY_NODES[nodeId];
+    if (!node) { _v23CompleteNode(nodeId); render(); return; }
+    if (node.bgm && typeof BGMManager !== 'undefined' && BGMManager.play) {
+      try { BGMManager.play(node.bgm); } catch(e) {}
+    }
+    _v23StoryState = {
+      nodeId: nodeId, scenes: node.scenes, idx: 0,
+      currentKey: null, waitingChoice: false,
+      portrait: node.portrait, expression: node.expression
+    };
+    _v23RenderStoryDialog();
+  }
+
+  function _v23RenderStoryDialog() {
+    var st = _v23StoryState;
+    if (!st) return;
+    var scene = null;
+    while (st.idx < st.scenes.length) {
+      var s = st.scenes[st.idx];
+      if (s.key) {
+        if (s.key === st.currentKey) { scene = s; st.idx++; break; }
+        else { st.idx++; continue; }
+      } else { scene = s; st.idx++; break; }
+    }
+    if (!scene) {
+      var nodeId = st.nodeId;
+      _v23StoryState = null;
+      var node = V23_STORY_NODES[nodeId];
+      if (node && typeof node.onComplete === 'function') { node.onComplete(); }
+      else { _v23CompleteNode(nodeId); render(); }
+      return;
+    }
+    if (scene.type === 'atmosphere') {
+      _v23CloseStoryDialog();
+      _v2ShowAtmosphere(scene.text, 3000);
+      setTimeout(function() { if (_v23StoryState && _v23StoryState.nodeId === st.nodeId) _v23RenderStoryDialog(); }, 3100);
+      return;
+    }
+    if (scene.type === 'pause') {
+      _v2ShowKeyMomentPause(scene.text);
+      setTimeout(function() { if (_v23StoryState && _v23StoryState.nodeId === st.nodeId) _v23RenderStoryDialog(); }, 3500);
+      return;
+    }
+
+    // 构建overlay
+    var overlayHtml = '<div id="v23-story-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;'
+      + 'background:linear-gradient(180deg,rgba(13,11,30,0.3) 0%,rgba(13,11,30,0.85) 60%,rgba(13,11,30,0.98) 100%);'
+      + 'display:flex;flex-direction:column;justify-content:flex-end;" onclick="_v23StoryAdvance()">';
+
+    // 立绘
+    var portrait = scene.portrait || st.portrait;
+    var expr = scene.expression || st.expression || 'main';
+    if (portrait) {
+      var portraitMap = { haeun: 'imgs/portraits/haeun_halfbody.jpg', soah: 'imgs/portraits/soah_halfbody.jpg', jiwon: 'imgs/portraits/jiwon_halfbody.jpg', junho: 'imgs/portraits/junho_halfbody.jpg', seokhyun: 'imgs/portraits/seokhyun_halfbody.jpg' };
+      var exprMap = { smile: '_smile', sad: '_sad', blink_half: '_blink_half', blink_full: '_blink_full' };
+      var imgSrc = portraitMap[portrait] || '';
+      if (expr !== 'main' && exprMap[expr] && imgSrc) {
+        imgSrc = imgSrc.replace('_halfbody.jpg', exprMap[expr] + '.jpg');
+      }
+      if (imgSrc) {
+        overlayHtml += '<div style="position:absolute;bottom:180px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;">'
+          + '<img src="' + imgSrc + '" style="height:55vh;max-width:80%;object-fit:contain;filter:drop-shadow(0 10px 30px rgba(201,169,110,0.3));" onerror="this.style.display=\'none\'">'
+          + '</div>';
+      }
+    }
+
+    // 场景内容
+    if (scene.type === 'narrate') {
+      overlayHtml += '<div style="margin:0 16px 20px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+        + '<div id="v23-story-text" style="font-size:15px;color:rgba(255,255,255,0.85);line-height:1.8;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;font-weight:300;min-height:60px;white-space:pre-line;"></div>'
+        + '<div style="text-align:right;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.25);font-weight:300;">点击继续</div></div>';
+    } else if (scene.type === 'dialogue') {
+      overlayHtml += '<div style="margin:0 16px 20px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+        + '<div style="font-size:13px;font-weight:400;color:#C9A96E;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;letter-spacing:0.05em;">' + (scene.speaker || '') + '</div>'
+        + '<div id="v23-story-text" style="font-size:16px;color:#FFF;line-height:1.8;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;font-weight:300;min-height:40px;"></div>'
+        + '<div style="text-align:right;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.25);font-weight:300;">点击继续</div></div>';
+    } else if (scene.type === 'choice') {
+      overlayHtml += '<div style="margin:0 16px 20px;">'
+        + '<div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;font-weight:300;letter-spacing:0.05em;">' + (scene.text || '') + '</div>';
+      for (var oi = 0; oi < scene.options.length; oi++) {
+        var opt = scene.options[oi];
+        overlayHtml += '<div onclick="_v23StoryChoose(' + oi + ')" style="margin-bottom:8px;padding:14px 16px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;font-size:14px;color:#FFF;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;font-weight:300;-webkit-tap-highlight-color:transparent;-webkit-transition:border-color 0.2s;transition:border-color 0.2s;" ontouchstart="this.style.borderColor=\'rgba(201,169,110,0.5)\'" ontouchend="this.style.borderColor=\'rgba(255,255,255,0.1)\'">'
+          + opt.text + '</div>';
+      }
+      overlayHtml += '</div>';
+      st.waitingChoice = true;
+    }
+
+    overlayHtml += '</div>';
+
+    _v23CloseStoryDialog();
+    var wrapper = document.createElement('div');
+    wrapper.id = 'v23-story-wrapper';
+    wrapper.innerHTML = overlayHtml;
+    document.body.appendChild(wrapper);
+
+    // 打字机效果
+    if (scene.type === 'narrate' || scene.type === 'dialogue') {
+      var textEl = document.getElementById('v23-story-text');
+      if (textEl && scene.text) {
+        _v2TypeWriter('v23-story-text', scene.text, 45, function(){});
+      }
+    }
+
+    // 选项时阻止冒泡
+    if (scene.type === 'choice') {
+      var overlay = document.getElementById('v23-story-overlay');
+      if (overlay) overlay.onclick = function(e) { e.stopPropagation(); };
+    }
+  }
+
+  function _v23StoryAdvance() {
+    var st = _v23StoryState;
+    if (!st) return;
+    if (st.waitingChoice) return;
+    _v23RenderStoryDialog();
+  }
+  window._v23StoryAdvance = _v23StoryAdvance;
+
+  function _v23StoryChoose(optIdx) {
+    var st = _v23StoryState;
+    if (!st) return;
+    var scene = null;
+    for (var si = 0; si < st.scenes.length; si++) {
+      if (st.scenes[si].type === 'choice') { scene = st.scenes[si]; break; }
+    }
+    if (!scene) return;
+    var opt = scene.options[optIdx];
+    if (!opt) return;
+    // 记录选择到chapterState
+    _ensureChapterState();
+    var nodeKey = st.nodeId.replace('.', '_');
+    gameState.chapterState.choices[nodeKey] = opt.tag || opt.next;
+    // 记录到V2全局选择
+    gameState.chapterState.choices['1'] = gameState.chapterState.choices['1'] || [];
+    gameState.chapterState.choices['1'].push({
+      nodeId: st.nodeId, text: opt.text, tag: opt.tag, made: true, relatedNpc: opt.loveNpc || ''
+    });
+    if (opt.tag) _v2RecordChoiceImpact(opt.tag);
+    if (opt.loveNpc && opt.loveAmt && typeof addLove === 'function') {
+      addLove(opt.loveNpc, opt.loveAmt);
+      _v2ShowAffectionFloat(opt.loveNpc, opt.loveAmt);
+    }
+    st.waitingChoice = false;
+    st.currentKey = opt.next;
+    _v23CloseStoryDialog();
+    setTimeout(function() { _v23RenderStoryDialog(); }, 200);
+  }
+  window._v23StoryChoose = _v23StoryChoose;
+
+  function _v23CloseStoryDialog() {
+    var w = document.getElementById('v23-story-wrapper');
+    if (w && w.parentNode) w.parentNode.removeChild(w);
+  }
+
+  function _v23CompleteNode(nodeId) {
+    _ensureChapterState();
+    gameState.chapterState.nodesCompleted[nodeId] = true;
+    gameState.chapterState.currentNode = parseInt(nodeId.split('.')[1]) + 1;
+  }
+
+  // ============ 5. V2.3 章节结算界面 ============
+  function _v23ShowChapterSettlement() {
+    _v23CloseStoryDialog();
+    _ensureChapterState();
+    gameState.chapterState.completed = true;
+
+    var choices = gameState.chapterState.choices['1'] || [];
+    var unlockList = ['通讯录', '日程', 'SNS', '训练', '直播', '粉丝社区', '今日任务'];
+    var dominant = _v2GetDominantTag();
+    var tagNames = { ambition: '野心', love: '热爱', prove: '证明', experienced: '实力派', zero: '从零开始', some: '半路出家', lively: '活泼', shy: '害羞', serious: '认真', ask: '追问', defiant: '不服' };
+    var nextPreview = '第二章·成长：你将面临第一次公开路演，以及TikTok出圈的机会……';
+
+    var html = '<div style="max-height:75vh;overflow-y:auto;padding:4px;">';
+
+    // 标题
+    html += '<div style="text-align:center;margin-bottom:24px;">';
+    html += '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.3em;margin-bottom:8px;font-weight:300;">CHAPTER 1 COMPLETE</div>';
+    html += '<div style="font-size:24px;font-weight:300;color:#FFF;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;letter-spacing:0.05em;">第1章 · 入社 · 完成</div>';
+    html += '<div style="width:40px;height:1px;background:#C9A96E;margin:16px auto;"></div>';
+    html += '</div>';
+
+    // 选择回顾
+    html += '<div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.5);margin-bottom:10px;letter-spacing:0.1em;">你的选择</div>';
+    if (choices.length === 0) {
+      html += '<div style="color:rgba(255,255,255,0.3);font-size:13px;margin-bottom:16px;font-weight:300;">本章无关键选择记录</div>';
+    } else {
+      for (var ci = 0; ci < choices.length; ci++) {
+        var c = choices[ci];
+        html += '<div style="background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:2px solid #C9A96E;">';
+        html += '<div style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:300;">' + c.text + '</div>';
+        if (c.relatedNpc) html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;font-weight:300;">与 ' + c.relatedNpc + ' 的羁绊加深了</div>';
+        html += '</div>';
+      }
+    }
+
+    // 解锁内容
+    html += '<div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.5);margin:16px 0 10px;letter-spacing:0.1em;">已解锁内容</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">';
+    for (var ui = 0; ui < unlockList.length; ui++) {
+      html += '<span style="padding:4px 10px;background:rgba(201,169,110,0.1);border:1px solid rgba(201,169,110,0.25);border-radius:20px;font-size:11px;color:#C9A96E;font-weight:300;">' + unlockList[ui] + '</span>';
+    }
+    html += '</div>';
+
+    // 故事走向
+    html += '<div style="background:rgba(255,255,255,0.04);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);">';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;font-weight:300;">当前故事走向</div>';
+    html += '<div style="font-size:18px;font-weight:300;color:#C9A96E;letter-spacing:0.05em;">' + (tagNames[dominant] || '热爱') + '</div>';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:4px;font-weight:300;">你的选择正在塑造你的故事</div>';
+    html += '</div>';
+
+    // 下一章预告
+    html += '<div style="background:rgba(255,255,255,0.04);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:12px;padding:14px;border-left:2px solid #C9A96E;">';
+    html += '<div style="font-size:11px;color:#C9A96E;margin-bottom:4px;letter-spacing:0.15em;font-weight:300;">NEXT CHAPTER</div>';
+    html += '<div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;font-weight:300;">' + nextPreview + '</div>';
+    html += '</div>';
+
+    html += '</div>';
+
+    showModal('章节完成', html, [{
+      text: '进入第2章',
+      action: function() { closeModal(); _v23CompleteChapter1(); }
+    }]);
+  }
+
+  function _v23CompleteChapter1() {
+    _ensureChapterState();
+    gameState.chapterState.completed = true;
+    gameState._v2NodeCompleted = gameState._v2NodeCompleted || {};
+    gameState._v2NodeCompleted['1.8'] = { completedAt: Date.now() };
+    gameState.unlockedApps = gameState.unlockedApps || [];
+    if (gameState.unlockedApps.indexOf('daily') === -1) gameState.unlockedApps.push('daily');
+    if (!gameState.kakaoChats) gameState.kakaoChats = {};
+    if (!gameState.kakaoChats['夏恩']) gameState.kakaoChats['夏恩'] = [];
+    var ts = _v2NowTime();
+    gameState.kakaoChats['夏恩'].push({ from: '夏恩', text: '第一章结束了，你做得不错。接下来的路会更难，但我相信你。', time: ts, read: false });
+    gameState.chapterState.unlockedMemories = gameState.chapterState.unlockedMemories || {};
+    gameState.chapterState.unlockedMemories['ch1'] = {
+      summary: '初入SEONGWOO ENT，通过面试入团，认识了五位成员。经历了夏恩的测试、俊昊的提醒、第一次直播，收获了第一批粉丝，得到了夏恩的认可。',
+      detail: '这是你梦想的起点。'
+    };
+    gameState.currentChapter = 2;
+    _v2MarkAppRedDot('contacts');
+    _v2MarkAppRedDot('daily');
+    showToast('第1章完成！第2章「成长」开启');
+    triggerSilentSave(); render();
+  }
+
+  // ============ 6. V2.3 节点触发检查 ============
+  function _v23CheckChapterNodes() {
+    if (!gameState || !gameState.player || !gameState.player.name) return;
+    if (gameState.player.role !== 'Trainee') return;
+    var ch = gameState.currentChapter || 1;
+    if (ch !== 1) return;
+    if (_v23StoryState) return;
+    _ensureChapterState();
+    if (gameState.chapterState.completed) return;
+    if (window._v23CheckingNodes) return;
+    window._v23CheckingNodes = true;
+    for (var i = 0; i < V23_C1_NODES.length; i++) {
+      var node = V23_C1_NODES[i];
+      try { if (node.check()) { node.trigger(); break; } } catch(e) {}
+    }
+    window._v23CheckingNodes = false;
+  }
+
+  // ============ 7. 覆盖全局节点检查，优先走V2.3 ============
+  var _origCheckChapterNodes = window._v2CheckChapterNodes;
+  window._v2CheckChapterNodes = function() {
+    var ch = gameState.currentChapter || 1;
+    if (ch === 1 && !(gameState.chapterState && gameState.chapterState.completed)) {
+      _v23CheckChapterNodes();
+      return;
+    }
+    if (typeof _origCheckChapterNodes === 'function') _origCheckChapterNodes();
+  };
+
+  // ============ 8. 覆盖章节结算 ============
+  var _origShowChapterSettlement = window._v2ShowChapterSettlement;
+  window._v2ShowChapterSettlement = function(chNum) {
+    if (chNum === 1) {
+      _v23ShowChapterSettlement();
+      return;
+    }
+    if (typeof _origShowChapterSettlement === 'function') _origShowChapterSettlement(chNum);
+  };
+
+  // ============ 9. 训练完成时标记 + 检查触发 ============
+  var _origDoTrain = window.do训练项目;
+  window.do训练项目 = function(stat, 体力cost, moneyCost, name) {
+    _origDoTrain.apply(this, arguments);
+    // 训练完成后标记并检查
+    setTimeout(function() {
+      _ensureChapterState();
+      // 1.4 需要: 1.3完成 + dance>=30 + 完成一次训练
+      if (gameState.chapterState.nodesCompleted['1.3'] && gameState.stats && gameState.stats.dance >= 30) {
+        gameState._v23TrainDone = true;
+        _v23CheckChapterNodes();
+      }
+      // 1.5 需要: 1.4完成 + dance>=40 + 完成一次训练
+      if (gameState.chapterState.nodesCompleted['1.4'] && gameState.stats && gameState.stats.dance >= 40) {
+        gameState._v23TrainDone2 = true;
+        _v23CheckChapterNodes();
+      }
+    }, 500);
+  };
+
+  // ============ 10. 直播完成时检查触发 ============
+  var _origStopLive = window.stopLive;
+  window.stopLive = function() {
+    _origStopLive.apply(this, arguments);
+    setTimeout(function() {
+      _v23CheckChapterNodes();
+    }, 600);
+  };
+
+  // ============ 11. SNS发动态时检查触发 ============
+  var _origMarkSnsPosted = window._v2MarkSnsPosted;
+  window._v2MarkSnsPosted = function() {
+    gameState._v2SnsPosted = true;
+    if (typeof _origMarkSnsPosted === 'function') _origMarkSnsPosted();
+    _v23CheckChapterNodes();
+  };
+
+  // ============ 12. 粉丝数变化时检查触发 ============
+  var _origRenderHomePage = window.renderHomePage;
+  window.renderHomePage = function(container) {
+    _origRenderHomePage.apply(this, arguments);
+    // 每次渲染首页时检查粉丝数触发
+    setTimeout(function() { _v23CheckChapterNodes(); }, 300);
+  };
+
+  // ============ 13. 夏恩消息已读标记 ============
+  var _origMarkHaeunRead = window._v2MarkHaeunRead;
+  window._v2MarkHaeunRead = function() {
+    gameState._v2HaeunMsgRead = true;
+    if (typeof _origMarkHaeunRead === 'function') _origMarkHaeunRead();
+    _v23CheckChapterNodes();
+  };
+
+  // ============ 14. 初始化标记字段 ============
+  if (!gameState._v23TrainDone) gameState._v23TrainDone = false;
+  if (!gameState._v23TrainDone2) gameState._v23TrainDone2 = false;
+  if (!gameState._v23NodeTriggered) gameState._v23NodeTriggered = {};
+
+  // ============ 15. 页面加载时首次检查 ============
+  setTimeout(function() { _v23CheckChapterNodes(); }, 800);
+
+})();
