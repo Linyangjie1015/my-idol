@@ -22303,3 +22303,232 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// V2.5.0 - 解锁卡系统：会员月度发卡+角色线解锁
+// ============================================================
+(function(){
+  if (window._v250Patched) return;
+  window._v250Patched = true;
+
+  // ============ 解锁卡配置 ============
+  var CARD_PER_MONTH = {
+    monthly: 1,
+    quarterly: 3,
+    annual: 5
+  };
+
+  var MEMBER_NAMES = {
+    free: '\u514d\u8d39\u73a9\u5bb6',
+    monthly: '\u6708\u5ea6\u4f1a\u5458',
+    quarterly: '\u5b63\u5ea6\u4f1a\u5458',
+    annual: '\u5e74\u5ea6\u4f1a\u5458'
+  };
+
+  var NPC_LIST = [
+    { key: 'haeun', name: '\u590f\u6069', tag: '\u961f\u957f', color: '#F472B6', chapters: 5 },
+    { key: 'soah', name: '\u7d20\u96c5', tag: '\u4e3b\u5531', color: '#A78BFA', chapters: 3 },
+    { key: 'jiwon', name: '\u667a\u5a9b', tag: '\u5fd9\u5185', color: '#FBBF24', chapters: 2 },
+    { key: 'junho', name: '\u4fca\u660a', tag: '\u9886\u5531', color: '#60A5FA', chapters: 1 },
+    { key: 'seokhyun', name: '\u745e\u8d24', tag: '\u4e3bRapper', color: '#34D399', chapters: 4 }
+  ];
+
+  var NPC_KEY_MAP = {};
+  for (var _i = 0; _i < NPC_LIST.length; _i++) {
+    NPC_KEY_MAP[NPC_LIST[_i].key] = NPC_LIST[_i].name;
+  }
+
+  // ============ 状态管理 ============
+  function _v250CardState() {
+    if (!gameState.unlockCards) {
+      gameState.unlockCards = { total: 0, unlockedRoutes: [], monthlyClaimed: {} };
+    }
+    return gameState.unlockCards;
+  }
+
+  function _v250MemberType() {
+    if (!gameState.vip || !gameState.vip.active) return 'free';
+    return gameState.membershipType || 'monthly';
+  }
+
+  function _v250IsRouteUnlocked(key) {
+    var cs = _v250CardState();
+    for (var i = 0; i < cs.unlockedRoutes.length; i++) {
+      if (cs.unlockedRoutes[i] === key) return true;
+    }
+    return false;
+  }
+
+  function _v250UseCard(key) {
+    var cs = _v250CardState();
+    if (cs.total <= 0 || _v250IsRouteUnlocked(key)) return false;
+    cs.total = cs.total - 1;
+    cs.unlockedRoutes.push(key);
+    return true;
+  }
+
+  // ============ 月度发卡 ============
+  function _v250GrantMonthlyCards() {
+    var cs = _v250CardState();
+    var mt = _v250MemberType();
+    if (mt === 'free') return;
+    var now = new Date();
+    var monthKey = now.getFullYear() + '-' + String(now.getMonth() + 1).replace(/^(\d)$/, '0$1');
+    if (!cs.monthlyClaimed[monthKey]) {
+      var num = CARD_PER_MONTH[mt] || 0;
+      if (num > 0) {
+        cs.total = cs.total + num;
+        cs.monthlyClaimed[monthKey] = true;
+        showToast(MEMBER_NAMES[mt] + '\u6743\u76ca\uff1a\u83b7\u5f97' + num + '\u5f20\u89d2\u8272\u89e3\u9501\u5361');
+      }
+    }
+  }
+
+  // ============ 好感阶段名 ============
+  function _v250StageName(hearts) {
+    if (hearts >= 80) return '\u7075\u9b42\u4f34\u4fa3';
+    if (hearts >= 60) return '\u631a\u7231';
+    if (hearts >= 40) return '\u604b\u4eba';
+    if (hearts >= 20) return '\u6697\u6627';
+    if (hearts >= 1) return '\u719f\u6089';
+    return '\u964c\u751f';
+  }
+
+  // ============ 覆盖个人线列表 ============
+  var _origList = window._v2RenderPersonalStoryList;
+  window._v2RenderPersonalStoryList = function() {
+    _v250GrantMonthlyCards();
+
+    var mt = _v250MemberType();
+    var cs = _v250CardState();
+    var ch1Done = !!(gameState._v2NodeCompleted && gameState._v2NodeCompleted['ch1_1.7']);
+    var html = '';
+
+    // ---- 免费玩家 ----
+    if (mt === 'free') {
+      for (var i = 0; i < NPC_LIST.length; i++) {
+        var n = NPC_LIST[i];
+        html += '<div style="margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;opacity:0.45;">'
+          + '<div style="display:flex;align-items:center;">'
+          + '<div style="width:40px;height:40px;border-radius:50%;background:' + n.color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-right:12px;">' + n.name.charAt(0) + '</div>'
+          + '<div style="flex:1;">'
+          + '<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.4);">' + n.name + ' <span style="font-size:11px;font-weight:400;">' + n.tag + '</span></div>'
+          + '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;">' + n.chapters + '\u7ae0 \u00b7 \u672a\u89e3\u9501</div>'
+          + '</div>'
+          + '<div style="font-size:11px;color:#C9A96E;">\u5f00\u901a\u4f1a\u5458</div>'
+          + '</div></div>';
+      }
+      html += '<div style="text-align:center;padding:20px;color:rgba(255,255,255,0.3);font-size:12px;">\u60a8\u8fd8\u672a\u5f00\u901a\u4f1a\u5458\uff0c\u65e0\u6cd5\u8fdb\u5165\u89d2\u8272\u4e2a\u4eba\u7ebf</div>';
+      return html;
+    }
+
+    // ---- 会员但主线未完成 ----
+    if (!ch1Done) {
+      html += '<div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.4);font-size:13px;">\u5b8c\u6210\u4e3b\u7ebf\u7b2c1\u7ae0\u5373\u53ef\u89e3\u9501\u89d2\u8272\u4e2a\u4eba\u7ebf</div>';
+      return html;
+    }
+
+    // ---- 会员+主线完成 ----
+    // 卡片信息栏
+    html += '<div style="margin-bottom:16px;padding:12px 16px;background:rgba(201,169,110,0.08);border:1px solid rgba(201,169,110,0.15);border-radius:12px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;">'
+      + '<div style="font-size:12px;color:#C9A96E;">' + MEMBER_NAMES[mt] + '</div>'
+      + '<div style="font-size:13px;font-weight:600;color:#C9A96E;">\u89e3\u9501\u5361 x' + cs.total + '</div>'
+      + '</div>'
+      + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">\u6bcf\u6708' + (CARD_PER_MONTH[mt] || 0) + '\u5f20\uff0c\u7528\u4e8e\u89e3\u9501\u89d2\u8272\u4e2a\u4eba\u7ebf</div>'
+      + '</div>';
+
+    for (var i = 0; i < NPC_LIST.length; i++) {
+      var n = NPC_LIST[i];
+      var routeOk = _v250IsRouteUnlocked(n.key);
+      var love = (gameState.npc\u597d\u611f\u5ea6 && gameState.npc\u597d\u611f\u5ea6[n.name]) || 0;
+      var hearts = Math.floor(love / 50);
+
+      if (!routeOk) {
+        // ---- 未解锁：显示使用解锁卡 ----
+        html += '<div style="margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">'
+          + '<div style="display:flex;align-items:center;">'
+          + '<div style="width:40px;height:40px;border-radius:50%;background:' + n.color + ';opacity:0.5;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-right:12px;">' + n.name.charAt(0) + '</div>'
+          + '<div style="flex:1;">'
+          + '<div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.5);">' + n.name + ' <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:400;">' + n.tag + '</span></div>'
+          + '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;">' + n.chapters + '\u7ae0 \u00b7 \u5f85\u89e3\u9501</div>'
+          + '</div>';
+        if (cs.total > 0) {
+          html += '<div onclick="_v250ConfirmUnlock(\'' + n.key + '\')" style="padding:6px 14px;background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.3);border-radius:8px;font-size:12px;color:#C9A96E;cursor:pointer;font-weight:600;">\u4f7f\u7528\u89e3\u9501\u5361</div>';
+        } else {
+          html += '<div style="padding:6px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;font-size:12px;color:rgba(255,255,255,0.3);">\u89e3\u9501\u5361\u4e0d\u8db3</div>';
+        }
+        html += '</div></div>';
+      } else {
+        // ---- 已解锁：显示章节 ----
+        var stage = _v250StageName(hearts);
+        html += '<div style="margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">'
+          + '<div style="display:flex;align-items:center;margin-bottom:10px;">'
+          + '<div style="width:40px;height:40px;border-radius:50%;background:' + n.color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-right:12px;">' + n.name.charAt(0) + '</div>'
+          + '<div style="flex:1;">'
+          + '<div style="font-size:14px;font-weight:700;color:#fff;">' + n.name + ' <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;">' + n.tag + '</span></div>'
+          + '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">\u597d\u611f\u503c ' + love + ' / ' + hearts + '\u5fc3 \u00b7 ' + stage + '</div>'
+          + '</div>'
+          + '<div style="font-size:9px;padding:3px 6px;border-radius:4px;background:rgba(201,169,110,0.15);color:#C9A96E;">\u5df2\u89e3\u9501</div>'
+          + '</div>';
+
+        // 章节按钮
+        html += '<div style="display:flex;gap:6px;">';
+        for (var s = 0; s < n.chapters; s++) {
+          var chHearts = (s + 1) * 10;
+          var chOk = hearts >= chHearts;
+          var chBg = chOk ? n.color : 'rgba(255,255,255,0.06)';
+          var chTxt = chOk ? '#fff' : 'rgba(255,255,255,0.3)';
+          var chSub = chOk ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.2)';
+          var chClick = chOk ? (' onclick="showToast(\'' + n.name + '\u00b7\u7b2c' + (s + 1) + '\u7ae0\')"') : '';
+          html += '<div style="flex:1;padding:8px 4px;text-align:center;background:' + chBg + ';border-radius:8px;' + (chOk ? 'cursor:pointer;' : 'opacity:0.5;') + '"' + chClick + '>'
+            + '<div style="font-size:11px;font-weight:700;color:' + chTxt + ';">' + (s + 1) + '</div>'
+            + '<div style="font-size:9px;color:' + chSub + ';margin-top:2px;">' + chHearts + '\u5fc3</div>'
+            + '</div>';
+        }
+        html += '</div></div>';
+      }
+    }
+    return html;
+  };
+
+  // ============ 解锁确认弹窗 ============
+  window._v250ConfirmUnlock = function(key) {
+    var cs = _v250CardState();
+    if (cs.total <= 0) {
+      showToast('\u89e3\u9501\u5361\u4e0d\u8db3\uff0c\u4e0b\u67081\u65e5\u53d1\u653e\u65b0\u5361');
+      return;
+    }
+    if (_v250IsRouteUnlocked(key)) {
+      showToast('\u8be5\u89d2\u8272\u7ebf\u5df2\u89e3\u9501');
+      return;
+    }
+    var npcName = NPC_KEY_MAP[key] || key;
+    var html = '<div style="text-align:center;padding:8px 0;">'
+      + '<div style="font-size:15px;font-weight:600;color:#fff;margin-bottom:8px;">\u4f7f\u7528\u89e3\u9501\u5361</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);">\u89e3\u9501 <span style="color:#C9A96E;font-weight:600;">' + npcName + '</span> \u7684\u4e2a\u4eba\u7ebf</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px;">\u5f53\u524d\u89e3\u9501\u5361\uff1a' + cs.total + '\u5f20</div>'
+      + '</div>';
+    showModal('\u786e\u8ba4\u89e3\u9501', html, [
+      { text: '\u53d6\u6d88', action: function() { closeModal(); } },
+      { text: '\u786e\u8ba4\u4f7f\u7528', action: function() {
+        if (_v250UseCard(key)) {
+          closeModal();
+          showToast(npcName + '\u7684\u4e2a\u4eba\u7ebf\u5df2\u89e3\u9501\uff01');
+          notifySystem('\u89e3\u9501', npcName + '\u7684\u4e2a\u4eba\u7ebf\u5df2\u89e3\u9501');
+          if (typeof render === 'function') render();
+        }
+      }}
+    ]);
+  };
+
+  // ============ 会员类型切换(测试用) ============
+  window._v250SetMemberType = function(type) {
+    gameState.membershipType = type;
+    _v250GrantMonthlyCards();
+    showToast('\u4f1a\u5458\u7c7b\u578b\u5df2\u8bbe\u4e3a\uff1a' + (MEMBER_NAMES[type] || type));
+    if (typeof render === 'function') render();
+  };
+
+  // ============ 初始化发卡 ============
+  _v250GrantMonthlyCards();
+
+})();
