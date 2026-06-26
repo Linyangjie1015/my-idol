@@ -19502,3 +19502,113 @@ function _v2EnterChapter(chNum) {
   window._v2VersionNum = '2.1.7';
 
 })();
+
+// ============================================================
+// V2.2.0 - 光与夜之恋风格 主页面UI重写
+// 规范来源：V2.0 UI设计规范（深蓝紫底+毛玻璃+细白字+金色强调）
+// ============================================================
+(function(){
+  if (window._v220Patched) return;
+  window._v220Patched = true;
+  window._v2Version = 'V2.2.0-light&night';
+  window._v2VersionNum = '2.2.0';
+
+  // Remove old injectStyle helper duplicates — inject fresh stylesheet
+  var styleEl = document.createElement('style');
+  styleEl.id = 'v220-home-style';
+  styleEl.textContent = [
+    // === 全局：body深色底 ===
+    'body{background:#0D0B1E!important;background-image:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%)!important;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Noto Sans KR",sans-serif!important;}',
+
+    // === v21-home root 铺满全屏 ===
+    '.v21-home{position:fixed!important;top:0;left:0;width:100vw!important;height:100vh!important;max-width:100vw!important;max-height:100vh!important;overflow:hidden!important;background:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%)!important;z-index:100;}',
+
+    // === 背景光晕：柔和扩散，不是霓虹 ===
+    '.v21h-glow{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px);opacity:0.35;}',
+    '.v21h-glow-tl{width:60vw;height:60vw;max-width:400px;max-height:400px;top:-10vw;left:-15vw;background:radial-gradient(ellipse,rgba(167,139,250,0.25) 0%,transparent 70%);}',
+    '.v21h-glow-br{width:70vw;height:70vw;max-width:500px;max-height:500px;bottom:-20vw;right:-20vw;background:radial-gradient(ellipse,rgba(201,169,110,0.12) 0%,rgba(124,58,237,0.1) 40%,transparent 70%);}',
+
+    // === Vignette + overlay 柔和 ===
+    '.v21h-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.35) 100%);z-index:1;pointer-events:none;}',
+    '.v21h-scene-overlay{display:none!important;}',
+    '.v21h-portrait-glow{position:absolute;top:50%;left:50%;width:60vw;height:60vw;max-width:420px;max-height:420px;transform:translate(-50%,-40%);z-index:1;pointer-events:none;border-radius:50%;}',
+    '.v21h-portrait-glow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at center,rgba(167,139,250,0.12) 0%,rgba(124,58,237,0.05) 40%,transparent 70%);filter:blur(40px);}',
+    '.v21h-portrait-glow::after{display:none;}',
+    '.v21h-bg-mask{position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(180deg,rgba(13,11,30,0.25) 0%,rgba(13,11,30,0.05) 25%,rgba(13,11,30,0.08) 55%,rgba(13,11,30,0.55) 100%)!important;}',
+
+    // === 立绘：铺满全屏腰腹以上，object-position让脸在中上 ===
+    '.v21h-portrait-wrap{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;z-index:2!important;overflow:hidden!important;pointer-events:auto;cursor:pointer;}',
+    '.v21h-portrait{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;max-height:none!important;max-width:none!important;object-fit:cover!important;object-position:center 20%!important;filter:none!important;-webkit-user-drag:none;user-select:none;animation:v220-breathe 8s ease-in-out infinite!important;will-change:transform;}',
+    '@keyframes v220-breathe{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.003) translateY(-1px)}}',
+    '.v21h-portrait.fade-in{animation:v220-fadein 0.6s ease-out, v220-breathe 8s ease-in-out infinite 0.6s!important;}',
+    '@keyframes v220-fadein{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:scale(1)}}',
+    '.v21h-portrait.swapping{opacity:0;transition:opacity 0.3s ease;}',
+
+    // === 顶部信息栏：毛玻璃中层 ===
+    '.v21-home-top{position:absolute!important;top:0;left:0;right:0;height:56px;padding:max(env(safe-area-inset-top),8px) 18px 0;display:flex;align-items:center;justify-content:space-between;z-index:20;background:rgba(255,255,255,0.04)!important;-webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;border-bottom:1px solid rgba(255,255,255,0.06)!important;box-sizing:border-box;}',
+    '.v21h-top-left{display:flex;align-items:center;gap:10px;}',
+    '.v21h-top-right{display:flex;align-items:center;gap:16px;font-size:12px;}',
+
+    // === 头像圆：去掉紫色渐变，改成金色细边+毛玻璃 ===
+    '.v21h-avatar{width:30px!important;height:30px!important;border-radius:50%!important;background:rgba(255,255,255,0.08)!important;-webkit-backdrop-filter:blur(10px)!important;backdrop-filter:blur(10px)!important;border:1px solid rgba(201,169,110,0.3)!important;color:#fff!important;font-size:11px!important;font-weight:300!important;display:flex;align-items:center;justify-content:center;box-shadow:none!important;}',
+    '.v21h-name{font-size:13px!important;font-weight:300!important;color:#fff!important;letter-spacing:0.03em;}',
+    '.v21h-vip{font-size:9px;color:#C9A96E;border:1px solid rgba(201,169,110,0.4);padding:1px 5px;border-radius:3px;margin-left:6px;font-weight:400;letter-spacing:0.05em;}',
+    '.v21h-stat{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.85);font-weight:300;font-size:12px;}',
+    '.v21h-stat-icon{font-size:10px;}',
+    '.v21h-stat-val{color:rgba(255,255,255,0.9)!important;font-weight:300!important;font-size:12px!important;}',
+
+    // === NPC名牌（顶部中间）：去掉等级，更克制 ===
+    '.v21h-aff-tag{position:absolute!important;top:max(70px,calc(env(safe-area-inset-top)+66px))!important;left:50%!important;transform:translateX(-50%)!important;color:rgba(255,255,255,0.4)!important;font-weight:300!important;letter-spacing:0.25em!important;font-size:10px!important;text-transform:uppercase;z-index:20;text-shadow:0 2px 8px rgba(0,0,0,0.5);}',
+
+    // === 侧边功能栏：左4右4，圆形毛玻璃，金色选中边框 ===
+    '.v21h-side-icons{position:absolute!important;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:18px;z-index:15;}',
+    '.v21h-side-left{left:14px!important;top:50%!important;}',
+    '.v21h-side-right{right:14px!important;top:50%!important;}',
+    '.v21h-icon-btn{display:flex;flex-direction:column;align-items:center;gap:4px;}',
+    '.v21h-icon-circle{width:40px!important;height:40px!important;border-radius:50%!important;background:rgba(255,255,255,0.05)!important;-webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;border:1px solid rgba(255,255,255,0.08)!important;display:flex;align-items:center;justify-content:center;transition:all 0.2s;cursor:pointer;position:relative;}',
+    '.v21h-icon-circle:active,.v21h-icon-circle:hover{background:rgba(201,169,110,0.12)!important;border-color:rgba(201,169,110,0.5)!important;}',
+    '.v21h-icon-circle svg{width:16px!important;height:16px!important;fill:none!important;stroke:rgba(255,255,255,0.85)!important;stroke-width:1.5!important;stroke-linecap:round!important;stroke-linejoin:round!important;}',
+    '.v21h-icon-label{font-size:9px!important;font-weight:300!important;color:rgba(255,255,255,0.6)!important;letter-spacing:0.08em;}',
+    // 红点
+    '.v21h-icon-dot{position:absolute!important;top:2px;right:2px;width:6px!important;height:6px!important;border-radius:50%;background:#C9A96E!important;box-shadow:0 0 6px rgba(201,169,110,0.6);border:none!important;}',
+
+    // 右上角"我的"按钮：复用右侧icon样式，缩小到32px
+    '.v21h-me-btn{position:absolute!important;top:max(70px,calc(env(safe-area-inset-top)+66px))!important;right:14px!important;z-index:15!important;}',
+    '.v21h-me-btn .v21h-icon-circle{width:36px!important;height:36px!important;}',
+    '.v21h-me-btn .v21h-icon-circle svg{width:15px!important;height:15px!important;}',
+
+    // === 台词气泡：白字毛玻璃，克制 ===
+    '.v21h-bubble{position:absolute!important;bottom:80px!important;left:50%!important;transform:translateX(-50%)!important;background:rgba(255,255,255,0.06)!important;-webkit-backdrop-filter:blur(30px)!important;backdrop-filter:blur(30px)!important;border:1px solid rgba(255,255,255,0.1)!important;border-radius:14px!important;padding:10px 18px!important;color:#fff!important;font-weight:400!important;font-size:14px!important;box-shadow:0 8px 32px rgba(0,0,0,0.25)!important;text-shadow:0 1px 4px rgba(0,0,0,0.4)!important;white-space:nowrap!important;max-width:75%!important;line-height:1.6;letter-spacing:0.02em;z-index:20;animation:v220-bubble-in 0.35s ease-out;pointer-events:none;}',
+    '.v21h-bubble::after{content:""!important;position:absolute!important;bottom:-7px!important;left:50%!important;transform:translateX(-50%) rotate(45deg)!important;width:12px!important;height:12px!important;background:rgba(255,255,255,0.06)!important;border-right:1px solid rgba(255,255,255,0.1)!important;border-bottom:1px solid rgba(255,255,255,0.1)!important;-webkit-backdrop-filter:blur(30px)!important;backdrop-filter:blur(30px)!important;}',
+    '@keyframes v220-bubble-in{0%{opacity:0;transform:translate(-50%,8px) scale(0.95)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}',
+
+    // === 底部章节进度栏：毛玻璃中层 ===
+    '.v21h-bottom{position:absolute!important;bottom:0!important;left:0!important;right:0!important;height:64px!important;padding:0 20px max(14px,env(safe-area-inset-bottom))!important;display:flex;align-items:center;justify-content:space-between!important;z-index:20;background:rgba(255,255,255,0.04)!important;-webkit-backdrop-filter:blur(30px)!important;backdrop-filter:blur(30px)!important;border-top:1px solid rgba(255,255,255,0.06)!important;box-sizing:border-box;}',
+    '.v21h-chapter{display:flex;align-items:center;gap:14px;}',
+    '.v21h-arrow{font-size:22px;color:rgba(255,255,255,0.4);font-weight:300;cursor:pointer;padding:4px 8px;line-height:1;transition:color 0.2s;}',
+    '.v21h-arrow:hover,.v21h-arrow:active{color:#C9A96E;}',
+    '.v21h-chapter-text{font-size:14px!important;font-weight:300!important;color:#fff!important;letter-spacing:0.05em!important;text-shadow:none!important;}',
+    '.v21h-chapter-sub{font-size:9px!important;color:rgba(255,255,255,0.4)!important;font-weight:300!important;letter-spacing:0.2em!important;text-transform:uppercase;margin-top:2px;}',
+    '.v21h-chapter-text span{color:rgba(255,255,255,0.5)!important;font-weight:300!important;margin-left:6px;}',
+
+    // === NPC切换圆点：金色active ===
+    '.v21h-npc-switch{display:flex;gap:6px;align-items:center;}',
+    '.v21h-npc-dot{width:5px!important;height:5px!important;border-radius:50%!important;background:rgba(255,255,255,0.2)!important;cursor:pointer;transition:all 0.25s;border:none!important;box-shadow:none!important;}',
+    '.v21h-npc-dot.active{width:18px!important;border-radius:3px!important;background:#C9A96E!important;box-shadow:0 0 8px rgba(201,169,110,0.5)!important;}'
+  ].join('');
+  document.head.appendChild(styleEl);
+
+  // Update body background immediately
+  try {
+    document.body.style.background = 'linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%)';
+    document.body.style.backgroundAttachment = 'fixed';
+  } catch(e){}
+
+  // Override existing v21-home bg if already rendered
+  var home = document.querySelector('.v21-home');
+  if (home) {
+    home.style.background = 'linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%)';
+  }
+
+})();
+
