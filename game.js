@@ -21771,3 +21771,535 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// ============================================================
+// V2.4.0 - 夏恩(Haeun)个人线5章补丁
+// ============================================================
+(function(){
+  if (window._v240Patched) return;
+  window._v240Patched = true;
+
+  // ============ 辅助函数 ============
+  function _v240GetHaeunHearts() {
+    var love = (gameState.npc好感度 && gameState.npc好感度['夏恩']) || 0;
+    return Math.floor(love / 50);
+  }
+
+  function _v240GetChapterState(chNum) {
+    gameState._v240HaeunRoute = gameState._v240HaeunRoute || {};
+    return gameState._v240HaeunRoute[chNum] || null;
+  }
+
+  function _v240SetChapterState(chNum, state) {
+    gameState._v240HaeunRoute = gameState._v240HaeunRoute || {};
+    gameState._v240HaeunRoute[chNum] = state;
+  }
+
+  function _v240IsChapterCompleted(chNum) {
+    var st = _v240GetChapterState(chNum);
+    return !!(st && st.completed);
+  }
+
+  function _v240CanEnterChapter(chNum) {
+    var hearts = _v240GetHaeunHearts();
+    if (chNum === 1) {
+      return hearts >= 1;
+    } else if (chNum === 2) {
+      return _v240IsChapterCompleted(1) && hearts >= 1;
+    } else if (chNum === 3) {
+      return _v240IsChapterCompleted(2) && hearts >= 20;
+    } else if (chNum === 4) {
+      return _v240IsChapterCompleted(3) && hearts >= 20;
+    } else if (chNum === 5) {
+      return _v240IsChapterCompleted(4) && hearts >= 40;
+    }
+    return false;
+  }
+
+  // ============ 2. 5章节点定义 ============
+  var V240_HAEUN_NODES = [
+    {
+      chapter: 1,
+      check: function() { return _v240CanEnterChapter(1); },
+      trigger: function() { _v240ShowStoryNode('h1'); }
+    },
+    {
+      chapter: 2,
+      check: function() { return _v240CanEnterChapter(2); },
+      trigger: function() { _v240ShowStoryNode('h2'); }
+    },
+    {
+      chapter: 3,
+      check: function() { return _v240CanEnterChapter(3); },
+      trigger: function() { _v240ShowStoryNode('h3'); }
+    },
+    {
+      chapter: 4,
+      check: function() { return _v240CanEnterChapter(4); },
+      trigger: function() { _v240ShowStoryNode('h4'); }
+    },
+    {
+      chapter: 5,
+      check: function() { return _v240CanEnterChapter(5); },
+      trigger: function() { _v240ShowStoryNode('h5'); }
+    }
+  ];
+
+  // ============ 3. 5章故事内容 ============
+  var V240_HAEUN_STORY_NODES = {
+
+    // ========== 第一章：第一次失败 ==========
+    'h1': {
+      bgm: 'practice', portrait: 'haeun',
+      scenes: [
+        { type: 'atmosphere', text: '第一章\n第一次失败' },
+        { type: 'narrate', text: '练习室，凌晨。其他人都走了。' },
+        { type: 'narrate', text: '你推开练习室的门，看到夏恩一个人坐在地板上，背对着门。她听到脚步声，没有回头。' },
+        { type: 'dialogue', speaker: '夏恩', text: '……你怎么还没走？' },
+        { type: 'narrate', text: '你走到她旁边坐下。' },
+        {
+          type: 'choice', text: '',
+          options: [
+            { text: '你为什么不走？', tag: 'h1_a', next: 'h1_a' },
+            { text: '你还好吗？', tag: 'h1_b', next: 'h1_b' },
+            { text: '你打算坐到什么时候？', tag: 'h1_c', next: 'h1_c' }
+          ]
+        },
+        { key: 'h1_a', type: 'dialogue', speaker: '夏恩', text: '……因为我没地方去。回家不知道怎么交代。不回这里，我也不知道还能去哪。' },
+        { key: 'h1_a', type: 'narrate', text: '她低头看着自己的手。' },
+        { key: 'h1_a', type: 'dialogue', speaker: '夏恩', text: '你是不是也觉得我很可笑？' },
+        { key: 'h1_b', type: 'narrate', text: '夏恩没有回答。过了很久——' },
+        { key: 'h1_b', type: 'dialogue', speaker: '夏恩', text: '……我挺好的。就是有点不想说话。' },
+        { key: 'h1_b', type: 'narrate', text: '你坐在她旁边没有走，她看了你一眼，没再说话。' },
+        { key: 'h1_c', type: 'narrate', text: '夏恩笑了一下，不是开心的笑。' },
+        { key: 'h1_c', type: 'dialogue', speaker: '夏恩', text: '……我也不知道。可能坐到我想通为止。' },
+        { key: 'h1_c', type: 'narrate', text: '她转头看你。' },
+        { key: 'h1_c', type: 'dialogue', speaker: '夏恩', text: '你会坐到什么时候？' },
+        { type: 'narrate', text: '沉默了很久。' },
+        { type: 'dialogue', speaker: '夏恩', text: '你知道吗，这是我第三次了。我已经分不清"我会坚持"和"我只会坚持"之间有什么区别了。' },
+        { type: 'narrate', text: '你没有回答。你和她一起坐在练习室地板上，直到天亮。' }
+      ],
+      onComplete: function() {
+        var choice = _v240StoryState && _v240StoryState.chosenTag;
+        _v240SetChapterState(1, { completed: true, choice: choice });
+        _v240ShowChapterSettlement(1, choice);
+      }
+    },
+
+    // ========== 第二章：雨中的练习 ==========
+    'h2': {
+      bgm: 'rain', portrait: 'haeun',
+      scenes: [
+        { type: 'atmosphere', text: '第二章\n雨中的练习' },
+        { type: 'narrate', text: '公司门口，下大雨。' },
+        { type: 'narrate', text: '你从公司出来，看到夏恩站在门口，看着雨发呆。她听到你的脚步声，没有转头。' },
+        { type: 'dialogue', speaker: '夏恩', text: '……我忘记带伞了。' },
+        {
+          type: 'choice', text: '',
+          options: [
+            { text: '我送你回去吧。', tag: 'h2_a', next: 'h2_a' },
+            { text: '你在这里等雨停吧，我陪你。', tag: 'h2_b', next: 'h2_b' },
+            { text: '你是不是故意不带伞的？', tag: 'h2_c', next: 'h2_c' }
+          ]
+        },
+        { key: 'h2_a', type: 'narrate', text: '夏恩愣了一下。' },
+        { key: 'h2_a', type: 'dialogue', speaker: '夏恩', text: '……你住哪？顺路吗？' },
+        { key: 'h2_a', type: 'narrate', text: '你看出来她不想麻烦你，但她也没有拒绝。' },
+        { key: 'h2_b', type: 'narrate', text: '夏恩转头看你。' },
+        { key: 'h2_b', type: 'dialogue', speaker: '夏恩', text: '……你不用陪我。' },
+        { key: 'h2_b', type: 'narrate', text: '但她没有走开，而是在门口站定，跟你一起看着雨。' },
+        { key: 'h2_c', type: 'narrate', text: '夏恩轻轻笑了一下。' },
+        { key: 'h2_c', type: 'dialogue', speaker: '夏恩', text: '……被你看穿了。我只是不想那么快回去。' },
+        { key: 'h2_c', type: 'narrate', text: '她停了一下。' },
+        { key: 'h2_c', type: 'dialogue', speaker: '夏恩', text: '回去也是一个人，在这里至少还能看到雨。' },
+        { type: 'narrate', text: '雨渐渐小了。' },
+        { type: 'dialogue', speaker: '夏恩', text: '你知道吗，我以前很讨厌下雨。现在反而觉得，下雨的时候，世界会比较安静。' },
+        { type: 'narrate', text: '她没有等你回答，转身走进雨中，走了两步，回头看了你一眼。' },
+        { type: 'dialogue', speaker: '夏恩', text: '……走吧。' }
+      ],
+      onComplete: function() {
+        var choice = _v240StoryState && _v240StoryState.chosenTag;
+        _v240SetChapterState(2, { completed: true, choice: choice });
+        _v240ShowChapterSettlement(2, choice);
+      }
+    },
+
+    // ========== 第三章：前队友的消息 ==========
+    'h3': {
+      bgm: 'company', portrait: 'haeun',
+      scenes: [
+        { type: 'atmosphere', text: '第三章\n前队友的消息' },
+        { type: 'narrate', text: '休息室。夏恩坐在沙发上看着手机，表情说不清是平静还是空白。' },
+        { type: 'narrate', text: '你走进休息室，看到夏恩盯着手机屏幕。她抬起头看了你一眼，没说话，又低头看着屏幕。过了好一会儿，她开口了。' },
+        { type: 'dialogue', speaker: '夏恩', text: '她发消息来了。就是之前一起训练的那个队友，我们本来要一起出道的。她问我最近怎么样，还记不记得她。' },
+        { type: 'narrate', text: '她划了一下屏幕，然后锁屏，把手机放在一边。' },
+        {
+          type: 'choice', text: '',
+          options: [
+            { text: '你想回她吗？', tag: 'h3_a', next: 'h3_a' },
+            { text: '她不是没回你吗？', tag: 'h3_b', next: 'h3_b' },
+            { text: '你觉得她为什么现在联系你？', tag: 'h3_c', next: 'h3_c' }
+          ]
+        },
+        { key: 'h3_a', type: 'narrate', text: '夏恩沉默了一会儿。' },
+        { key: 'h3_a', type: 'dialogue', speaker: '夏恩', text: '……想。但我不知道说什么。"我还好"听起来像在说谎，"我还在练习"听起来像在抱怨。' },
+        { key: 'h3_a', type: 'narrate', text: '她看着手机。' },
+        { key: 'h3_a', type: 'dialogue', speaker: '夏恩', text: '你觉得我应该怎么回？' },
+        { key: 'h3_b', type: 'narrate', text: '夏恩愣了一下。' },
+        { key: 'h3_b', type: 'dialogue', speaker: '夏恩', text: '……你也注意到了？' },
+        { key: 'h3_b', type: 'narrate', text: '她苦笑了一下。' },
+        { key: 'h3_b', type: 'dialogue', speaker: '夏恩', text: '她发消息不是真的想见我。她只是想确认我还过得好不好，这样她就不用愧疚了。' },
+        { key: 'h3_c', type: 'narrate', text: '夏恩靠在沙发上，看着天花板。' },
+        { key: 'h3_c', type: 'dialogue', speaker: '夏恩', text: '……说实话，我不知道。可能她只是路过想起我，可能她也有她的原因。但我不太想问。问了，答案也不一定是我能接受的。' },
+        { type: 'narrate', text: '她拿起手机，打开对话框，打了几个字，又删掉。' },
+        { type: 'dialogue', speaker: '夏恩', text: '……算了。以后再说吧。' },
+        { type: 'narrate', text: '她把手机放回去，看着你，声音很轻。' },
+        { type: 'dialogue', speaker: '夏恩', text: '谢谢你。虽然我没说什么，但你在旁边，我觉得安心一点。' }
+      ],
+      onComplete: function() {
+        var choice = _v240StoryState && _v240StoryState.chosenTag;
+        _v240SetChapterState(3, { completed: true, choice: choice });
+        _v240ShowChapterSettlement(3, choice);
+      }
+    },
+
+    // ========== 第四章：社长的办公室 ==========
+    'h4': {
+      bgm: 'company', portrait: 'haeun',
+      scenes: [
+        { type: 'atmosphere', text: '第四章\n社长的办公室' },
+        { type: 'narrate', text: '公司走廊。夏恩刚从社长办公室出来，表情很平静，看起来不像高兴，也不像难过。' },
+        { type: 'narrate', text: '你看到她走过来，脚步比平时慢。她看到你，没有躲开，也没有避开。' },
+        { type: 'dialogue', speaker: '夏恩', text: '社长找我。' },
+        { type: 'narrate', text: '她停在你面前，没有接着说话。' },
+        { type: 'dialogue', speaker: '夏恩', text: '他说……这次新企划让我当队长。' },
+        { type: 'narrate', text: '她笑了一下，比之前自然了一点。' },
+        { type: 'dialogue', speaker: '夏恩', text: '我问他为什么是我。他说，因为你还在。' },
+        { type: 'narrate', text: '她说完这句话，安静了很久。' },
+        { type: 'dialogue', speaker: '夏恩', text: '我不知道我是不是合适的人选。但他说，我待得最久。' },
+        {
+          type: 'choice', text: '',
+          options: [
+            { text: '你觉得你行吗？', tag: 'h4_a', next: 'h4_a' },
+            { text: '那你想当吗？', tag: 'h4_b', next: 'h4_b' },
+            { text: '他说的对，你确实待得最久。', tag: 'h4_c', next: 'h4_c' }
+          ]
+        },
+        { key: 'h4_a', type: 'narrate', text: '夏恩想了想。' },
+        { key: 'h4_a', type: 'dialogue', speaker: '夏恩', text: '……我不知道。但我愿意试。失败过了那么多次，应该不会再怕了吧。' },
+        { key: 'h4_b', type: 'narrate', text: '夏恩沉默了一会儿。' },
+        { key: 'h4_b', type: 'dialogue', speaker: '夏恩', text: '……想。但我怕。' },
+        { key: 'h4_b', type: 'narrate', text: '她说出"怕"的时候，声音比之前更轻。' },
+        { key: 'h4_b', type: 'dialogue', speaker: '夏恩', text: '怕当不好，怕又失败。怕他们也会像之前一样——不管我练得多好，最后还是散了。' },
+        { key: 'h4_c', type: 'narrate', text: '夏恩看了你一眼，没有反驳。' },
+        { key: 'h4_c', type: 'dialogue', speaker: '夏恩', text: '待得最久不一定是队长该有的理由。但如果我要当，我会用别的方式证明我不是靠时间上位的。' },
+        { type: 'narrate', text: '她深吸了一口气。' },
+        { type: 'dialogue', speaker: '夏恩', text: '我答应了。不管怎么样，这次我要试到最后。你别告诉别人。' },
+        { type: 'narrate', text: '她走回练习室，背影比以前挺直了一点。' }
+      ],
+      onComplete: function() {
+        var choice = _v240StoryState && _v240StoryState.chosenTag;
+        _v240SetChapterState(4, { completed: true, choice: choice });
+        _v240ShowChapterSettlement(4, choice);
+      }
+    },
+
+    // ========== 第五章：出道前夜 ==========
+    'h5': {
+      bgm: 'practice', portrait: 'haeun',
+      scenes: [
+        { type: 'atmosphere', text: '第五章\n出道前夜' },
+        { type: 'narrate', text: '练习室，出道前一天晚上。所有队员都已经回去休息了，夏恩一个人还留在练习室里。' },
+        { type: 'narrate', text: '你走进练习室，看到她站在镜子前，看着自己。她看到你，没有意外。' },
+        { type: 'dialogue', speaker: '夏恩', text: '我就知道你会来。' },
+        { type: 'narrate', text: '她看着镜子里的自己，声音很轻。' },
+        { type: 'dialogue', speaker: '夏恩', text: '明天就要出道了。我其实没有我想象中那么紧张……可能是因为我已经等了太久。' },
+        { type: 'narrate', text: '她转头看你。' },
+        { type: 'dialogue', speaker: '夏恩', text: '你知道我为什么一直不走吗？不是因为我还想坚持。是因为我怕我走了之后，才发现这次本来会成功。' },
+        {
+          type: 'choice', text: '',
+          options: [
+            { text: '那你觉得这次会成功吗？', tag: 'h5_a', next: 'h5_a' },
+            { text: '明天，你会站在台上。', tag: 'h5_b', next: 'h5_b' },
+            { text: '你有没有想过，如果这次也失败了怎么办？', tag: 'h5_c', next: 'h5_c' }
+          ]
+        },
+        { key: 'h5_a', type: 'narrate', text: '夏恩想了想，然后说——' },
+        { key: 'h5_a', type: 'dialogue', speaker: '夏恩', text: '……我不知道。但我会让它在台上看起来像成功。哪怕台下只有一个人，我也会让他觉得——我值得。' },
+        { key: 'h5_b', type: 'narrate', text: '夏恩沉默了很久。' },
+        { key: 'h5_b', type: 'dialogue', speaker: '夏恩', text: '……嗯。我会。' },
+        { key: 'h5_b', type: 'narrate', text: '她没有说更多，但你看到她微微吸了一下鼻子。' },
+        { key: 'h5_c', type: 'narrate', text: '夏恩安静了很久，声音变得很轻——' },
+        { key: 'h5_c', type: 'dialogue', speaker: '夏恩', text: '想过。我想过很多次。但这一次，我不想再提前替自己准备好退路了。' },
+        { type: 'narrate', text: '她转身面对你，嘴角轻轻弯了一下。' },
+        { type: 'dialogue', speaker: '夏恩', text: '谢谢你。在过去的日子里……你一直都在。' },
+        { type: 'narrate', text: '她说完这句话，走向门外，在门口停了一下。' },
+        { type: 'dialogue', speaker: '夏恩', text: '明天见。到时候，看看我有没有成为你说的那种人。' },
+        { type: 'narrate', text: '她走出去，练习室的灯还亮着，镜子映出你一个人站在空荡荡的房间里。' }
+      ],
+      onComplete: function() {
+        var choice = _v240StoryState && _v240StoryState.chosenTag;
+        _v240SetChapterState(5, { completed: true, choice: choice });
+        _v240ShowChapterSettlement(5, choice);
+      }
+    }
+  };
+
+  // ============ 4. 故事渲染引擎 ============
+  var _v240StoryState = null;
+
+  function _v240ShowStoryNode(nodeId) {
+    var node = V240_HAEUN_STORY_NODES[nodeId];
+    if (!node) return;
+    if (node.bgm && typeof BGMManager !== 'undefined' && BGMManager.play) {
+      try { BGMManager.play(node.bgm); } catch(e) {}
+    }
+    _v240StoryState = {
+      nodeId: nodeId, scenes: node.scenes, idx: 0,
+      currentKey: null, waitingChoice: false,
+      portrait: node.portrait, expression: node.expression,
+      chosenTag: null, onComplete: node.onComplete
+    };
+    _v240RenderStoryDialog();
+  }
+
+  function _v240RenderStoryDialog() {
+    var st = _v240StoryState;
+    if (!st) return;
+    var scene = null;
+    while (st.idx < st.scenes.length) {
+      var s = st.scenes[st.idx];
+      if (s.key) {
+        if (s.key === st.currentKey) { scene = s; st.idx++; break; }
+        else { st.idx++; continue; }
+      } else { scene = s; st.idx++; break; }
+    }
+    if (!scene) {
+      var nodeId = st.nodeId;
+      var onCompleteFn = st.onComplete;
+      _v240StoryState = null;
+      if (typeof onCompleteFn === 'function') { onCompleteFn(); }
+      return;
+    }
+    if (scene.type === 'atmosphere') {
+      _v240CloseStoryDialog();
+      _v2ShowAtmosphere(scene.text, 3000);
+      setTimeout(function() { if (_v240StoryState && _v240StoryState.nodeId === st.nodeId) _v240RenderStoryDialog(); }, 3100);
+      return;
+    }
+
+    var overlayHtml = '<div id="v240-story-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:10000;'
+      + 'background:linear-gradient(180deg,rgba(13,11,30,0.3) 0%,rgba(13,11,30,0.85) 60%,rgba(13,11,30,0.98) 100%);'
+      + 'display:flex;flex-direction:column;justify-content:flex-end;" onclick="_v240StoryAdvance()">';
+
+    var portrait = scene.portrait || st.portrait;
+    var expr = scene.expression || st.expression || 'main';
+    if (portrait) {
+      var portraitMap = { haeun: 'imgs/portraits/haeun_halfbody.jpg', soah: 'imgs/portraits/soah_halfbody.jpg', jiwon: 'imgs/portraits/jiwon_halfbody.jpg', junho: 'imgs/portraits/junho_halfbody.jpg', seokhyun: 'imgs/portraits/seokhyun_halfbody.jpg' };
+      var exprMap = { smile: '_smile', sad: '_sad', blink_half: '_blink_half', blink_full: '_blink_full' };
+      var imgSrc = portraitMap[portrait] || '';
+      if (expr !== 'main' && exprMap[expr] && imgSrc) {
+        imgSrc = imgSrc.replace('_halfbody.jpg', exprMap[expr] + '.jpg');
+      }
+      if (imgSrc) {
+        overlayHtml += '<div style="position:absolute;bottom:180px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;">'
+          + '<img src="' + imgSrc + '" style="height:55vh;max-width:80%;object-fit:contain;filter:drop-shadow(0 10px 30px rgba(201,169,110,0.3));" onerror="this.style.display=\'none\'">'
+          + '</div>';
+      }
+    }
+
+    if (scene.type === 'narrate') {
+      overlayHtml += '<div style="margin:0 16px 20px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+        + '<div id="v240-story-text" style="font-size:15px;color:rgba(255,255,255,0.85);line-height:1.8;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;font-weight:300;min-height:60px;white-space:pre-line;"></div>'
+        + '<div style="text-align:right;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.25);font-weight:300;">点击继续</div></div>';
+    } else if (scene.type === 'dialogue') {
+      overlayHtml += '<div style="margin:0 16px 20px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px 20px;position:relative;box-shadow:0 10px 40px rgba(0,0,0,0.5);">'
+        + '<div style="font-size:13px;font-weight:400;color:#C9A96E;margin-bottom:8px;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;letter-spacing:0.05em;">' + (scene.speaker || '') + '</div>'
+        + '<div id="v240-story-text" style="font-size:16px;color:#FFF;line-height:1.8;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;font-weight:300;min-height:40px;"></div>'
+        + '<div style="text-align:right;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.25);font-weight:300;">点击继续</div></div>';
+    } else if (scene.type === 'choice') {
+      overlayHtml += '<div style="margin:0 16px 20px;">'
+        + '<div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;font-weight:300;letter-spacing:0.05em;">' + (scene.text || '') + '</div>';
+      for (var oi = 0; oi < scene.options.length; oi++) {
+        var opt = scene.options[oi];
+        overlayHtml += '<div onclick="_v240StoryChoose(' + oi + ')" style="margin-bottom:8px;padding:14px 16px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;cursor:pointer;font-size:14px;color:#FFF;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;font-weight:300;-webkit-tap-highlight-color:transparent;-webkit-transition:border-color 0.2s;transition:border-color 0.2s;" ontouchstart="this.style.borderColor=\'rgba(201,169,110,0.5)\'" ontouchend="this.style.borderColor=\'rgba(255,255,255,0.1)\'">'
+          + opt.text + '</div>';
+      }
+      overlayHtml += '</div>';
+      st.waitingChoice = true;
+    }
+
+    overlayHtml += '</div>';
+
+    _v240CloseStoryDialog();
+    var wrapper = document.createElement('div');
+    wrapper.id = 'v240-story-wrapper';
+    wrapper.innerHTML = overlayHtml;
+    document.body.appendChild(wrapper);
+
+    if (scene.type === 'narrate' || scene.type === 'dialogue') {
+      var textEl = document.getElementById('v240-story-text');
+      if (textEl && scene.text) {
+        _v2TypeWriter('v240-story-text', scene.text, 45, function(){});
+      }
+    }
+
+    if (scene.type === 'choice') {
+      var overlay = document.getElementById('v240-story-overlay');
+      if (overlay) overlay.onclick = function(e) { e.stopPropagation(); };
+    }
+  }
+
+  function _v240StoryAdvance() {
+    var st = _v240StoryState;
+    if (!st) return;
+    if (st.waitingChoice) return;
+    _v240RenderStoryDialog();
+  }
+  window._v240StoryAdvance = _v240StoryAdvance;
+
+  function _v240StoryChoose(optIdx) {
+    var st = _v240StoryState;
+    if (!st) return;
+    var scene = null;
+    for (var si = 0; si < st.scenes.length; si++) {
+      if (st.scenes[si].type === 'choice') { scene = st.scenes[si]; break; }
+    }
+    if (!scene) return;
+    var opt = scene.options[optIdx];
+    if (!opt) return;
+    st.chosenTag = opt.tag;
+    st.waitingChoice = false;
+    st.currentKey = opt.next;
+    _v240CloseStoryDialog();
+    setTimeout(function() { _v240RenderStoryDialog(); }, 200);
+  }
+  window._v240StoryChoose = _v240StoryChoose;
+
+  function _v240CloseStoryDialog() {
+    var w = document.getElementById('v240-story-wrapper');
+    if (w && w.parentNode) w.parentNode.removeChild(w);
+  }
+
+  // ============ 5. 章节结算函数 ============
+  var V240_HAEUN_BONUS = {
+    'h1_a': { chapter: 1, choiceText: '你为什么不走？', 好感度: 5, 信任: 1, 共情: 0, 观察: 0 },
+    'h1_b': { chapter: 1, choiceText: '你还好吗？', 好感度: 8, 信任: 0, 共情: 1, 观察: 0 },
+    'h1_c': { chapter: 1, choiceText: '你打算坐到什么时候？', 好感度: 3, 信任: 0, 共情: 0, 观察: 1 },
+    'h2_a': { chapter: 2, choiceText: '我送你回去吧。', 好感度: 10, 信任: 2, 共情: 0, 观察: 0 },
+    'h2_b': { chapter: 2, choiceText: '你在这里等雨停吧，我陪你。', 好感度: 12, 信任: 0, 共情: 2, 观察: 0 },
+    'h2_c': { chapter: 2, choiceText: '你是不是故意不带伞的？', 好感度: 5, 信任: 0, 共情: 0, 观察: 2 },
+    'h3_a': { chapter: 3, choiceText: '你想回她吗？', 好感度: 8, 信任: 0, 共情: 1, 观察: 0 },
+    'h3_b': { chapter: 3, choiceText: '她不是没回你吗？', 好感度: 6, 信任: 0, 共情: 0, 观察: 2 },
+    'h3_c': { chapter: 3, choiceText: '你觉得她为什么现在联系你？', 好感度: 10, 信任: 2, 共情: 0, 观察: 0 },
+    'h4_a': { chapter: 4, choiceText: '你觉得你行吗？', 好感度: 8, 信任: 2, 共情: 0, 观察: 0 },
+    'h4_b': { chapter: 4, choiceText: '那你想当吗？', 好感度: 12, 信任: 0, 共情: 2, 观察: 0 },
+    'h4_c': { chapter: 4, choiceText: '他说的对，你确实待得最久。', 好感度: 6, 信任: 0, 共情: 0, 观察: 1 },
+    'h5_a': { chapter: 5, choiceText: '那你觉得这次会成功吗？', 好感度: 12, 信任: 2, 共情: 0, 观察: 0 },
+    'h5_b': { chapter: 5, choiceText: '明天，你会站在台上。', 好感度: 15, 信任: 0, 共情: 2, 观察: 0 },
+    'h5_c': { chapter: 5, choiceText: '你有没有想过，如果这次也失败了怎么办？', 好感度: 8, 信任: 0, 共情: 0, 观察: 2 }
+  };
+
+  var V240_HAEUN_QUOTES = {
+    1: '"你知道吗，这是我第三次了。我已经分不清\'我会坚持\'和\'我只会坚持\'之间有什么区别了。"',
+    2: '"我以前很讨厌下雨。现在反而觉得，下雨的时候，世界会比较安静。"',
+    3: '"谢谢你。虽然我没说什么，但你在旁边，我觉得安心一点。"',
+    4: '"我答应了。不管怎么样，这次我要试到最后。"',
+    5: '"谢谢你。在过去的日子里……你一直都在。"'
+  };
+
+  var V240_HAEUN_CHAPTER_TITLES = {
+    1: '第一次失败',
+    2: '雨中的练习',
+    3: '前队友的消息',
+    4: '社长的办公室',
+    5: '出道前夜'
+  };
+
+  function _v240ShowChapterSettlement(chNum, choiceTag) {
+    _v240CloseStoryDialog();
+    var bonus = V240_HAEUN_BONUS[choiceTag] || { chapter: chNum, choiceText: '—', 好感度: 0, 信任: 0, 共情: 0, 观察: 0 };
+    var quote = V240_HAEUN_QUOTES[chNum] || '';
+    var title = V240_HAEUN_CHAPTER_TITLES[chNum] || '';
+    var nextChapter = chNum < 5 ? '第' + (chNum + 1) + '章：' + (V240_HAEUN_CHAPTER_TITLES[chNum + 1] || '') : '全部完成';
+
+    var html = '<div style="max-height:75vh;overflow-y:auto;padding:4px;">';
+
+    html += '<div style="text-align:center;margin-bottom:24px;">';
+    html += '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.3em;margin-bottom:8px;font-weight:300;">HAEUN ROUTE · CHAPTER ' + chNum + ' COMPLETE</div>';
+    html += '<div style="font-size:24px;font-weight:300;color:#FFF;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;letter-spacing:0.05em;">夏恩·第' + chNum + '章 · ' + title + '</div>';
+    html += '<div style="width:40px;height:1px;background:#C9A96E;margin:16px auto;"></div>';
+    html += '</div>';
+
+    html += '<div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.5);margin-bottom:10px;letter-spacing:0.1em;">你的选择</div>';
+    html += '<div style="background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:10px;padding:12px 14px;margin-bottom:16px;border-left:2px solid #C9A96E;">';
+    html += '<div style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:300;">' + bonus.choiceText + '</div>';
+    html += '</div>';
+
+    html += '<div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.5);margin-bottom:10px;letter-spacing:0.1em;">章节加成</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">';
+    var stats = [
+      { name: '好感度', val: bonus.好感度, color: '#F472B6' },
+      { name: '信任', val: bonus.信任, color: '#A78BFA' },
+      { name: '共情', val: bonus.共情, color: '#FBBF24' },
+      { name: '观察', val: bonus.观察, color: '#60A5FA' }
+    ];
+    for (var si = 0; si < stats.length; si++) {
+      var s = stats[si];
+      if (s.val > 0) {
+        html += '<span style="padding:6px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;font-size:12px;color:' + s.color + ';font-weight:300;">' + s.name + ' +' + s.val + '</span>';
+      }
+    }
+    html += '</div>';
+
+    html += '<div style="background:rgba(255,255,255,0.04);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);">';
+    html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:4px;font-weight:300;">收尾金句</div>';
+    html += '<div style="font-size:14px;font-weight:300;color:rgba(255,255,255,0.85);line-height:1.8;font-style:italic;">' + quote + '</div>';
+    html += '</div>';
+
+    if (chNum < 5) {
+      html += '<div style="background:rgba(255,255,255,0.04);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:12px;padding:14px;border-left:2px solid #C9A96E;">';
+      html += '<div style="font-size:11px;color:#C9A96E;margin-bottom:4px;letter-spacing:0.15em;font-weight:300;">NEXT CHAPTER</div>';
+      html += '<div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.6;font-weight:300;">' + nextChapter + '</div>';
+      html += '</div>';
+    } else {
+      html += '<div style="background:rgba(201,169,110,0.08);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:12px;padding:14px;border:1px solid rgba(201,169,110,0.2);text-align:center;">';
+      html += '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.15em;font-weight:300;margin-bottom:4px;">ROUTE COMPLETE</div>';
+      html += '<div style="font-size:16px;font-weight:300;color:#C9A96E;letter-spacing:0.05em;">夏恩个人线 · 全部完成</div>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+
+    var btnText = chNum < 5 ? '继续' : '完成';
+    showModal('章节完成', html, [{
+      text: btnText,
+      action: function() {
+        closeModal();
+        triggerSilentSave();
+        render();
+      }
+    }]);
+  }
+
+  // ============ 6. 入口注册 ============
+  window._v240EnterHaeunChapter = function(chNum) {
+    if (!_v240CanEnterChapter(chNum)) {
+      var hearts = _v240GetHaeunHearts();
+      var requiredHearts = { 1: 1, 2: 1, 3: 20, 4: 20, 5: 40 };
+      var need = requiredHearts[chNum] || 0;
+      if (chNum > 1 && !_v240IsChapterCompleted(chNum - 1)) {
+        showToast('请先完成第' + (chNum - 1) + '章');
+      } else if (hearts < need) {
+        showToast('需要夏恩好感度达到' + (need * 50) + '以上（当前' + ((gameState.npc好感度 && gameState.npc好感度['夏恩']) || 0) + '）');
+      }
+      return;
+    }
+    var alreadyDone = _v240IsChapterCompleted(chNum);
+    if (alreadyDone) {
+      showToast('第' + chNum + '章已完成，可重新体验');
+    }
+    var storyKey = 'h' + chNum;
+    _v240ShowStoryNode(storyKey);
+  };
+
+})();
