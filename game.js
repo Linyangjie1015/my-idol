@@ -20577,3 +20577,212 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// V2.2.5 - 场景NPC去剧情+通讯录光夜风+直播页光夜风+聊天页可见性修复
+// ============================================================
+(function(){
+  if (window._v225Patched) return;
+  window._v225Patched = true;
+
+  // ============ 1. 场景NPC只做装饰展示，去掉剧情/对话交互 ============
+  // 覆盖_v2GetSceneNpcHtml，NPC只显示头像+名字+好感状态，点击打开角色页
+  var _origNpcHtml = window._v2GetSceneNpcHtml;
+  window._v2GetSceneNpcHtml = function(sceneId) {
+    var npcs = V2_SCENE_NPCS[sceneId];
+    if (!npcs || npcs.length === 0) return '';
+    var html = '';
+    for (var i = 0; i < npcs.length; i++) {
+      var n = npcs[i];
+      var 好感 = (gameState.npc好感度 && gameState.npc好感度[n.name]) || 0;
+      var stage = '陌生';
+      if (好感 >= 100) stage = '灵魂伴侣';
+      else if (好感 >= 80) stage = '挚爱';
+      else if (好感 >= 60) stage = '恋人';
+      else if (好感 >= 40) stage = '暧昧';
+      else if (好感 >= 20) stage = '熟悉';
+      var key = n.key || n.name;
+      html += '<div onclick="gameState._charViewKey=\'' + key + '\';goToPage(\'character\')" style="position:absolute;left:' + n.x + '%;top:' + n.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;">'
+        + '<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);margin:0 auto 4px;display:flex;align-items:center;justify-content:center;overflow:hidden;">'
+        + '<div style="font-size:16px;font-weight:300;color:#fff;">' + n.name.charAt(0) + '</div>'
+        + '</div>'
+        + '<div style="font-size:10px;color:rgba(255,255,255,0.7);font-weight:300;">' + n.name + '</div>'
+        + '<div style="font-size:9px;color:rgba(201,169,110,0.7);font-weight:300;margin-top:1px;">' + stage + '</div>'
+        + '</div>';
+    }
+    return html;
+  };
+
+  // ============ 2. 通讯录页面光夜风重构 ============
+  var _origContactsPage = window.renderContactsPage;
+  window.renderContactsPage = function(container) {
+    var tab = contactsTab || 'chat';
+
+    var tabBar = '<div style="display:flex;height:52px;'
+      + 'background:rgba(13,11,30,0.9);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);'
+      + 'border-top:1px solid rgba(255,255,255,0.06);position:absolute;bottom:0;left:0;right:0;z-index:10;">';
+    var tabs = [
+      {key:'contacts',label:'联系人',svg:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+      {key:'chat',label:'聊天',svg:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'},
+      {key:'date',label:'约会',svg:'<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'},
+      {key:'history',label:'记录',svg:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'}
+    ];
+    for (var ti = 0; ti < tabs.length; ti++) {
+      var t = tabs[ti];
+      var isActive = tab === t.key;
+      tabBar += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;'
+        + 'color:' + (isActive ? '#C9A96E' : 'rgba(255,255,255,0.35)') + ';" onclick="contactsTab=\'' + t.key + '\';render();">'
+        + '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' + t.svg + '</svg>'
+        + '<div style="font-size:9px;margin-top:2px;font-weight:' + (isActive ? '400' : '300') + ';">' + t.label + '</div>'
+        + '</div>';
+    }
+    tabBar += '</div>';
+
+    var contentHtml = '';
+    if (tab === 'contacts') contentHtml = _renderContactsTab();
+    else if (tab === 'chat') contentHtml = _renderContactsChatTab();
+    else if (tab === 'date') contentHtml = _renderContactsDateTab();
+    else if (tab === 'history') contentHtml = _renderContactsHistoryTab();
+
+    container.innerHTML = '<div style="display:flex;flex-direction:column;height:100%;min-height:100vh;'
+      + 'background:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%);color:#fff;'
+      + 'font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;">'
+      + '<div style="position:sticky;top:0;z-index:10;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;'
+      + 'background:rgba(13,11,30,0.85);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);'
+      + 'border-bottom:1px solid rgba(255,255,255,0.06);">'
+      + '<div onclick="goToPage(\'home\')" style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:300;cursor:pointer;">‹ 首页</div>'
+      + '<div style="font-size:16px;font-weight:300;letter-spacing:0.08em;">通讯录</div>'
+      + '<div style="width:40px;"></div>'
+      + '</div>'
+      + '<div style="flex:1;overflow-y:auto;padding:8px 0;"' + contentHtml + '</div>'
+      + tabBar + '</div>';
+  };
+
+  // ============ 3. 直播页光夜风重构 ============
+  var _origLivePage = window.renderLivePage;
+  window.renderLivePage = function(container) {
+    var btnText = isLive ? '结束直播' : '开始直播';
+    var btnAction = isLive ? 'stopLive()' : 'chooseLiveMode()';
+    var liveMode = gameState.liveMode || 'video';
+    var previewBg = isLive && liveMode === 'audio'
+      ? 'background:linear-gradient(135deg,#1a1a2e,#16213e);'
+      : 'background:linear-gradient(135deg,#0D0B1E,#1A1438);';
+
+    var audioOverlay = '';
+    if (isLive && liveMode === 'audio') {
+      audioOverlay = '<div style="position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;">'
+        + '<div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:300;margin-bottom:8px;">' + (gameState.player.avatar || '') + '</div>'
+        + '<div style="font-size:14px;font-weight:300;color:#fff;">' + gameState.player.name + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;font-weight:300;">语音直播中</div>'
+        + '</div>';
+    }
+
+    var speechBtnText = (speechRecognition && isLive) ? '关闭转述' : '实时转述';
+
+    container.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;'
+      + 'background:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%);color:#fff;'
+      + 'font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC",sans-serif;">'
+      // 顶栏
+      + '<div style="position:sticky;top:0;z-index:10;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;'
+      + 'background:rgba(13,11,30,0.85);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);'
+      + 'border-bottom:1px solid rgba(255,255,255,0.06);">'
+      + '<div onclick="goToPage(\'home\')" style="color:rgba(255,255,255,0.5);font-size:14px;font-weight:300;cursor:pointer;">‹ 首页</div>'
+      + '<div style="font-size:16px;font-weight:300;letter-spacing:0.08em;">直播</div>'
+      + '<div style="width:40px;"></div>'
+      + '</div>'
+      // 直播预览区
+      + '<div id="livePreview" style="' + previewBg + 'height:200px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;">'
+      + (isLive && liveMode === 'video' ? '' : '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>')
+      + audioOverlay
+      + '<div id="liveDanmaku" style="position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;"></div>'
+      + '<div id="liveSpeechText" style="position:absolute;bottom:8px;left:8px;right:8px;background:rgba(0,0,0,0.6);color:white;font-size:13px;padding:8px 12px;border-radius:8px;display:none;font-weight:300;"></div>'
+      + '<div style="position:absolute;top:10px;right:10px;display:flex;gap:6px;">'
+      + '<button onclick="' + btnAction + '" style="font-size:11px;padding:5px 14px;border-radius:16px;border:1px solid rgba(201,169,110,0.4);background:rgba(201,169,110,0.1);color:#C9A96E;cursor:pointer;font-weight:300;-webkit-tap-highlight-color:transparent;">' + btnText + '</button>'
+      + (isLive ? '<button id="speechBtn" onclick="toggleLiveSpeech()" style="font-size:10px;padding:5px 10px;border-radius:16px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.6);cursor:pointer;font-weight:300;-webkit-tap-highlight-color:transparent;">' + speechBtnText + '</button>' : '')
+      + '</div>'
+      + '</div>'
+      // 数据栏
+      + '<div style="display:flex;justify-content:space-around;padding:12px 16px;'
+      + 'background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);">'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#fff;" id="viewerCount">0</div><div style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:300;">观看</div></div>'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#fff;" id="likeCount">0</div><div style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:300;">点赞</div></div>'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#C9A96E;" id="liveRevenue">0</div><div style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:300;">收益</div></div>'
+      + '</div>'
+      // 聊天区
+      + '<div id="liveChatArea" style="flex:1;overflow-y:auto;padding:10px 14px;min-height:200px;">'
+      + '<div style="text-align:center;color:rgba(255,255,255,0.25);font-size:12px;padding:30px 0;font-weight:300;">开始直播后，弹幕和聊天将在这里显示</div>'
+      + '</div>'
+      // 输入栏
+      + '<div style="display:flex;gap:8px;padding:10px 14px 40px;'
+      + 'background:rgba(13,11,30,0.9);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);'
+      + 'border-top:1px solid rgba(255,255,255,0.06);">'
+      + '<input type="text" id="liveChatInput" placeholder="输入消息回复观众..." style="flex:1;padding:10px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.05);color:#fff;font-size:13px;font-weight:300;outline:none;">'
+      + '<button onclick="sendLiveChat()" style="padding:10px 18px;border-radius:20px;border:1px solid rgba(201,169,110,0.4);background:rgba(201,169,110,0.1);color:#C9A96E;font-size:13px;font-weight:300;cursor:pointer;-webkit-tap-highlight-color:transparent;">发送</button>'
+      + '</div>'
+      + '</div>';
+  };
+
+  // ============ 4. 直播弹幕文字加大加亮 ============
+  // 覆盖addDanmaku让弹幕更清晰
+  var _origAddDanmaku = window.addDanmaku;
+  window.addDanmaku = function() {
+    var container = document.getElementById('liveDanmaku');
+    var chatArea = document.getElementById('liveChatArea');
+    var msg = danmakuMessages[Math.floor(Math.random() * danmakuMessages.length)];
+    var fanNames = ['月野兔', '星辰光', '小甜饼', '彩虹糖', '棉花糖', '星光酱', '樱桃子', '蜜桃酱', '小草莓', '布丁狗', '银河系', '泡泡茶', '奶盖酱', '焦糖猫', '芒果冰'];
+    var from = fanNames[Math.floor(Math.random() * fanNames.length)];
+    var isVip = Math.random() < 0.15;
+    if (container) {
+      var div = document.createElement('div');
+      div.textContent = (isVip ? '[VIP] ' : '') + msg;
+      var dColor = isVip ? '#FFD700' : 'rgba(255,255,255,0.9)';
+      div.style.cssText = 'position:absolute;white-space:nowrap;color:' + dColor + ';font-size:' + (isVip ? '16px' : '14px') + ';font-weight:' + (isVip ? '700' : '400') + ';text-shadow:0 0 6px rgba(0,0,0,0.9),0 0 12px rgba(0,0,0,0.5);top:' + (Math.random() * 75) + '%;right:-200px;transition:right 4s linear;';
+      container.appendChild(div);
+      requestAnimationFrame(function() { div.style.right = '100%'; });
+      setTimeout(function() { if (div.parentNode) div.parentNode.removeChild(div); }, 4500);
+    }
+    if (chatArea) {
+      var chatDiv = document.createElement('div');
+      chatDiv.style.cssText = 'padding:5px 0;font-size:13px;';
+      var vipTag = isVip ? '<span style="font-size:9px;padding:1px 4px;border-radius:3px;background:rgba(255,215,0,0.2);color:#FFD700;font-weight:400;margin-right:3px;">VIP</span>' : '';
+      chatDiv.innerHTML = vipTag + '<span style="color:#C9A96E;font-weight:400;">' + from + '</span> <span style="color:rgba(255,255,255,0.7);font-weight:300;">' + msg + '</span>';
+      chatArea.appendChild(chatDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+  };
+
+  // ============ 5. 直播聊天发送样式统一 ============
+  var _origSendLiveChat = window.sendLiveChat;
+  window.sendLiveChat = function() {
+    var input = document.getElementById('liveChatInput');
+    if (!input || !input.value.trim()) return;
+    var chatArea = document.getElementById('liveChatArea');
+    var msg = input.value.trim();
+    input.value = '';
+    if (chatArea) {
+      var chatDiv = document.createElement('div');
+      chatDiv.style.cssText = 'padding:5px 0;text-align:right;';
+      chatDiv.innerHTML = '<span style="background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.3);color:#C9A96E;padding:5px 12px;border-radius:16px;font-size:13px;font-weight:300;">' + msg + '</span>';
+      chatArea.appendChild(chatDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+    gameState.fans += 2;
+    var fanNames = ['月野兔', '星辰光', '小甜饼', '彩虹糖', '棉花糖', '星光酱', '樱桃子', '蜜桃酱', '小草莓', '布丁狗'];
+    var reactionMsgs = ['哇！', '好棒！', '加油！', '爱你！', '太厉害了！', '比心！', '好可爱！', '再来一个！', '笑死', '感动'];
+    var numReactions = Math.floor(Math.random() * 3) + 2;
+    for (var ri = 0; ri < numReactions; ri++) {
+      (function(delay) {
+        setTimeout(function() {
+          var ca = document.getElementById('liveChatArea');
+          if (!ca) return;
+          var resp = reactionMsgs[Math.floor(Math.random() * reactionMsgs.length)];
+          var from = fanNames[Math.floor(Math.random() * fanNames.length)];
+          var cd = document.createElement('div');
+          cd.style.cssText = 'padding:5px 0;font-size:13px;';
+          cd.innerHTML = '<span style="color:#C9A96E;font-weight:400;">' + from + '</span> <span style="color:rgba(255,255,255,0.7);font-weight:300;">' + resp + '</span>';
+          ca.appendChild(cd);
+          ca.scrollTop = ca.scrollHeight;
+        }, delay);
+      })(500 + ri * 400 + Math.random() * 600);
+    }
+  };
+
+})();
