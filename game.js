@@ -20036,3 +20036,179 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// ============================================================
+// V2.2.2 - 清理补丁：禁用剧情路由 + 精简场景按钮 + 修复页面出错
+// ============================================================
+(function(){
+  if (window._v222Patched) return;
+  window._v222Patched = true;
+
+  // ============ 1. 禁用未完成页面路由 ============
+  var _disabledPages = {
+    'story': '剧情系统即将上线',
+    'debut': '出道企划即将上线',
+    'debutdialog': '出道剧情即将上线',
+    'comeback': '回归企划即将上线',
+    'songprod': '歌曲制作即将上线',
+    'mvstudio': 'MV制作即将上线',
+    'fanclub': '粉丝俱乐部即将上线',
+    'achievement': '成就系统即将上线',
+    'gacha': '周边店即将上线',
+    'exam': '考核系统即将上线',
+    'examGame': '考核系统即将上线'
+  };
+
+  var _oldGoToPage = window.goToPage;
+  window.goToPage = function(page) {
+    if (_disabledPages[page]) {
+      showModal('暂未开放', _disabledPages[page]);
+      return;
+    }
+    return _oldGoToPage.apply(this, arguments);
+  };
+
+  // ============ 2. 场景按钮精简 ============
+  // 只保留：房间导航(门/走廊/回xxx)、手机、睡觉、电梯、导航(_nav)
+  // 删掉：便利店/录音/写歌/训练/换装/办公/谈话/表演/打歌/拍摄/走红毯/开播等app类按钮
+  var _allowedHotspotLabels = ['手机','睡觉','走廊','门','回客厅','回宿舍','电梯','出门','离开','卧室','卫生间','浴室','衣帽间','大厅'];
+  var _allowedHotspotActions = ['phone','sleep','nav'];  // nav = _nav和_elevator
+  var _allowedHotspotTargets = ['_nav','_elevator'];     // 导航和电梯
+
+  function _isEssentialHotspot(hs) {
+    if (!hs) return false;
+    // phone/sleep直接保留
+    if (hs.action === 'phone' || hs.action === 'sleep') return true;
+    // 导航和电梯保留
+    if (hs.action === 'nav') return true;
+    // 场景间导航(门/走廊/回xxx)保留
+    if (hs.action === 'scene') return true;
+    // app类全部删除（便利店/训练/录音/换装/VIP/办公/直播/打歌/拍摄/日程等）
+    if (hs.action === 'app') return false;
+    // 按label判断
+    var label = (hs.label || '');
+    for (var i = 0; i < _allowedHotspotLabels.length; i++) {
+      if (label.indexOf(_allowedHotspotLabels[i]) !== -1) return true;
+    }
+    // 兜底：action不是app的保留
+    return hs.action !== 'app';
+  }
+
+  // 覆盖V2.2.1的renderScenePage，加过滤
+  var _v221RenderScenePage = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    window._inSceneMode = true;
+    var sceneId = gameState._currentScene || _getHomeScene();
+    var scene = SCENES[sceneId];
+    if (!scene) { sceneId = _getHomeScene(); scene = SCENES[sceneId]; }
+    if (!scene) { renderHomePage(container); return; }
+
+    if (typeof BGMManager !== 'undefined') {
+      if (sceneId.indexOf('practice') !== -1 || sceneId.indexOf('train') !== -1) BGMManager.play('practice');
+      else if (sceneId.indexOf('company') !== -1 || sceneId.indexOf('office') !== -1) BGMManager.play('company');
+      else if (sceneId.indexOf('dorm') !== -1) BGMManager.play('dorm');
+      else if (sceneId.indexOf('stage') !== -1 || sceneId.indexOf('concert') !== -1) BGMManager.play('stage');
+    }
+
+    var locationName = scene.name;
+    if (scene.floor) locationName = scene.floor + 'F ' + scene.name;
+    var dayInfo = _getGameDayDisplay();
+
+    // 过滤hotspots
+    var filteredHotspots = [];
+    for (var hi = 0; hi < scene.hotspots.length; hi++) {
+      if (_isEssentialHotspot(scene.hotspots[hi])) {
+        filteredHotspots.push(scene.hotspots[hi]);
+      }
+    }
+
+    var hotspotsHtml = '';
+    for (var hi2 = 0; hi2 < filteredHotspots.length; hi2++) {
+      var hs = filteredHotspots[hi2];
+      var act = '';
+      if (hs.action === 'phone') act = '_exitSceneToUI()';
+      else if (hs.action === 'sleep') act = '_endDay()';
+      else if (hs.action === 'nav' && hs.target === '_nav') act = '_showSceneNavModal()';
+      else if (hs.action === 'nav' && hs.target === '_elevator') act = '_showElevatorModal()';
+      else if (hs.action === 'scene') act = '_navigateScene(\'' + hs.target + '\')';
+      else if (hs.action === 'app') act = 'goToPage(\'' + hs.target + '\')';
+      hotspotsHtml += '<div onclick="try{' + act + '}catch(e){}" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;">'
+        + '<div class="v221-hs">' + getIcon(hs.icon) + '</div>'
+        + '<div class="v221-hs-label">' + hs.label + '</div>'
+        + '</div>';
+    }
+
+    container.innerHTML = '<div class="v221-scene">'
+      + '<div class="v221-scene-bg" style="background-image:url(\'' + scene.img + '\');"></div>'
+      + '<div class="v221-scene-vignette"></div>'
+      + '<div class="v221-scene-vtop"></div>'
+      + '<div class="v221-scene-vbot"></div>'
+      + '<div class="v221-scene-pill v221-scene-day">第' + dayInfo.day + '天 ' + dayInfo.weekDay + '</div>'
+      + '<div class="v221-scene-pill v221-scene-loc">' + locationName + '</div>'
+      + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + (typeof _v2GetSceneNpcHtml === 'function' ? _v2GetSceneNpcHtml(sceneId) : '') + '</div>'
+      + '<div class="v221-scene-bar">'
+      + '<div class="v221-bar-btn" onclick="_exitSceneToUI()"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span>手机</span></div>'
+      + '<div class="v221-bar-btn" onclick="_showSceneNavModal()"><svg viewBox="0 0 24 24"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg><span>导航</span></div>'
+      + '<div class="v221-bar-btn" onclick="goToPage(\'me\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg><span>我的</span></div>'
+      + '</div>'
+      + '</div>';
+  };
+
+  // ============ 3. 精简导航目的地 ============
+  // SCENE_NAV_OPTIONS里去掉打歌/直播/红毯/拍摄/周边店等，只留核心
+  if (window.SCENE_NAV_OPTIONS) {
+    var _navKeep = ['家','公司','商场','餐厅','舞台'];
+    var _navFiltered = [];
+    for (var ni = 0; ni < SCENE_NAV_OPTIONS.length; ni++) {
+      var keep = false;
+      for (var ki = 0; ki < _navKeep.length; ki++) {
+        if (SCENE_NAV_OPTIONS[ni].name === _navKeep[ki]) { keep = true; break; }
+      }
+      if (keep) _navFiltered.push(SCENE_NAV_OPTIONS[ni]);
+    }
+    window.SCENE_NAV_OPTIONS = _navFiltered;
+  }
+
+  // ============ 4. 修复剧情页面报错：在render里拦截story ============
+  var _v221Render = window.render;
+  window.render = function() {
+    // 拦截所有禁用页面
+    if (_disabledPages[currentPage]) {
+      var app = document.getElementById('app');
+      if (app) {
+        app.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%);color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">'
+          + '<div style="font-size:20px;font-weight:300;letter-spacing:0.1em;margin-bottom:12px;">' + _disabledPages[currentPage] + '</div>'
+          + '<div style="width:48px;height:2px;background:#C9A96E;border-radius:1px;margin-bottom:20px;"></div>'
+          + '<div onclick="goToPage(\'home\')" style="padding:10px 28px;border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:rgba(255,255,255,0.7);font-size:14px;font-weight:300;cursor:pointer;-webkit-tap-highlight-color:transparent;">返回</div>'
+          + '</div>';
+      }
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      return;
+    }
+    // 正常页面走V2.2.1 render
+    return _v221Render.apply(this, arguments);
+  };
+
+  // ============ 5. 删掉手机UI里的剧情APP图标 ============
+  // 通过CSS隐藏带"剧情"文字的app-item
+  var _hideStyle = document.createElement('style');
+  _hideStyle.id = 'v222-hide-story-app';
+  _hideStyle.textContent = '.app-item[data-id="story"]{display:none!important;}';
+  document.head.appendChild(_hideStyle);
+
+  // ============ 6. 清理电梯楼层选项 ============
+  // 只保留有意义的楼层，去掉录音室/写歌/VIP等指向禁用页面的
+  // 电梯弹窗由_showElevatorModal生成，这里用CSS+JS方式精简
+  var _origShowElevator = window._showElevatorModal;
+  window._showElevatorModal = function() {
+    // 电梯楼层：2F录音室/写歌→禁用，3F舞蹈/声乐/形体→保留(训练)，4F经纪/公关→禁用，5F社长/VIP→禁用
+    // 只显示3F（训练相关）和1F（大厅）
+    showModal('电梯', '<div style="display:flex;flex-direction:column;gap:8px;">'
+      + '<div onclick="closeModal();_navigateScene(\'company\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;font-weight:300;cursor:pointer;">1F 公司大厅</div>'
+      + '<div onclick="closeModal();_navigateScene(\'floor3\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;font-weight:300;cursor:pointer;">3F 练习室</div>'
+      + '<div onclick="closeModal();_navigateScene(\'floor4\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.3);font-size:14px;font-weight:300;cursor:default;">2F 即将开放</div>'
+      + '<div onclick="closeModal();_navigateScene(\'floor5\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.3);font-size:14px;font-weight:300;cursor:default;">4F-5F 即将开放</div>'
+      + '</div>');
+  };
+
+})();
