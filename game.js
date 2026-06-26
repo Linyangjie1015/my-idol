@@ -974,7 +974,7 @@ function syncFromApp(sourceApp, data) {
     }
     if (sourceApp === 'music' && data && data.action === 'chart_win') {
         if (!gameState.hotsearchTopics) gameState.hotsearchTopics = [];
-        gameState.hotsearchTopics.unshift({ text: data.title + ' 打歌一位!', type: 'good', time: Date.now() });
+        if(gameState.hotsearchTopics.length>30)gameState.hotsearchTopics=gameState.hotsearchTopics.slice(0,30);gameState.hotsearchTopics.unshift({ text: data.title + ' 打歌一位!', type: 'good', time: Date.now() });
         if (gameState.insUnread !== undefined) gameState.insUnread = (gameState.insUnread || 0) + 3;
     }
     if (sourceApp === 'music' && data && data.action === 'chart_result') {
@@ -3614,7 +3614,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
                 if (gameState.sms) gameState.sms = gameState.sms.slice(-10);
                 jsonStr = JSON.stringify(saveData);
             }
-            localStorage.setItem(_getSaveKey(), jsonStr);
+            safeLocalStorageSet(_getSaveKey(), jsonStr);
         } catch(e) {
             console.warn('Save failed:', e);
             if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -3623,7 +3623,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
                     if (gameState.dayActionLog) gameState.dayActionLog = [];
                     if (gameState._notifLog) gameState._notifLog = [];
                     if (gameState.sms) gameState.sms = [];
-                    localStorage.setItem(_getSaveKey(), JSON.stringify(saveData));
+                    safeLocalStorageSet(_getSaveKey(), JSON.stringify(saveData));
                 } catch(e2) {}
             }
         }
@@ -6828,6 +6828,7 @@ function render成员信息Page(container) {
 
 function render更新通知Page(container) {
     var versionLogs = [
+        { ver: 'V1.7.26', date: '2026年6月26日 09:30', title: 'My Idol V1.7.26', content: '紧急修复：\n\n• 修复玩到第58天左右无法入睡/结束当天的问题\n• 原因：游戏数据持续累积导致手机存储空间不足\n• 新增存储空间自动清理：邮件保留50封、社交动态30条、聊天记录50条\n• 体力和综合考核在V1.7.25已修复' },
         { ver: 'V1.7.25', date: '2026年6月26日 09:20', title: 'My Idol V1.7.25', content: '紧急修复：\n\n• 修复创建角色提交后渲染错误的问题\n• 修复综合考核无法正常使用的问题\n• 清理误混入V2.0开发代码，确保公测版稳定' },
         { ver: 'V1.6', date: '2026年6月14日 20:00', title: 'My Idol V1.6', content: 'V1.6 大版本更新内容:\n\n【核心系统】\n• 回归打歌系统 - 选择概念/主打歌/MV拍摄/宣传期/3轮打歌/回归评级\n• 合约系统 - 查看经纪合约/续约/离开公司\n• 队友关系网 - 好感度系统/聊天送礼合练\n• 经纪团队 - 经纪人/造型师/司机/培训提升\n• 黑粉反黑 - 5种黑粉事件/声明/法律手段/忽略\n• 粉丝团后援会 - 等级系统/应援项目\n• 成就系统 - 14个成就解锁/进度追踪\n\n【新增APP】\n• 回归打歌 - 完整回归流程\n• 音乐放送 - 6大音乐节目信息\n• MV工作室 - MV收藏与回看\n• 合约 - 经纪合约管理\n• 队友关系 - 队友好感互动\n• 经纪团队 - 团队管理\n• 反黑中心 - 黑粉事件处理\n• 后援会 - 粉丝应援\n• 公关室 - 形象管理\n• Kpop百科 - 韩团知识\n• 成就 - 成就追踪\n\n【系统优化】\n• 手机通知弹窗 - 8种通知类型/顶部滑入动画\n• NPC改名 - 中文名(英文名)格式\n• 存档名闪烁修复\n• 危险值即时更新' },
     { ver: 'V1.5.2', date: '2026年6月13日 18:00', title: 'My Idol V1.5.2', content: 'V1.5 系列更新内容：\n\n【新增功能】\n• 邀请码系统 - 内测期间需输入邀请码进入游戏\n• AI系统全面接入 - KakaoTalk/泡泡/恋爱等7个APP的NPC可真实对话\n• 赚钱中心三标签页 - 通用/个人/团队，粉丝解锁高薪工作\n• 全平台红点未读提示 - 哪个APP有新消息一目了然\n• 直播优化 - 点赞和收益只增不减\n\n【V1.5.1 修复】\n• 修复AI对话实际走模板不调API的问题\n• 修复赚钱中心点击工作崩溃返回首页的问题\n• 修复AI计数器不工作的问题\n• 修复首页娱乐栏被底部导航遮挡的问题\n• 修复首页工作分类显示问题\n\n【V1.5.2 修复】\n• 邀请码错误提示 - 空输入/错误码红字提示+回车提交支持\n• 性格/定位3项硬限制 - 超出自动截断，不可无限勾选\n• 创建返回确认 - 返回时弹窗确认，防止误清空\n• 体力负数修复 - 切换APP时强制修正体力下限\n• 训练防连点 - 时间戳防重复扣费+能力值150封顶\n• 自动存档9处关键节点 - 创建角色/入团/出道/行程完成/工作完成/考核通过/贷款申请等全覆盖\n• 退出保存提醒 - 关闭/刷新页面弹窗提醒+手机Safari后台静默保存\n• 商业贷款降出道概率 - 贷款后40%概率分配不到志愿团+申请弹窗警告+出道企划页警告条\n• 生日下拉适配 - 加大触控区域，解决小屏遮挡\n• 长名溢出修复 - 团名文字截断省略号\n• 提示弹窗时间加长 - 从1.5秒延长至2.5秒' },
@@ -7334,7 +7335,7 @@ function confirmExit() {
                 for (var si = 0; si < keys.length; si++) {
                     if (keys[si] !== 'restTimeout') saveData[keys[si]] = gameState[keys[si]];
                 }
-                localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
+                safeLocalStorageSet(_getSaveKey(current存档), JSON.stringify(saveData));
             } catch(e) {}
             if (autoSaveTimer) { clearInterval(autoSaveTimer); autoSaveTimer = null; }
             currentPage = 'welcome';
@@ -7536,7 +7537,7 @@ function saveGame(slot) {
             return;
         }
         var key = _getSaveKey(slot);
-        localStorage.setItem(key, jsonStr);
+        safeLocalStorageSet(key, jsonStr);
         showToast('已保存 - 存档 ' + (slot + 1));
         _doCloudSave(slot, saveData, function(ok) {
             if (ok) {
@@ -13283,7 +13284,7 @@ function _doAutoSave(silent) {
                 if (keys[i] !== 'restTimeout') saveData[keys[i]] = gameState[keys[i]];
             }
             saveData._saveTime = Date.now();
-            localStorage.setItem(_getSaveKey(current存档), JSON.stringify(saveData));
+            safeLocalStorageSet(_getSaveKey(current存档), JSON.stringify(saveData));
             _doCloudSave(current存档, saveData);
             if (!silent) showToast('已自动存档');
         } catch(e) {}
@@ -13291,6 +13292,75 @@ function _doAutoSave(silent) {
 }
 
 function triggerAutoSave() { _doAutoSave(false); }
+
+// V1.7.26: Safe localStorage with quota protection
+function safeLocalStorageSet(key, value) {
+    try {
+        localStorage.setItem(key, value);
+        return true;
+    } catch(e) {
+        if (e && (e.name === 'QuotaExceededError' || e.code === 22 || (e.message && e.message.indexOf('quota') >= 0))) {
+            _trimSaveData();
+            try {
+                localStorage.setItem(key, value);
+                return true;
+            } catch(e2) {}
+        }
+        return false;
+    }
+}
+
+function _trimSaveData() {
+    // Trim unbounded arrays to prevent localStorage overflow
+    if (gameState.emails && gameState.emails.length > 50) gameState.emails = gameState.emails.slice(0, 50);
+    if (gameState.hotsearchTopics && gameState.hotsearchTopics.length > 30) gameState.hotsearchTopics = gameState.hotsearchTopics.slice(0, 30);
+    if (gameState.insPosts && gameState.insPosts.length > 30) gameState.insPosts = gameState.insPosts.slice(0, 30);
+    if (gameState.tiktokPosts && gameState.tiktokPosts.length > 30) gameState.tiktokPosts = gameState.tiktokPosts.slice(0, 30);
+    if (gameState.dayActionLog && gameState.dayActionLog.length > 20) gameState.dayActionLog = gameState.dayActionLog.slice(-20);
+    if (gameState._notifLog && gameState._notifLog.length > 30) gameState._notifLog = gameState._notifLog.slice(-30);
+    if (gameState.sms && gameState.sms.length > 20) gameState.sms = gameState.sms.slice(0, 20);
+    if (gameState.inventory && gameState.inventory.length > 50) gameState.inventory = gameState.inventory.slice(-50);
+    if (gameState.meetingMinutes && gameState.meetingMinutes.length > 30) gameState.meetingMinutes = gameState.meetingMinutes.slice(-30);
+    if (gameState.antiEvents && gameState.antiEvents.length > 20) gameState.antiEvents = gameState.antiEvents.slice(-20);
+    if (gameState.weverseMyPosts && gameState.weverseMyPosts.length > 30) gameState.weverseMyPosts = gameState.weverseMyPosts.slice(-30);
+    if (gameState.bubble已发送 && gameState.bubble已发送.length > 30) gameState.bubble已发送 = gameState.bubble已发送.slice(-30);
+    if (gameState.mvCollection && gameState.mvCollection.length > 20) gameState.mvCollection = gameState.mvCollection.slice(-20);
+    if (gameState.songs && gameState.songs.length > 30) gameState.songs = gameState.songs.slice(-30);
+    // Trim chat histories
+    if (gameState.kakaoChats) {
+        var kk = Object.keys(gameState.kakaoChats);
+        for (var ki = 0; ki < kk.length; ki++) {
+            if (gameState.kakaoChats[kk[ki]] && gameState.kakaoChats[kk[ki]].length > 50) {
+                gameState.kakaoChats[kk[ki]] = gameState.kakaoChats[kk[ki]].slice(-50);
+            }
+        }
+    }
+    if (gameState.loveChats) {
+        var lk = Object.keys(gameState.loveChats);
+        for (var li = 0; li < lk.length; li++) {
+            if (gameState.loveChats[lk[li]] && gameState.loveChats[lk[li]].length > 50) {
+                gameState.loveChats[lk[li]] = gameState.loveChats[lk[li]].slice(-50);
+            }
+        }
+    }
+    if (gameState.insMessages) {
+        var ik = Object.keys(gameState.insMessages);
+        for (var ii = 0; ii < ik.length; ii++) {
+            if (gameState.insMessages[ik[ii]] && gameState.insMessages[ik[ii]].length > 50) {
+                gameState.insMessages[ik[ii]] = gameState.insMessages[ik[ii]].slice(-50);
+            }
+        }
+    }
+    if (gameState.tiktokMessages) {
+        var tk = Object.keys(gameState.tiktokMessages);
+        for (var ti = 0; ti < tk.length; ti++) {
+            if (gameState.tiktokMessages[tk[ti]] && gameState.tiktokMessages[tk[ti]].length > 50) {
+                gameState.tiktokMessages[tk[ti]] = gameState.tiktokMessages[tk[ti]].slice(-50);
+            }
+        }
+    }
+}
+
 function triggerSilentSave() { _doAutoSave(true); }
 
 function startAutoSave() {
@@ -14156,6 +14226,7 @@ function _endDay() {
     gameState.dayExpense = 0;
     gameState.dayActionLog = [];
     _generateDailySMS();
+    _trimSaveData();
     triggerSilentSave();
     showModal('\u7b2c ' + (gameState.gameDay - 1) + ' \u5929\u7ed3\u675f', summary, [
         { text: '\u65b0\u7684\u4e00\u5929', action: function() { closeModal(); render(); } }
