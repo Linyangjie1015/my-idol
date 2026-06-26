@@ -22532,3 +22532,337 @@ function _v2EnterChapter(chNum) {
   _v250GrantMonthlyCards();
 
 })();
+// V2.6.0 - 玩家进入体验流程重构
+// ============================================================
+(function(){
+  if (window._v260Patched) return;
+  window._v260Patched = true;
+
+  // ============ 1. 注册成功 → 自动跳转创建角色 ============
+  var _origRegister = window._doCloudRegister;
+  if (typeof _origRegister === 'function') {
+    window._doCloudRegister = function() {
+      // 临时劫持 currentPage='welcome' 赋值，改为跳 create
+      var _origPage = window.currentPage;
+      _origRegister.apply(this, arguments);
+      // 注册成功后 _origRegister 内部会设 currentPage='welcome' 并 render()
+      // 我们在下一个事件循环检测：如果用户有账号但无存档，自动跳创建
+      setTimeout(function() {
+        var cu = localStorage.getItem('myIdolCurrentUser');
+        if (cu && !_hasAnySave()) {
+          _v260GoCreate();
+        }
+      }, 500);
+    };
+  }
+
+  var _origAdminSignup = window._doAdminSignup;
+  if (typeof _origAdminSignup === 'function') {
+    window._doAdminSignup = function(email, password, nickname, errEl, btnEl) {
+      _origAdminSignup.apply(this, arguments);
+      setTimeout(function() {
+        var cu = localStorage.getItem('myIdolCurrentUser');
+        if (cu && !_hasAnySave()) {
+          _v260GoCreate();
+        }
+      }, 500);
+    };
+  }
+
+  // ============ 2. 登录成功无存档 → 自动跳转创建角色 ============
+  var _origLogin = window._doCloudLogin;
+  if (typeof _origLogin === 'function') {
+    window._doCloudLogin = function() {
+      _origLogin.apply(this, arguments);
+      setTimeout(function() {
+        var cu = localStorage.getItem('myIdolCurrentUser');
+        if (cu && !_hasAnySave()) {
+          _v260GoCreate();
+        }
+      }, 800);
+    };
+  }
+
+  function _hasAnySave() {
+    try {
+      var saves = window._loadAllSavesForUser ? _loadAllSavesForUser() : [];
+      for (var i = 0; i < 3; i++) {
+        if (saves && saves[i] && saves[i].player && saves[i].player.name) return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  function _v260GoCreate() {
+    var emptySlot = -1;
+    try {
+      var saves = window._loadAllSavesForUser ? _loadAllSavesForUser() : [];
+      for (var i = 0; i < 3; i++) {
+        if (!saves[i] || !saves[i].player || !saves[i].player.name) { emptySlot = i; break; }
+      }
+    } catch(e) { emptySlot = 0; }
+    if (emptySlot === -1) emptySlot = 0;
+    if (typeof window._startNewSlot === 'function') {
+      _startNewSlot(emptySlot);
+    } else {
+      window.current存档 = emptySlot;
+      window.creationStep = 1;
+      window.currentPage = 'create';
+      if (typeof window.render === 'function') window.render();
+    }
+  }
+
+  // ============ 3. 创建角色完成 → 进宿舍+自动触发第1章 ============
+  var _origComplete = window.completeCreation;
+  if (typeof _origComplete === 'function') {
+    window.completeCreation = function() {
+      _origComplete.apply(this, arguments);
+      // completeCreation 里已设 currentPage='home'
+      // 进入宿舍场景
+      try {
+        var homeScene = (typeof _getHomeScene === 'function') ? _getHomeScene() : 'dorm';
+        gameState._currentScene = homeScene;
+        gameState._v260NewPlayer = true;
+        // 隐藏旧UI，显示场景
+        window._inSceneMode = true;
+        var sb = document.getElementById('statusBar');
+        var rb = document.getElementById('restButtons');
+        var hi = document.getElementById('homeIndicator');
+        var bn = document.getElementById('bottomNav');
+        if (sb) sb.style.display = 'flex';
+        if (rb) rb.style.display = 'flex';
+        if (hi) hi.style.display = 'block';
+        if (bn) bn.style.display = 'none';
+        if (typeof window.render === 'function') window.render();
+        if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
+        // 延迟触发第1章
+        setTimeout(function() {
+          if (typeof _v2CheckChapterNodes === 'function') _v2CheckChapterNodes();
+        }, 1500);
+      } catch(e) {
+        console.error('v260 completeCreation hook error:', e);
+      }
+    };
+  }
+
+  // ============ 4. 第1章完成 → 弹窗提示+进入大厅按钮 ============
+  var _origV2ShowChapterSettlement = window._v2ShowChapterSettlement;
+  window._v260ChapterSettlement = function() {
+    // 检查是否第1章全部完成
+    if (gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.8'] && !gameState._v260Ch1Done) {
+      gameState._v260Ch1Done = true;
+      setTimeout(function() {
+        var html = '<div style="text-align:center;padding:16px 0;">'
+          + '<div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">\u7b2c1\u7ae0\u5df2\u5b8c\u6210</div>'
+          + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:16px;">\u7b2c2\u7ae0\u5267\u60c5\u6b63\u5728\u5236\u4f5c\u4e2d\uff0c\u656c\u8bf7\u671f\u5f85\u3002<br>\u73b0\u5728\u53ef\u4ee5\u81ea\u7531\u63a2\u7d22\u6e38\u620f\u4e16\u754c\u4e86\u3002</div>'
+          + '</div>';
+        showModal('\u7b2c1\u7ae0\u5b8c\u6210', html, [
+          { text: '\u8fdb\u5165\u6e38\u620f\u5927\u5385', action: function() {
+            closeModal();
+            _v260StartTutorial();
+          }}
+        ]);
+      }, 500);
+    }
+  };
+
+  // Hook _v2MarkNodeComplete to detect chapter 1 completion
+  var _origMark = window._v2MarkNodeComplete;
+  if (typeof _origMark === 'function') {
+    window._v2MarkNodeComplete = function(nodeId) {
+      _origMark(nodeId);
+      if (nodeId === '1.8' || nodeId === 'ch1_1.8') {
+        _v260ChapterSettlement();
+      }
+    };
+  }
+
+  // ============ 5. 新手引导4步 ============
+  var TUTORIAL_STEPS = [
+    {
+      id: 'rest',
+      title: '\u6062\u590d\u4f53\u529b',
+      desc: '\u70b9\u51fb\u201c\u4f11\u606f\u201d\u56fe\u6807\u6062\u590d\u4f53\u529b',
+      target: null,
+      check: function() { return gameState._v260TutRest; },
+      highlight: 'rest'
+    },
+    {
+      id: 'company',
+      title: '\u524d\u5f80\u516c\u53f8',
+      desc: '\u70b9\u51fb\u201c\u516c\u53f8\u201d\u56fe\u6807\u8fdb\u5165\u516c\u53f8\u573a\u666f',
+      target: null,
+      check: function() { return gameState._v260TutCompany; },
+      highlight: 'scene'
+    },
+    {
+      id: 'contacts',
+      title: '\u67e5\u770b\u6210\u5458',
+      desc: '\u6253\u5f00\u901a\u8baf\u5f55\u67e5\u770b\u6210\u5458\u5217\u8868',
+      target: null,
+      check: function() { return gameState._v260TutContacts; },
+      highlight: 'contacts'
+    },
+    {
+      id: 'daily',
+      title: '\u4eca\u65e5\u4efb\u52a1',
+      desc: '\u5b8c\u6210\u4e00\u6b21\u4eca\u65e5\u4efb\u52a1\u9886\u53d6\u5956\u52b1',
+      target: null,
+      check: function() { return gameState._v260TutDaily; },
+      highlight: 'daily'
+    }
+  ];
+
+  function _v260StartTutorial() {
+    if (gameState._v260TutorialDone) return;
+    gameState._v260TutorialStep = 0;
+    gameState._v260TutorialActive = true;
+    // 进入游戏大厅
+    window._inSceneMode = false;
+    window.currentPage = 'home';
+    document.body.classList.add('v21-in-home');
+    if (typeof window.render === 'function') window.render();
+    var bn = document.getElementById('bottomNav');
+    if (bn) bn.style.display = 'none';
+    if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
+    // 显示第一步引导
+    setTimeout(function() { _v260ShowStep(); }, 800);
+  }
+
+  function _v260ShowStep() {
+    if (!gameState._v260TutorialActive) return;
+    var stepIdx = gameState._v260TutorialStep || 0;
+    if (stepIdx >= TUTORIAL_STEPS.length) {
+      _v260FinishTutorial();
+      return;
+    }
+    var step = TUTORIAL_STEPS[stepIdx];
+    var html = '<div style="text-align:center;padding:12px 0;">'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">\u65b0\u624b\u5f15\u5bfc ' + (stepIdx + 1) + '/' + TUTORIAL_STEPS.length + '</div>'
+      + '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;">' + step.title + '</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);">' + step.desc + '</div>'
+      + '</div>';
+    showModal('\u65b0\u624b\u5f15\u5bfc', html, [
+      { text: '\u77e5\u9053\u4e86', action: function() { closeModal(); } }
+    ]);
+  }
+
+  function _v260FinishTutorial() {
+    gameState._v260TutorialActive = false;
+    gameState._v260TutorialDone = true;
+    var html = '<div style="text-align:center;padding:16px 0;">'
+      + '<div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">\u6240\u6709\u529f\u80fd\u5df2\u89e3\u9501</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;">\u4f60\u53ef\u4ee5\u81ea\u7531\u63a2\u7d22\u6e38\u620f\u4e16\u754c\u4e86\u3002</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:12px;line-height:1.5;">\u8bad\u7ec3 \u00b7 \u76f4\u64ad \u00b7 SNS \u00b7 \u901a\u8baf\u5f55<br>\u4fbf\u5229\u5e97 \u00b7 \u65e5\u7a0b \u00b7 \u4eca\u65e5\u4efb\u52a1</div>'
+      + '</div>';
+    showModal('\u65b0\u624b\u5f15\u5bfc\u5b8c\u6210', html, [
+      { text: '\u5f00\u59cb\u63a2\u7d22', action: function() { closeModal(); } }
+    ]);
+  }
+
+  // Hook 关键动作检测教程步骤完成
+  // rest: 体力恢复
+  var _origDoRest = window.do\u4f11\u606f;
+  if (typeof _origDoRest === 'function') {
+    window.do\u4f11\u606f = function() {
+      _origDoRest.apply(this, arguments);
+      if (gameState._v260TutorialActive && !gameState._v260TutRest) {
+        gameState._v260TutRest = true;
+        showToast('\u4f53\u529b\u5df2\u6062\u590d');
+        _v260AdvanceTutorial();
+      }
+    };
+  }
+
+  // company: 进入公司场景
+  var _origGoScene = window._goToScene;
+  if (typeof _origGoScene !== 'function') {
+    _origGoScene = null;
+  }
+  // 通过 goToPage('scene') 检测
+  var _origGP = window.goToPage;
+  if (typeof _origGP === 'function') {
+    window.goToPage = function(p) {
+      var result = _origGP.apply(this, arguments);
+      if (gameState._v260TutorialActive) {
+        if (p === 'scene' && !gameState._v260TutCompany) {
+          gameState._v260TutCompany = true;
+          showToast('\u5df2\u5230\u8fbe\u516c\u53f8');
+          _v260AdvanceTutorial();
+        }
+        if (p === 'contacts' && !gameState._v260TutContacts) {
+          gameState._v260TutContacts = true;
+          showToast('\u6210\u5458\u5df2\u89e3\u9501');
+          _v260AdvanceTutorial();
+        }
+      }
+      return result;
+    };
+  }
+
+  // daily: 今日任务完成 - hook renderDailyPage 或 检测每日奖励领取
+  var _origDaily = window.renderDailyPage || window._v224RenderDaily;
+  if (typeof _origDaily === 'function') {
+    var _dailyHooked = false;
+    window._v260CheckDailyDone = function() {
+      if (gameState._v260TutorialActive && !gameState._v260TutDaily) {
+        // 检查今日任务是否已领取
+        var today = new Date().toDateString();
+        if (gameState._v260DailyClaimed === today || gameState._dailyClaimed === today) {
+          gameState._v260TutDaily = true;
+          showToast('\u4eca\u65e5\u4efb\u52a1\u5df2\u5b8c\u6210');
+          _v260AdvanceTutorial();
+        }
+      }
+    };
+  }
+
+  // 更通用的每日任务完成检测：监听 showToast 里的关键词
+  var _origShowToast = window.showToast;
+  if (typeof _origShowToast === 'function') {
+    window.showToast = function(msg) {
+      _origShowToast(msg);
+      if (gameState._v260TutorialActive && !gameState._v260TutDaily) {
+        if (msg && (msg.indexOf('\u4efb\u52a1') >= 0 || msg.indexOf('\u5956\u52b1') >= 0 || msg.indexOf('\u9886\u53d6') >= 0)) {
+          gameState._v260TutDaily = true;
+          _v260AdvanceTutorial();
+        }
+      }
+    };
+  }
+
+  function _v260AdvanceTutorial() {
+    var stepIdx = gameState._v260TutorialStep || 0;
+    gameState._v260TutorialStep = stepIdx + 1;
+    if (gameState._v260TutorialStep >= TUTORIAL_STEPS.length) {
+      setTimeout(function() { _v260FinishTutorial(); }, 1000);
+    } else {
+      setTimeout(function() { _v260ShowStep(); }, 800);
+    }
+  }
+
+  // ============ 6. 存档进度标记 ============
+  // 第1章完成后 chapterState 标记
+  var _origEnsureCS = window._ensureChapterState;
+  if (typeof _origEnsureCS === 'function') {
+    // 不需要额外hook，已有的 _v2NodeCompleted['1.8'] 就是标记
+  }
+
+  // ============ 7. 已有存档加载时不触发新手引导 ============
+  var _origLoadSlot = window._loadSlot;
+  if (typeof _origLoadSlot === 'function') {
+    window._loadSlot = function(slot) {
+      _origLoadSlot(slot);
+      // 加载存档后，如果是老玩家直接进新大厅
+      gameState._v260TutorialActive = false;
+      // 如果第1章未完成，不触发引导；已完成但未做引导，不强制触发
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      document.body.classList.add('v21-in-home');
+      window._inSceneMode = false;
+      window.currentPage = 'home';
+      if (typeof window.render === 'function') window.render();
+    };
+  }
+
+})();
