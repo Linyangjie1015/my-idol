@@ -19361,25 +19361,12 @@ function _v2EnterChapter(chNum) {
       + '.v21h-me-btn .v21h-icon-circle svg{width:15px!important;height:15px!important;}'
       // === 立绘：全屏半身，脸在中上，呼吸+眨眼+表情反应动画 ===
       + '.v21h-portrait-wrap{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;z-index:1!important;overflow:hidden!important;pointer-events:auto;cursor:pointer;}'
-      + '.v21h-portrait{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;max-height:100%!important;max-width:100%!important;object-fit:cover!important;object-position:center 15%!important;filter:drop-shadow(0 8px 32px rgba(0,0,0,0.4))!important;animation:v216-breathe 4s ease-in-out infinite!important;transition:opacity 0.3s ease,transform 0.3s ease!important;-webkit-user-drag:none;user-select:none;will-change:transform,opacity;}'
+      + '.v21h-portrait{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;max-height:100%!important;max-width:100%!important;object-fit:cover!important;object-position:center 15%!important;filter:drop-shadow(0 8px 32px rgba(0,0,0,0.4))!important;animation:v216-breathe 8s ease-in-out infinite!important;transition:opacity 0.3s ease,transform 0.3s ease!important;-webkit-user-drag:none;user-select:none;will-change:transform,opacity;}'
       // 呼吸动画：轻微缩放+位移
-      + '@keyframes v216-breathe{0%,100%{transform:scale(1.0) translateY(0)}50%{transform:scale(1.008) translateY(-3px)}}'
+      + '@keyframes v216-breathe{0%,100%{transform:scale(1.0) translateY(0)}50%{transform:scale(1.003) translateY(-1px)}}'
       // 眨眼动画（通过JS切换src触发，用class控制眼睛层的显示/隐藏，这里简化为整体opacity blink）
-      + '.v21h-portrait.blinking{animation:v216-blink 0.12s ease-in-out!important;}'
-      + '@keyframes v216-blink{0%,100%{opacity:1}50%{opacity:0.3}}'
-      // 表情反应动画
-      + '.v21h-portrait.react-nod{animation:v216-nod 0.8s ease-in-out!important;}'
-      + '@keyframes v216-nod{0%{transform:translateY(0) rotate(0)}20%{transform:translateY(4px) rotate(-1deg)}40%{transform:translateY(-2px) rotate(1deg)}60%{transform:translateY(3px) rotate(-0.5deg)}80%{transform:translateY(-1px) rotate(0.3deg)}100%{transform:translateY(0) rotate(0)}}'
-      + '.v21h-portrait.react-smile{animation:v216-smile 1.2s ease-in-out!important;}'
-      + '@keyframes v216-smile{0%{transform:scale(1.0)}30%{transform:scale(1.01) translateY(-2px)}100%{transform:scale(1.0) translateY(0)}}'
-      + '.v21h-portrait.react-surprise{animation:v216-surprise 0.6s ease-out!important;}'
-      + '@keyframes v216-surprise{0%{transform:scale(1.0)}40%{transform:scale(1.025)}100%{transform:scale(1.0)}}'
-      + '.v21h-portrait.react-fear{animation:v216-fear 0.8s ease-in-out!important;}'
-      + '@keyframes v216-fear{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(1px)}}'
-      + '.v21h-portrait.react-sad{animation:v216-sad 2s ease-in-out!important;}'
-      + '@keyframes v216-sad{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2px) rotate(0.5deg)}}'
       // 立绘淡入
-      + '.v21h-portrait.fade-in{animation:v216-fadein 0.6s ease-out, v216-breathe 4s ease-in-out infinite 0.6s!important;}'
+      + '.v21h-portrait.fade-in{animation:v216-fadein 0.6s ease-out, v216-breathe 8s ease-in-out infinite 0.6s!important;}'
       + '@keyframes v216-fadein{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:scale(1.0)}}'
       // === 背景光效增强 ===
       + '.v21h-portrait-glow{position:absolute;top:50%;left:50%;width:80vw;height:80vw;max-width:500px;max-height:500px;transform:translate(-50%,-35%);z-index:0;pointer-events:none;border-radius:50%;}'
@@ -19411,98 +19398,11 @@ function _v2EnterChapter(chNum) {
     document.head.appendChild(s);
   }
 
-  // ---------- 2. 表情系统 ----------
-  // 表情反应类型：nod(点头认可), smile(微笑), surprise(惊讶), fear(害怕), sad(难过), idle(默认)
-  var _currentExpr = 'main';
-  var _exprTimer = null;
-  var _blinkTimer = null;
+  // ---------- 2. 静态立绘（V2.1.7：移除假动画，仅保留极轻呼吸）----------
+  // 不做眨眼/点头/表情切换/点击反应等假动画，避免廉价感
+  // 保留立绘cinematic切换逻辑
 
-  // 切换表情图片 + 播放反应动画
-  window._v2SetExpression = function(expr, duration) {
-    var img = document.getElementById('v21hPortrait');
-    if (!img) return;
-    duration = duration || 1200;
-    expr = expr || 'main';
-
-    // 根据当前NPC找到对应表情图路径
-    var idx = 0;
-    try {
-      var saved = parseInt((window.gameState && window.gameState._v21HomeNpcIdx), 10);
-      if (!isNaN(saved) && saved >= 0 && saved < 5) idx = saved;
-    } catch(e){}
-    var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
-    var key = NPC_KEYS[idx];
-    var PORTRAITS = (window.NPC_PORTRAITS || {});
-    var portraits = PORTRAITS[key] || {};
-
-    var src = portraits[expr] || portraits.main || ('imgs/portraits/' + key + '_halfbody.jpg');
-
-    // 播放反应动画class
-    var reactClass = '';
-    if (expr === 'smile') reactClass = 'react-smile';
-    else if (expr === 'main' || expr === 'blink_half' || expr === 'blink_full') reactClass = '';
-    // nod/surprise/fear/sad 由调用方通过_reactTrigger触发
-
-    // 切换图片（淡入淡出效果）
-    if (expr !== _currentExpr && src !== img.src) {
-      img.classList.add('swapping');
-      setTimeout(function(){
-        img.src = src;
-        _currentExpr = expr;
-        setTimeout(function(){ img.classList.remove('swapping'); }, 150);
-      }, 150);
-    }
-
-    // 恢复默认表情
-    if (_exprTimer) clearTimeout(_exprTimer);
-    if (expr !== 'main') {
-      _exprTimer = setTimeout(function(){
-        _v2SetExpression('main', 0);
-        _exprTimer = null;
-      }, duration);
-    }
-  };
-
-  // 播放反应动画（不切图，只加动画class）
-  window._v2React = function(type) {
-    var img = document.getElementById('v21hPortrait');
-    if (!img) return;
-    // 清除之前的react class
-    img.classList.remove('react-nod','react-smile','react-surprise','react-fear','react-sad');
-    // 强制重排
-    void img.offsetWidth;
-    img.classList.add('react-' + type);
-    setTimeout(function(){
-      img.classList.remove('react-' + type);
-    }, 1200);
-  };
-
-  // ---------- 3. 自动眨眼系统 ----------
-  function _scheduleBlink() {
-    if (_blinkTimer) clearTimeout(_blinkTimer);
-    // 随机3-7秒眨一次
-    var delay = 3000 + Math.random() * 4000;
-    _blinkTimer = setTimeout(function(){
-      var img = document.getElementById('v21hPortrait');
-      if (img && currentPage === 'home' && !window._inSceneMode) {
-        // 随机：半眨眼或全眨眼
-        var isFull = Math.random() > 0.6;
-        img.classList.add('blinking');
-        // 切换到眨眼图片（如果有的话）
-        if (isFull) _v2SetExpression('blink_full', 150);
-        else _v2SetExpression('blink_half', 150);
-        setTimeout(function(){
-          img.classList.remove('blinking');
-          _v2SetExpression('main', 0);
-        }, 150);
-      }
-      _scheduleBlink();
-    }, delay);
-  }
-  // 启动眨眼
-  _scheduleBlink();
-
-  // ---------- 4. 点击立绘反应增强：表情+台词+点头 ----------
+  // 点击立绘：只弹台词气泡，不做动画反应
   window._v21OnPortraitTap = function() {
     var idx = 0;
     try {
@@ -19512,57 +19412,23 @@ function _v2EnterChapter(chNum) {
     var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
     var key = NPC_KEYS[idx];
 
-    // 台词库（每角色多句）
     var LINES = {
-      haeun: ['你来了。等你好久了。','今天比昨天练得好一点。','别站着了，过来坐。','……看我做什么？','嗯，我在听。'],
-      soah:  ['你来了……我正好有话想跟你说。','这首歌，我写的时候想到了你。','外面在下雨，你带伞了吗？','……嗯，说的对。','你说，我在听。'],
-      jiwon: ['你终于来啦！我等你好久了！','今天有开心的事要跟你分享！','你脸上有东西……骗你的！','嘿嘿，被我发现啦！','嗯嗯，我听着呢~'],
-      junho: ['你来啦。今天状态不错？','我刚在想你，你就出现了。','别站在那里，过来。','……好。','需要我陪你吗？'],
-      seokhyun:['……你来了。正好。','这首歌的词，我写了一半。你听一下。','今天不想说话。……但你可以坐我旁边。','……嗯。','别盯着我看。']
+      haeun: ['你来了。','嗯，我在。','……看我做什么？','过来坐。'],
+      soah:  ['你来了……','这首歌我写的时候想到了你。','你说，我在听。'],
+      jiwon: ['你来啦！','今天有开心的事要跟你说！','嘿嘿~'],
+      junho: ['你来啦。','需要我陪你吗？','……好。'],
+      seokhyun:['……你来了。','别盯着我看。','……嗯。']
     };
-
-    // 反应类型随机
-    var reacts = ['nod','smile','nod','smile','nod']; // 点头/微笑更常见
-    var react = reacts[Math.floor(Math.random()*reacts.length)];
-
-    // 播放反应动画
-    window._v2React(react);
-    // 微笑表情
-    if (react === 'smile') {
-      setTimeout(function(){ _v2SetExpression('smile', 2000); }, 200);
-    }
-
-    // 弹台词气泡
     var lines = LINES[key] || ['……'];
     var line = lines[Math.floor(Math.random()*lines.length)];
     if (typeof window._showBubble === 'function') {
-      setTimeout(function(){ window._showBubble(line); }, 300);
+      window._showBubble(line);
     }
   };
 
-  // ---------- 5. 对话文本表情响应（关键词检测）----------
-  // 当游戏中出现对话/台词时，根据关键词自动切换立绘表情
-  var _origShowModal = window.showModal;
-  if (typeof _origShowModal === 'function') {
-    window.showModal = function(title, content, buttons) {
-      // 根据关键词判断表情
-      try {
-        var text = (title || '') + ' ' + (content || '');
-        if (text.indexOf('恭喜')!==-1 || text.indexOf('太棒')!==-1 || text.indexOf('成功')!==-1 || text.indexOf('通过')!==-1 || text.indexOf('优秀')!==-1) {
-          _v2SetExpression('smile', 2000);
-          _v2React('smile');
-        } else if (text.indexOf('警告')!==-1 || text.indexOf('危险')!==-1 || text.indexOf('失败')!==-1 || text.indexOf('淘汰')!==-1) {
-          _v2SetExpression('sad', 2000);
-          _v2React('fear');
-        } else if (text.indexOf('？')!==-1 || text.indexOf('?')!==-1 || text.indexOf('真的吗')!==-1 || text.indexOf('惊讶')!==-1) {
-          _v2React('surprise');
-        } else {
-          _v2React('nod');
-        }
-      } catch(e){}
-      return _origShowModal.apply(this, arguments);
-    };
-  }
+  // 兼容stub：其他代码可能调用这些函数，保留空实现防crash
+  window._v2SetExpression = function(){};
+  window._v2React = function(){};
 
   // ---------- 6. 页面crash兜底：给可能缺失的函数加stub ----------
   var _stubFns = ['_v2RenderStoryHub','_v2RenderLoveHub','_v2RenderDailyHub',
@@ -19632,7 +19498,7 @@ function _v2EnterChapter(chNum) {
   }
 
   // ---------- 8. 版本号升级 ----------
-  window._v2Version = 'V2.1.6-companion';
-  window._v2VersionNum = '2.1.6';
+  window._v2Version = 'V2.1.7-static';
+  window._v2VersionNum = '2.1.7';
 
 })();
