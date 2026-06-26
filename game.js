@@ -19612,3 +19612,45 @@ function _v2EnterChapter(chNum) {
 
 })();
 
+// ============================================================
+// V2.2.0-hotfix1: 底栏可见度+图标统一+功能按钮放大
+// ============================================================
+(function(){
+  if (window._v220Fix1) return;
+  window._v220Fix1 = true;
+
+  var fs = document.createElement('style');
+  fs.id = 'v220-fix1-style';
+  fs.textContent = [
+    // === 底栏加深：黑裙上也要看得见 ===
+    '.v21h-bottom{background:rgba(13,11,30,0.72)!important;-webkit-backdrop-filter:blur(40px)!important;backdrop-filter:blur(40px)!important;border-top:1px solid rgba(255,255,255,0.1)!important;height:70px!important;}',
+    // === 功能图标统一：去掉任何紫色底色，统一毛玻璃+白色线框 ===
+    '.v21h-icon-circle,.v21h-side-icons .v21h-icon-circle,.v21h-me-btn .v21h-icon-circle{background:rgba(255,255,255,0.06)!important;border:1px solid rgba(255,255,255,0.1)!important;-webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;box-shadow:none!important;}',
+    // === 左侧图标放大到44px，右侧44px，"我的"40px（之前偏小）===
+    '.v21h-side-icons .v21h-icon-circle{width:44px!important;height:44px!important;}',
+    '.v21h-side-icons .v21h-icon-circle svg{width:18px!important;height:18px!important;stroke:rgba(255,255,255,0.9)!important;}',
+    '.v21h-icon-label{font-size:10px!important;color:rgba(255,255,255,0.65)!important;margin-top:3px;}',
+    '.v21h-me-btn .v21h-icon-circle{width:40px!important;height:40px!important;background:rgba(255,255,255,0.06)!important;}',
+    '.v21h-me-btn .v21h-icon-circle svg{width:16px!important;height:16px!important;}',
+    // === 侧栏间距略调 ===
+    '.v21h-side-icons{gap:14px!important;}',
+    '.v21h-side-left{left:12px!important;}',
+    '.v21h-side-right{right:12px!important;}',
+    // === 确保底栏z-index盖过一切 ===
+    '.v21h-bottom{z-index:50!important;}',
+    '.v21h-bubble{z-index:50!important;bottom:90px!important;}',
+    // === 章节文字清晰 ===
+    '.v21h-chapter-text{color:rgba(255,255,255,0.92)!important;font-size:14px!important;text-shadow:0 1px 6px rgba(0,0,0,0.6)!important;}',
+    '.v21h-chapter-sub{color:rgba(255,255,255,0.45)!important;}',
+    // === NPC圆点激活态金色更明显 ===
+    '.v21h-npc-dot.active{background:#C9A96E!important;box-shadow:0 0 10px rgba(201,169,110,0.7)!important;}',
+    // === 顶部栏加深一点让头像名字清晰 ===
+    '.v21-home-top{background:rgba(13,11,30,0.5)!important;}',
+    // === 去掉portrait-glow那层紫色光(旧版本遗留的紫色)，换成柔和金色边光 ===
+    '.v21h-portrait-glow{display:none!important;}',
+    // === NPC名牌（夏恩·LV.0）改位置，不要在顶栏下方紧贴 ===
+    '.v21h-aff-tag{top:max(80px,calc(env(safe-area-inset-top)+76px))!important;color:rgba(255,255,255,0.5)!important;font-size:11px!important;letter-spacing:0.2em!important;}'
+  ].join('');
+  document.head.appendChild(fs);
+})();
+
