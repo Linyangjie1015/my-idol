@@ -19121,7 +19121,7 @@ function _v2EnterChapter(chNum) {
 })();
 
 
-// V2.1.4 patch — 首页质感提升 + 光影层次 + 文字质感 + 白色气泡 + 专属台词 + 场景精简 + 世界观深色化
+// V2.1.5 patch — 首页质感提升 + 光影层次 + 文字质感 + 白色气泡 + 专属台词 + 场景精简 + 世界观深色化
 // ============================================================
 ;(function(){
   if (window._v214Patched) return;
@@ -19325,5 +19325,5 @@ function _v2EnterChapter(chNum) {
   }
 
   // ---------- 7. 版本号升级 ----------
-  window.V2_VERSION = 'v2.1.4 (build 0626-quality+lines)';
+  window.V2_VERSION = 'v2.1.4 (build 0626-noinvite)';
 })();
