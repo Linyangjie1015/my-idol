@@ -20212,3 +20212,151 @@ function _v2EnterChapter(chNum) {
   };
 
 })();
+// V2.2.3 - 恢复场景功能按钮：训练/录音/换装/便利店等功能按钮恢复，只拦截纯剧情页面
+// ============================================================
+(function(){
+  if (window._v223Patched) return;
+  window._v223Patched = true;
+
+  // ============ 1. 更新禁用页面列表：只禁用纯剧情类 ============
+  // 功能性页面（训练/录音/换装/便利店/打歌/直播等）不再禁用
+  // 如果对应页面确实不存在，goToPage会走原有逻辑（不会crash）
+  var _storyOnlyDisabled = {
+    'story': '剧情系统即将上线',
+    'debut': '出道企划即将上线',
+    'debutdialog': '出道剧情即将上线',
+    'comeback': '回归企划即将上线',
+    'mvstudio': 'MV制作即将上线',
+    'fanclub': '粉丝俱乐部即将上线',
+    'achievement': '成就系统即将上线',
+    'gacha': '周边店即将上线',
+    'exam': '考核系统即将上线',
+    'examGame': '考核系统即将上线'
+  };
+  // 注意：songprod(录音/创作)从禁用列表移除，属于功能性页面
+
+  // 覆盖V2.2.2的goToPage拦截，改用新的禁用列表
+  var _prevGoToPage = window.goToPage;
+  window.goToPage = function(page) {
+    if (_storyOnlyDisabled[page]) {
+      showModal('暂未开放', _storyOnlyDisabled[page]);
+      return;
+    }
+    return _prevGoToPage.apply(this, arguments);
+  };
+
+  // ============ 2. 恢复场景功能按钮 ============
+  // 新的过滤逻辑：只移除指向纯剧情页面的按钮，保留所有功能性按钮
+  // 功能性按钮：训练(training) 录音(songprod) 换装(wardrobe) 便利店(store) 
+  //            打歌(music) 直播/表演(live) 办公(company) 公关(pr) 休息(vip)
+  //            日程(schedule) 服装店(wardrobe)
+  // 剧情按钮：剧情(story) 出道(debut) 回归(comeback) 等
+  var _storyTargets = ['story', 'debut', 'debutdialog', 'comeback', 'mvstudio', 'fanclub', 'achievement', 'gacha', 'exam', 'examGame'];
+
+  function _isFunctionalHotspot(hs) {
+    if (!hs) return false;
+    // phone/sleep/nav/scene 直接保留
+    if (hs.action === 'phone' || hs.action === 'sleep' || hs.action === 'nav' || hs.action === 'scene') return true;
+    // app类型：检查target是否在剧情列表中
+    if (hs.action === 'app') {
+      var target = hs.target || '';
+      for (var i = 0; i < _storyTargets.length; i++) {
+        if (target === _storyTargets[i]) return false;
+      }
+      return true; // 非剧情类app按钮全部保留
+    }
+    // 其他类型保留
+    return true;
+  }
+
+  // 覆盖V2.2.2的renderScenePage，改用新的过滤逻辑
+  var _v222RenderScenePage = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    window._inSceneMode = true;
+    var sceneId = gameState._currentScene || _getHomeScene();
+    var scene = SCENES[sceneId];
+    if (!scene) { sceneId = _getHomeScene(); scene = SCENES[sceneId]; }
+    if (!scene) { renderHomePage(container); return; }
+
+    if (typeof BGMManager !== 'undefined') {
+      if (sceneId.indexOf('practice') !== -1 || sceneId.indexOf('train') !== -1) BGMManager.play('practice');
+      else if (sceneId.indexOf('company') !== -1 || sceneId.indexOf('office') !== -1) BGMManager.play('company');
+      else if (sceneId.indexOf('dorm') !== -1) BGMManager.play('dorm');
+      else if (sceneId.indexOf('stage') !== -1 || sceneId.indexOf('concert') !== -1) BGMManager.play('stage');
+    }
+
+    var locationName = scene.name;
+    if (scene.floor) locationName = scene.floor + 'F ' + scene.name;
+    var dayInfo = _getGameDayDisplay();
+
+    // 用新的过滤逻辑
+    var filteredHotspots = [];
+    for (var hi = 0; hi < scene.hotspots.length; hi++) {
+      if (_isFunctionalHotspot(scene.hotspots[hi])) {
+        filteredHotspots.push(scene.hotspots[hi]);
+      }
+    }
+
+    var hotspotsHtml = '';
+    for (var hi2 = 0; hi2 < filteredHotspots.length; hi2++) {
+      var hs = filteredHotspots[hi2];
+      var act = '';
+      if (hs.action === 'phone') act = '_exitSceneToUI()';
+      else if (hs.action === 'sleep') act = '_endDay()';
+      else if (hs.action === 'nav' && hs.target === '_nav') act = '_showSceneNavModal()';
+      else if (hs.action === 'nav' && hs.target === '_elevator') act = '_showElevatorModal()';
+      else if (hs.action === 'scene') act = '_navigateScene(\'' + hs.target + '\')';
+      else if (hs.action === 'app') act = 'goToPage(\'' + hs.target + '\')';
+      hotspotsHtml += '<div onclick="try{' + act + '}catch(e){}" style="position:absolute;left:' + hs.x + '%;top:' + hs.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;">'
+        + '<div class="v221-hs">' + getIcon(hs.icon) + '</div>'
+        + '<div class="v221-hs-label">' + hs.label + '</div>'
+        + '</div>';
+    }
+
+    container.innerHTML = '<div class="v221-scene">'
+      + '<div class="v221-scene-bg" style="background-image:url(\'' + scene.img + '\');"></div>'
+      + '<div class="v221-scene-vignette"></div>'
+      + '<div class="v221-scene-vtop"></div>'
+      + '<div class="v221-scene-vbot"></div>'
+      + '<div class="v221-scene-pill v221-scene-day">第' + dayInfo.day + '天 ' + dayInfo.weekDay + '</div>'
+      + '<div class="v221-scene-pill v221-scene-loc">' + locationName + '</div>'
+      + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;">' + hotspotsHtml + (typeof _v2GetSceneNpcHtml === 'function' ? _v2GetSceneNpcHtml(sceneId) : '') + '</div>'
+      + '<div class="v221-scene-bar">'
+      + '<div class="v221-bar-btn" onclick="_exitSceneToUI()"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span>手机</span></div>'
+      + '<div class="v221-bar-btn" onclick="_showSceneNavModal()"><svg viewBox="0 0 24 24"><polygon points="3 11 13 2 13 8 22 8 22 14 13 14 13 20 3 11"></polygon></svg><span>导航</span></div>'
+      + '<div class="v221-bar-btn" onclick="goToPage(\'me\')"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"></circle><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path></svg><span>我的</span></div>'
+      + '</div>'
+      + '</div>';
+  };
+
+  // ============ 3. 恢复电梯楼层：2F录音室+3F练习室都开放 ============
+  var _origElevator = window._showElevatorModal;
+  window._showElevatorModal = function() {
+    showModal('电梯', '<div style="display:flex;flex-direction:column;gap:8px;">'
+      + '<div onclick="closeModal();_navigateScene(\'company\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;font-weight:300;cursor:pointer;">1F 公司大厅</div>'
+      + '<div onclick="closeModal();_navigateScene(\'floor2\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;font-weight:300;cursor:pointer;">2F 录音室</div>'
+      + '<div onclick="closeModal();_navigateScene(\'floor3\')" style="padding:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fff;font-size:14px;font-weight:300;cursor:pointer;">3F 练习室</div>'
+      + '<div onclick="closeModal()" style="padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:10px;color:rgba(255,255,255,0.3);font-size:14px;font-weight:300;cursor:default;">4F-5F 即将开放</div>'
+      + '</div>');
+  };
+
+  // ============ 4. 更新render拦截的禁用页面列表 ============
+  var _v222Render = window.render;
+  window.render = function() {
+    if (_storyOnlyDisabled[currentPage]) {
+      var app = document.getElementById('app');
+      if (app) {
+        app.innerHTML = '<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D0B1E 0%,#1A1438 100%);color:#fff;font-family:-apple-system,BlinkMacSystemFont,sans-serif;">'
+          + '<div style="font-size:20px;font-weight:300;letter-spacing:0.1em;margin-bottom:12px;">' + _storyOnlyDisabled[currentPage] + '</div>'
+          + '<div style="width:48px;height:2px;background:#C9A96E;border-radius:1px;margin-bottom:20px;"></div>'
+          + '<div onclick="goToPage(\'home\')" style="padding:10px 28px;border:1px solid rgba(255,255,255,0.15);border-radius:20px;color:rgba(255,255,255,0.7);font-size:14px;font-weight:300;cursor:pointer;-webkit-tap-highlight-color:transparent;">返回</div>'
+          + '</div>';
+      }
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      return;
+    }
+    return _v222Render.apply(this, arguments);
+  };
+
+})();
