@@ -21604,3 +21604,170 @@ function _v2EnterChapter(chNum) {
   setTimeout(function() { _v23CheckChapterNodes(); }, 800);
 
 })();
+// ============================================================
+// ============================================================
+// V2.3.1 - 新手体验补丁：个人线解锁条件+训练数值显示+付费入口+场景NPC交互修正
+// ============================================================
+(function(){
+  if (window._v231Patched) return;
+  window._v231Patched = true;
+
+  // ============ 1. 个人线解锁条件：入口需主线第1章完成，可读需好感阶段+VIP ============
+  var _origPersonalList = window._v2RenderPersonalStoryList;
+  window._v2RenderPersonalStoryList = function() {
+    var npcs = [
+      { key: 'haeun', name: '夏恩', tag: '队长', color: '#F472B6', chapters: 5 },
+      { key: 'soah', name: '素雅', tag: '主唱', color: '#A78BFA', chapters: 3 },
+      { key: 'jiwon', name: '智媛', tag: '忙内', color: '#FBBF24', chapters: 2 },
+      { key: 'junho', name: '俊昊', tag: '领唱', color: '#60A5FA', chapters: 1 },
+      { key: 'seokhyun', name: '瑞贤', tag: '主Rapper', color: '#34D399', chapters: 4 }
+    ];
+    var ch1Done = !!(gameState._v2NodeCompleted && gameState._v2NodeCompleted['ch1_1.7']);
+    var isVip = !!(gameState.vip && gameState.vip.active);
+
+    var html = '';
+    if (!ch1Done) {
+      html += '<div style="text-align:center;padding:40px 20px;color:rgba(255,255,255,0.4);font-size:13px;">完成主线第1章即可解锁角色个人线</div>';
+      return html;
+    }
+
+    for (var i = 0; i < npcs.length; i++) {
+      var n = npcs[i];
+      var love = (gameState.npc好感度 && gameState.npc好感度[n.name]) || 0;
+      var hearts = Math.floor(love / 50);
+      var stageName = '陌生';
+      if (hearts >= 80) stageName = '灵魂伴侣';
+      else if (hearts >= 60) stageName = '挚爱';
+      else if (hearts >= 40) stageName = '恋人';
+      else if (hearts >= 20) stageName = '暧昧';
+      else if (hearts >= 1) stageName = '熟悉';
+
+      html += '<div style="margin-bottom:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;">'
+        + '<div style="display:flex;align-items:center;margin-bottom:10px;">'
+        + '<div style="width:40px;height:40px;border-radius:50%;background:' + n.color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;margin-right:12px;">' + n.name.charAt(0) + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:14px;font-weight:700;color:#fff;">' + n.name + ' <span style="font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;">' + n.tag + '</span></div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">好感值 ' + love + ' / ' + hearts + '心 · ' + stageName + '</div>'
+        + '</div></div><div style="display:flex;gap:6px;">';
+
+      for (var s = 0; s < n.chapters; s++) {
+        var chHearts = (s + 1) * 10;
+        var unlocked = hearts >= chHearts;
+        var canRead = unlocked && isVip;
+        var bgColor, txtColor, subColor, opacity, onclick;
+        if (canRead) {
+          bgColor = n.color;
+          txtColor = '#fff';
+          subColor = 'rgba(255,255,255,0.8)';
+          opacity = 'cursor:pointer;';
+          onclick = ' onclick="showToast(\'' + n.name + '·第' + (s+1) + '章：后续章节开放\')"';
+        } else if (unlocked) {
+          bgColor = 'rgba(255,255,255,0.08)';
+          txtColor = 'rgba(255,255,255,0.5)';
+          subColor = 'rgba(255,255,255,0.2)';
+          opacity = 'opacity:0.4;';
+          onclick = '';
+        } else {
+          bgColor = 'rgba(255,255,255,0.03)';
+          txtColor = 'rgba(255,255,255,0.2)';
+          subColor = 'rgba(255,255,255,0.2)';
+          opacity = 'opacity:0.4;';
+          onclick = '';
+        }
+        html += '<div style="flex:1;padding:8px 4px;text-align:center;background:' + bgColor + ';border-radius:8px;' + opacity + '"' + onclick + '>'
+          + '<div style="font-size:11px;font-weight:700;color:' + txtColor + ';">' + (s+1) + '</div>'
+          + '<div style="font-size:9px;color:' + subColor + ';margin-top:2px;">' + chHearts + '心</div>';
+        if (unlocked && !isVip) {
+          html += '<div style="font-size:8px;color:#C9A96E;margin-top:2px;">VIP</div>';
+        }
+        html += '</div>';
+      }
+      html += '</div></div>';
+    }
+    return html;
+  };
+
+  // ============ 2. 训练数值范围显示 ============
+  var _origTrainPage = window.render训练Page;
+  window.render训练Page = function(container) {
+    _origTrainPage(container);
+    var sectionTitle = container.querySelector('[style*="选择训练项目"]');
+    if (sectionTitle) {
+      var hint = document.createElement('div');
+      hint.style.cssText = 'font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;font-weight:300;';
+      hint.textContent = '每次训练数值 +5~20（随机浮动）';
+      sectionTitle.parentNode.insertBefore(hint, sectionTitle.nextSibling);
+    }
+  };
+
+  // ============ 3. 付费入口：角色详情页+章节结算页 ============
+  var _origCharPage = window.renderCharacterPage;
+  window.renderCharacterPage = function(container) {
+    _origCharPage(container);
+    var isVip = !!(gameState.vip && gameState.vip.active);
+    var btnArea = container.querySelector('.v221-char-bot');
+    if (btnArea) {
+      var payBtn = document.createElement('div');
+      payBtn.className = 'v221-char-bot-btn';
+      var vipLabel = isVip ? '会员权益' : '开通会员';
+      var vipMsg = isVip ? '会员权益：所有章节均可阅读' : '开通会员即可阅读全部个人线章节';
+      payBtn.setAttribute('onclick', 'showToast(\'' + vipMsg + '\')');
+      payBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg><span>' + vipLabel + '</span>';
+      btnArea.appendChild(payBtn);
+    }
+  };
+
+  var _origSettlement = window._v2ShowChapterSettlement;
+  if (typeof _origSettlement === 'function') {
+    window._v2ShowChapterSettlement = function() {
+      _origSettlement();
+      var isVip = !!(gameState.vip && gameState.vip.active);
+      setTimeout(function() {
+        var modal = document.querySelector('.modal-overlay:last-child .modal') || document.querySelector('.modal');
+        if (modal) {
+          var payHint = document.createElement('div');
+          payHint.style.cssText = 'margin-top:12px;padding:10px;border-radius:8px;text-align:center;font-size:12px;';
+          if (isVip) {
+            payHint.style.background = 'rgba(201,169,110,0.15)';
+            payHint.style.color = '#C9A96E';
+            payHint.innerHTML = '<span style="color:#C9A96E;">VIP</span> 会员可阅读全部个人线章节';
+          } else {
+            payHint.style.background = 'rgba(255,255,255,0.05)';
+            payHint.style.color = 'rgba(255,255,255,0.4)';
+            payHint.innerHTML = '开通会员即可阅读更多角色个人线 <span style="color:#C9A96E;">查看详情</span>';
+          }
+          modal.appendChild(payHint);
+        }
+      }, 100);
+    };
+  }
+
+  // ============ 4. 场景NPC交互修正：点击头像进入角色详情页 ============
+  var _origNpcHtml = window._v2GetSceneNpcHtml;
+  window._v2GetSceneNpcHtml = function(sceneId) {
+    var npcs = V2_SCENE_NPCS[sceneId];
+    if (!npcs || npcs.length === 0) return '';
+    var html = '';
+    for (var i = 0; i < npcs.length; i++) {
+      var n = npcs[i];
+      var love = (gameState.npc好感度 && gameState.npc好感度[n.name]) || 0;
+      var hearts = Math.floor(love / 50);
+      var stage = '陌生';
+      if (hearts >= 80) stage = '灵魂伴侣';
+      else if (hearts >= 60) stage = '挚爱';
+      else if (hearts >= 40) stage = '恋人';
+      else if (hearts >= 20) stage = '暧昧';
+      else if (hearts >= 1) stage = '熟悉';
+      var key = n.key || n.name;
+      html += '<div onclick="gameState._charViewKey=\'' + key + '\';goToPage(\'character\')" style="position:absolute;left:' + n.x + '%;top:' + n.y + '%;transform:translate(-50%,-50%);cursor:pointer;text-align:center;z-index:10;-webkit-tap-highlight-color:transparent;" title="点击查看' + n.name + '详情">'
+        + '<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);margin:0 auto 4px;display:flex;align-items:center;justify-content:center;overflow:hidden;">'
+        + '<div style="font-size:16px;font-weight:300;color:#fff;">' + n.name.charAt(0) + '</div>'
+        + '</div>'
+        + '<div style="font-size:10px;color:rgba(255,255,255,0.7);font-weight:300;">' + n.name + '</div>'
+        + '<div style="font-size:9px;color:rgba(201,169,110,0.7);font-weight:300;margin-top:1px;">' + stage + '</div>'
+        + '</div>';
+    }
+    return html;
+  };
+
+})();
