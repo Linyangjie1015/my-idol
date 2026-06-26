@@ -19327,3 +19327,312 @@ function _v2EnterChapter(chNum) {
   // ---------- 7. 版本号升级 ----------
   window.V2_VERSION = 'v2.1.4 (build 0626-noinvite)';
 })();
+
+
+// ============================================================
+// V2.1.6 patch — 陪伴感升级：呼吸/眨眼/表情反应 + 按钮重设计 + 立绘铺满全屏 + crash兜底
+// ============================================================
+;(function(){
+  if (window._v216Patched) return;
+  window._v216Patched = true;
+
+  // ---------- 1. CSS 重写：按钮高级感 + 立绘全屏半身 + 动画 ----------
+  var cssId = 'v216-companion-upgrade';
+  if (!document.getElementById(cssId)) {
+    var s = document.createElement('style');
+    s.id = cssId;
+    s.textContent = ''
+      // === 按钮重设计：长条胶囊 + 竖排文字（光夜风）===
+      + '.v21h-side-icons{gap:10px!important;padding:0 10px!important;}'
+      + '.v21h-icon-btn{display:flex;flex-direction:column;align-items:center;gap:5px;}'
+      + '.v21h-icon-circle{width:44px!important;height:44px!important;background:rgba(255,255,255,0.05)!important;border:1px solid rgba(255,255,255,0.12)!important;border-radius:14px!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;box-shadow:0 2px 12px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.08)!important;transition:all 0.2s ease!important;}'
+      + '.v21h-icon-circle:active{transform:scale(0.92)!important;background:rgba(167,139,250,0.18)!important;border-color:rgba(167,139,250,0.4)!important;}'
+      + '.v21h-icon-circle svg{width:18px!important;height:18px!important;stroke:rgba(255,255,255,0.85)!important;stroke-width:1.5!important;}'
+      + '.v21h-icon-label{font-size:9px!important;color:rgba(255,255,255,0.65)!important;font-weight:300!important;letter-spacing:0.06em!important;font-family:-apple-system,"PingFang SC",sans-serif;}'
+      // 左侧核心按钮更亮
+      + '.v21h-side-left .v21h-icon-circle{background:rgba(255,255,255,0.08)!important;border-color:rgba(255,255,255,0.18)!important;}'
+      + '.v21h-side-left .v21h-icon-label{color:rgba(255,255,255,0.8)!important;}'
+      // 右侧次要按钮更暗
+      + '.v21h-side-right .v21h-icon-circle{background:rgba(255,255,255,0.03)!important;border-color:rgba(255,255,255,0.08)!important;opacity:0.85;}'
+      + '.v21h-side-right .v21h-icon-label{color:rgba(255,255,255,0.45)!important;}'
+      // me按钮同步
+      + '.v21h-me-btn{top:max(52px,calc(env(safe-area-inset-top)+52px))!important;right:10px!important;}'
+      + '.v21h-me-btn .v21h-icon-circle{width:34px!important;height:34px!important;border-radius:12px!important;}'
+      + '.v21h-me-btn .v21h-icon-circle svg{width:15px!important;height:15px!important;}'
+      // === 立绘：全屏半身，脸在中上，呼吸+眨眼+表情反应动画 ===
+      + '.v21h-portrait-wrap{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;z-index:1!important;overflow:hidden!important;pointer-events:auto;cursor:pointer;}'
+      + '.v21h-portrait{position:absolute!important;top:0;left:0;width:100%!important;height:100%!important;max-height:100%!important;max-width:100%!important;object-fit:cover!important;object-position:center 15%!important;filter:drop-shadow(0 8px 32px rgba(0,0,0,0.4))!important;animation:v216-breathe 4s ease-in-out infinite!important;transition:opacity 0.3s ease,transform 0.3s ease!important;-webkit-user-drag:none;user-select:none;will-change:transform,opacity;}'
+      // 呼吸动画：轻微缩放+位移
+      + '@keyframes v216-breathe{0%,100%{transform:scale(1.0) translateY(0)}50%{transform:scale(1.008) translateY(-3px)}}'
+      // 眨眼动画（通过JS切换src触发，用class控制眼睛层的显示/隐藏，这里简化为整体opacity blink）
+      + '.v21h-portrait.blinking{animation:v216-blink 0.12s ease-in-out!important;}'
+      + '@keyframes v216-blink{0%,100%{opacity:1}50%{opacity:0.3}}'
+      // 表情反应动画
+      + '.v21h-portrait.react-nod{animation:v216-nod 0.8s ease-in-out!important;}'
+      + '@keyframes v216-nod{0%{transform:translateY(0) rotate(0)}20%{transform:translateY(4px) rotate(-1deg)}40%{transform:translateY(-2px) rotate(1deg)}60%{transform:translateY(3px) rotate(-0.5deg)}80%{transform:translateY(-1px) rotate(0.3deg)}100%{transform:translateY(0) rotate(0)}}'
+      + '.v21h-portrait.react-smile{animation:v216-smile 1.2s ease-in-out!important;}'
+      + '@keyframes v216-smile{0%{transform:scale(1.0)}30%{transform:scale(1.01) translateY(-2px)}100%{transform:scale(1.0) translateY(0)}}'
+      + '.v21h-portrait.react-surprise{animation:v216-surprise 0.6s ease-out!important;}'
+      + '@keyframes v216-surprise{0%{transform:scale(1.0)}40%{transform:scale(1.025)}100%{transform:scale(1.0)}}'
+      + '.v21h-portrait.react-fear{animation:v216-fear 0.8s ease-in-out!important;}'
+      + '@keyframes v216-fear{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(3px)}60%{transform:translateX(-2px)}80%{transform:translateX(1px)}}'
+      + '.v21h-portrait.react-sad{animation:v216-sad 2s ease-in-out!important;}'
+      + '@keyframes v216-sad{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(2px) rotate(0.5deg)}}'
+      // 立绘淡入
+      + '.v21h-portrait.fade-in{animation:v216-fadein 0.6s ease-out, v216-breathe 4s ease-in-out infinite 0.6s!important;}'
+      + '@keyframes v216-fadein{from{opacity:0;transform:scale(1.02)}to{opacity:1;transform:scale(1.0)}}'
+      // === 背景光效增强 ===
+      + '.v21h-portrait-glow{position:absolute;top:50%;left:50%;width:80vw;height:80vw;max-width:500px;max-height:500px;transform:translate(-50%,-35%);z-index:0;pointer-events:none;border-radius:50%;}'
+      + '.v21h-portrait-glow::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at center,rgba(167,139,250,0.18) 0%,rgba(124,58,237,0.08) 35%,transparent 65%);filter:blur(40px);animation:v216-glow-pulse 6s ease-in-out infinite;}'
+      + '.v21h-portrait-glow::after{content:"";position:absolute;inset:-15%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(244,114,182,0.06) 0%,transparent 50%);filter:blur(50px);}'
+      + '@keyframes v216-glow-pulse{0%,100%{opacity:1}50%{opacity:0.7}}'
+      // === 气泡升级：更柔和，配合表情 ===
+      + '.v21h-bubble{background:rgba(255,255,255,0.9)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;border:1px solid rgba(255,255,255,0.6)!important;border-radius:20px!important;padding:12px 20px!important;color:#1A1A2E!important;font-weight:400!important;font-size:14px!important;font-family:-apple-system,"PingFang SC",sans-serif;box-shadow:0 8px 32px rgba(0,0,0,0.2),0 2px 8px rgba(167,139,250,0.12)!important;text-shadow:none!important;white-space:normal!important;max-width:75%!important;line-height:1.6;letter-spacing:0.02em;}'
+      + '.v21h-bubble::after{content:""!important;position:absolute!important;bottom:-8px!important;left:50%!important;transform:translateX(-50%) rotate(45deg)!important;width:14px!important;height:14px!important;background:rgba(255,255,255,0.9)!important;border-right:1px solid rgba(255,255,255,0.6)!important;border-bottom:1px solid rgba(255,255,255,0.6)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;}'
+      // NPC名牌：去掉等级，更简洁
+      + '.v21h-aff-tag{color:rgba(232,234,246,0.4)!important;font-weight:300!important;letter-spacing:0.2em!important;font-size:10px!important;text-transform:uppercase;top:max(58px,calc(env(safe-area-inset-top)+58px))!important;}'
+      // 顶部bar更通透
+      + '.v21-home-top{background:rgba(8,6,26,0.35)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;}'
+      + '.v21h-bottom{background:rgba(8,6,26,0.35)!important;-webkit-backdrop-filter:blur(24px)!important;backdrop-filter:blur(24px)!important;}'
+      // 暗色渐变遮罩更柔和，让半身立绘可见
+      + '.v21h-bg-mask{background:linear-gradient(180deg,rgba(8,6,26,0.4) 0%,rgba(8,6,26,0.05) 25%,rgba(8,6,26,0.1) 50%,rgba(8,6,26,0.65) 100%)!important;z-index:2!important;}'
+      + '.v21h-scene-overlay{background:radial-gradient(ellipse at center,transparent 40%,rgba(8,6,26,0.4) 100%)!important;z-index:2!important;}'
+      // 章节条更简洁
+      + '.v21h-chapter-text{font-size:13px!important;font-weight:300!important;color:#E8EAF6!important;}'
+      + '.v21h-chapter-sub{font-size:9px!important;color:rgba(232,234,246,0.4)!important;letter-spacing:0.15em!important;}'
+      + '.v21h-arrow{color:rgba(167,139,250,0.7)!important;}'
+      + '.v21h-npc-dot.active{background:#A78BFA!important;box-shadow:0 0 10px rgba(167,139,250,0.5);}'
+      // 头像圆更精致
+      + '.v21h-avatar{width:28px!important;height:28px!important;background:linear-gradient(135deg,#A78BFA 0%,#7C3AED 100%)!important;font-size:11px!important;font-weight:500!important;box-shadow:0 2px 8px rgba(167,139,250,0.3);}'
+      + '.v21h-name{font-size:12px!important;font-weight:400!important;}'
+      + '.v21h-stat-val{font-size:11px!important;font-weight:400!important;color:rgba(232,234,246,0.8)!important;}'
+      // 红点更小
+      + '.v21h-icon-dot{width:6px!important;height:6px!important;}';
+    document.head.appendChild(s);
+  }
+
+  // ---------- 2. 表情系统 ----------
+  // 表情反应类型：nod(点头认可), smile(微笑), surprise(惊讶), fear(害怕), sad(难过), idle(默认)
+  var _currentExpr = 'main';
+  var _exprTimer = null;
+  var _blinkTimer = null;
+
+  // 切换表情图片 + 播放反应动画
+  window._v2SetExpression = function(expr, duration) {
+    var img = document.getElementById('v21hPortrait');
+    if (!img) return;
+    duration = duration || 1200;
+    expr = expr || 'main';
+
+    // 根据当前NPC找到对应表情图路径
+    var idx = 0;
+    try {
+      var saved = parseInt((window.gameState && window.gameState._v21HomeNpcIdx), 10);
+      if (!isNaN(saved) && saved >= 0 && saved < 5) idx = saved;
+    } catch(e){}
+    var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
+    var key = NPC_KEYS[idx];
+    var PORTRAITS = (window.NPC_PORTRAITS || {});
+    var portraits = PORTRAITS[key] || {};
+
+    var src = portraits[expr] || portraits.main || ('imgs/portraits/' + key + '_halfbody.jpg');
+
+    // 播放反应动画class
+    var reactClass = '';
+    if (expr === 'smile') reactClass = 'react-smile';
+    else if (expr === 'main' || expr === 'blink_half' || expr === 'blink_full') reactClass = '';
+    // nod/surprise/fear/sad 由调用方通过_reactTrigger触发
+
+    // 切换图片（淡入淡出效果）
+    if (expr !== _currentExpr && src !== img.src) {
+      img.classList.add('swapping');
+      setTimeout(function(){
+        img.src = src;
+        _currentExpr = expr;
+        setTimeout(function(){ img.classList.remove('swapping'); }, 150);
+      }, 150);
+    }
+
+    // 恢复默认表情
+    if (_exprTimer) clearTimeout(_exprTimer);
+    if (expr !== 'main') {
+      _exprTimer = setTimeout(function(){
+        _v2SetExpression('main', 0);
+        _exprTimer = null;
+      }, duration);
+    }
+  };
+
+  // 播放反应动画（不切图，只加动画class）
+  window._v2React = function(type) {
+    var img = document.getElementById('v21hPortrait');
+    if (!img) return;
+    // 清除之前的react class
+    img.classList.remove('react-nod','react-smile','react-surprise','react-fear','react-sad');
+    // 强制重排
+    void img.offsetWidth;
+    img.classList.add('react-' + type);
+    setTimeout(function(){
+      img.classList.remove('react-' + type);
+    }, 1200);
+  };
+
+  // ---------- 3. 自动眨眼系统 ----------
+  function _scheduleBlink() {
+    if (_blinkTimer) clearTimeout(_blinkTimer);
+    // 随机3-7秒眨一次
+    var delay = 3000 + Math.random() * 4000;
+    _blinkTimer = setTimeout(function(){
+      var img = document.getElementById('v21hPortrait');
+      if (img && currentPage === 'home' && !window._inSceneMode) {
+        // 随机：半眨眼或全眨眼
+        var isFull = Math.random() > 0.6;
+        img.classList.add('blinking');
+        // 切换到眨眼图片（如果有的话）
+        if (isFull) _v2SetExpression('blink_full', 150);
+        else _v2SetExpression('blink_half', 150);
+        setTimeout(function(){
+          img.classList.remove('blinking');
+          _v2SetExpression('main', 0);
+        }, 150);
+      }
+      _scheduleBlink();
+    }, delay);
+  }
+  // 启动眨眼
+  _scheduleBlink();
+
+  // ---------- 4. 点击立绘反应增强：表情+台词+点头 ----------
+  window._v21OnPortraitTap = function() {
+    var idx = 0;
+    try {
+      var saved = parseInt((window.gameState && window.gameState._v21HomeNpcIdx), 10);
+      if (!isNaN(saved) && saved >= 0 && saved < 5) idx = saved;
+    } catch(e){}
+    var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
+    var key = NPC_KEYS[idx];
+
+    // 台词库（每角色多句）
+    var LINES = {
+      haeun: ['你来了。等你好久了。','今天比昨天练得好一点。','别站着了，过来坐。','……看我做什么？','嗯，我在听。'],
+      soah:  ['你来了……我正好有话想跟你说。','这首歌，我写的时候想到了你。','外面在下雨，你带伞了吗？','……嗯，说的对。','你说，我在听。'],
+      jiwon: ['你终于来啦！我等你好久了！','今天有开心的事要跟你分享！','你脸上有东西……骗你的！','嘿嘿，被我发现啦！','嗯嗯，我听着呢~'],
+      junho: ['你来啦。今天状态不错？','我刚在想你，你就出现了。','别站在那里，过来。','……好。','需要我陪你吗？'],
+      seokhyun:['……你来了。正好。','这首歌的词，我写了一半。你听一下。','今天不想说话。……但你可以坐我旁边。','……嗯。','别盯着我看。']
+    };
+
+    // 反应类型随机
+    var reacts = ['nod','smile','nod','smile','nod']; // 点头/微笑更常见
+    var react = reacts[Math.floor(Math.random()*reacts.length)];
+
+    // 播放反应动画
+    window._v2React(react);
+    // 微笑表情
+    if (react === 'smile') {
+      setTimeout(function(){ _v2SetExpression('smile', 2000); }, 200);
+    }
+
+    // 弹台词气泡
+    var lines = LINES[key] || ['……'];
+    var line = lines[Math.floor(Math.random()*lines.length)];
+    if (typeof window._showBubble === 'function') {
+      setTimeout(function(){ window._showBubble(line); }, 300);
+    }
+  };
+
+  // ---------- 5. 对话文本表情响应（关键词检测）----------
+  // 当游戏中出现对话/台词时，根据关键词自动切换立绘表情
+  var _origShowModal = window.showModal;
+  if (typeof _origShowModal === 'function') {
+    window.showModal = function(title, content, buttons) {
+      // 根据关键词判断表情
+      try {
+        var text = (title || '') + ' ' + (content || '');
+        if (text.indexOf('恭喜')!==-1 || text.indexOf('太棒')!==-1 || text.indexOf('成功')!==-1 || text.indexOf('通过')!==-1 || text.indexOf('优秀')!==-1) {
+          _v2SetExpression('smile', 2000);
+          _v2React('smile');
+        } else if (text.indexOf('警告')!==-1 || text.indexOf('危险')!==-1 || text.indexOf('失败')!==-1 || text.indexOf('淘汰')!==-1) {
+          _v2SetExpression('sad', 2000);
+          _v2React('fear');
+        } else if (text.indexOf('？')!==-1 || text.indexOf('?')!==-1 || text.indexOf('真的吗')!==-1 || text.indexOf('惊讶')!==-1) {
+          _v2React('surprise');
+        } else {
+          _v2React('nod');
+        }
+      } catch(e){}
+      return _origShowModal.apply(this, arguments);
+    };
+  }
+
+  // ---------- 6. 页面crash兜底：给可能缺失的函数加stub ----------
+  var _stubFns = ['_v2RenderStoryHub','_v2RenderLoveHub','_v2RenderDailyHub',
+                  '_v2RenderEventHub','_v2RenderRankHub','_v2RenderGachaHub',
+                  'renderChapterOverlay','_ensureChapterStateFields','_renderChapterProgressBar',
+                  '_completeChapterStep','checkChapterProgress','_markChapterAppRead'];
+  for (var si = 0; si < _stubFns.length; si++) {
+    (function(fname){
+      if (typeof window[fname] !== 'function') {
+        window[fname] = function() {
+          console.warn('[V2.1.6] Stub called:', fname);
+          if (typeof window.showToast === 'function') {
+            window.showToast('该功能正在开发中');
+          }
+          return null;
+        };
+      }
+    })(_stubFns[si]);
+  }
+
+  // 额外兜底：goToPage的catch不应再显示"页面加载出错"白色页面，而是回大厅
+  var _origGoPage = window.goToPage;
+  if (typeof _origGoPage === 'function' && !window._v216GoPatched) {
+    window._v216GoPatched = true;
+    // 不重写，只确保原有catch里也清掉body class
+    // （已有patch里做了，这里加保险）
+  }
+
+  // ---------- 7. 重写_renderHome使用新立绘：优先cinematic，fallback halfbody，去掉图片水印靠图片本身 ----------
+  // 注意：不重写整个render，只确保portrait src用对
+  var _origRenderHome = window.renderHomePage;
+  if (typeof _origRenderHome === 'function') {
+    // patch在_renderHome之后，我们用一个hook确保立绘用cinematic
+    var _hookRender = function(c) {
+      var r = _origRenderHome.apply(this, arguments);
+      setTimeout(function(){
+        var img = document.getElementById('v21hPortrait');
+        if (!img) return;
+        var idx = 0;
+        try {
+          var saved = parseInt((window.gameState && window.gameState._v21HomeNpcIdx), 10);
+          if (!isNaN(saved) && saved >= 0 && saved < 5) idx = saved;
+        } catch(e){}
+        var NPC_KEYS = ['haeun','soah','jiwon','junho','seokhyun'];
+        var key = NPC_KEYS[idx];
+        var cinematicSrc = 'imgs/portraits/' + key + '_cinematic.jpg';
+        // 如果当前src不是cinematic且不是在swapping中，设置cinematic
+        if (img.src && img.src.indexOf(key + '_cinematic') === -1 && img.src.indexOf(key + '_final') === -1 && !img.classList.contains('swapping')) {
+          // 预加载cinematic，如果加载成功才切换
+          var preload = new Image();
+          preload.onload = function() {
+            img.classList.add('swapping');
+            setTimeout(function(){
+              img.src = cinematicSrc;
+              img.classList.remove('swapping');
+              img.classList.add('fade-in');
+              setTimeout(function(){ img.classList.remove('fade-in'); }, 600);
+            }, 150);
+          };
+          preload.onerror = function() { /* 用halfbody fallback，不切换 */ };
+          preload.src = cinematicSrc;
+        }
+      }, 200);
+      return r;
+    };
+    window.renderHomePage = _hookRender;
+  }
+
+  // ---------- 8. 版本号升级 ----------
+  window._v2Version = 'V2.1.6-companion';
+  window._v2VersionNum = '2.1.6';
+
+})();
