@@ -22532,12 +22532,12 @@ function _v2EnterChapter(chNum) {
   _v250GrantMonthlyCards();
 
 })();
-// V2.6.0 体验流程修正：创建角色→直接第1章→第1章结束→进宿舍→新手引导
+// V2.6.0 体验流程修正v2：创建角色→第1章→进宿舍→宿舍内开始新手引导→引导去大厅
 (function() {
   if (window._v260FlowFixed) return;
   window._v260FlowFixed = true;
 
-  // ============ 1. 注册/登录无存档 → 自动跳转创建角色（保留原逻辑）============
+  // ============ 1. 注册/登录无存档 → 自动跳转创建角色 ============
   var _origDoCloudRegister = window._doCloudRegister;
   if (typeof _origDoCloudRegister === 'function') {
     window._doCloudRegister = function() {
@@ -22591,7 +22591,6 @@ function _v2EnterChapter(chNum) {
       _origComplete.apply(this, arguments);
       try {
         gameState._v260NewPlayer = true;
-        // 直接触发第1章第1个节点，不进宿舍
         setTimeout(function() {
           if (typeof _v2CheckChapterNodes === 'function') {
             _v2CheckChapterNodes();
@@ -22603,11 +22602,11 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // ============ 3. 第1章完成 → 进宿舍 → 弹窗 → 新手引导 ============
+  // ============ 3. 第1章完成 → 进宿舍 → 直接开始新手引导 ============
   window._v260ChapterSettlement = function() {
     if (gameState._v2NodeCompleted && gameState._v2NodeCompleted['1.8'] && !gameState._v260Ch1Done) {
       gameState._v260Ch1Done = true;
-      // 先进入宿舍/家场景
+      // 进入宿舍/家场景
       try {
         var homeScene = (typeof _getHomeScene === 'function') ? _getHomeScene() : 'dorm';
         gameState._currentScene = homeScene;
@@ -22625,19 +22624,10 @@ function _v2EnterChapter(chNum) {
       } catch(e) {
         console.error('v260 enter home error:', e);
       }
-      // 然后弹出第1章完成提示
+      // 进入宿舍后直接开始新手引导（第1步：在宿舍休息）
       setTimeout(function() {
-        var html = '<div style="text-align:center;padding:16px 0;">'
-          + '<div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">第1章已完成</div>'
-          + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:16px;">第2章剧情正在制作中，敬请期待。<br>现在可以自由探索游戏世界了。</div>'
-          + '</div>';
-        showModal('第1章完成', html, [
-          { text: '进入游戏大厅', action: function() {
-            closeModal();
-            _v260StartTutorial();
-          }}
-        ]);
-      }, 500);
+        _v260StartTutorial();
+      }, 800);
     }
   };
 
@@ -22652,35 +22642,45 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // ============ 4. 新手引导4步 ============
+  // ============ 4. 新手引导（分两阶段：宿舍内 + 大厅内）============
   var TUTORIAL_STEPS = [
+    // 阶段1：宿舍内
     {
       id: 'rest',
       title: '恢复体力',
-      desc: '点击"休息"图标恢复体力',
-      check: function() { return gameState._v260TutRest; },
-      highlight: 'rest'
+      desc: '在宿舍里点击"休息"恢复体力吧',
+      phase: 'dorm',
+      check: function() { return gameState._v260TutRest; }
     },
+    // 阶段2：引导去大厅
+    {
+      id: 'goHall',
+      title: '前往游戏大厅',
+      desc: '点击返回，前往游戏大厅探索更多功能',
+      phase: 'dorm',
+      check: function() { return gameState._v260TutGoHall; }
+    },
+    // 阶段3：大厅内APP引导
     {
       id: 'company',
       title: '前往公司',
       desc: '点击"公司"图标进入公司场景',
-      check: function() { return gameState._v260TutCompany; },
-      highlight: 'scene'
+      phase: 'hall',
+      check: function() { return gameState._v260TutCompany; }
     },
     {
       id: 'contacts',
       title: '查看成员',
       desc: '打开通讯录查看成员列表',
-      check: function() { return gameState._v260TutContacts; },
-      highlight: 'contacts'
+      phase: 'hall',
+      check: function() { return gameState._v260TutContacts; }
     },
     {
       id: 'daily',
       title: '今日任务',
       desc: '完成一次今日任务领取奖励',
-      check: function() { return gameState._v260TutDaily; },
-      highlight: 'daily'
+      phase: 'hall',
+      check: function() { return gameState._v260TutDaily; }
     }
   ];
 
@@ -22688,16 +22688,7 @@ function _v2EnterChapter(chNum) {
     if (gameState._v260TutorialDone) return;
     gameState._v260TutorialStep = 0;
     gameState._v260TutorialActive = true;
-    // 进入游戏大厅
-    window._inSceneMode = false;
-    window.currentPage = 'home';
-    document.body.classList.add('v21-in-home');
-    if (typeof window.render === 'function') window.render();
-    var bn = document.getElementById('bottomNav');
-    if (bn) bn.style.display = 'none';
-    if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
-    // 显示第一步引导
-    setTimeout(function() { _v260ShowStep(); }, 800);
+    setTimeout(function() { _v260ShowStep(); }, 500);
   }
 
   function _v260ShowStep() {
@@ -22708,8 +22699,9 @@ function _v2EnterChapter(chNum) {
       return;
     }
     var step = TUTORIAL_STEPS[stepIdx];
+    var phaseLabel = step.phase === 'dorm' ? '宿舍' : '大厅';
     var html = '<div style="text-align:center;padding:12px 0;">'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">新手引导 ' + (stepIdx + 1) + '/' + TUTORIAL_STEPS.length + '</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">新手引导 ' + (stepIdx + 1) + '/' + TUTORIAL_STEPS.length + ' · ' + phaseLabel + '</div>'
       + '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;">' + step.title + '</div>'
       + '<div style="font-size:13px;color:rgba(255,255,255,0.6);">' + step.desc + '</div>'
       + '</div>';
@@ -22724,7 +22716,7 @@ function _v2EnterChapter(chNum) {
     var html = '<div style="text-align:center;padding:16px 0;">'
       + '<div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">所有功能已解锁</div>'
       + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;">你可以自由探索游戏世界了。</div>'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:12px;line-height:1.5;">训练 · 直播 · SNS · 通讯录<br>便利店 · 日程 · 今日任务</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:12px;line-height:1.5;">训练 · 直播 · SNS · 通讯录<br>便利店 · 日程 · 今日任务 · 主线剧情</div>'
       + '</div>';
     showModal('新手引导完成', html, [
       { text: '开始探索', action: function() { closeModal(); } }
@@ -22732,6 +22724,7 @@ function _v2EnterChapter(chNum) {
   }
 
   // Hook 关键动作检测教程步骤完成
+  // 步骤1：休息
   var _origDoRest = window['do\u4f11\u606f'];
   if (typeof _origDoRest === 'function') {
     window['do\u4f11\u606f'] = function() {
@@ -22743,11 +22736,18 @@ function _v2EnterChapter(chNum) {
     };
   }
 
+  // 步骤2：离开宿舍去大厅（检测_inSceneMode变为false或currentPage变为home）
   var _origGoToPage = window.goToPage;
   if (typeof _origGoToPage === 'function') {
     window.goToPage = function(page) {
       _origGoToPage.apply(this, arguments);
       if (gameState._v260TutorialActive) {
+        // 检测离开宿舍去大厅
+        if (!gameState._v260TutGoHall && (window._inSceneMode === false || page === 'home')) {
+          gameState._v260TutGoHall = true;
+          _v260AdvanceTutorial();
+        }
+        // 大厅内步骤
         if (page === 'company' && !gameState._v260TutCompany) {
           gameState._v260TutCompany = true;
           _v260AdvanceTutorial();
@@ -22760,6 +22760,7 @@ function _v2EnterChapter(chNum) {
     };
   }
 
+  // 步骤5：今日任务完成
   var _origShowToast = window.showToast;
   if (typeof _origShowToast === 'function') {
     window.showToast = function(msg) {
@@ -22769,6 +22770,18 @@ function _v2EnterChapter(chNum) {
           gameState._v260TutDaily = true;
           _v260AdvanceTutorial();
         }
+      }
+    };
+  }
+
+  // 也hook场景退出（点击返回按钮离开宿舍）
+  var _origBackFromScene = window._backFromScene;
+  if (typeof _origBackFromScene === 'function') {
+    window._backFromScene = function() {
+      _origBackFromScene.apply(this, arguments);
+      if (gameState._v260TutorialActive && !gameState._v260TutGoHall) {
+        gameState._v260TutGoHall = true;
+        _v260AdvanceTutorial();
       }
     };
   }
@@ -22785,15 +22798,5 @@ function _v2EnterChapter(chNum) {
       }
     }
   }
-
-  // ============ 5. 老玩家不触发引导 ============
-  // 如果存档已有进度（非新玩家），跳过所有引导
-  try {
-    if (gameState.player && gameState.player.name && !gameState._v260NewPlayer) {
-      if (typeof _v2CheckChapterNodes === 'function') {
-        // 老玩家正常检查章节
-      }
-    }
-  } catch(e) {}
 
 })();
