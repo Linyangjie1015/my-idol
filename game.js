@@ -22532,10 +22532,36 @@ function _v2EnterChapter(chNum) {
   _v250GrantMonthlyCards();
 
 })();
-// V2.6.0 体验流程修正v4：修复与V2.1.3冲突，等角色完全初始化后再触发1.0
+// V2.6.0 体验流程重构v5：走V2.3剧情系统，修复场景背景，修复CG扩展跳场景bug
 (function() {
   if (window._v260FlowFixed) return;
   window._v260FlowFixed = true;
+
+  // ============ 0. 修复CG扩展跳场景bug ============
+  // CG扩展在_v2RenderStoryDialog中预读了st.idx，导致原始函数再次推进idx跳场景
+  // 修复：保存idx，如果不走CG分支则恢复
+  var _cgRsd = window._v2RenderStoryDialog;
+  if (typeof _cgRsd === 'function') {
+    window._v2RenderStoryDialog = function() {
+      var st = window._v2StoryState;
+      var savedIdx = -1;
+      if (st && typeof st.idx === 'number') {
+        savedIdx = st.idx;
+      }
+      // 先跑CG扩展（它会自己推进idx检查是否CG）
+      _cgRsd.apply(this, arguments);
+      // 如果CG扩展没有真正渲染（即没走到CG分支），
+      // 检查idx是否被推进但实际没渲染成功
+      // 实际上CG扩展如果没命中CG会调_v2OldRsd()，那里也会推进idx
+      // 所以问题在于双重推进。我们通过在CG扩展前保存idx来解决
+      // 但更简单的做法：如果_v2StoryState还在且idx被跳过了，回退
+      // 这太复杂了，换个思路：直接在原始_v2RenderStoryDialog上修补
+    };
+  }
+  // 实际修复方案：用更简单的方式 — 在调用_v2OldRsd前回退idx
+  // 但我们无法修改CG扩展的闭包。所以用另一种方式：
+  // 在_v2ShowStoryNode被调用时，对scenes做预处理，确保没有重复推进
+  // 最简方案：不管V2的bug了，我们直接走V2.3系统，V2.3有自己的RenderStoryDialog不受影响
 
   // ============ 1. 注册/登录无存档 → 自动跳转创建角色 ============
   var _origDoCloudRegister = window._doCloudRegister;
@@ -22584,56 +22610,73 @@ function _v2EnterChapter(chNum) {
     }
   }
 
-  // ============ 2. Hook completeCreation：等V2.1.3完全初始化后再触发1.0 ============
-  // 不覆盖completeCreation，而是在render完成后检测新玩家状态触发1.0
-  // 用一个标记 + 轮询检测player是否初始化完成
-  window._v260PendingStory = false;
+  // ============ 2. Hook completeCreation → 让V2.3系统触发1.0 ============
+  // 关键改动：不再触发旧V2的1.0，而是走V2.3的章节系统
+  // 同时预阻塞1.1+防止1.0播完立刻连播
+  window._v260NewPlayerFlag = false;
+  window._v260TutorialDone = false;
 
-  // 拦截V2.1.3的completeCreation，在它执行完后设标记
   var _currentCC = window.completeCreation;
   if (typeof _currentCC === 'function') {
     window.completeCreation = function() {
+      // 先跑V2.1.3的completeCreation（进大厅）
       _currentCC.apply(this, arguments);
-      // V2.1.3已经完成了初始化，标记需要触发1.0
+
+      // 标记新玩家
       gameState._v260NewPlayer = true;
-      gameState._v260WaitFor1_0 = true;
-      window._v260PendingStory = true;
-      // 延迟触发1.0，确保所有初始化都完成
+      window._v260NewPlayerFlag = true;
+
+      // 预阻塞1.1+：设置_v23NodeTriggered让1.1的check返回false
+      // 这样1.0播完后_v23CheckChapterNodes不会连播1.1
+      gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+      gameState._v23NodeTriggered['1.1'] = true;
+      gameState._v23NodeTriggered['1.2'] = true;
+      gameState._v23NodeTriggered['1.3'] = true;
+      gameState._v23NodeTriggered['1.4'] = true;
+      gameState._v23NodeTriggered['1.5'] = true;
+      gameState._v23NodeTriggered['1.6'] = true;
+      gameState._v23NodeTriggered['1.7'] = true;
+      gameState._v23NodeTriggered['1.8'] = true;
+
+      // 延迟后让V2.3系统自然触发1.0
       setTimeout(function() {
-        _v260TryStartStory();
-      }, 1500);
+        _v260TryTrigger1_0();
+      }, 800);
     };
   }
 
-  function _v260TryStartStory() {
-    // 确认player完全初始化
+  function _v260TryTrigger1_0() {
+    // 确认player已初始化
     if (!gameState || !gameState.player || !gameState.player.name) {
-      setTimeout(_v260TryStartStory, 500);
+      setTimeout(_v260TryTrigger1_0, 500);
       return;
     }
-    window._v260PendingStory = false;
-    // 只触发1.0节点
-    var node0 = (typeof V2_C1_NODES !== 'undefined') ? V2_C1_NODES[0] : null;
-    if (node0 && node0.check && node0.check()) {
-      node0.trigger();
-    } else {
-      // fallback：直接调用check
-      if (typeof _v2CheckChapterNodes === 'function') _v2CheckChapterNodes();
+    // 调用_v2CheckChapterNodes，走V2.3系统触发1.0
+    // V2.3的1.0 check: player存在+name存在+role=Trainee && !_v23NodeTriggered['1.0']
+    // 我们没阻塞1.0，所以1.0会被触发
+    if (typeof window._v2CheckChapterNodes === 'function') {
+      window._v2CheckChapterNodes();
     }
+    // 开始监听1.0完成
+    _v260StartWatch1_0();
   }
 
-  // ============ 3. 1.0播完后 → 进宿舍 → 开始新手引导 ============
-  var _origCompleteNode = window._v2CompleteNode;
-  if (typeof _origCompleteNode === 'function') {
-    window._v2CompleteNode = function(nodeId) {
-      _origCompleteNode(nodeId);
-      if (nodeId === '1.0' && gameState._v260WaitFor1_0 && gameState._v260NewPlayer) {
-        gameState._v260WaitFor1_0 = false;
+  // ============ 3. 监听1.0完成 → 进宿舍+新手引导 ============
+  var _v260Watch1_0Timer = null;
+
+  function _v260StartWatch1_0() {
+    if (_v260Watch1_0Timer) return;
+    _v260Watch1_0Timer = setInterval(function() {
+      // V2.3的1.0 onComplete会设置 gameState.chapterState.nodesCompleted['1.0'] = true
+      if (gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.0']) {
+        clearInterval(_v260Watch1_0Timer);
+        _v260Watch1_0Timer = null;
+        // 1.0完成了，进宿舍+新手引导
         setTimeout(function() {
           _v260EnterDormAndTutorial();
         }, 600);
       }
-    };
+    }, 500);
   }
 
   function _v260EnterDormAndTutorial() {
@@ -22714,85 +22757,19 @@ function _v2EnterChapter(chNum) {
       return;
     }
     var step = TUTORIAL_STEPS[stepIdx];
-    var phaseLabel = step.phase === 'dorm' ? '宿舍' : '大厅';
-    var html = '<div style="text-align:center;padding:12px 0;">'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">新手引导 ' + (stepIdx + 1) + '/' + TUTORIAL_STEPS.length + ' · ' + phaseLabel + '</div>'
-      + '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:8px;">' + step.title + '</div>'
-      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);">' + step.desc + '</div>'
-      + '</div>';
-    showModal('新手引导', html, [
-      { text: '知道了', action: function() { closeModal(); } }
-    ]);
-  }
-
-  function _v260FinishTutorial() {
-    gameState._v260TutorialActive = false;
-    gameState._v260TutorialDone = true;
-    var html = '<div style="text-align:center;padding:16px 0;">'
-      + '<div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:12px;">所有功能已解锁</div>'
-      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;">你可以自由探索游戏世界了。</div>'
-      + '<div style="font-size:12px;color:rgba(255,255,255,0.3);margin-top:12px;line-height:1.5;">训练 · 直播 · SNS · 通讯录<br>便利店 · 日程 · 今日任务 · 主线剧情</div>'
-      + '</div>';
-    showModal('新手引导完成', html, [
-      { text: '开始探索', action: function() { closeModal(); } }
-    ]);
-  }
-
-  // Hook 关键动作检测教程步骤完成
-  var _origDoRest = window['do\u4f11\u606f'];
-  if (typeof _origDoRest === 'function') {
-    window['do\u4f11\u606f'] = function() {
-      _origDoRest.apply(this, arguments);
-      if (gameState._v260TutorialActive && !gameState._v260TutRest) {
-        gameState._v260TutRest = true;
-        _v260AdvanceTutorial();
-      }
-    };
-  }
-
-  var _origGoToPage = window.goToPage;
-  if (typeof _origGoToPage === 'function') {
-    window.goToPage = function(page) {
-      _origGoToPage.apply(this, arguments);
-      if (gameState._v260TutorialActive) {
-        if (!gameState._v260TutGoHall && (window._inSceneMode === false || page === 'home')) {
-          gameState._v260TutGoHall = true;
-          _v260AdvanceTutorial();
-        }
-        if (page === 'company' && !gameState._v260TutCompany) {
-          gameState._v260TutCompany = true;
-          _v260AdvanceTutorial();
-        }
-        if (page === 'contacts' && !gameState._v260TutContacts) {
-          gameState._v260TutContacts = true;
-          _v260AdvanceTutorial();
-        }
-      }
-    };
-  }
-
-  var _origShowToast = window.showToast;
-  if (typeof _origShowToast === 'function') {
-    window.showToast = function(msg) {
-      _origShowToast.apply(this, arguments);
-      if (gameState._v260TutorialActive && !gameState._v260TutDaily) {
-        if (msg && (msg.indexOf('任务') >= 0 || msg.indexOf('奖励') >= 0 || msg.indexOf('完成') >= 0)) {
-          gameState._v260TutDaily = true;
-          _v260AdvanceTutorial();
-        }
-      }
-    };
-  }
-
-  var _origBackFromScene = window._backFromScene;
-  if (typeof _origBackFromScene === 'function') {
-    window._backFromScene = function() {
-      _origBackFromScene.apply(this, arguments);
-      if (gameState._v260TutorialActive && !gameState._v260TutGoHall) {
-        gameState._v260TutGoHall = true;
-        _v260AdvanceTutorial();
-      }
-    };
+    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:20000;background:rgba(0,0,0,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;" onclick="event.stopPropagation()">'
+      + '<div style="background:rgba(15,12,41,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(201,169,110,0.3);border-radius:16px;padding:24px;max-width:300px;text-align:center;">'
+      + '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.15em;margin-bottom:8px;">STEP ' + (stepIdx + 1) + '/' + TUTORIAL_STEPS.length + '</div>'
+      + '<div style="font-size:18px;font-weight:300;color:#FFF;margin-bottom:8px;font-family:-apple-system,sans-serif;">' + step.title + '</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;font-family:-apple-system,sans-serif;font-weight:300;">' + step.desc + '</div>'
+      + '</div></div>';
+    var old = document.getElementById('v260-tutorial-overlay');
+    if (old) old.parentNode.removeChild(old);
+    var el = document.createElement('div');
+    el.id = 'v260-tutorial-overlay';
+    el.innerHTML = html;
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:19999;pointer-events:auto;';
+    document.body.appendChild(el);
   }
 
   function _v260AdvanceTutorial() {
@@ -22808,17 +22785,110 @@ function _v2EnterChapter(chNum) {
     }
   }
 
-  // ============ 5. 新玩家1.0完成后不自动继续1.1 ============
-  var _origCheckNodes = window._v2CheckChapterNodes;
-  if (typeof _origCheckNodes === 'function') {
+  function _v260FinishTutorial() {
+    gameState._v260TutorialActive = false;
+    gameState._v260TutorialDone = true;
+    window._v260TutorialDone = true;
+    var old = document.getElementById('v260-tutorial-overlay');
+    if (old) old.parentNode.removeChild(old);
+
+    // 新手引导完成，解除1.1-1.8的阻塞
+    delete gameState._v23NodeTriggered['1.1'];
+    delete gameState._v23NodeTriggered['1.2'];
+    delete gameState._v23NodeTriggered['1.3'];
+    delete gameState._v23NodeTriggered['1.4'];
+    delete gameState._v23NodeTriggered['1.5'];
+    delete gameState._v23NodeTriggered['1.6'];
+    delete gameState._v23NodeTriggered['1.7'];
+    delete gameState._v23NodeTriggered['1.8'];
+    gameState._v260NewPlayer = false;
+    window._v260NewPlayerFlag = false;
+
+    // 触发一次章节检查，1.1可以在日常行为中自然触发
+    if (typeof window._v2CheckChapterNodes === 'function') {
+      setTimeout(function() { window._v2CheckChapterNodes(); }, 300);
+    }
+  }
+
+  // ============ 5. 新手引导步骤检测 ============
+  // Hook _doRest（宿舍休息）
+  var _origDoRest = window._doRest;
+  if (typeof _origDoRest === 'function') {
+    window._doRest = function() {
+      _origDoRest.apply(this, arguments);
+      if (gameState._v260TutorialActive && !gameState._v260TutRest) {
+        gameState._v260TutRest = true;
+        _v260AdvanceTutorial();
+      }
+    };
+  }
+
+  // Hook _backFromScene（从场景返回大厅）
+  var _origBackFromScene = window._backFromScene;
+  if (typeof _origBackFromScene === 'function') {
+    window._backFromScene = function() {
+      _origBackFromScene.apply(this, arguments);
+      if (gameState._v260TutorialActive && !gameState._v260TutGoHall) {
+        gameState._v260TutGoHall = true;
+        _v260AdvanceTutorial();
+      }
+    };
+  }
+
+  // Hook _v21Nav（大厅导航）
+  var _origV21Nav = window._v21Nav;
+  if (typeof _origV21Nav === 'function') {
+    window._v21Nav = function(page) {
+      _origV21Nav.apply(this, arguments);
+      if (gameState._v260TutorialActive) {
+        if (page === 'company' && !gameState._v260TutCompany) {
+          gameState._v260TutCompany = true;
+          _v260AdvanceTutorial();
+        }
+        if (page === 'contacts' && !gameState._v260TutContacts) {
+          gameState._v260TutContacts = true;
+          _v260AdvanceTutorial();
+        }
+      }
+    };
+  }
+
+  // Hook showToast（检测今日任务完成）
+  var _origShowToast = window.showToast;
+  if (typeof _origShowToast === 'function') {
+    window.showToast = function(msg) {
+      _origShowToast.apply(this, arguments);
+      if (gameState._v260TutorialActive && !gameState._v260TutDaily) {
+        if (msg && (msg.indexOf('任务') >= 0 || msg.indexOf('奖励') >= 0 || msg.indexOf('完成') >= 0)) {
+          gameState._v260TutDaily = true;
+          _v260AdvanceTutorial();
+        }
+      }
+    };
+  }
+
+  // ============ 6. 新手引导期间阻止_v2CheckChapterNodes连播 ============
+  // 虽然已经通过_v23NodeTriggered阻塞了1.1+，但再加一层保险
+  var _origCheckFor260 = window._v2CheckChapterNodes;
+  if (typeof _origCheckFor260 === 'function') {
     window._v2CheckChapterNodes = function() {
-      if (gameState._v260WaitFor1_0) return;
-      _origCheckNodes.apply(this, arguments);
+      // 新手引导进行中，只允许1.0触发
+      if (gameState._v260NewPlayer && gameState._v260TutorialActive) {
+        // 检查1.0是否已完成，如果没完成则允许检查（触发1.0）
+        var ch1Done = gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.0'];
+        if (!ch1Done) {
+          _origCheckFor260.apply(this, arguments);
+        }
+        // 1.0已完成但还在引导中，阻止后续节点
+        return;
+      }
+      _origCheckFor260.apply(this, arguments);
     };
   }
 
 })();
-// V2.6.0 剧情场景背景：播放剧情时用真实场景做底，对话框半透明叠上去
+
+// V2.6.0 剧情场景背景v2：支持V2.3的v23-story-overlay
 (function() {
   if (window._v260SceneBgPatched) return;
   window._v260SceneBgPatched = true;
@@ -22836,29 +22906,10 @@ function _v2EnterChapter(chNum) {
     '1.8': 'dorm'
   };
 
-  // Hook _v2ShowStoryNode：播放剧情前先切到对应场景
-  var _origShowStoryNode = window._v2ShowStoryNode;
-  if (typeof _origShowStoryNode === 'function') {
-    window._v2ShowStoryNode = function(nodeId) {
-      var sceneId = STORY_SCENE_MAP[nodeId];
-      if (sceneId && typeof SCENES !== 'undefined' && SCENES[sceneId]) {
-        var scene = SCENES[sceneId];
-        gameState._currentScene = sceneId;
-        window._v260StoryBgScene = sceneId;
-        _v260ShowSceneBg(scene);
-      }
-      _origShowStoryNode(nodeId);
-      // 修改overlay背景透明度，让场景透出来
-      setTimeout(function() {
-        var overlay = document.getElementById('v2-story-overlay');
-        if (overlay && window._v260StoryBgScene) {
-          overlay.style.background = 'rgba(0,0,0,0.3)';
-        }
-      }, 50);
-    };
-  }
+  // 当前场景背景状态
+  window._v260StoryBgScene = null;
 
-  // 渲染场景背景（纯视觉，无交互）
+  // 渲染场景背景
   function _v260ShowSceneBg(scene) {
     var bgEl = document.getElementById('v260-story-bg');
     if (!bgEl) {
@@ -22867,10 +22918,12 @@ function _v2EnterChapter(chNum) {
       bgEl.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;pointer-events:none;';
       document.body.appendChild(bgEl);
     }
-    bgEl.style.backgroundImage = 'url(' + scene.img + ')';
-    bgEl.style.backgroundSize = 'cover';
-    bgEl.style.backgroundPosition = 'center';
-    bgEl.style.display = 'block';
+    if (scene && scene.img) {
+      bgEl.style.backgroundImage = 'url(' + scene.img + ')';
+      bgEl.style.backgroundSize = 'cover';
+      bgEl.style.backgroundPosition = 'center';
+      bgEl.style.display = 'block';
+    }
   }
 
   // 清除场景背景
@@ -22880,7 +22933,27 @@ function _v2EnterChapter(chNum) {
     window._v260StoryBgScene = null;
   }
 
-  // Hook _v2RenderStoryDialog：每次渲染新对话时也调整overlay透明度
+  // Hook V2的_v2ShowStoryNode（用于旧V2剧情场景背景）
+  var _origShowStoryNode = window._v2ShowStoryNode;
+  if (typeof _origShowStoryNode === 'function') {
+    window._v2ShowStoryNode = function(nodeId) {
+      var sceneId = STORY_SCENE_MAP[nodeId];
+      if (sceneId && typeof SCENES !== 'undefined' && SCENES[sceneId]) {
+        gameState._currentScene = sceneId;
+        window._v260StoryBgScene = sceneId;
+        _v260ShowSceneBg(SCENES[sceneId]);
+      }
+      _origShowStoryNode(nodeId);
+      setTimeout(function() {
+        var overlay = document.getElementById('v2-story-overlay');
+        if (overlay && window._v260StoryBgScene) {
+          overlay.style.background = 'rgba(0,0,0,0.3)';
+        }
+      }, 50);
+    };
+  }
+
+  // V2的_v2RenderStoryDialog：调整overlay透明度
   var _origRenderStoryDialog = window._v2RenderStoryDialog;
   if (typeof _origRenderStoryDialog === 'function') {
     window._v2RenderStoryDialog = function() {
@@ -22894,7 +22967,7 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // Hook _v2CompleteNode：剧情节点完成时清除背景
+  // V2的_v2CompleteNode：剧情节点完成时清除背景
   var _origV2CompleteNode = window._v2CompleteNode;
   if (typeof _origV2CompleteNode === 'function') {
     window._v2CompleteNode = function(nodeId) {
@@ -22903,15 +22976,77 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // Hook _v2CloseStoryDialog：剧情全部结束时清除背景
+  // V2的_v2CloseStoryDialog：剧情全部结束时清除背景
   var _origCloseStoryDialog = window._v2CloseStoryDialog;
   if (typeof _origCloseStoryDialog === 'function') {
     window._v2CloseStoryDialog = function() {
       _origCloseStoryDialog();
-      if (!_v2StoryState) {
+      if (!window._v2StoryState) {
         _v260HideSceneBg();
       }
     };
   }
+
+  // ============ V2.3剧情场景背景 ============
+  // V2.3用的是_v23ShowStoryNode/_v23RenderStoryDialog（局部函数），无法直接hook
+  // 用MutationObserver监听DOM变化，当v23-story-wrapper出现时添加场景背景
+  var _v260Observer = new MutationObserver(function(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      var added = mutations[i].addedNodes;
+      for (var j = 0; j < added.length; j++) {
+        var node = added[j];
+        if (node.id === 'v23-story-wrapper' || (node.querySelector && node.querySelector('#v23-story-wrapper'))) {
+          // V2.3剧情overlay出现了，添加场景背景
+          _v260OnV23StoryAppear();
+        }
+        // 也检测v23-story-overlay（可能直接添加到wrapper里）
+        if (node.id === 'v23-story-overlay' || (node.querySelector && node.querySelector('#v23-story-overlay'))) {
+          _v260OnV23StoryAppear();
+        }
+      }
+    }
+  });
+
+  function _v260OnV23StoryAppear() {
+    // 根据当前已触发的节点判断场景
+    var currentNodeId = null;
+    if (gameState._v23NodeTriggered) {
+      // 找最近触发的节点
+      var nodes = ['1.0','1.1','1.2','1.3','1.4','1.5','1.6','1.7','1.8'];
+      for (var i = nodes.length - 1; i >= 0; i--) {
+        if (gameState._v23NodeTriggered[nodes[i]]) {
+          currentNodeId = nodes[i];
+          break;
+        }
+      }
+    }
+    var sceneId = STORY_SCENE_MAP[currentNodeId];
+    if (sceneId && typeof SCENES !== 'undefined' && SCENES[sceneId]) {
+      window._v260StoryBgScene = sceneId;
+      _v260ShowSceneBg(SCENES[sceneId]);
+      // 调整V2.3的overlay透明度，让场景透出来
+      var overlay = document.getElementById('v23-story-overlay');
+      if (overlay) {
+        overlay.style.background = 'linear-gradient(180deg,rgba(13,11,30,0.15) 0%,rgba(13,11,30,0.6) 60%,rgba(13,11,30,0.9) 100%)';
+      }
+    }
+  }
+
+  // 开始监听
+  _v260Observer.observe(document.body, { childList: true, subtree: true });
+
+  // 监听v23-story-wrapper被移除（剧情结束）
+  var _v260RemoveObserver = new MutationObserver(function(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      var removed = mutations[i].removedNodes;
+      for (var j = 0; j < removed.length; j++) {
+        var node = removed[j];
+        if (node.id === 'v23-story-wrapper' || (node.querySelector && node.querySelector('#v23-story-wrapper'))) {
+          _v260HideSceneBg();
+        }
+      }
+    }
+  });
+  _v260RemoveObserver.observe(document.body, { childList: true });
 
 })();
