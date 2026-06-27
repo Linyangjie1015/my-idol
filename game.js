@@ -22532,7 +22532,7 @@ function _v2EnterChapter(chNum) {
   _v250GrantMonthlyCards();
 
 })();
-// V2.6.0 体验流程修正v3：创建角色→只播1.0→进宿舍→新手引导→1.1+后续自然触发
+// V2.6.0 体验流程修正v4：修复与V2.1.3冲突，等角色完全初始化后再触发1.0
 (function() {
   if (window._v260FlowFixed) return;
   window._v260FlowFixed = true;
@@ -22584,38 +22584,49 @@ function _v2EnterChapter(chNum) {
     }
   }
 
-  // ============ 2. 创建角色完成 → 只触发1.0节点 ============
-  var _origComplete = window.completeCreation;
-  if (typeof _origComplete === 'function') {
+  // ============ 2. Hook completeCreation：等V2.1.3完全初始化后再触发1.0 ============
+  // 不覆盖completeCreation，而是在render完成后检测新玩家状态触发1.0
+  // 用一个标记 + 轮询检测player是否初始化完成
+  window._v260PendingStory = false;
+
+  // 拦截V2.1.3的completeCreation，在它执行完后设标记
+  var _currentCC = window.completeCreation;
+  if (typeof _currentCC === 'function') {
     window.completeCreation = function() {
-      _origComplete.apply(this, arguments);
-      try {
-        gameState._v260NewPlayer = true;
-        // 标记1.0之后不自动检查下一节点
-        gameState._v260WaitFor1_0 = true;
-        setTimeout(function() {
-          // 只触发1.0，不调用_v2CheckChapterNodes
-          var node0 = V2_C1_NODES && V2_C1_NODES[0];
-          if (node0 && node0.check && node0.check()) {
-            node0.trigger();
-          } else {
-            // fallback
-            if (typeof _v2CheckChapterNodes === 'function') _v2CheckChapterNodes();
-          }
-        }, 800);
-      } catch(e) {
-        console.error('v260 completeCreation hook error:', e);
-      }
+      _currentCC.apply(this, arguments);
+      // V2.1.3已经完成了初始化，标记需要触发1.0
+      gameState._v260NewPlayer = true;
+      gameState._v260WaitFor1_0 = true;
+      window._v260PendingStory = true;
+      // 延迟触发1.0，确保所有初始化都完成
+      setTimeout(function() {
+        _v260TryStartStory();
+      }, 1500);
     };
   }
 
+  function _v260TryStartStory() {
+    // 确认player完全初始化
+    if (!gameState || !gameState.player || !gameState.player.name) {
+      setTimeout(_v260TryStartStory, 500);
+      return;
+    }
+    window._v260PendingStory = false;
+    // 只触发1.0节点
+    var node0 = (typeof V2_C1_NODES !== 'undefined') ? V2_C1_NODES[0] : null;
+    if (node0 && node0.check && node0.check()) {
+      node0.trigger();
+    } else {
+      // fallback：直接调用check
+      if (typeof _v2CheckChapterNodes === 'function') _v2CheckChapterNodes();
+    }
+  }
+
   // ============ 3. 1.0播完后 → 进宿舍 → 开始新手引导 ============
-  // Hook _v2CompleteNode，当1.0完成且是新玩家时，进宿舍+新手引导
   var _origCompleteNode = window._v2CompleteNode;
   if (typeof _origCompleteNode === 'function') {
     window._v2CompleteNode = function(nodeId) {
       _origCompleteNode(nodeId);
-      // 只对新玩家，1.0完成后进宿舍+新手引导
       if (nodeId === '1.0' && gameState._v260WaitFor1_0 && gameState._v260NewPlayer) {
         gameState._v260WaitFor1_0 = false;
         setTimeout(function() {
@@ -22626,11 +22637,11 @@ function _v2EnterChapter(chNum) {
   }
 
   function _v260EnterDormAndTutorial() {
-    // 进入宿舍/家场景
     try {
       var homeScene = (typeof _getHomeScene === 'function') ? _getHomeScene() : 'dorm';
       gameState._currentScene = homeScene;
       window._inSceneMode = true;
+      document.body.classList.remove('v21-in-home');
       var sb = document.getElementById('statusBar');
       var rb = document.getElementById('restButtons');
       var hi = document.getElementById('homeIndicator');
@@ -22644,7 +22655,6 @@ function _v2EnterChapter(chNum) {
     } catch(e) {
       console.error('v260 enter home error:', e);
     }
-    // 进入宿舍后开始新手引导
     setTimeout(function() {
       _v260StartTutorial();
     }, 800);
@@ -22798,13 +22808,10 @@ function _v2EnterChapter(chNum) {
     }
   }
 
-  // ============ 5. 1.0的onComplete里会调_v2CheckChapterNodes ============
-  // 新玩家1.0刚完成时不应该自动继续1.1，需要拦截
-  // 通过hook _v2CheckChapterNodes，在_v260WaitFor1_0为true时阻止自动检查
+  // ============ 5. 新玩家1.0完成后不自动继续1.1 ============
   var _origCheckNodes = window._v2CheckChapterNodes;
   if (typeof _origCheckNodes === 'function') {
     window._v2CheckChapterNodes = function() {
-      // 新玩家1.0刚完成时，不自动检查下一节点（避免连续播1.1）
       if (gameState._v260WaitFor1_0) return;
       _origCheckNodes.apply(this, arguments);
     };
