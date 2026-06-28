@@ -20045,7 +20045,6 @@ function _v2EnterChapter(chNum) {
 
   // ============ 1. 禁用未完成页面路由 ============
   var _disabledPages = {
-    'story': '剧情系统即将上线',
     'debut': '出道企划即将上线',
     'debutdialog': '出道剧情即将上线',
     'comeback': '回归企划即将上线',
@@ -20222,7 +20221,6 @@ function _v2EnterChapter(chNum) {
   // 功能性页面（训练/录音/换装/便利店/打歌/直播等）不再禁用
   // 如果对应页面确实不存在，goToPage会走原有逻辑（不会crash）
   var _storyOnlyDisabled = {
-    'story': '剧情系统即将上线',
     'debut': '出道企划即将上线',
     'debutdialog': '出道剧情即将上线',
     'comeback': '回归企划即将上线',
@@ -20957,6 +20955,15 @@ function _v2EnterChapter(chNum) {
         { type: 'narrate', text: '你跟着金理事走进电梯。电梯上升的时候，你听到了自己心跳的声音。' }
       ],
       onComplete: function() {
+        // 强制关闭所有剧情overlay
+        var _overlayIds = ['v23-story-overlay', 'v23-story-wrapper', 'v2-story-overlay', 'v2-story-wrapper'];
+        for (var _oi = 0; _oi < _overlayIds.length; _oi++) {
+          var _oel = document.getElementById(_overlayIds[_oi]);
+          if (_oel && _oel.parentNode) _oel.parentNode.removeChild(_oel);
+        }
+        var _bgEl = document.getElementById('v260-story-bg');
+        if (_bgEl) _bgEl.style.display = 'none';
+
         _ensureChapterState();
         gameState.chapterState.nodesCompleted['1.0'] = true;
         gameState.chapterState.currentNode = 1;
@@ -20964,7 +20971,29 @@ function _v2EnterChapter(chNum) {
         if (gameState.unlockedApps.indexOf('schedule') === -1) gameState.unlockedApps.push('schedule');
         _v2MarkAppRedDot('schedule');
         showToast('日程已解锁');
-        triggerSilentSave(); render();
+        triggerSilentSave();
+
+        // 解锁1.1
+        if (gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.1'];
+
+        // 1秒后进宿舍，5秒后新手引导
+        setTimeout(function() {
+          if (typeof window._v2EnterDorm === 'function') {
+            window._v2EnterDorm();
+          } else {
+            window._inSceneMode = true;
+            window.currentPage = 'home';
+            gameState._currentScene = 'dorm';
+            document.body.classList.add('v21-in-home');
+            if (typeof window.render === 'function') window.render();
+          }
+          setTimeout(function() {
+            if (!gameState._v260TutorialDone && typeof window._v2StartTutorial === 'function') {
+              window._v2StartTutorial();
+            }
+          }, 5000);
+        }, 1000);
+
         setTimeout(_v23CheckChapterNodes, 400);
       }
     },
@@ -21404,6 +21433,10 @@ function _v2EnterChapter(chNum) {
     setTimeout(function() { _v23RenderStoryDialog(); }, 200);
   }
   window._v23StoryChoose = _v23StoryChoose;
+  window._v23ShowStoryNode = _v23ShowStoryNode;
+  window._v23CompleteNode = _v23CompleteNode;
+  window._v23CloseStoryDialog = _v23CloseStoryDialog;
+  window._v23CheckChapterNodes = _v23CheckChapterNodes;
 
   function _v23CloseStoryDialog() {
     var w = document.getElementById('v23-story-wrapper');
@@ -23294,4 +23327,109 @@ function _v2EnterChapter(chNum) {
   // ============ 版本号 ============
   window.V2_VERSION = 'v2.0';
 
+})();
+// ============================================================
+// V2.0-hotfix — 根治4个致命问题
+// A. 暴露V2.3内部函数到window（_v23ShowStoryNode等）
+// B. Patch render()拦截'create'页走V2.0创建UI
+// C. 修复1.0 onComplete：关闭overlay+进宿舍+开教程
+// D. 解除V2.2.2/V2.2.3对story页面的拦截
+// ============================================================
+(function() {
+  if (window._v2HotfixApplied) return;
+  window._v2HotfixApplied = true;
+
+  // ============ A. 确认V2.3函数已暴露 ============
+  // V2.3 IIFE内的函数在加载时已被下面补充的导出代码暴露到window
+  // 这里做防御性检查
+  if (typeof window._v23ShowStoryNode !== 'function') {
+    console.warn('[V2-hotfix] _v23ShowStoryNode still not on window, story will not work');
+  }
+
+  // ============ B. Patch render() 拦截'create'页 ============
+  // 原始render()用function声明hoisted，内部调用renderCreationPage用的是局部绑定
+  // 需要在外层拦截currentPage==='create'走window.renderCreationPage
+  var _prevRender = window.render;
+  if (typeof _prevRender === 'function') {
+    window.render = function() {
+      if (window.currentPage === 'create' && typeof window.renderCreationPage === 'function') {
+        var app = document.getElementById('app');
+        if (app) window.renderCreationPage(app);
+        return;
+      }
+      return _prevRender.apply(this, arguments);
+    };
+  }
+
+  // ============ C. Hook 1.0完成回调 ============
+  // V23_STORY_NODES是V2.3 IIFE内部变量，无法从外部修改
+  // 但_v23CompleteNode已暴露到window，V2.0的hook在window._v23CompleteNode上
+  // 问题：1.0有onComplete，不走_v23CompleteNode
+  // 解决：用MutationObserver监听v23-story-wrapper被移除 = 1.0播完
+  //   或者直接patch render，当1.0刚完成且没进宿舍时自动触发
+
+  // 更可靠的方案：覆盖_v23StoryAdvance（已暴露到window）
+  // 当场景列表为空且nodeId='1.0'时，在原始逻辑后追加关闭overlay+进宿舍+教程
+  var _origAdvance = window._v23StoryAdvance;
+  if (typeof _origAdvance === 'function') {
+    window._v23StoryAdvance = function() {
+      _origAdvance.apply(this, arguments);
+      // 检测1.0刚播完：_v23StoryState变null + chapterState.nodesCompleted['1.0']刚设置
+      // 此时overlay可能还残留
+      try {
+        if (!window._v23StoryState && gameState.chapterState && gameState.chapterState.nodesCompleted['1.0'] && !gameState._v2Hotfix1Done) {
+          gameState._v2Hotfix1Done = true;
+          // 强制关闭所有overlay
+          var ids = ['v23-story-overlay', 'v23-story-wrapper', 'v2-story-overlay', 'v2-story-wrapper'];
+          for (var i = 0; i < ids.length; i++) {
+            var el = document.getElementById(ids[i]);
+            if (el && el.parentNode) el.parentNode.removeChild(el);
+          }
+          var bgEl = document.getElementById('v260-story-bg');
+          if (bgEl) bgEl.style.display = 'none';
+          // 解锁1.1
+          if (gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.1'];
+          // 1秒后进宿舍
+          setTimeout(function() {
+            if (typeof window._v2EnterDorm === 'function') {
+              window._v2EnterDorm();
+            } else {
+              // 兜底：手动进宿舍
+              window._inSceneMode = true;
+              window.currentPage = 'home';
+              gameState._currentScene = 'dorm';
+              document.body.classList.add('v21-in-home');
+              if (typeof window.render === 'function') window.render();
+            }
+            // 5秒后新手教程
+            setTimeout(function() {
+              if (!gameState._v260TutorialDone && typeof window._v2StartTutorial === 'function') {
+                window._v2StartTutorial();
+              }
+            }, 5000);
+          }, 1000);
+        }
+      } catch(e) { console.error('[V2-hotfix] 1.0 completion hook error:', e); }
+    };
+  }
+
+  // ============ D. 解除goToPage('story')拦截 ============
+  // V2.2.2和V2.2.3的goToPage覆盖都会拦截'story'并显示"即将上线"
+  // V2.0的goToPage覆盖应该拦截'story'并调用_v2ShowChapterList
+  // 但如果V2.0的覆盖因为某种原因没生效（IIFE报错中断），就会漏到V2.2.3
+  // 保险：再次覆盖goToPage，确保'story'走_v2ShowChapterList
+  var _curGoToPage = window.goToPage;
+  if (typeof _curGoToPage === 'function') {
+    window.goToPage = function(page) {
+      if (page === 'story') {
+        if (typeof window._v2ShowChapterList === 'function') {
+          window._v2ShowChapterList();
+        }
+        return;
+      }
+      return _curGoToPage.apply(this, arguments);
+    };
+  }
+
+  console.log('[V2-hotfix] applied, _v23ShowStoryNode on window:', typeof window._v23ShowStoryNode);
 })();
