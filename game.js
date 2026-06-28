@@ -24547,3 +24547,344 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.7.3 (build 0628-crossiife-fix)';
 
 })();
+// ============================================================
+// V2.7.4 场景+剧情+图标综合修复
+// 1. 创建后直接触发1.0剧情（不走_v2CheckChapterNodes间接链路）
+// 2. 章节列表点击当前节点→直接播放对应剧情
+// 3. 手机APP缺失图标补全（training/wardrobe/songprod）
+// 4. 家场景误显修复：练习生应该看到宿舍不是客厅
+// ============================================================
+;(function(){
+  if (window._v274Patched) return;
+  window._v274Patched = true;
+
+  // ============ 1. 创建后直接触发1.0剧情 ============
+  // 之前走 _v2CheckChapterNodes → V2.3覆盖 → _v23CheckChapterNodes → 遍历节点
+  // 问题是_v23NodeTriggered可能已被旧版本设置，导致1.0不会重新触发
+  // 修复：创建完成后直接调用_v23ShowStoryNode('1.0')，绕过check逻辑
+  var _prevCompleteCreation = window._v271CompleteCreation;
+  window._v271CompleteCreation = function() {
+    var nameInput = document.getElementById('v271Name');
+    var name = nameInput ? nameInput.value.trim() : '';
+    var gender = window._v273Gender || '';
+    var personality = (window._v273Personality || []).slice();
+
+    if (!name) { if (typeof showToast === 'function') showToast('请输入名字'); return; }
+    if (!gender) { if (typeof showToast === 'function') showToast('请选择性别'); return; }
+    if (personality.length !== 3) { if (typeof showToast === 'function') showToast('请选择3个性格标签'); return; }
+
+    // 设置gameState
+    gameState.player.name = name;
+    gameState.player.gender = gender;
+    gameState.player.personality = personality;
+    gameState.player.role = 'Trainee';
+    gameState.player.company = 'seongwoo';
+    gameState.player.groups = ['haeoreum'];
+    gameState.player.positions = ['Vocal'];
+    gameState.player.avatar = name.charAt(0).toUpperCase();
+
+    // 初始化玩家系统
+    if (typeof window.initAsTrainee === 'function') window.initAsTrainee();
+    if (typeof window._ensureV16Fields === 'function') window._ensureV16Fields();
+    var cu = localStorage.getItem('myIdolCurrentUser');
+    if (typeof window._checkAdmin === 'function') window._checkAdmin(cu);
+    if (typeof window._v270InitSystems === 'function') window._v270InitSystems();
+
+    // 标记新玩家+防重入
+    gameState._v260NewPlayer = true;
+    window._v260NewPlayerFlag = true;
+    window._v273CreationDone = true;
+    window._v274CreationDone = true;
+
+    // 预阻塞1.1+节点（V2.3的_v23NodeTriggered）
+    gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+    var blockNodes = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7','1.8'];
+    for (var bi = 0; bi < blockNodes.length; bi++) {
+      gameState._v23NodeTriggered[blockNodes[bi]] = true;
+    }
+
+    // 也标记V2旧系统的_v2NodeTriggered，防止旧系统重复触发
+    gameState._v2NodeTriggered = gameState._v2NodeTriggered || {};
+    gameState._v2NodeTriggered['1.0'] = true;
+
+    // 初始化chapterState
+    if (!gameState.chapterState) gameState.chapterState = { nodesCompleted: {}, currentNode: null };
+    if (!gameState.chapterState.nodesCompleted) gameState.chapterState.nodesCompleted = {};
+
+    // 保存存档
+    if (typeof window.triggerSilentSave === 'function') window.triggerSilentSave();
+
+    // 清除创建页面
+    var creationContainers = ['v271CreationContainer', 'app'];
+    for (var ci = 0; ci < creationContainers.length; ci++) {
+      var el = document.getElementById(creationContainers[ci]);
+      if (el) el.innerHTML = '';
+    }
+
+    // 设置场景模式为宿舍（不是Idol的客厅）
+    window._inSceneMode = true;
+    window.currentPage = 'home';
+    gameState._currentScene = 'dorm';
+    document.body.classList.add('v21-in-home');
+
+    // 关键：直接调用_v23ShowStoryNode('1.0')，不走_v2CheckChapterNodes
+    // 标记1.0为已触发，防止重复
+    gameState._v23NodeTriggered['1.0'] = true;
+
+    setTimeout(function() {
+      if (typeof window._v23ShowStoryNode === 'function') {
+        window._v23ShowStoryNode('1.0');
+      } else {
+        // fallback: 走旧系统
+        if (typeof window._v2ShowStoryNode === 'function') {
+          window._v2ShowStoryNode('1.0');
+        }
+      }
+      // 启动1.0完成监听
+      _v274StartWatch1_0();
+    }, 500);
+  };
+
+  // ============ 2. 1.0完成后进宿舍+新手引导 ============
+  var _v274Watch1_0Timer = null;
+
+  function _v274StartWatch1_0() {
+    if (_v274Watch1_0Timer) return;
+    _v274Watch1_0Timer = setInterval(function() {
+      if (gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.0']) {
+        clearInterval(_v274Watch1_0Timer);
+        _v274Watch1_0Timer = null;
+        setTimeout(function() {
+          _v274EnterDormAndTutorial();
+        }, 800);
+      }
+    }, 500);
+  }
+
+  function _v274HasStoryOverlay() {
+    var overlayIds = ['v23-story-overlay','v23-story-wrapper','v2-story-overlay','v240-story-overlay','v240-story-wrapper'];
+    for (var i = 0; i < overlayIds.length; i++) {
+      var el = document.getElementById(overlayIds[i]);
+      if (el && el.style.display !== 'none' && el.offsetParent !== null) return true;
+    }
+    return false;
+  }
+
+  window._v274EnterDormAndTutorial = function() {
+    // 等剧情overlay关闭
+    if (_v274HasStoryOverlay()) {
+      setTimeout(function() {
+        window._v274EnterDormAndTutorial();
+      }, 500);
+      return;
+    }
+
+    // 进宿舍场景（不是Idol客厅）
+    try {
+      gameState._currentScene = 'dorm';
+      window._inSceneMode = true;
+      document.body.classList.remove('v21-in-home');
+      var sb = document.getElementById('statusBar');
+      var rb = document.getElementById('restButtons');
+      var hi = document.getElementById('homeIndicator');
+      var bn = document.getElementById('bottomNav');
+      if (sb) sb.style.display = 'flex';
+      if (rb) rb.style.display = 'flex';
+      if (hi) hi.style.display = 'block';
+      if (bn) bn.style.display = 'none';
+      if (typeof window.render === 'function') window.render();
+      if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
+    } catch(e) {
+      console.error('v274 enter dorm error:', e);
+    }
+
+    // 解锁1.1（移除1.1的阻塞标记）
+    if (gameState._v23NodeTriggered) {
+      delete gameState._v23NodeTriggered['1.1'];
+    }
+
+    // 新手引导延迟3秒
+    setTimeout(function() {
+      if (typeof window._v271ShowTutStep === 'function') {
+        window._v271ShowTutStep(1);
+      } else if (typeof window._v260StartTutorial === 'function') {
+        window._v260StartTutorial();
+      }
+    }, 3000);
+  };
+
+  // 覆盖所有旧版本的进宿舍函数
+  window._v273EnterDormAndTutorial = window._v274EnterDormAndTutorial;
+  window._v272EnterDormAndTutorial = window._v274EnterDormAndTutorial;
+  window._v260EnterDormAndTutorial = window._v274EnterDormAndTutorial;
+
+  // ============ 3. 禁用V2.6.0旧hook ============
+  // V2.6.0的completeCreation hook会在800ms后触发1.0监听
+  // 用_v274CreationDone标记跳过
+  var _v274CurrentCC = window.completeCreation;
+  window.completeCreation = function() {
+    if (window._v274CreationDone || window._v273CreationDone) {
+      console.log('[V274] creation already done, skipping old hooks');
+      return;
+    }
+    if (_v274CurrentCC) _v274CurrentCC.apply(this, arguments);
+  };
+
+  // ============ 4. 覆盖章节列表 - 点击当前节点直接播放 ============
+  var _origChapterList = window._v270ShowChapterList;
+  window._v270ShowChapterList = function() {
+    // 确保数据初始化
+    if (!gameState.npc好感度) gameState.npc好感度 = {};
+    if (!gameState.chapterState) gameState.chapterState = { nodesCompleted: {}, currentNode: null };
+    if (!gameState.chapterState.nodesCompleted) gameState.chapterState.nodesCompleted = {};
+
+    var nodes = ['1.0','1.1','1.2','1.3','1.4','1.5','1.6','1.7','1.8'];
+    var nodeNames = {
+      '1.0': '推开那扇门', '1.1': '你为什么想当爱豆', '1.2': '推开门，他们在等你',
+      '1.3': '你发了一条动态', '1.4': '第一次训练', '1.5': '宿舍的夜话',
+      '1.6': '第一盏灯', '1.7': '被看见', '1.8': '认可'
+    };
+    var completed = gameState.chapterState.nodesCompleted || {};
+    var curNode = 0;
+    for (var i = 0; i < nodes.length; i++) {
+      if (completed[nodes[i]]) curNode = i + 1;
+    }
+
+    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
+      + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
+      + '<div onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">关闭</div>'
+      + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">第1章 · 入社</div>'
+      + '<div style="width:50px;"></div>'
+      + '</div>'
+      + '<div style="padding:16px 20px 80px;">';
+
+    for (var ni = 0; ni < nodes.length; ni++) {
+      var nodeId = nodes[ni];
+      var isDone = !!completed[nodeId];
+      var isCurrent = (ni === curNode);
+      var isLocked = (ni > curNode);
+      var nodeName = nodeNames[nodeId] || ('节点 ' + nodeId);
+
+      var bgColor = isDone ? 'rgba(167,139,250,0.12)' : isCurrent ? 'rgba(201,169,110,0.1)' : 'rgba(255,255,255,0.03)';
+      var borderColor = isDone ? 'rgba(167,139,250,0.3)' : isCurrent ? 'rgba(201,169,110,0.3)' : 'rgba(255,255,255,0.06)';
+      var numColor = isDone ? '#A78BFA' : isCurrent ? '#C9A96E' : 'rgba(255,255,255,0.2)';
+      var nameColor = isDone ? '#FFF' : isCurrent ? '#FFF' : 'rgba(255,255,255,0.3)';
+      var statusText = isDone ? '已完成' : isCurrent ? '当前' : '未解锁';
+      var statusColor = isDone ? '#A78BFA' : isCurrent ? '#C9A96E' : 'rgba(255,255,255,0.2)';
+
+      // 点击当前节点：直接播放该节点的剧情
+      var clickAction = '';
+      if (isCurrent) {
+        clickAction = ' onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';'
+          + 'if(typeof _v23ShowStoryNode===\'function\'){_v23ShowStoryNode(\'' + nodeId + '\');}'
+          + 'else if(typeof _v2ShowStoryNode===\'function\'){_v2ShowStoryNode(\'' + nodeId + '\');}'
+          + 'else if(typeof _v2CheckChapterNodes===\'function\'){_v2CheckChapterNodes();}"';
+      } else if (isDone) {
+        // 已完成的也可以重看
+        clickAction = ' onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';'
+          + 'if(typeof _v23ShowStoryNode===\'function\'){_v23ShowStoryNode(\'' + nodeId + '\');}'
+          + 'else if(typeof _v2ShowStoryNode===\'function\'){_v2ShowStoryNode(\'' + nodeId + '\');}"';
+      }
+
+      html += '<div style="margin-bottom:10px;background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:14px;padding:16px;display:flex;align-items:center;'
+        + (isCurrent || isDone ? 'cursor:pointer;' : '') + '"' + clickAction + '>'
+        + '<div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:' + numColor + ';background:' + (isDone ? 'rgba(167,139,250,0.2)' : isCurrent ? 'rgba(201,169,110,0.15)' : 'rgba(255,255,255,0.05)') + ';margin-right:14px;flex-shrink:0;">' + (ni + 1) + '</div>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:14px;font-weight:' + (isCurrent ? '500' : '300') + ';color:' + nameColor + ';">' + nodeName + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">1-' + (ni + 1) + '</div>'
+        + '</div>'
+        + '<div style="font-size:11px;color:' + statusColor + ';font-weight:400;">' + statusText + '</div>'
+        + '</div>';
+    }
+
+    // 个人支线区域
+    html += '<div style="margin-top:24px;margin-bottom:12px;font-size:12px;color:#C9A96E;letter-spacing:0.1em;">个人支线</div>';
+
+    var personalLines = [
+      { key: 'haeun', name: '夏恩', tag: '队长', color: '#F472B6', hearts: 40 },
+      { key: 'soah', name: '素雅', tag: '主唱', color: '#A78BFA', hearts: 40 },
+      { key: 'jiwon', name: '智媛', tag: '忙内', color: '#FBBF24', hearts: 40 },
+      { key: 'junho', name: '俊昊', tag: '领唱', color: '#60A5FA', hearts: 40 },
+      { key: 'seokhyun', name: '瑞贤', tag: '主Rapper', color: '#34D399', hearts: 40 }
+    ];
+
+    for (var pi = 0; pi < personalLines.length; pi++) {
+      var pl = personalLines[pi];
+      var love = (gameState.npc好感度 && gameState.npc好感度[pl.name]) || 0;
+      var heartsOwned = Math.floor(love / 50);
+      var unlocked = heartsOwned >= pl.hearts;
+      var initial = pl.name ? pl.name.charAt(0) : '?';
+
+      html += '<div style="margin-bottom:10px;background:rgba(255,255,255,0.03);border:1px solid ' + (unlocked ? pl.color + '33' : 'rgba(255,255,255,0.06)') + ';border-radius:14px;padding:14px 16px;display:flex;align-items:center;'
+        + (unlocked ? 'cursor:pointer;' : '')
+        + '"'
+        + (unlocked ? ' onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';if(typeof _v270ShowPersonalStory===\'function\')_v270ShowPersonalStory(\'' + pl.key + '\');"' : '')
+        + '>'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + pl.color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin-right:12px;flex-shrink:0;">' + initial + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:14px;font-weight:400;color:' + (unlocked ? '#FFF' : 'rgba(255,255,255,0.4)') + ';">' + pl.name + ' <span style="font-size:11px;color:rgba(255,255,255,0.3);">' + pl.tag + '</span></div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">' + (unlocked ? '已解锁 · ' + heartsOwned + '♥' : '需' + pl.hearts + '♥解锁 · 当前' + heartsOwned + '♥') + '</div>'
+        + '</div>'
+        + '<div style="font-size:11px;color:' + (unlocked ? pl.color : 'rgba(255,255,255,0.2)') + ';">' + (unlocked ? '查看' : '未解锁') + '</div>'
+        + '</div>';
+    }
+
+    html += '</div></div>';
+
+    // 移除旧的
+    var oldList = document.getElementById('v270-chapter-list');
+    if (oldList) oldList.remove();
+
+    var el = document.createElement('div');
+    el.id = 'v270-chapter-list';
+    el.innerHTML = html;
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
+    document.body.appendChild(el);
+  };
+
+  // ============ 5. 手机APP缺失图标补全 ============
+  // getIcon()中没有'training'/'wardrobe'/'songprod'的SVG
+  // 直接在getIcon的icons对象上添加
+  var _origGetIcon = window.getIcon;
+  window.getIcon = function(name) {
+    // 先走原始映射
+    var result = _origGetIcon(name);
+    if (result) return result;
+    // 补全缺失图标
+    var extras = {
+      'training': '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M6.5 8h11a2.5 2.5 0 0 1 0 5h-11a2.5 2.5 0 0 1 0-5z" fill="none" stroke="currentColor" stroke-width="1.5"></path><line x1="12" y1="13" x2="12" y2="22" stroke="currentColor" stroke-width="1.5"></line><line x1="8" y1="22" x2="16" y2="22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></line><path d="M9 17h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>',
+      'wardrobe': '<svg viewBox="0 0 24 24"><rect x="3" y="2" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"></rect><line x1="12" y1="2" x2="12" y2="20" stroke="currentColor" stroke-width="1.5"></line><circle cx="9" cy="11" r="1" fill="currentColor"></circle><circle cx="15" cy="11" r="1" fill="currentColor"></circle><line x1="5" y1="22" x2="19" y2="22" stroke="currentColor" stroke-width="1.5"></line></svg>',
+      'songprod': '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="6" cy="18" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><circle cx="18" cy="16" r="3" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M9 9l6-1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>'
+    };
+    return extras[name] || '';
+  };
+
+  // ============ 6. _getHomeScene修复：练习生应该回宿舍不是客厅 ============
+  var _origGetHomeScene = window._getHomeScene;
+  window._getHomeScene = function() {
+    if (gameState.player && gameState.player.role === 'Trainee') return 'dorm';
+    if (_origGetHomeScene) {
+      var result = _origGetHomeScene();
+      if (result === 'home' && gameState.player && gameState.player.role === 'Trainee') return 'dorm';
+      return result;
+    }
+    return (gameState.player && gameState.player.role === 'Trainee') ? 'dorm' : 'home';
+  };
+
+  // ============ 7. V2.3的1.0 onComplete也需要解锁1.1 ============
+  // V2.3的V23_STORY_NODES['1.0'].onComplete在1.0完成后只设nodesCompleted
+  // 需要同时解锁1.1的触发检查
+  // 通过hook _v23CompleteNode来实现
+  var _origV23CompleteNode = window._v23CompleteNode;
+  window._v23CompleteNode = function(nodeId) {
+    if (_origV23CompleteNode) _origV23CompleteNode(nodeId);
+    // 1.0完成后解锁1.1
+    if (nodeId === '1.0' && gameState._v23NodeTriggered) {
+      delete gameState._v23NodeTriggered['1.1'];
+    }
+  };
+
+  // ============ 8. 版本号 ============
+  window.V2_VERSION = 'v2.7.4 (build 0628-story-icon-fix)';
+
+})();
