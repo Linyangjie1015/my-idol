@@ -24057,3 +24057,221 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.7.1 (build 0628-flowfix)';
 
 })();
+// ============================================================
+// V2.7.2 综合修复补丁
+// 1. n.name.charAt根因修复：V2_SCENE_NPCS用的是n.npc不是n.name
+// 2. 流程顺序：创建完角色直接进1.0剧情，不先进大厅
+// 3. 新手引导延迟：检查v23-story-overlay等所有剧情overlay
+// ============================================================
+;(function(){
+  if (window._v272Patched) return;
+  window._v272Patched = true;
+
+  // ============ 1. 修复V2_SCENE_NPCS的name字段 ============
+  // 根因：V2_SCENE_NPCS的条目是 {npc:'夏恩', key:'haeun', x:20, y:60}
+  // 但_v2GetSceneNpcHtml的多次覆盖都用了 n.name 而不是 n.npc
+  // 方案：给V2_SCENE_NPCS的所有条目补上name属性 = n.npc
+  if (typeof V2_SCENE_NPCS !== 'undefined') {
+    var scenes = Object.keys(V2_SCENE_NPCS);
+    for (var si = 0; si < scenes.length; si++) {
+      var entries = V2_SCENE_NPCS[scenes[si]];
+      if (entries && entries.length) {
+        for (var ei = 0; ei < entries.length; ei++) {
+          if (entries[ei] && entries[ei].npc && !entries[ei].name) {
+            entries[ei].name = entries[ei].npc;
+          }
+        }
+      }
+    }
+  }
+
+  // ============ 2. 安全首字符工具函数 ============
+  // 所有 .name.charAt(0) 调用的安全替代
+  window._safeChar0 = function(obj) {
+    if (!obj) return '?';
+    var name = obj.name || obj.npc || '';
+    if (!name) return '?';
+    return name.charAt(0);
+  };
+
+  // ============ 3. 修复completeCreation流程 ============
+  // 问题：V2.1.3的completeCreation直接进大厅渲染，V2.6.0延迟800ms才触发1.0
+  // 修复：创建完角色后不进大厅，直接触发1.0剧情，剧情完成后再进大厅
+  // 方案：覆盖_v271CompleteCreation，不调用旧completeCreation链（它进大厅），
+  // 而是自己初始化玩家数据后直接触发1.0剧情
+
+  window._v271CompleteCreation = function() {
+    var nameInput = document.getElementById('v271Name');
+    var name = nameInput ? nameInput.value.trim() : '';
+    if (!name) { if (typeof showToast === 'function') showToast('请输入名字'); return; }
+    if (!_v271Gender) { if (typeof showToast === 'function') showToast('请选择性别'); return; }
+    if (_v271Personality.length !== 3) { if (typeof showToast === 'function') showToast('请选择3个性格标签'); return; }
+
+    // 设置gameState
+    gameState.player.name = name;
+    gameState.player.gender = _v271Gender;
+    gameState.player.personality = _v271Personality.slice();
+    gameState.player.role = 'Trainee';
+    gameState.player.company = 'seongwoo';
+    gameState.player.groups = ['haeoreum'];
+    gameState.player.positions = ['Vocal'];
+    gameState.player.avatar = name.charAt(0).toUpperCase();
+
+    // 初始化玩家系统（initAsTrainee等），但不渲染大厅
+    if (gameState.player.role === 'Trainee') {
+      if (typeof window.initAsTrainee === 'function') window.initAsTrainee();
+    } else {
+      if (typeof window.initAsIdol === 'function') window.initAsIdol();
+    }
+    if (typeof window._ensureV16Fields === 'function') window._ensureV16Fields();
+    var cu = localStorage.getItem('myIdolCurrentUser');
+    if (typeof window._checkAdmin === 'function') window._checkAdmin(cu);
+
+    // 初始化V2.7系统
+    if (typeof _v270InitSystems === 'function') _v270InitSystems();
+
+    // 标记新玩家
+    gameState._v260NewPlayer = true;
+    window._v260NewPlayerFlag = true;
+
+    // 预阻塞1.1+节点
+    gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+    var blockNodes = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7','1.8'];
+    for (var bi = 0; bi < blockNodes.length; bi++) {
+      gameState._v23NodeTriggered[blockNodes[bi]] = true;
+    }
+
+    // 保存存档
+    if (typeof window.triggerSilentSave === 'function') window.triggerSilentSave();
+
+    // 关键改动：不进大厅，不调用旧completeCreation链
+    // 直接触发1.0剧情
+    // 先设置当前页为场景模式（剧情overlay会在场景上播）
+    window._inSceneMode = true;
+    window.currentPage = 'home';
+    document.body.classList.add('v21-in-home');
+    // 不渲染大厅，让1.0剧情overlay直接覆盖
+
+    // 延迟触发1.0
+    setTimeout(function() {
+      _v272TryTrigger1_0();
+    }, 300);
+  };
+
+  var _v272Watch1_0Timer = null;
+
+  function _v272TryTrigger1_0() {
+    if (!gameState || !gameState.player || !gameState.player.name) {
+      setTimeout(_v272TryTrigger1_0, 300);
+      return;
+    }
+    if (typeof window._v2CheckChapterNodes === 'function') {
+      window._v2CheckChapterNodes();
+    }
+    _v272StartWatch1_0();
+  }
+
+  function _v272StartWatch1_0() {
+    if (_v272Watch1_0Timer) return;
+    _v272Watch1_0Timer = setInterval(function() {
+      if (gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.0']) {
+        clearInterval(_v272Watch1_0Timer);
+        _v272Watch1_0Timer = null;
+        // 1.0完成了，进宿舍+新手引导
+        setTimeout(function() {
+          _v272EnterDormAndTutorial();
+        }, 800);
+      }
+    }, 500);
+  }
+
+  // ============ 4. 1.0完成后进宿舍+新手引导 ============
+  // 检查所有可能的剧情overlay
+  function _v272HasStoryOverlay() {
+    if (document.getElementById('v23-story-overlay')) return true;
+    if (document.getElementById('v23-story-wrapper')) return true;
+    if (document.getElementById('v2-story-overlay')) return true;
+    if (document.getElementById('v240-story-overlay')) return true;
+    if (document.getElementById('v240-story-wrapper')) return true;
+    // 检查v23-story-wrapper可能在DOM中
+    var wrappers = document.querySelectorAll('[id*="story-overlay"], [id*="story-wrapper"]');
+    for (var wi = 0; wi < wrappers.length; wi++) {
+      if (wrappers[wi].style.display !== 'none' && wrappers[wi].offsetParent !== null) return true;
+    }
+    return false;
+  }
+
+  window._v272EnterDormAndTutorial = function() {
+    // 如果还有剧情overlay在播放，等待
+    if (_v272HasStoryOverlay()) {
+      setTimeout(function() {
+        window._v272EnterDormAndTutorial();
+      }, 500);
+      return;
+    }
+
+    // 进宿舍场景
+    try {
+      var homeScene = (typeof _getHomeScene === 'function') ? _getHomeScene() : 'dorm';
+      gameState._currentScene = homeScene;
+      window._inSceneMode = true;
+      document.body.classList.remove('v21-in-home');
+      var sb = document.getElementById('statusBar');
+      var rb = document.getElementById('restButtons');
+      var hi = document.getElementById('homeIndicator');
+      var bn = document.getElementById('bottomNav');
+      if (sb) sb.style.display = 'flex';
+      if (rb) rb.style.display = 'flex';
+      if (hi) hi.style.display = 'block';
+      if (bn) bn.style.display = 'none';
+      if (typeof window.render === 'function') window.render();
+      if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
+    } catch(e) {
+      console.error('v272 enter home error:', e);
+    }
+
+    // 新手引导延迟3秒，确保宿舍场景完全渲染
+    setTimeout(function() {
+      if (typeof _v260StartTutorial === 'function') _v260StartTutorial();
+    }, 3000);
+  };
+
+  // 也覆盖_v260EnterDormAndTutorial，确保V2.6.0的监听器也走新逻辑
+  window._v260EnterDormAndTutorial = window._v272EnterDormAndTutorial;
+
+  // ============ 5. 增强render兜底 ============
+  // 之前的try-catch只是回大厅，现在加上具体错误位置的null guard
+  var _origRender272 = window.render;
+  window.render = function() {
+    try {
+      _origRender272.apply(this, arguments);
+    } catch(e) {
+      console.error('V272 render error:', e.message);
+      if (e.message && e.message.indexOf('charAt') > -1) {
+        // charAt错误：回到大厅并重新渲染
+        window._inSceneMode = false;
+        window.currentPage = 'home';
+        document.body.classList.add('v21-in-home');
+        // 清除所有剧情overlay
+        var overlayIds = ['v23-story-overlay','v23-story-wrapper','v2-story-overlay','v240-story-overlay','v240-story-wrapper'];
+        for (var oi = 0; oi < overlayIds.length; oi++) {
+          var oe = document.getElementById(overlayIds[oi]);
+          if (oe) oe.parentNode.removeChild(oe);
+        }
+        try { _origRender272.apply(this, arguments); } catch(e2) {
+          var app = document.getElementById('app');
+          if (app) {
+            app.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FFF;font-weight:300;">加载中...</div></div>';
+            setTimeout(function() {
+              try { _origRender272.apply(this, arguments); } catch(e3) {}
+            }, 500);
+          }
+        }
+      }
+    }
+  };
+
+  // ============ 6. 版本号 ============
+  window.V2_VERSION = 'v2.7.2 (build 0628-scenefix)';
+
+})();
