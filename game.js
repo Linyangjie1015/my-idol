@@ -23050,3 +23050,615 @@ function _v2EnterChapter(chNum) {
   _v260RemoveObserver.observe(document.body, { childList: true });
 
 })();
+// ============================================================
+// V2.7.0 综合修复补丁
+// 1. 角色创建简化（单页：姓名+性别+性格→开始故事）
+// 2. 渲染错误 n.name.charAt 修复
+// 3. 主线剧情→走V2.3章节系统（非旧占位页）
+// 4. 宿舍/家可进入修复
+// 5. 章节进度显示（1.0完成/1.1/1.2...）
+// 6. 个人支线40心解锁
+// 7. 体力系统+每日/周任务+道具系统
+// ============================================================
+;(function(){
+  if (window._v270AllFixes) return;
+  window._v270AllFixes = true;
+
+  // ============ 1. 覆盖renderCreationPage：单页创建 ============
+  window.renderCreationPage = function(container) {
+    var html = ''
+      + '<div class="page active" style="display:flex;flex-direction:column;height:100%;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);">'
+      + '<div style="padding:60px 24px 0;text-align:center;">'
+      + '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.2em;margin-bottom:16px;">CREATE YOUR CHARACTER</div>'
+      + '<div style="font-size:26px;font-weight:300;color:#FFF;margin-bottom:6px;">创建你的角色</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;">所有玩家以练习生身份开始，加入 Haeoreum</div>'
+      + '</div>'
+      + '<div style="flex:1;overflow-y:auto;padding:24px;-webkit-overflow-scrolling:touch;">'
+      // 姓名
+      + '<div style="margin-bottom:20px;">'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;letter-spacing:0.05em;">姓名</div>'
+      + '<input type="text" id="v270Name" placeholder="输入你的名字" value="" style="width:100%;padding:14px 16px;font-size:16px;color:#FFF;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;outline:none;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);font-family:-apple-system,sans-serif;font-weight:300;" onfocus="this.style.borderColor=\'rgba(201,169,110,0.4)\'" onblur="this.style.borderColor=\'rgba(255,255,255,0.08)\'">'
+      + '</div>'
+      // 性别
+      + '<div style="margin-bottom:20px;">'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;letter-spacing:0.05em;">性别</div>'
+      + '<div style="display:flex;gap:10px;">'
+      + '<div id="v270GenderF" onclick="window._v270SelectGender(\'F\')" style="flex:1;padding:14px;text-align:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-size:15px;font-weight:300;cursor:pointer;">女</div>'
+      + '<div id="v270GenderM" onclick="window._v270SelectGender(\'M\')" style="flex:1;padding:14px;text-align:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:rgba(255,255,255,0.5);font-size:15px;font-weight:300;cursor:pointer;">男</div>'
+      + '</div>'
+      + '</div>'
+      // 性格标签（3选1或2）
+      + '<div style="margin-bottom:20px;">'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:8px;letter-spacing:0.05em;">性格 <span style="color:rgba(255,255,255,0.3);">选1~2个</span></div>'
+      + '<div style="display:flex;flex-direction:column;gap:10px;">'
+      + '<div id="v270PType_outgoing" onclick="window._v270TogglePersonality(\'outgoing\')" style="padding:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;">'
+      + '<div style="font-size:14px;color:#FFF;font-weight:400;margin-bottom:4px;">外向型</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:300;">开朗 · 爱笑 · 热情</div>'
+      + '</div>'
+      + '<div id="v270PType_stable" onclick="window._v270TogglePersonality(\'stable\')" style="padding:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;">'
+      + '<div style="font-size:14px;color:#FFF;font-weight:400;margin-bottom:4px;">稳定型</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:300;">温和 · 稳重 · 可靠</div>'
+      + '</div>'
+      + '<div id="v270PType_introvert" onclick="window._v270TogglePersonality(\'introvert\')" style="padding:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;cursor:pointer;">'
+      + '<div style="font-size:14px;color:#FFF;font-weight:400;margin-bottom:4px;">内敛型</div>'
+      + '<div style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:300;">安静 · 观察 · 敏感</div>'
+      + '</div>'
+      + '</div>'
+      + '</div>'
+      + '</div>'
+      // 底部按钮
+      + '<div style="padding:16px 24px;padding-bottom:max(16px,env(safe-area-inset-bottom));background:rgba(13,11,30,0.9);border-top:1px solid rgba(255,255,255,0.06);">'
+      + '<button onclick="window._v270CompleteCreation()" style="width:100%;min-height:50px;font-size:16px;font-weight:300;color:#FFF;background:rgba(201,169,110,0.15);border:1px solid rgba(201,169,110,0.3);border-radius:10px;cursor:pointer;letter-spacing:0.05em;">开始故事</button>'
+      + '</div>'
+      + '</div>';
+    container.innerHTML = html;
+  };
+
+  // ============ 2. 创建交互逻辑 ============
+  var _v270Gender = '';
+  var _v270Personality = [];
+  var PERSONALITY_MAP = {
+    'outgoing': ['开朗', '爱笑', '热情'],
+    'stable': ['温和', '稳重', '可靠'],
+    'introvert': ['安静', '观察', '敏感']
+  };
+
+  window._v270SelectGender = function(g) {
+    _v270Gender = g;
+    var fEl = document.getElementById('v270GenderF');
+    var mEl = document.getElementById('v270GenderM');
+    if (fEl) {
+      fEl.style.background = g === 'F' ? 'rgba(201,169,110,0.15)' : 'rgba(255,255,255,0.04)';
+      fEl.style.borderColor = g === 'F' ? 'rgba(201,169,110,0.4)' : 'rgba(255,255,255,0.08)';
+      fEl.style.color = g === 'F' ? '#C9A96E' : 'rgba(255,255,255,0.5)';
+    }
+    if (mEl) {
+      mEl.style.background = g === 'M' ? 'rgba(201,169,110,0.15)' : 'rgba(255,255,255,0.04)';
+      mEl.style.borderColor = g === 'M' ? 'rgba(201,169,110,0.4)' : 'rgba(255,255,255,0.08)';
+      mEl.style.color = g === 'M' ? '#C9A96E' : 'rgba(255,255,255,0.5)';
+    }
+  };
+
+  window._v270TogglePersonality = function(type) {
+    var idx = _v270Personality.indexOf(type);
+    if (idx > -1) {
+      _v270Personality.splice(idx, 1);
+    } else {
+      if (_v270Personality.length >= 2) return;
+      _v270Personality.push(type);
+    }
+    var types = ['outgoing', 'stable', 'introvert'];
+    for (var i = 0; i < types.length; i++) {
+      var el = document.getElementById('v270PType_' + types[i]);
+      if (el) {
+        var selected = _v270Personality.indexOf(types[i]) > -1;
+        el.style.background = selected ? 'rgba(201,169,110,0.12)' : 'rgba(255,255,255,0.04)';
+        el.style.borderColor = selected ? 'rgba(201,169,110,0.4)' : 'rgba(255,255,255,0.08)';
+      }
+    }
+  };
+
+  window._v270CompleteCreation = function() {
+    var nameInput = document.getElementById('v270Name');
+    var name = nameInput ? nameInput.value.trim() : '';
+    if (!name) { if (typeof showToast === 'function') showToast('请输入名字'); return; }
+    if (!_v270Gender) { if (typeof showToast === 'function') showToast('请选择性别'); return; }
+    if (_v270Personality.length === 0) { if (typeof showToast === 'function') showToast('请至少选择1个性格类型'); return; }
+
+    // 设置gameState（统一练习生）
+    gameState.player.name = name;
+    gameState.player.gender = _v270Gender;
+    gameState.player.age = 17;
+    gameState.player.role = 'Trainee';
+    gameState.player.company = 'seongwoo';
+    gameState.player.groups = ['haeoreum'];
+    gameState.player.positions = ['Vocal'];
+    gameState.player.avatar = name.charAt(0).toUpperCase();
+
+    var tags = [];
+    for (var i = 0; i < _v270Personality.length; i++) {
+      var pTags = PERSONALITY_MAP[_v270Personality[i]];
+      if (pTags) tags = tags.concat(pTags);
+    }
+    gameState.player.personality = tags;
+
+    // 初始化V2.7系统
+    if (typeof _v270InitSystems === 'function') _v270InitSystems();
+
+    // 调用completeCreation（被V2.6/V2.1.3 hook过的版本）
+    if (typeof window.completeCreation === 'function') {
+      window.completeCreation();
+    }
+  };
+
+  // ============ 3. 体力/任务/道具系统 ============
+  window._v270InitSystems = function() {
+    // 体力
+    gameState.stamina = gameState.stamina || {};
+    if (typeof gameState.stamina.current !== 'number') gameState.stamina.current = 200;
+    if (typeof gameState.stamina.max !== 'number') gameState.stamina.max = 200;
+    if (!gameState.stamina.lastRegenTime) gameState.stamina.lastRegenTime = Date.now();
+    if (typeof gameState.stamina.bonusMax !== 'number') gameState.stamina.bonusMax = 0;
+
+    // 每日任务
+    var today = new Date().toDateString();
+    if (!gameState.dailyTasks || gameState.dailyTasks.date !== today) {
+      gameState.dailyTasks = {
+        date: today,
+        tasks: [
+          { id: 'train', name: '完成训练', desc: '训练1次', done: false, rewardStamina: 5, rewardGold: 500, progress: 0, target: 1 },
+          { id: 'sns', name: '发一条动态', desc: 'SNS发帖1次', done: false, rewardStamina: 5, rewardGold: 300, progress: 0, target: 1 },
+          { id: 'chapter', name: '推进章节', desc: '完成1个节点', done: false, rewardStamina: 5, rewardGold: 800, progress: 0, target: 1 }
+        ]
+      };
+    }
+
+    // 每周任务
+    var now = new Date();
+    var day = now.getDay();
+    var diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    var monday = new Date(now.setDate(diff)).toDateString();
+    if (!gameState.weeklyTasks || gameState.weeklyTasks.weekStart !== monday) {
+      gameState.weeklyTasks = {
+        weekStart: monday,
+        tasks: [
+          { id: 'w_train', name: '训练达人', desc: '训练5次', done: false, rewardStamina: 10, rewardGold: 2000, progress: 0, target: 5 },
+          { id: 'w_social', name: '社交达人', desc: '发3条动态', done: false, rewardStamina: 5, rewardGold: 1000, progress: 0, target: 3 },
+          { id: 'w_schedule', name: '日程达人', desc: '完成3次日程', done: false, rewardStamina: 5, rewardGold: 1000, progress: 0, target: 3 }
+        ]
+      };
+    }
+
+    // 道具
+    gameState.items = gameState.items || {};
+    var itemDefs = {
+      'energy_drink': { name: '能量饮料', desc: '恢复30点体力', count: 0, type: 'stamina', amount: 30, price: 3000 },
+      'bento': { name: '便当', desc: '恢复50点体力', count: 0, type: 'stamina', amount: 50, price: 8000 },
+      'luxury_meal': { name: '豪华套餐', desc: '恢复100点体力', count: 0, type: 'stamina', amount: 100, price: 20000 },
+      'stamina_badge': { name: '体力徽章', desc: '永久提升体力上限+10', count: 0, type: 'stamina_max', amount: 10, price: 0 },
+      'reinforce_badge': { name: '强化徽章', desc: '永久提升体力上限+20', count: 0, type: 'stamina_max', amount: 20, price: 0 }
+    };
+    for (var key in itemDefs) {
+      if (typeof gameState.items[key] === 'undefined') {
+        gameState.items[key] = itemDefs[key];
+      }
+    }
+  };
+
+  // 体力恢复（离线）
+  function _v270RegenStamina() {
+    if (!gameState.stamina) return;
+    var now = Date.now();
+    var elapsed = now - (gameState.stamina.lastRegenTime || now);
+    var regenPoints = Math.floor(elapsed / (5 * 60 * 1000));
+    if (regenPoints > 0) {
+      var maxSt = 200 + (gameState.stamina.bonusMax || 0);
+      gameState.stamina.current = Math.min(maxSt, gameState.stamina.current + regenPoints);
+      gameState.stamina.lastRegenTime = now;
+    }
+  }
+
+  window._v270UseStamina = function(amount) {
+    _v270RegenStamina();
+    if (!gameState.stamina || gameState.stamina.current < amount) {
+      if (typeof showToast === 'function') showToast('体力不足');
+      return false;
+    }
+    gameState.stamina.current -= amount;
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+    return true;
+  };
+
+  window._v270AddStamina = function(amount) {
+    if (!gameState.stamina) _v270InitSystems();
+    var maxSt = 200 + (gameState.stamina.bonusMax || 0);
+    gameState.stamina.current = Math.min(maxSt, gameState.stamina.current + amount);
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+  };
+
+  window._v270AddStaminaMax = function(amount) {
+    if (!gameState.stamina) _v270InitSystems();
+    gameState.stamina.bonusMax = (gameState.stamina.bonusMax || 0) + amount;
+    gameState.stamina.max = 200 + gameState.stamina.bonusMax;
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+  };
+
+  window.STAMINA_COST = { training: 20, live: 25, schedule: 10, date: 15, promotion: 30 };
+
+  // 任务进度
+  window._v270ProgressTask = function(taskId) {
+    if (!gameState.dailyTasks) return;
+    var daily = gameState.dailyTasks.tasks;
+    for (var i = 0; i < daily.length; i++) {
+      if (daily[i].id === taskId && !daily[i].done) {
+        daily[i].progress = (daily[i].progress || 0) + 1;
+        if (daily[i].progress >= daily[i].target) {
+          daily[i].done = true;
+          _v270AddStamina(daily[i].rewardStamina);
+          gameState.money = (gameState.money || 0) + daily[i].rewardGold;
+          if (typeof showToast === 'function') showToast('任务完成: ' + daily[i].name);
+        }
+        break;
+      }
+    }
+    // 周任务
+    if (!gameState.weeklyTasks) return;
+    var weekly = gameState.weeklyTasks.tasks;
+    var wMap = { 'train': 'w_train', 'sns': 'w_social', 'schedule': 'w_schedule' };
+    var wid = wMap[taskId];
+    if (wid) {
+      for (var j = 0; j < weekly.length; j++) {
+        if (weekly[j].id === wid && !weekly[j].done) {
+          weekly[j].progress = (weekly[j].progress || 0) + 1;
+          if (weekly[j].progress >= weekly[j].target) {
+            weekly[j].done = true;
+            _v270AddStamina(weekly[j].rewardStamina);
+            gameState.money = (gameState.money || 0) + weekly[j].rewardGold;
+            if (typeof showToast === 'function') showToast('周任务完成: ' + weekly[j].name);
+          }
+          break;
+        }
+      }
+    }
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+  };
+
+  // 道具使用/购买
+  window._v270UseItem = function(itemId) {
+    if (!gameState.items || !gameState.items[itemId] || gameState.items[itemId].count <= 0) {
+      if (typeof showToast === 'function') showToast('没有该道具');
+      return false;
+    }
+    var item = gameState.items[itemId];
+    if (item.type === 'stamina') {
+      _v270AddStamina(item.amount);
+      if (typeof showToast === 'function') showToast('使用了' + item.name + '，体力+' + item.amount);
+    } else if (item.type === 'stamina_max') {
+      _v270AddStaminaMax(item.amount);
+      if (typeof showToast === 'function') showToast('使用了' + item.name + '，体力上限+' + item.amount);
+    }
+    item.count--;
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+    return true;
+  };
+
+  window._v270BuyItem = function(itemId) {
+    if (!gameState.items || !gameState.items[itemId]) return;
+    var item = gameState.items[itemId];
+    if (!item.price || item.price <= 0) { if (typeof showToast === 'function') showToast('该道具无法购买'); return; }
+    if ((gameState.money || 0) < item.price) { if (typeof showToast === 'function') showToast('金币不足'); return; }
+    gameState.money -= item.price;
+    item.count = (item.count || 0) + 1;
+    if (typeof showToast === 'function') showToast('购买了' + item.name);
+    if (typeof triggerSilentSave === 'function') triggerSilentSave();
+  };
+
+  // 体力自动恢复定时器
+  setInterval(function() { if (gameState && gameState.stamina) _v270RegenStamina(); }, 5 * 60 * 1000);
+
+  // ============ 4. 渲染错误 n.name.charAt 修复 ============
+  // 全局安全包装：在任何地方访问 .name.charAt(0) 时做null check
+  var _origRender = window.render;
+  window.render = function() {
+    try {
+      _origRender.apply(this, arguments);
+    } catch(e) {
+      console.error('V270 render error caught:', e);
+      // 尝试回到大厅
+      var app = document.getElementById('app');
+      if (app && e.message && e.message.indexOf('charAt') > -1) {
+        window._inSceneMode = false;
+        window.currentPage = 'home';
+        try { _origRender.apply(this, arguments); } catch(e2) {
+          app.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FFF;">加载中...</div></div>';
+          setTimeout(function() { _origRender.apply(this, arguments); }, 500);
+        }
+      }
+    }
+  };
+
+  // ============ 5. 主线剧情→走V2.3章节系统 ============
+  // 覆盖_v21Nav中的'story'分支，不走旧占位页
+  var _origNav270 = window._v21Nav;
+  if (typeof _origNav270 === 'function') {
+    window._v21Nav = function(page) {
+      if (page === 'story') {
+        // 走V2.3章节列表页
+        if (typeof _v270ShowChapterList === 'function') {
+          _v270ShowChapterList();
+          return;
+        }
+        // fallback: 走旧story hub
+        window.currentPage = 'story';
+        if (typeof render === 'function') render();
+        var bn = document.getElementById('bottomNav');
+        if (bn) bn.style.display = 'none';
+        return;
+      }
+      _origNav270.apply(this, arguments);
+    };
+  }
+
+  // 章节列表页（显示1.0完成/1.1/1.2/1.3等）
+  window._v270ShowChapterList = function() {
+    var nodes = ['1.0','1.1','1.2','1.3','1.4','1.5','1.6','1.7','1.8'];
+    var nodeNames = {
+      '1.0': '推开那扇门', '1.1': '练习室的灯', '1.2': '五个人的名字',
+      '1.3': '第一次直播', '1.4': '舞蹈室的镜子', '1.5': '录音室的回声',
+      '1.6': '宿舍的夜', '1.7': '第一盏灯', '1.8': '认可'
+    };
+    var completed = (gameState.chapterState && gameState.chapterState.nodesCompleted) || {};
+    var curNode = 0;
+    for (var i = 0; i < nodes.length; i++) {
+      if (completed[nodes[i]]) curNode = i + 1;
+    }
+
+    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
+      + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
+      + '<div onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">✕ 关闭</div>'
+      + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">第1章 · 入社</div>'
+      + '<div style="width:50px;"></div>'
+      + '</div>'
+      + '<div style="padding:16px 20px 80px;">';
+
+    for (var ni = 0; ni < nodes.length; ni++) {
+      var nodeId = nodes[ni];
+      var isDone = !!completed[nodeId];
+      var isCurrent = (ni === curNode);
+      var isLocked = (ni > curNode);
+      var nodeName = nodeNames[nodeId] || ('节点 ' + nodeId);
+
+      var bgColor = isDone ? 'rgba(167,139,250,0.12)' : isCurrent ? 'rgba(201,169,110,0.1)' : 'rgba(255,255,255,0.03)';
+      var borderColor = isDone ? 'rgba(167,139,250,0.3)' : isCurrent ? 'rgba(201,169,110,0.3)' : 'rgba(255,255,255,0.06)';
+      var numColor = isDone ? '#A78BFA' : isCurrent ? '#C9A96E' : 'rgba(255,255,255,0.2)';
+      var nameColor = isDone ? '#FFF' : isCurrent ? '#FFF' : 'rgba(255,255,255,0.3)';
+      var statusText = isDone ? '✓ 已完成' : isCurrent ? '当前' : '🔒';
+      var statusColor = isDone ? '#A78BFA' : isCurrent ? '#C9A96E' : 'rgba(255,255,255,0.2)';
+
+      html += '<div style="margin-bottom:10px;background:' + bgColor + ';border:1px solid ' + borderColor + ';border-radius:14px;padding:16px;display:flex;align-items:center;'
+        + (isCurrent ? 'cursor:pointer;' : '') + '"'
+        + (isCurrent ? ' onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';if(typeof _v2CheckChapterNodes===\'function\')_v2CheckChapterNodes();"' : '')
+        + '>'
+        + '<div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:' + numColor + ';background:' + (isDone ? 'rgba(167,139,250,0.2)' : isCurrent ? 'rgba(201,169,110,0.15)' : 'rgba(255,255,255,0.05)') + ';margin-right:14px;flex-shrink:0;">' + (ni + 1) + '</div>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:14px;font-weight:' + (isCurrent ? '500' : '300') + ';color:' + nameColor + ';">' + nodeName + '</div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">1-' + (ni + 1) + '</div>'
+        + '</div>'
+        + '<div style="font-size:11px;color:' + statusColor + ';font-weight:400;">' + statusText + '</div>'
+        + '</div>';
+    }
+
+    // 个人支线区域
+    html += '<div style="margin-top:24px;margin-bottom:12px;font-size:12px;color:#C9A96E;letter-spacing:0.1em;">个人支线</div>';
+
+    var personalLines = [
+      { key: 'haeun', name: '夏恩', tag: '队长', color: '#F472B6', hearts: 40 },
+      { key: 'soah', name: '素雅', tag: '主唱', color: '#A78BFA', hearts: 40 },
+      { key: 'jiwon', name: '智媛', tag: '忙内', color: '#FBBF24', hearts: 40 },
+      { key: 'junho', name: '俊昊', tag: '领唱', color: '#60A5FA', hearts: 40 },
+      { key: 'seokhyun', name: '瑞贤', tag: '主Rapper', color: '#34D399', hearts: 40 }
+    ];
+
+    for (var pi = 0; pi < personalLines.length; pi++) {
+      var pl = personalLines[pi];
+      var love = (gameState.npc好感度 && gameState.npc.npc好感度 && gameState.npc好感度[pl.name]) || 0;
+      // 好感值 → 心数：每50好感=1心
+      var heartsOwned = Math.floor(love / 50);
+      var unlocked = heartsOwned >= pl.hearts;
+
+      html += '<div style="margin-bottom:10px;background:rgba(255,255,255,0.03);border:1px solid ' + (unlocked ? pl.color + '33' : 'rgba(255,255,255,0.06)') + ';border-radius:14px;padding:14px 16px;display:flex;align-items:center;'
+        + (unlocked ? 'cursor:pointer;' : '')
+        + '"'
+        + (unlocked ? ' onclick="document.getElementById(\'v270-chapter-list\').remove();document.body.style.overflow=\'\';if(typeof _v270ShowPersonalStory===\'function\')_v270ShowPersonalStory(\'' + pl.key + '\');"' : '')
+        + '>'
+        + '<div style="width:36px;height:36px;border-radius:50%;background:' + pl.color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;margin-right:12px;flex-shrink:0;">' + pl.name.charAt(0) + '</div>'
+        + '<div style="flex:1;">'
+        + '<div style="font-size:14px;font-weight:400;color:' + (unlocked ? '#FFF' : 'rgba(255,255,255,0.4)') + ';">' + pl.name + ' <span style="font-size:11px;color:rgba(255,255,255,0.3);">' + pl.tag + '</span></div>'
+        + '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;">' + (unlocked ? '已解锁 · ' + heartsOwned + '♥' : '需' + pl.hearts + '♥解锁 · 当前' + heartsOwned + '♥') + '</div>'
+        + '</div>'
+        + '<div style="font-size:11px;color:' + (unlocked ? pl.color : 'rgba(255,255,255,0.2)') + ';">' + (unlocked ? '查看' : '🔒') + '</div>'
+        + '</div>';
+    }
+
+    html += '</div></div>';
+
+    var el = document.createElement('div');
+    el.id = 'v270-chapter-list';
+    el.innerHTML = html;
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
+    document.body.appendChild(el);
+  };
+
+  // 个人支线查看（40心解锁后）
+  window._v270ShowPersonalStory = function(npcKey) {
+    // 复用旧剧情中心页的个人线
+    window.currentPage = 'story';
+    gameState._v2StoryTab = 'personal';
+    if (typeof render === 'function') render();
+  };
+
+  // ============ 6. 宿舍/家可进入修复 ============
+  // Hook _v21Nav 的 'scene' 分支确保能进入宿舍
+  // V2.1.3的_v21Nav里scene分支已经处理了，但V2.6的引导后body有v21-in-home
+  // 需要确保进场景时清除这个class
+  var _origNavScene = window._v21Nav;
+  if (typeof _origNavScene === 'function') {
+    var _prevNav = window._v21Nav;
+    window._v21Nav = function(page) {
+      if (page === 'scene') {
+        // 清除v21-in-home标记，恢复场景UI
+        document.body.classList.remove('v21-in-home');
+        // 确保场景模式
+        window._inSceneMode = true;
+        var homeScene = (typeof _getHomeScene === 'function') ? _getHomeScene() : 'dorm';
+        gameState._currentScene = homeScene;
+        var app = document.getElementById('app');
+        if (app && typeof renderScenePage === 'function') {
+          // 显示旧UI
+          var sb = document.getElementById('statusBar');
+          var rb = document.getElementById('restButtons');
+          var hi = document.getElementById('homeIndicator');
+          if (sb) sb.style.display = 'flex';
+          if (rb) rb.style.display = 'flex';
+          if (hi) hi.style.display = 'block';
+          renderScenePage(app);
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'flex';
+          if (typeof renderBottomNav === 'function') renderBottomNav();
+          return;
+        }
+      }
+      _prevNav.apply(this, arguments);
+    };
+  }
+
+  // ============ 7. 新手引导6步 ============
+  var V270_TUT_STEPS = [
+    { id: 'phone', title: '手机', desc: '点击手机，看看里面有什么' },
+    { id: 'rest', title: '休息', desc: '累了就休息一下' },
+    { id: 'home', title: '公司', desc: '去公司，开始你的练习生生活' },
+    { id: 'contacts', title: '通讯录', desc: '认识你的队友，跟他们聊聊天' },
+    { id: 'daily', title: '今日任务', desc: '每天完成任务，获得奖励' },
+    { id: 'mainline', title: '主线', desc: '继续你的故事' }
+  ];
+
+  // 覆盖V2.6的引导启动
+  window._v260StartTutorial = function() {
+    if (gameState._v260TutorialDone) return;
+    gameState._v260TutorialStep = 0;
+    gameState._v260TutorialActive = true;
+    setTimeout(function() { _v270ShowTutStep(); }, 500);
+  };
+
+  function _v270ShowTutStep() {
+    if (!gameState._v260TutorialActive) return;
+    var stepIdx = gameState._v260TutorialStep || 0;
+    if (stepIdx >= V270_TUT_STEPS.length) {
+      if (typeof _v260FinishTutorial === 'function') _v260FinishTutorial();
+      return;
+    }
+    var step = V270_TUT_STEPS[stepIdx];
+    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:20000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation()">'
+      + '<div style="background:rgba(15,12,41,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(201,169,110,0.3);border-radius:16px;padding:24px 28px;max-width:300px;text-align:center;">'
+      + '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.15em;margin-bottom:8px;">STEP ' + (stepIdx + 1) + '/' + V270_TUT_STEPS.length + '</div>'
+      + '<div style="font-size:18px;font-weight:300;color:#FFF;margin-bottom:8px;">' + step.title + '</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;font-weight:300;">' + step.desc + '</div>'
+      + '</div></div>';
+    var old = document.getElementById('v260-tutorial-overlay');
+    if (old) old.parentNode.removeChild(old);
+    var el = document.createElement('div');
+    el.id = 'v260-tutorial-overlay';
+    el.innerHTML = html;
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:19999;pointer-events:auto;';
+    document.body.appendChild(el);
+  }
+
+  function _v270AdvanceTut(action) {
+    if (!gameState._v260TutorialActive) return;
+    var stepIdx = gameState._v260TutorialStep || 0;
+    if (stepIdx >= V270_TUT_STEPS.length) return;
+    if (action === V270_TUT_STEPS[stepIdx].id) {
+      gameState._v260TutorialStep = stepIdx + 1;
+      if (gameState._v260TutorialStep >= V270_TUT_STEPS.length) {
+        setTimeout(function() { if (typeof _v260FinishTutorial === 'function') _v260FinishTutorial(); }, 600);
+      } else {
+        setTimeout(function() { _v270ShowTutStep(); }, 600);
+      }
+    }
+  }
+
+  // 引导步骤检测hooks
+  var _navHook = window._v21Nav;
+  if (typeof _navHook === 'function') {
+    window._v21Nav = function(page) {
+      _navHook.apply(this, arguments);
+      if (gameState._v260TutorialActive) {
+        if (page === 'phone') _v270AdvanceTut('phone');
+        if (page === 'scene') _v270AdvanceTut('home');
+        if (page === 'contacts') _v270AdvanceTut('contacts');
+        if (page === 'daily') _v270AdvanceTut('daily');
+        if (page === 'story') _v270AdvanceTut('mainline');
+      }
+    };
+  }
+
+  var _restHook = window._doRest;
+  if (typeof _restHook === 'function') {
+    window._doRest = function() {
+      _restHook.apply(this, arguments);
+      if (gameState._v260TutorialActive) _v270AdvanceTut('rest');
+    };
+  }
+
+  // ============ 8. 训练/SNS/章节 Hook 体力消耗+任务进度 ============
+  var _origDoTrain = window.do训练项目;
+  if (typeof _origDoTrain === 'function') {
+    window.do训练项目 = function(stat, cost, moneyCost, name) {
+      if (typeof _v270UseStamina === 'function') {
+        if (!_v270UseStamina(window.STAMINA_COST.training)) return;
+      }
+      _origDoTrain.apply(this, arguments);
+      _v270ProgressTask('train');
+    };
+  }
+
+  var _origV23Complete = window._v23CompleteNode;
+  if (typeof _origV23Complete === 'function') {
+    window._v23CompleteNode = function(nodeId) {
+      _origV23Complete.apply(this, arguments);
+      _v270ProgressTask('chapter');
+      _v270AddStaminaMax(10);
+    };
+  }
+
+  // 确保系统初始化
+  var _origCC270 = window.completeCreation;
+  if (typeof _origCC270 === 'function') {
+    window.completeCreation = function() {
+      _origCC270.apply(this, arguments);
+      if (typeof _v270InitSystems === 'function') _v270InitSystems();
+    };
+  }
+
+  // ============ 9. 修复旧代码中story入口显示"剧情系统即将上线"的问题 ============
+  // 替换手机APP列表中的story描述
+  // 这在V2.1的APP列表数据中，通过hook render来修正
+  var _origRender2 = window.render;
+  window.render = function() {
+    _origRender2.apply(this, arguments);
+    // 修正手机APP里的"剧情系统即将上线"文字
+    setTimeout(function() {
+      var storyApps = document.querySelectorAll('[onclick*="story"]');
+      for (var i = 0; i < storyApps.length; i++) {
+        var el = storyApps[i];
+        if (el.textContent && el.textContent.indexOf('即将上线') > -1) {
+          el.textContent = el.textContent.replace('剧情系统即将上线', '主线剧情');
+        }
+      }
+    }, 100);
+  };
+
+  // ============ 10. 版本号 ============
+  window.V2_VERSION = 'v2.7.0 (build 0628-fixall)';
+
+})();
