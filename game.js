@@ -24275,3 +24275,275 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.7.2 (build 0628-scenefix)';
 
 })();
+// ============================================================
+// V2.7.3 综合修复补丁
+// 1. _v271Gender跨IIFE引用崩溃：V2.7.2的闭包访问不到V2.7.1的局部变量
+// 2. V2.6.0双重hook冲突：两套completeCreation+1.0监听器同时运行
+// 3. render undefined兜底增强
+// ============================================================
+;(function(){
+  if (window._v273Patched) return;
+  window._v273Patched = true;
+
+  // ============ 1. 跨IIFE变量桥接 ============
+  // V2.7.1的 _v271Gender / _v271Personality 是其IIFE内的局部变量
+  // V2.7.2的 _v271CompleteCreation 覆盖函数在另一个IIFE中，无法访问这些局部变量
+  // 方案：hook V2.7.1的select/toggle函数，同步维护window级别的镜像变量
+
+  window._v273Gender = '';
+  window._v273Personality = [];
+
+  // Hook性别选择
+  var _origSelGender = window._v271SelectGender;
+  window._v271SelectGender = function(g) {
+    window._v273Gender = g;
+    if (_origSelGender) _origSelGender(g);
+  };
+
+  // Hook性格选择
+  var _origToggleTag = window._v271ToggleTag;
+  window._v271ToggleTag = function(tag) {
+    // 先同步本地镜像
+    var idx = window._v273Personality.indexOf(tag);
+    if (idx > -1) {
+      window._v273Personality.splice(idx, 1);
+    } else {
+      if (window._v273Personality.length >= 3) {
+        // 让原始函数处理toast提示
+        if (_origToggleTag) _origToggleTag(tag);
+        return;
+      }
+      window._v273Personality.push(tag);
+    }
+    // 再调原始函数更新DOM样式
+    if (_origToggleTag) _origToggleTag(tag);
+  };
+
+  // ============ 2. 重新覆盖 _v271CompleteCreation ============
+  // 这次用window级别的 _v273Gender / _v273Personality 替代闭包变量
+
+  window._v271CompleteCreation = function() {
+    var nameInput = document.getElementById('v271Name');
+    var name = nameInput ? nameInput.value.trim() : '';
+    var gender = window._v273Gender;
+    var personality = window._v273Personality.slice();
+
+    if (!name) { if (typeof showToast === 'function') showToast('请输入名字'); return; }
+    if (!gender) { if (typeof showToast === 'function') showToast('请选择性别'); return; }
+    if (personality.length !== 3) { if (typeof showToast === 'function') showToast('请选择3个性格标签'); return; }
+
+    // 设置gameState
+    gameState.player.name = name;
+    gameState.player.gender = gender;
+    gameState.player.personality = personality;
+    gameState.player.role = 'Trainee';
+    gameState.player.company = 'seongwoo';
+    gameState.player.groups = ['haeoreum'];
+    gameState.player.positions = ['Vocal'];
+    gameState.player.avatar = name.charAt(0).toUpperCase();
+
+    // 初始化玩家系统，不渲染大厅
+    if (gameState.player.role === 'Trainee') {
+      if (typeof window.initAsTrainee === 'function') window.initAsTrainee();
+    } else {
+      if (typeof window.initAsIdol === 'function') window.initAsIdol();
+    }
+    if (typeof window._ensureV16Fields === 'function') window._ensureV16Fields();
+    var cu = localStorage.getItem('myIdolCurrentUser');
+    if (typeof window._checkAdmin === 'function') window._checkAdmin(cu);
+
+    // 初始化V2.7系统
+    if (typeof window._v270InitSystems === 'function') window._v270InitSystems();
+
+    // 标记新玩家 + 阻塞V2.6.0的hook链
+    gameState._v260NewPlayer = true;
+    window._v260NewPlayerFlag = true;
+    window._v273CreationDone = true; // 防重入标记
+
+    // 预阻塞1.1+节点
+    gameState._v23NodeTriggered = gameState._v23NodeTriggered || {};
+    var blockNodes = ['1.1','1.2','1.3','1.4','1.5','1.6','1.7','1.8'];
+    for (var bi = 0; bi < blockNodes.length; bi++) {
+      gameState._v23NodeTriggered[blockNodes[bi]] = true;
+    }
+
+    // 保存存档
+    if (typeof window.triggerSilentSave === 'function') window.triggerSilentSave();
+
+    // 不进大厅，不调用旧completeCreation链
+    // 直接触发1.0剧情
+    window._inSceneMode = true;
+    window.currentPage = 'home';
+    document.body.classList.add('v21-in-home');
+
+    // 清除可能残留的创建页面元素
+    var creationEl = document.getElementById('v271CreationContainer');
+    if (creationEl) creationEl.remove();
+
+    // 延迟触发1.0
+    setTimeout(function() {
+      _v273TryTrigger1_0();
+    }, 300);
+  };
+
+  // ============ 3. V2.7.3版本的1.0触发+监听 ============
+  // 替代V2.6.0和V2.7.2的监听器，统一入口
+  var _v273Watch1_0Timer = null;
+
+  function _v273TryTrigger1_0() {
+    if (!gameState || !gameState.player || !gameState.player.name) {
+      setTimeout(_v273TryTrigger1_0, 300);
+      return;
+    }
+    // 调用V2.3章节系统触发1.0
+    if (typeof window._v2CheckChapterNodes === 'function') {
+      window._v2CheckChapterNodes();
+    }
+    _v273StartWatch1_0();
+  }
+
+  function _v273StartWatch1_0() {
+    if (_v273Watch1_0Timer) return;
+    _v273Watch1_0Timer = setInterval(function() {
+      if (gameState.chapterState && gameState.chapterState.nodesCompleted && gameState.chapterState.nodesCompleted['1.0']) {
+        clearInterval(_v273Watch1_0Timer);
+        _v273Watch1_0Timer = null;
+        // 1.0完成了，进宿舍+新手引导
+        setTimeout(function() {
+          _v273EnterDormAndTutorial();
+        }, 800);
+      }
+    }, 500);
+  }
+
+  // ============ 4. 禁用V2.6.0的旧监听器 ============
+  // V2.6.0的completeCreation hook会在800ms后也触发1.0和监听
+  // 我们覆盖completeCreation，在_v273CreationDone标记下直接跳过旧逻辑
+  var _v273CurrentCC = window.completeCreation;
+  window.completeCreation = function() {
+    // 如果V2.7.3已经处理了创建流程，跳过V2.6.0/V2.1.3的hook链
+    if (window._v273CreationDone) {
+      console.log('[V273] creation already done by V2.7.3, skipping old hooks');
+      return;
+    }
+    // 否则走旧逻辑
+    if (_v273CurrentCC) _v273CurrentCC.apply(this, arguments);
+  };
+
+  // 同样覆盖V2.6.0的_v260EnterDormAndTutorial和_v260StartWatch1_0
+  window._v260EnterDormAndTutorial = function() {
+    if (window._v273CreationDone) {
+      console.log('[V273] v260 dorm+tutorial blocked, v273 handles it');
+      return;
+    }
+  };
+
+  // ============ 5. 1.0完成后进宿舍+新手引导 ============
+  function _v273HasStoryOverlay() {
+    var overlayIds = ['v23-story-overlay','v23-story-wrapper','v2-story-overlay','v240-story-overlay','v240-story-wrapper'];
+    for (var i = 0; i < overlayIds.length; i++) {
+      var el = document.getElementById(overlayIds[i]);
+      if (el && el.style.display !== 'none' && el.offsetParent !== null) return true;
+    }
+    var wrappers = document.querySelectorAll('[id*="story-overlay"], [id*="story-wrapper"]');
+    for (var wi = 0; wi < wrappers.length; wi++) {
+      if (wrappers[wi].style.display !== 'none' && wrappers[wi].offsetParent !== null) return true;
+    }
+    return false;
+  }
+
+  window._v273EnterDormAndTutorial = function() {
+    // 等剧情overlay关闭
+    if (_v273HasStoryOverlay()) {
+      setTimeout(function() {
+        window._v273EnterDormAndTutorial();
+      }, 500);
+      return;
+    }
+
+    // 进宿舍场景
+    try {
+      var homeScene = (typeof _getHomeScene === 'function') ? _getHomeScene() : 'dorm';
+      gameState._currentScene = homeScene;
+      window._inSceneMode = true;
+      document.body.classList.remove('v21-in-home');
+      var sb = document.getElementById('statusBar');
+      var rb = document.getElementById('restButtons');
+      var hi = document.getElementById('homeIndicator');
+      var bn = document.getElementById('bottomNav');
+      if (sb) sb.style.display = 'flex';
+      if (rb) rb.style.display = 'flex';
+      if (hi) hi.style.display = 'block';
+      if (bn) bn.style.display = 'none';
+      if (typeof window.render === 'function') window.render();
+      if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
+    } catch(e) {
+      console.error('v273 enter home error:', e);
+    }
+
+    // 新手引导延迟3秒
+    setTimeout(function() {
+      if (typeof window._v271ShowTutStep === 'function') {
+        window._v271ShowTutStep(1);
+      } else if (typeof window._v260StartTutorial === 'function') {
+        window._v260StartTutorial();
+      }
+    }, 3000);
+  };
+
+  // 覆盖V2.7.2和V2.6.0的进宿舍函数
+  window._v272EnterDormAndTutorial = window._v273EnterDormAndTutorial;
+  window._v260EnterDormAndTutorial = window._v273EnterDormAndTutorial;
+
+  // ============ 6. 增强render兜底 ============
+  // 在所有可能抛出undefined错误的地方加保护
+  var _origRender273 = window.render;
+  window.render = function() {
+    try {
+      _origRender273.apply(this, arguments);
+    } catch(e) {
+      console.error('V273 render error:', e.message);
+      // charAt / undefined错误：回大厅重试
+      if (e.message && (e.message.indexOf('charAt') > -1 || e.message.indexOf('undefined') > -1)) {
+        window._inSceneMode = false;
+        window.currentPage = 'home';
+        document.body.classList.add('v21-in-home');
+        // 清除所有剧情overlay
+        var overlayIds = ['v23-story-overlay','v23-story-wrapper','v2-story-overlay','v240-story-overlay','v240-story-wrapper'];
+        for (var oi = 0; oi < overlayIds.length; oi++) {
+          var oe = document.getElementById(overlayIds[oi]);
+          if (oe && oe.parentNode) oe.parentNode.removeChild(oe);
+        }
+        try { _origRender273.apply(this, arguments); } catch(e2) {
+          var app = document.getElementById('app');
+          if (app) {
+            app.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FFF;font-weight:300;">加载中...</div></div>';
+            setTimeout(function() {
+              try { _origRender273.apply(this, arguments); } catch(e3) {}
+            }, 500);
+          }
+        }
+      }
+    }
+  };
+
+  // ============ 7. 补丁V2.7.0章节列表的好感度字段 ============
+  // _v270ShowChapterList中访问 gameState.npc好感度[npcName]
+  // 但npc好感度的key可能是中文名，需要确保NPC名字匹配
+  // 同时给章节列表的pl.name.charAt(0)加上安全保护
+  var _origChapterList = window._v270ShowChapterList;
+  if (typeof _origChapterList === 'function') {
+    window._v270ShowChapterList = function() {
+      // 确保npc好感度已初始化
+      if (!gameState.npc好感度) gameState.npc好感度 = {};
+      // 确保chapterState已初始化
+      if (!gameState.chapterState) gameState.chapterState = { nodesCompleted: {}, currentNode: null };
+      if (!gameState.chapterState.nodesCompleted) gameState.chapterState.nodesCompleted = {};
+      _origChapterList();
+    };
+  }
+
+  // ============ 8. 版本号 ============
+  window.V2_VERSION = 'v2.7.3 (build 0628-crossiife-fix)';
+
+})();
