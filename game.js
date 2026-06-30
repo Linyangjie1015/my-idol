@@ -20973,10 +20973,10 @@ function _v2EnterChapter(chNum) {
         showToast('日程已解锁');
         triggerSilentSave();
 
-        // 解锁1.1
+        // 解锁1.1（但不自动触发，用户从章节列表手动点）
         if (gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.1'];
 
-        // 1秒后进宿舍，5秒后新手引导
+        // 1.5秒后进宿舍场景（不再有教程，不再自动触发1.1）
         setTimeout(function() {
           if (typeof window._v2EnterDorm === 'function') {
             window._v2EnterDorm();
@@ -20984,17 +20984,9 @@ function _v2EnterChapter(chNum) {
             window._inSceneMode = true;
             window.currentPage = 'home';
             gameState._currentScene = 'dorm';
-            document.body.classList.add('v21-in-home');
             if (typeof window.render === 'function') window.render();
           }
-          setTimeout(function() {
-            if (!gameState._v260TutorialDone && typeof window._v2StartTutorial === 'function') {
-              window._v2StartTutorial();
-            }
-          }, 5000);
-        }, 1000);
-
-        setTimeout(_v23CheckChapterNodes, 400);
+        }, 1500);
       }
     },
     '1.1': {
@@ -22820,10 +22812,7 @@ function _v2EnterChapter(chNum) {
   };
 
   // ============ C. 1.0播完 → 关闭overlay → 进宿舍 → 新手引导 ============
-  // 唯一的1.0完成监听，hook _v23CompleteNode
-
-  var _tutorialStarted = false;
-  var _dormEntered = false;
+  // hook _v23CompleteNode — 节点完成后解锁下一个
 
   var _origV23CompleteNode = window._v23CompleteNode;
   window._v23CompleteNode = function(nodeId) {
@@ -22835,28 +22824,11 @@ function _v2EnterChapter(chNum) {
       var el = document.getElementById(overlayIds[i]);
       if (el && el.parentNode) el.parentNode.removeChild(el);
     }
-    // 关闭场景背景
     var bgEl = document.getElementById('v260-story-bg');
     if (bgEl) bgEl.style.display = 'none';
 
-    // 1.0完成：进宿舍 + 解锁1.1 + 延迟教程
-    if (nodeId === '1.0' && !_dormEntered) {
-      _dormEntered = true;
-      if (gameState._v23NodeTriggered) {
-        delete gameState._v23NodeTriggered['1.1'];
-      }
-      setTimeout(function() {
-        _v2EnterDorm();
-        setTimeout(function() {
-          if (!_tutorialStarted) {
-            _tutorialStarted = true;
-            _v2StartTutorial();
-          }
-        }, 5000);
-      }, 1000);
-    }
-
-    // 其他节点完成后解锁下一个
+    // 节点完成后解锁下一个
+    if (nodeId === '1.0' && gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.1'];
     if (nodeId === '1.1' && gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.2'];
     if (nodeId === '1.2' && gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.3'];
     if (nodeId === '1.3' && gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.4'];
@@ -22866,10 +22838,17 @@ function _v2EnterChapter(chNum) {
     if (nodeId === '1.7' && gameState._v23NodeTriggered) delete gameState._v23NodeTriggered['1.8'];
   };
 
-  function _v2EnterDorm() {
+  window._v2EnterDorm = function() {
     try {
+      // 清理残留的故事元素
+      var _cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper', 'v2-story-overlay', 'v2-story-wrapper'];
+      for (var ci = 0; ci < _cleanIds.length; ci++) {
+        var cel = document.getElementById(_cleanIds[ci]);
+        if (cel && cel.parentNode) cel.parentNode.removeChild(cel);
+      }
       gameState._currentScene = 'dorm';
       window._inSceneMode = true;
+      window.currentPage = 'home';
       document.body.classList.remove('v21-in-home');
       var sb = document.getElementById('statusBar');
       var rb = document.getElementById('restButtons');
@@ -22880,86 +22859,9 @@ function _v2EnterChapter(chNum) {
       if (hi) hi.style.display = 'block';
       if (bn) bn.style.display = 'none';
       if (typeof window.render === 'function') window.render();
-      if (typeof window.renderBottomNav === 'function') window.renderBottomNav();
     } catch(e) {
       console.error('[V2] enter dorm error:', e);
     }
-  }
-
-  // ============ D. 新手引导6步 ============
-
-  var TUT_STEPS = [
-    { id: 'phone', title: '手机', desc: '点击手机，看看里面有什么' },
-    { id: 'rest', title: '休息', desc: '累了就休息一下' },
-    { id: 'home', title: '公司', desc: '去公司，开始你的练习生生活' },
-    { id: 'contacts', title: '通讯录', desc: '认识你的队友，跟他们聊聊天' },
-    { id: 'daily', title: '今日任务', desc: '每天完成任务，获得奖励' },
-    { id: 'mainline', title: '主线', desc: '继续你的故事' }
-  ];
-
-  function _v2StartTutorial() {
-    if (gameState._v260TutorialDone) return;
-    gameState._v260TutorialStep = 0;
-    gameState._v260TutorialActive = true;
-    _v2ShowTutStep();
-  }
-
-  function _v2ShowTutStep() {
-    if (!gameState._v260TutorialActive) return;
-    var stepIdx = gameState._v260TutorialStep || 0;
-    if (stepIdx >= TUT_STEPS.length) {
-      _v2FinishTutorial();
-      return;
-    }
-    var step = TUT_STEPS[stepIdx];
-    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:20000;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;" onclick="event.stopPropagation()">'
-      + '<div style="background:rgba(15,12,41,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(201,169,110,0.3);border-radius:16px;padding:24px 28px;max-width:300px;text-align:center;">'
-      + '<div style="font-size:11px;color:#C9A96E;letter-spacing:0.15em;margin-bottom:8px;">STEP ' + (stepIdx + 1) + '/' + TUT_STEPS.length + '</div>'
-      + '<div style="font-size:18px;font-weight:300;color:#FFF;margin-bottom:8px;">' + step.title + '</div>'
-      + '<div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;font-weight:300;">' + step.desc + '</div>'
-      + '</div></div>';
-    var old = document.getElementById('v2-tutorial-overlay');
-    if (old) old.parentNode.removeChild(old);
-    var el = document.createElement('div');
-    el.id = 'v2-tutorial-overlay';
-    el.innerHTML = html;
-    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:19999;pointer-events:auto;';
-    document.body.appendChild(el);
-  }
-
-  function _v2AdvanceTut(action) {
-    if (!gameState._v260TutorialActive) return;
-    var stepIdx = gameState._v260TutorialStep || 0;
-    if (stepIdx >= TUT_STEPS.length) return;
-    if (action === TUT_STEPS[stepIdx].id) {
-      gameState._v260TutorialStep = stepIdx + 1;
-      var old = document.getElementById('v2-tutorial-overlay');
-      if (old) old.parentNode.removeChild(old);
-      if (gameState._v260TutorialStep >= TUT_STEPS.length) {
-        setTimeout(function() { _v2FinishTutorial(); }, 600);
-      } else {
-        setTimeout(function() { _v2ShowTutStep(); }, 600);
-      }
-    }
-  }
-
-  function _v2FinishTutorial() {
-    gameState._v260TutorialActive = false;
-    gameState._v260TutorialDone = true;
-    window._v260TutorialDone = true;
-    var old = document.getElementById('v2-tutorial-overlay');
-    if (old) old.parentNode.removeChild(old);
-  }
-
-  // hook _v21Nav 来推进教程
-  var _origNav = window._v21Nav;
-  if (typeof _origNav === 'function') {
-    window._v21Nav = function(page) {
-      _origNav.apply(this, arguments);
-      if (gameState._v260TutorialActive) {
-        if (page === 'home' || page === 'rest') _v2AdvanceTut(page);
-      }
-    };
   }
 
   // ============ E. 章节列表 ============
@@ -23416,22 +23318,13 @@ function _v2EnterChapter(chNum) {
   console.log('[V2-hotfix-v2] applied');
 })();
 // ============================================================
-// V2.0-hotfix-v3 — 根治剧情卡住+场景不渲染+打字机冒泡
+// V2.0-hotfix-v4 — 删教程+修场景渲染+修goToPage冲突
 // ============================================================
 (function() {
-  if (window._v2HotfixV3Applied) return;
-  window._v2HotfixV3Applied = true;
+  if (window._v2HotfixV4Applied) return;
+  window._v2HotfixV4Applied = true;
 
-  // ========== 根因分析 ==========
-  // 1. 1.0 onComplete调_v23CheckChapterNodes(400ms)自动触发1.1
-  //    同时setTimeout(1s)进宿舍，两者打架
-  //    → 1.1故事被宿舍渲染打断，或overlay叠加混乱
-  // 2. 打字机el.onclick冒泡到overlay的onclick，
-  //    导致一次点击同时跳过打字+推进下一个场景
-  // 3. _v2EnterDorm可能被覆盖链中其他版本干扰
-
-  // ========== Fix 1: 打字机冒泡锁 ==========
-  // 每次_v23StoryAdvance执行后300ms内不再响应
+  // ========== Fix 1: 打字机冒泡锁（保留） ==========
   var _advanceLock = false;
   var _origAdvance = window._v23StoryAdvance;
   window._v23StoryAdvance = function() {
@@ -23441,114 +23334,33 @@ function _v2EnterChapter(chNum) {
     setTimeout(function() { _advanceLock = false; }, 300);
   };
 
-  // ========== Fix 2: 教程完成前不自动触发剧情节点 ==========
-  var _origCheckNodes = window._v23CheckChapterNodes;
-  window._v23CheckChapterNodes = function() {
-    // 教程未完成，不自动触发
-    if (gameState && !gameState._v260TutorialDone) return;
-    if (_origCheckNodes) _origCheckNodes.apply(this, arguments);
-  };
-
-  // ========== Fix 3: 覆盖1.0 onComplete ==========
-  // 在_v23ShowStoryNode被调用时，如果nodeId是1.0，
-  // 用setTimeout延迟覆盖V23_STORY_NODES['1.0'].onComplete
-  // 注意：V23_STORY_NODES是V2.3 IIFE内的局部变量，无法直接访问
-  // 但_v23ShowStoryNode可以访问它
-  // 更好的方案：在_v23RenderStoryDialog的!scene分支处拦截
-  // 
-  // 实际做法：hook _v23ShowStoryNode，当nodeId='1.0'时，
-  // 用setTimeout在下一轮事件循环中访问闭包内的V23_STORY_NODES
-  // 但这不可能——我们无法访问闭包变量
-  //
-  // 最终方案：覆盖_v23ShowStoryNode，在播放1.0时改用自己的渲染逻辑
-  var _origShowNode = window._v23ShowStoryNode;
-  window._v23ShowStoryNode = function(nodeId) {
-    if (nodeId === '1.0') {
-      // 1.0用自定义流程：播完后不自动触发1.1
-      // 复用原有的_v23RenderStoryDialog但用自定义onComplete
-      _origShowNode('1.0');
-      // 延迟覆盖1.0的onComplete
-      // 由于_v23ShowStoryNode内部已经设置了_v23StoryState，
-      // 我们无法直接修改node的onComplete
-      // 但我们可以hook _v23CloseStoryDialog来检测1.0完成
+  // ========== Fix 2: goToPage('home')不能退出场景模式 ==========
+  // 原始goToPage在page==='home'时设_inSceneMode=false，导致场景被覆盖
+  var _curGoToPage = window.goToPage;
+  window.goToPage = function(page) {
+    if (page === 'story') {
+      if (typeof window._v2ShowChapterList === 'function') {
+        window._v2ShowChapterList();
+      }
       return;
     }
-    _origShowNode(nodeId);
-  };
-
-  // ========== Fix 3b: 更直接的方案 ==========
-  // 在1.0 onComplete执行后，立即清理它可能启动的1.1剧情
-  // 方法：监控_v23StoryState，当1.0完成后如果1.1被自动启动，
-  // 立即关闭它，改为等教程完成后再触发
-  
-  // 1.0 onComplete中 setTimeout(_v23CheckChapterNodes, 400)
-  // 我们已经覆盖了_v23CheckChapterNodes在教程完成前不执行
-  // 所以1.1不会在1.0完成时自动触发
-  // 
-  // 但1.0 onComplete本身也会 delete _v23NodeTriggered['1.1']
-  // 这意味着1.1的锁被提前移除了
-  // 当教程完成后_v23CheckChapterNodes检查1.1时，
-  // 会发现1.0已完成+1.1未触发→触发1.1 ✓
-  // 这是正确的行为
-
-  // ========== Fix 4: 确保1.0完成后的宿舍场景正确渲染 ==========
-  // 覆盖_v2EnterDorm确保场景渲染路径正确
-  var _origEnterDorm = window._v2EnterDorm;
-  window._v2EnterDorm = function() {
-    // 清除故事背景层（可能在1.0播放时创建）
-    var bgEl = document.getElementById('v260-story-bg');
-    if (bgEl) bgEl.style.display = 'none';
-    
-    // 清除任何残留的故事overlay
-    var ids = ['v23-story-wrapper', 'v23-story-overlay', 'v2-story-wrapper', 'v2-story-overlay'];
-    for (var i = 0; i < ids.length; i++) {
-      var el = document.getElementById(ids[i]);
-      if (el && el.parentNode) el.parentNode.removeChild(el);
-    }
-
-    // 设置状态
-    window._inSceneMode = true;
-    window.currentPage = 'home';
-    gameState._currentScene = 'dorm';
-
-    // 隐藏底栏
-    var bn = document.getElementById('bottomNav');
-    if (bn) bn.style.display = 'none';
-
-    // 渲染宿舍场景
-    if (typeof window.render === 'function') window.render();
-  };
-
-  // ========== Fix 5: 教程完成后解锁1.1并触发检查 ==========
-  // V2.0教程完成后会设gameState._v260TutorialDone=true
-  // 我们检测这个标志，然后触发一次节点检查
-  var _tutCheckCount = 0;
-  var _tutCheckTimer = setInterval(function() {
-    _tutCheckCount++;
-    if (gameState && gameState._v260TutorialDone) {
-      clearInterval(_tutCheckTimer);
-      // 教程完成，确保1.1解锁
-      if (gameState._v23NodeTriggered) {
-        delete gameState._v23NodeTriggered['1.1'];
+    var wasInScene = window._inSceneMode;
+    _curGoToPage.apply(this, arguments);
+    // 如果之前在场景模式且跳到home，恢复场景模式
+    if (wasInScene && page === 'home') {
+      window._inSceneMode = true;
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      var app = document.getElementById('app');
+      if (app && typeof window.renderScenePage === 'function') {
+        window.renderScenePage(app);
       }
-      // 触发节点检查
-      setTimeout(function() {
-        if (typeof window._v23CheckChapterNodes === 'function') {
-          window._v23CheckChapterNodes();
-        }
-      }, 500);
     }
-    // 超时保护：60秒后无论如何清除
-    if (_tutCheckCount > 60) clearInterval(_tutCheckTimer);
-  }, 1000);
+  };
 
-  // ========== Fix 6: 确保render()在场景模式下正确渲染 ==========
-  // 当_inSceneMode=true且currentPage='home'时，
-  // 应该走renderScenePage而非renderHomePage
-  // 检查是否有其他render覆盖干扰了这一路径
+  // ========== Fix 3: render()场景模式强制走renderScenePage ==========
   var _origRender = window.render;
   window.render = function() {
-    // 场景模式强制走场景渲染
     if (window._inSceneMode && window.currentPage === 'home') {
       var app = document.getElementById('app');
       if (app && typeof window.renderScenePage === 'function') {
@@ -23561,8 +23373,47 @@ function _v2EnterChapter(chNum) {
     return _origRender.apply(this, arguments);
   };
 
+  // ========== Fix 4: renderBottomNav不显示在场景模式 ==========
+  var _origRenderBN = window.renderBottomNav;
+  window.renderBottomNav = function() {
+    if (window._inSceneMode) {
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      return;
+    }
+    if (_origRenderBN) _origRenderBN.apply(this, arguments);
+  };
+
+  // ========== Fix 5: _v2EnterDorm覆盖 — 清理故事残留+确保场景渲染 ==========
+  var _origEnterDorm = window._v2EnterDorm;
+  window._v2EnterDorm = function() {
+    // 清除故事残留
+    var _cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper', 'v2-story-overlay', 'v2-story-wrapper'];
+    for (var i = 0; i < _cleanIds.length; i++) {
+      var el = document.getElementById(_cleanIds[i]);
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+    // 清除教程残留
+    var tutEl = document.getElementById('v2-tutorial-overlay');
+    if (tutEl && tutEl.parentNode) tutEl.parentNode.removeChild(tutEl);
+
+    window._inSceneMode = true;
+    window.currentPage = 'home';
+    gameState._currentScene = 'dorm';
+
+    var bn = document.getElementById('bottomNav');
+    if (bn) bn.style.display = 'none';
+    if (typeof window.render === 'function') window.render();
+  };
+
+  // ========== Fix 6: 标记教程已完成（兼容残留检查） ==========
+  if (typeof gameState !== 'undefined') {
+    gameState._v260TutorialDone = true;
+  }
+  window._v260TutorialDone = true;
+  window._v2StartTutorial = function() {};
+
   // ========== Fix 7: 场景CSS补全 ==========
-  // 确保v221-scene相关CSS存在（防止加载顺序问题）
   if (!document.getElementById('v221-common-style')) {
     var s = document.createElement('style');
     s.id = 'v221-common-style';
@@ -23585,5 +23436,5 @@ function _v2EnterChapter(chNum) {
     document.head.appendChild(s);
   }
 
-  console.log('[V2-hotfix-v3] applied');
+  console.log('[V2-hotfix-v4] applied — no tutorial, scene mode fixed');
 })();
