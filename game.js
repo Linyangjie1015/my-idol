@@ -23415,3 +23415,175 @@ function _v2EnterChapter(chNum) {
 
   console.log('[V2-hotfix-v2] applied');
 })();
+// ============================================================
+// V2.0-hotfix-v3 — 根治剧情卡住+场景不渲染+打字机冒泡
+// ============================================================
+(function() {
+  if (window._v2HotfixV3Applied) return;
+  window._v2HotfixV3Applied = true;
+
+  // ========== 根因分析 ==========
+  // 1. 1.0 onComplete调_v23CheckChapterNodes(400ms)自动触发1.1
+  //    同时setTimeout(1s)进宿舍，两者打架
+  //    → 1.1故事被宿舍渲染打断，或overlay叠加混乱
+  // 2. 打字机el.onclick冒泡到overlay的onclick，
+  //    导致一次点击同时跳过打字+推进下一个场景
+  // 3. _v2EnterDorm可能被覆盖链中其他版本干扰
+
+  // ========== Fix 1: 打字机冒泡锁 ==========
+  // 每次_v23StoryAdvance执行后300ms内不再响应
+  var _advanceLock = false;
+  var _origAdvance = window._v23StoryAdvance;
+  window._v23StoryAdvance = function() {
+    if (_advanceLock) return;
+    _advanceLock = true;
+    _origAdvance();
+    setTimeout(function() { _advanceLock = false; }, 300);
+  };
+
+  // ========== Fix 2: 教程完成前不自动触发剧情节点 ==========
+  var _origCheckNodes = window._v23CheckChapterNodes;
+  window._v23CheckChapterNodes = function() {
+    // 教程未完成，不自动触发
+    if (gameState && !gameState._v260TutorialDone) return;
+    if (_origCheckNodes) _origCheckNodes.apply(this, arguments);
+  };
+
+  // ========== Fix 3: 覆盖1.0 onComplete ==========
+  // 在_v23ShowStoryNode被调用时，如果nodeId是1.0，
+  // 用setTimeout延迟覆盖V23_STORY_NODES['1.0'].onComplete
+  // 注意：V23_STORY_NODES是V2.3 IIFE内的局部变量，无法直接访问
+  // 但_v23ShowStoryNode可以访问它
+  // 更好的方案：在_v23RenderStoryDialog的!scene分支处拦截
+  // 
+  // 实际做法：hook _v23ShowStoryNode，当nodeId='1.0'时，
+  // 用setTimeout在下一轮事件循环中访问闭包内的V23_STORY_NODES
+  // 但这不可能——我们无法访问闭包变量
+  //
+  // 最终方案：覆盖_v23ShowStoryNode，在播放1.0时改用自己的渲染逻辑
+  var _origShowNode = window._v23ShowStoryNode;
+  window._v23ShowStoryNode = function(nodeId) {
+    if (nodeId === '1.0') {
+      // 1.0用自定义流程：播完后不自动触发1.1
+      // 复用原有的_v23RenderStoryDialog但用自定义onComplete
+      _origShowNode('1.0');
+      // 延迟覆盖1.0的onComplete
+      // 由于_v23ShowStoryNode内部已经设置了_v23StoryState，
+      // 我们无法直接修改node的onComplete
+      // 但我们可以hook _v23CloseStoryDialog来检测1.0完成
+      return;
+    }
+    _origShowNode(nodeId);
+  };
+
+  // ========== Fix 3b: 更直接的方案 ==========
+  // 在1.0 onComplete执行后，立即清理它可能启动的1.1剧情
+  // 方法：监控_v23StoryState，当1.0完成后如果1.1被自动启动，
+  // 立即关闭它，改为等教程完成后再触发
+  
+  // 1.0 onComplete中 setTimeout(_v23CheckChapterNodes, 400)
+  // 我们已经覆盖了_v23CheckChapterNodes在教程完成前不执行
+  // 所以1.1不会在1.0完成时自动触发
+  // 
+  // 但1.0 onComplete本身也会 delete _v23NodeTriggered['1.1']
+  // 这意味着1.1的锁被提前移除了
+  // 当教程完成后_v23CheckChapterNodes检查1.1时，
+  // 会发现1.0已完成+1.1未触发→触发1.1 ✓
+  // 这是正确的行为
+
+  // ========== Fix 4: 确保1.0完成后的宿舍场景正确渲染 ==========
+  // 覆盖_v2EnterDorm确保场景渲染路径正确
+  var _origEnterDorm = window._v2EnterDorm;
+  window._v2EnterDorm = function() {
+    // 清除故事背景层（可能在1.0播放时创建）
+    var bgEl = document.getElementById('v260-story-bg');
+    if (bgEl) bgEl.style.display = 'none';
+    
+    // 清除任何残留的故事overlay
+    var ids = ['v23-story-wrapper', 'v23-story-overlay', 'v2-story-wrapper', 'v2-story-overlay'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+
+    // 设置状态
+    window._inSceneMode = true;
+    window.currentPage = 'home';
+    gameState._currentScene = 'dorm';
+
+    // 隐藏底栏
+    var bn = document.getElementById('bottomNav');
+    if (bn) bn.style.display = 'none';
+
+    // 渲染宿舍场景
+    if (typeof window.render === 'function') window.render();
+  };
+
+  // ========== Fix 5: 教程完成后解锁1.1并触发检查 ==========
+  // V2.0教程完成后会设gameState._v260TutorialDone=true
+  // 我们检测这个标志，然后触发一次节点检查
+  var _tutCheckCount = 0;
+  var _tutCheckTimer = setInterval(function() {
+    _tutCheckCount++;
+    if (gameState && gameState._v260TutorialDone) {
+      clearInterval(_tutCheckTimer);
+      // 教程完成，确保1.1解锁
+      if (gameState._v23NodeTriggered) {
+        delete gameState._v23NodeTriggered['1.1'];
+      }
+      // 触发节点检查
+      setTimeout(function() {
+        if (typeof window._v23CheckChapterNodes === 'function') {
+          window._v23CheckChapterNodes();
+        }
+      }, 500);
+    }
+    // 超时保护：60秒后无论如何清除
+    if (_tutCheckCount > 60) clearInterval(_tutCheckTimer);
+  }, 1000);
+
+  // ========== Fix 6: 确保render()在场景模式下正确渲染 ==========
+  // 当_inSceneMode=true且currentPage='home'时，
+  // 应该走renderScenePage而非renderHomePage
+  // 检查是否有其他render覆盖干扰了这一路径
+  var _origRender = window.render;
+  window.render = function() {
+    // 场景模式强制走场景渲染
+    if (window._inSceneMode && window.currentPage === 'home') {
+      var app = document.getElementById('app');
+      if (app && typeof window.renderScenePage === 'function') {
+        var bn = document.getElementById('bottomNav');
+        if (bn) bn.style.display = 'none';
+        window.renderScenePage(app);
+        return;
+      }
+    }
+    return _origRender.apply(this, arguments);
+  };
+
+  // ========== Fix 7: 场景CSS补全 ==========
+  // 确保v221-scene相关CSS存在（防止加载顺序问题）
+  if (!document.getElementById('v221-common-style')) {
+    var s = document.createElement('style');
+    s.id = 'v221-common-style';
+    s.textContent = '.v221-scene{position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:hidden;z-index:100;background:#000;}'
+      + '.v221-scene-bg{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;transition:opacity 0.4s;}'
+      + '.v221-scene-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.45) 100%);z-index:1;pointer-events:none;}'
+      + '.v221-scene-vtop{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(180deg,rgba(13,11,30,0.4) 0%,transparent 100%);z-index:2;pointer-events:none;}'
+      + '.v221-scene-vbot{position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(0deg,rgba(13,11,30,0.6) 0%,transparent 100%);z-index:2;pointer-events:none;}'
+      + '.v221-scene-pill{position:absolute;top:max(10px,env(safe-area-inset-top));z-index:20;display:flex;align-items:center;gap:4px;background:rgba(13,11,30,0.5);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:300;color:rgba(255,255,255,0.8);}'
+      + '.v221-scene-day{left:12px;}'
+      + '.v221-scene-loc{right:12px;color:#C9A96E;}'
+      + '.v221-hs{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 3px;transition:all 0.2s;cursor:pointer;}'
+      + '.v221-hs:active{transform:scale(0.9);background:rgba(201,169,110,0.15);border-color:rgba(201,169,110,0.4);}'
+      + '.v221-hs svg{width:20px;height:20px;stroke:rgba(255,255,255,0.85);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}'
+      + '.v221-hs-label{font-size:9px;color:rgba(255,255,255,0.6);text-shadow:0 1px 3px rgba(0,0,0,0.8);white-space:nowrap;font-weight:300;letter-spacing:0.3px;}'
+      + '.v221-scene-bar{position:absolute;bottom:0;left:0;right:0;z-index:20;background:rgba(13,11,30,0.72);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);border-top:1px solid rgba(255,255,255,0.08);border-radius:16px 16px 0 0;padding:10px 24px max(12px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-around;}'
+      + '.v221-bar-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;}'
+      + '.v221-bar-btn svg{width:18px;height:18px;stroke:rgba(255,255,255,0.8);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}'
+      + '.v221-bar-btn span{font-size:10px;font-weight:300;color:rgba(255,255,255,0.6);}';
+    document.head.appendChild(s);
+  }
+
+  console.log('[V2-hotfix-v3] applied');
+})();
