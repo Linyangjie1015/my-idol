@@ -4493,7 +4493,7 @@ if (gameState.player.name && currentPage !== 'welcome' && currentPage !== 'creat
         if (page === 'bubble') { gameState.bubbleUnread = 0; }
         if (page === 'weverse') { gameState.weverseUnread = 0; }
         if (page === 'dating') { gameState.datingUnread = 0; }
-        if (page === 'home') { window._inSceneMode = false; /* new lobby home */ }
+        if (page === 'home') { /* scene mode preserved - V2.0-hotfix-v6 */ }
         currentPage = page;
         render();
         renderBottomNav();
@@ -23232,286 +23232,89 @@ function _v2EnterChapter(chNum) {
 
 })();
 // ============================================================
-// V2.0-hotfix-v2 — 修复4个问题
-// A. 确认V2.3函数已暴露到window
-// B. Patch render()拦截'create'页走V2.0创建UI
-// C. 1.0 onComplete是唯一完成处理（V2.3 IIFE内已处理）
-// D. 解除goToPage('story')拦截 + 确保走_v2ShowChapterList
-// E. 实现支线剧情函数_v270ShowPersonalStory
+// V2.0-hotfix-v6 — 彻底重写：场景保护+剧情按钮+流程修复
+// 根因修复：goToPage('home')不再清除_inSceneMode（已在4496行修改）
 // ============================================================
 (function() {
-  if (window._v2HotfixV2Applied) return;
-  window._v2HotfixV2Applied = true;
+  if (window._v2HotfixV6Applied) return;
+  window._v2HotfixV6Applied = true;
 
-  // ============ A. 确认V2.3函数已暴露 ============
-  if (typeof window._v23ShowStoryNode !== 'function') {
-    console.warn('[V2-hotfix-v2] _v23ShowStoryNode not on window!');
-  }
+  // ========== 1. goToPage: story走章节列表 ==========
+  var _prevGoToPage = window.goToPage;
+  window.goToPage = function(page) {
+    if (page === 'story') {
+      if (typeof window._v2ShowChapterList === 'function') {
+        window._v2ShowChapterList();
+      }
+      return;
+    }
+    return _prevGoToPage.apply(this, arguments);
+  };
 
-  // ============ B. Patch render() 拦截'create'页 ============
+  // ========== 2. render拦截: create页+场景模式+charAt兜底 ==========
   var _prevRender = window.render;
-  if (typeof _prevRender === 'function') {
-    window.render = function() {
+  window.render = function() {
+    try {
+      // create页走V2创建UI
       if (window.currentPage === 'create' && typeof window.renderCreationPage === 'function') {
         var app = document.getElementById('app');
-        if (app) window.renderCreationPage(app);
-        return;
+        if (app) { window.renderCreationPage(app); return; }
+      }
+      // 场景模式走renderScenePage
+      if (window._inSceneMode && window.currentPage === 'home') {
+        var app2 = document.getElementById('app');
+        if (app2 && typeof window.renderScenePage === 'function') {
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'none';
+          window.renderScenePage(app2);
+          return;
+        }
       }
       return _prevRender.apply(this, arguments);
-    };
-  }
-
-  // ============ C. 1.0 onComplete处理 ============
-  // 1.0的onComplete已在V23_STORY_NODES定义中处理：
-  //   关闭overlay → 解锁1.1 → 进宿舍 → 5秒后教程
-  // 不需要额外hook _v23StoryAdvance或_v23CompleteNode
-  // 注意：V2.0的_v23CompleteNode hook也会被1.1~1.8的onComplete调用
-  //   这些onComplete最后调_v23CheckChapterNodes，而_v23CheckChapterNodes
-  //   不走_v23CompleteNode。所以V2.0的解锁逻辑需要保留。
-
-  // ============ D. goToPage('story')确保走_v2ShowChapterList ============
-  var _curGoToPage = window.goToPage;
-  if (typeof _curGoToPage === 'function') {
-    window.goToPage = function(page) {
-      if (page === 'story') {
-        if (typeof window._v2ShowChapterList === 'function') {
-          window._v2ShowChapterList();
+    } catch(e) {
+      console.error('[V2-hotfix-v6] render error:', e.message);
+      if (e.message && e.message.indexOf('charAt') > -1) {
+        window._inSceneMode = false;
+        window.currentPage = 'home';
+        document.body.classList.add('v21-in-home');
+        try { _prevRender.apply(this, arguments); } catch(e2) {
+          var app3 = document.getElementById('app');
+          if (app3) {
+            app3.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FFF;font-weight:300;">加载中...</div></div>';
+            var self = arguments;
+            setTimeout(function() { try { _prevRender.apply(this, self); } catch(e3) {} }, 500);
+          }
         }
-        return;
-      }
-      return _curGoToPage.apply(this, arguments);
-    };
-  }
-
-  // ============ E. 实现支线剧情函数 ============
-  window._v270ShowPersonalStory = function(npcKey) {
-    var NPC_KEY_MAP = { haeun: '夏恩', soah: '素雅', jiwon: '智媛', junho: '俊昊', seokhyun: '瑞贤' };
-    var NPC_COLOR_MAP = { haeun: '#F472B6', soah: '#A78BFA', jiwon: '#FBBF24', junho: '#60A5FA', seokhyun: '#34D399' };
-    var npcName = NPC_KEY_MAP[npcKey] || npcKey;
-    var color = NPC_COLOR_MAP[npcKey] || '#C9A96E';
-    var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
-    var hearts = Math.floor(love / 50);
-
-    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
-      + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
-      + '<div onclick="document.getElementById(\'v2-personal-story\').remove();document.body.style.overflow=\'\';" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">关闭</div>'
-      + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">' + npcName + ' · 个人线</div>'
-      + '<div style="width:50px;"></div>'
-      + '</div><div style="padding:24px 20px 80px;text-align:center;">'
-      + '<div style="width:64px;height:64px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;margin:0 auto 16px;">' + npcName.charAt(0) + '</div>'
-      + '<div style="font-size:20px;font-weight:300;color:#FFF;margin-bottom:8px;">' + npcName + '</div>'
-      + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:24px;">好感度 ' + love + ' · ' + hearts + '♥</div>'
-      + '<div style="padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-align:left;">'
-      + '<div style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.8;font-weight:300;">个人线剧情正在开发中，敬请期待。</div>'
-      + '</div>'
-      + '</div></div>';
-
-    var old = document.getElementById('v2-personal-story');
-    if (old) old.remove();
-    var el = document.createElement('div');
-    el.id = 'v2-personal-story';
-    el.innerHTML = html;
-    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
-    document.body.appendChild(el);
-  };
-
-  console.log('[V2-hotfix-v2] applied');
-})();
-// ============================================================
-// V2.0-hotfix-v4 — 删教程+修场景渲染+修goToPage冲突
-// ============================================================
-(function() {
-  if (window._v2HotfixV4Applied) return;
-  window._v2HotfixV4Applied = true;
-
-  // ========== Fix 1: 打字机冒泡锁（保留） ==========
-  var _advanceLock = false;
-  var _origAdvance = window._v23StoryAdvance;
-  window._v23StoryAdvance = function() {
-    if (_advanceLock) return;
-    _advanceLock = true;
-    _origAdvance();
-    setTimeout(function() { _advanceLock = false; }, 300);
-  };
-
-  // ========== Fix 2: goToPage('home')不能退出场景模式 ==========
-  // 原始goToPage在page==='home'时设_inSceneMode=false，导致场景被覆盖
-  var _curGoToPage = window.goToPage;
-  window.goToPage = function(page) {
-    if (page === 'story') {
-      if (typeof window._v2ShowChapterList === 'function') {
-        window._v2ShowChapterList();
-      }
-      return;
-    }
-    var wasInScene = window._inSceneMode;
-    _curGoToPage.apply(this, arguments);
-    // 如果之前在场景模式且跳到home，恢复场景模式
-    if (wasInScene && page === 'home') {
-      window._inSceneMode = true;
-      var bn = document.getElementById('bottomNav');
-      if (bn) bn.style.display = 'none';
-      var app = document.getElementById('app');
-      if (app && typeof window.renderScenePage === 'function') {
-        window.renderScenePage(app);
+      } else {
+        throw e;
       }
     }
   };
 
-  // ========== Fix 3: render()场景模式强制走renderScenePage ==========
-  var _origRender = window.render;
-  window.render = function() {
-    if (window._inSceneMode && window.currentPage === 'home') {
-      var app = document.getElementById('app');
-      if (app && typeof window.renderScenePage === 'function') {
-        var bn = document.getElementById('bottomNav');
-        if (bn) bn.style.display = 'none';
-        window.renderScenePage(app);
-        return;
-      }
+  // ========== 3. renderScenePage: 添加剧情按钮+修改我的按钮 ==========
+  var _prevRenderScenePage = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    _prevRenderScenePage(container);
+    if (!container) return;
+
+    // 修改底栏: 找到"我的"按钮改为overlay
+    var meBtn = container.querySelector('[onclick*="goToPage(\'me\')"]');
+    if (meBtn) {
+      meBtn.setAttribute('onclick', '_v6ShowMeOverlay()');
     }
-    return _origRender.apply(this, arguments);
-  };
 
-  // ========== Fix 4: renderBottomNav不显示在场景模式 ==========
-  var _origRenderBN = window.renderBottomNav;
-  window.renderBottomNav = function() {
-    if (window._inSceneMode) {
-      var bn = document.getElementById('bottomNav');
-      if (bn) bn.style.display = 'none';
-      return;
-    }
-    if (_origRenderBN) _origRenderBN.apply(this, arguments);
-  };
-
-  // ========== Fix 5: _v2EnterDorm覆盖 — 清理故事残留+确保场景渲染 ==========
-  var _origEnterDorm = window._v2EnterDorm;
-  window._v2EnterDorm = function() {
-    // 清除故事残留
-    var _cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper', 'v2-story-overlay', 'v2-story-wrapper'];
-    for (var i = 0; i < _cleanIds.length; i++) {
-      var el = document.getElementById(_cleanIds[i]);
-      if (el && el.parentNode) el.parentNode.removeChild(el);
-    }
-    // 清除教程残留
-    var tutEl = document.getElementById('v2-tutorial-overlay');
-    if (tutEl && tutEl.parentNode) tutEl.parentNode.removeChild(tutEl);
-
-    window._inSceneMode = true;
-    window.currentPage = 'home';
-    gameState._currentScene = 'dorm';
-
-    var bn = document.getElementById('bottomNav');
-    if (bn) bn.style.display = 'none';
-    if (typeof window.render === 'function') window.render();
-  };
-
-  // ========== Fix 6: 标记教程已完成（兼容残留检查） ==========
-  if (typeof gameState !== 'undefined') {
-    gameState._v260TutorialDone = true;
-  }
-  window._v260TutorialDone = true;
-  window._v2StartTutorial = function() {};
-
-  // ========== Fix 7: 场景CSS补全 ==========
-  if (!document.getElementById('v221-common-style')) {
-    var s = document.createElement('style');
-    s.id = 'v221-common-style';
-    s.textContent = '.v221-scene{position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:hidden;z-index:100;background:#000;}'
-      + '.v221-scene-bg{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;transition:opacity 0.4s;}'
-      + '.v221-scene-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.45) 100%);z-index:1;pointer-events:none;}'
-      + '.v221-scene-vtop{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(180deg,rgba(13,11,30,0.4) 0%,transparent 100%);z-index:2;pointer-events:none;}'
-      + '.v221-scene-vbot{position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(0deg,rgba(13,11,30,0.6) 0%,transparent 100%);z-index:2;pointer-events:none;}'
-      + '.v221-scene-pill{position:absolute;top:max(10px,env(safe-area-inset-top));z-index:20;display:flex;align-items:center;gap:4px;background:rgba(13,11,30,0.5);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:300;color:rgba(255,255,255,0.8);}'
-      + '.v221-scene-day{left:12px;}'
-      + '.v221-scene-loc{right:12px;color:#C9A96E;}'
-      + '.v221-hs{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 3px;transition:all 0.2s;cursor:pointer;}'
-      + '.v221-hs:active{transform:scale(0.9);background:rgba(201,169,110,0.15);border-color:rgba(201,169,110,0.4);}'
-      + '.v221-hs svg{width:20px;height:20px;stroke:rgba(255,255,255,0.85);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}'
-      + '.v221-hs-label{font-size:9px;color:rgba(255,255,255,0.6);text-shadow:0 1px 3px rgba(0,0,0,0.8);white-space:nowrap;font-weight:300;letter-spacing:0.3px;}'
-      + '.v221-scene-bar{position:absolute;bottom:0;left:0;right:0;z-index:20;background:rgba(13,11,30,0.72);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);border-top:1px solid rgba(255,255,255,0.08);border-radius:16px 16px 0 0;padding:10px 24px max(12px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-around;}'
-      + '.v221-bar-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;}'
-      + '.v221-bar-btn svg{width:18px;height:18px;stroke:rgba(255,255,255,0.8);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}'
-      + '.v221-bar-btn span{font-size:10px;font-weight:300;color:rgba(255,255,255,0.6);}';
-    document.head.appendChild(s);
-  }
-
-  console.log('[V2-hotfix-v4] applied — no tutorial, scene mode fixed');
-})();
-// V2.0-hotfix-v5 — 彻底修复场景加载+剧情按钮+流程问题
-// 根因：
-// 1. goToPage('home')原始代码设_inSceneMode=false，场景丢失
-// 2. goToPage('me')从场景底栏调用时currentPage变'me'，render走case'me'不检查_inSceneMode
-// 3. 从子页面返回home时_inSceneMode已被清除，无法恢复场景
-// 4. _v23CheckChapterNodes在场景渲染时误触发自动剧情
-// 5. 场景底栏goToPage('me')直接跳转破坏场景
-(function() {
-  if (window._v2HotfixV5Applied) return;
-  window._v2HotfixV5Applied = true;
-
-  // ========== Fix 1: goToPage彻底保护场景模式 ==========
-  var _curGoToPage = window.goToPage;
-  window.goToPage = function(page) {
-    if (page === 'story') {
-      if (typeof window._v2ShowChapterList === 'function') {
-        window._v2ShowChapterList();
-      }
-      return;
-    }
-    var wasInScene = !!window._inSceneMode;
-    var sceneBefore = (typeof gameState !== 'undefined' && gameState._currentScene) || '';
-    _curGoToPage.apply(this, arguments);
-    // 如果之前在场景模式，goToPage把_inSceneMode清了
-    if (wasInScene && page === 'home' && !window._inSceneMode) {
-      window._inSceneMode = true;
-      gameState._currentScene = sceneBefore || 'dorm';
-      var bn = document.getElementById('bottomNav');
-      if (bn) bn.style.display = 'none';
-      var app = document.getElementById('app');
-      if (app && typeof window.renderScenePage === 'function') {
-        window.renderScenePage(app);
-      }
-    }
-    // 从场景跳到子页面(me/training等)，记住需要恢复
-    if (wasInScene && page !== 'home' && !window._inSceneMode) {
-      window._sceneModePending = true;
-      window._sceneModeScene = sceneBefore;
-    }
-    // 跳回home且有pending场景
-    if (page === 'home' && window._sceneModePending) {
-      window._inSceneMode = true;
-      gameState._currentScene = window._sceneModeScene || 'dorm';
-      window._sceneModePending = false;
-      window._sceneModeScene = '';
-      var bn2 = document.getElementById('bottomNav');
-      if (bn2) bn2.style.display = 'none';
-      var app2 = document.getElementById('app');
-      if (app2 && typeof window.renderScenePage === 'function') {
-        window.renderScenePage(app2);
-      }
+    // 在底栏添加"剧情"按钮
+    var bar = container.querySelector('.v221-scene-bar');
+    if (bar && !bar.querySelector('._v6-story-btn')) {
+      var storyBtn = document.createElement('div');
+      storyBtn.className = 'v221-bar-btn _v6-story-btn';
+      storyBtn.setAttribute('onclick', "if(typeof _v2ShowChapterList==='function'){_v2ShowChapterList();}");
+      storyBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span>\u5267\u60c5</span>';
+      bar.insertBefore(storyBtn, bar.firstChild);
     }
   };
 
-  // ========== Fix 2: render()全面拦截场景模式 ==========
-  var _prevRender = window.render;
-  window.render = function() {
-    if (window.currentPage === 'create' && typeof window.renderCreationPage === 'function') {
-      var app = document.getElementById('app');
-      if (app) { window.renderCreationPage(app); return; }
-    }
-    if (window._inSceneMode && window.currentPage === 'home') {
-      var app = document.getElementById('app');
-      if (app && typeof window.renderScenePage === 'function') {
-        var bn = document.getElementById('bottomNav');
-        if (bn) bn.style.display = 'none';
-        window.renderScenePage(app);
-        return;
-      }
-    }
-    return _prevRender.apply(this, arguments);
-  };
-
-  // ========== Fix 3: renderBottomNav在场景模式下隐藏 ==========
+  // ========== 4. renderBottomNav: 场景模式隐藏 ==========
   var _prevBN = window.renderBottomNav;
   window.renderBottomNav = function() {
     if (window._inSceneMode) {
@@ -23522,7 +23325,7 @@ function _v2EnterChapter(chNum) {
     if (_prevBN) _prevBN.apply(this, arguments);
   };
 
-  // ========== Fix 4: _exitSceneToUI清理pending ==========
+  // ========== 5. _exitSceneToUI: 清理场景状态 ==========
   var _origExit = window._exitSceneToUI;
   window._exitSceneToUI = function() {
     window._sceneModePending = false;
@@ -23530,20 +23333,19 @@ function _v2EnterChapter(chNum) {
     if (_origExit) _origExit.apply(this, arguments);
   };
 
-  // ========== Fix 5: _v2EnterDorm增强 ==========
+  // ========== 6. _v2EnterDorm: 进宿舍(1.0完成后) ==========
   var _origEnterDorm = window._v2EnterDorm;
   window._v2EnterDorm = function() {
-    var _cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper',
+    // 清除故事/教程/章节列表残留
+    var cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper',
                      'v2-story-overlay', 'v2-story-wrapper', 'v2-tutorial-overlay',
                      'v2-chapter-list', 'v2-personal-story'];
-    for (var i = 0; i < _cleanIds.length; i++) {
-      var el = document.getElementById(_cleanIds[i]);
+    for (var i = 0; i < cleanIds.length; i++) {
+      var el = document.getElementById(cleanIds[i]);
       if (el && el.parentNode) el.parentNode.removeChild(el);
     }
     document.body.style.overflow = '';
     window._inSceneMode = true;
-    window._sceneModePending = false;
-    window._sceneModeScene = '';
     window.currentPage = 'home';
     gameState._currentScene = 'dorm';
     gameState._v260TutorialDone = true;
@@ -23557,7 +23359,7 @@ function _v2EnterChapter(chNum) {
     }
   };
 
-  // ========== Fix 6: 打字机冒泡锁 ==========
+  // ========== 7. 打字机冒泡锁 ==========
   var _advanceLock = false;
   var _origAdvance = window._v23StoryAdvance;
   if (typeof _origAdvance === 'function') {
@@ -23569,14 +23371,14 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // ========== Fix 7: 标记教程完成 ==========
+  // ========== 8. 教程标记完成 ==========
   if (typeof gameState !== 'undefined') {
     gameState._v260TutorialDone = true;
   }
   window._v260TutorialDone = true;
   window._v2StartTutorial = function() {};
 
-  // ========== Fix 8: 场景模式不自动触发剧情 ==========
+  // ========== 9. 场景模式不自动触发剧情 ==========
   var _origCheck = window._v23CheckChapterNodes;
   if (typeof _origCheck === 'function') {
     window._v23CheckChapterNodes = function() {
@@ -23592,17 +23394,19 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // ========== Fix 9: 场景底栏goToPage('me')改为overlay ==========
-  var _v223RenderScene = window.renderScenePage;
-  window.renderScenePage = function(container) {
-    _v223RenderScene(container);
-    var meBtn = container.querySelector('[onclick*="goToPage(\'me\')"]');
-    if (meBtn) {
-      meBtn.setAttribute('onclick', '_v5ShowMeOverlay()');
-    }
-  };
+  // ========== 10. _navigateScene确保场景模式 ==========
+  var _origNavScene = window._navigateScene;
+  if (typeof _origNavScene === 'function') {
+    window._navigateScene = function(sceneId) {
+      _origNavScene.apply(this, arguments);
+      window._inSceneMode = true;
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+    };
+  }
 
-  window._v5ShowMeOverlay = function() {
+  // ========== 11. 我的overlay(场景内不跳转) ==========
+  window._v6ShowMeOverlay = function() {
     var p = gameState.player || {};
     var pName = p.name || '';
     var pGender = p.gender === 'F' ? '\u5973' : p.gender === 'M' ? '\u7537' : '';
@@ -23610,11 +23414,10 @@ function _v2EnterChapter(chNum) {
     var pRole = p.role === 'Trainee' ? '\u7ec3\u4e60\u751f' : (p.role || '');
     var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
       + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
-      + '<div onclick="document.getElementById(\'v5-me-overlay\').remove();" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">\u8fd4\u56de\u573a\u666f</div>'
+      + '<div onclick="document.getElementById(\'v6-me-overlay\').remove();" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">\u8fd4\u56de\u573a\u666f</div>'
       + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">\u6211\u7684</div>'
       + '<div style="width:60px;"></div>'
-      + '</div>'
-      + '<div style="padding:24px 20px 80px;text-align:center;">'
+      + '</div><div style="padding:24px 20px 80px;text-align:center;">'
       + '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#C9A96E,#A78BFA);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;margin:0 auto 16px;">' + (pName.charAt(0) || '?') + '</div>'
       + '<div style="font-size:20px;font-weight:300;color:#FFF;margin-bottom:8px;">' + pName + '</div>'
       + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px;">' + pGender + ' \u00b7 ' + pAge + '\u5c81 \u00b7 ' + pRole + '</div>'
@@ -23622,38 +23425,57 @@ function _v2EnterChapter(chNum) {
       + '<div style="padding:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;">'
       + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;">\u72b6\u6001</div>'
       + '<div style="display:flex;justify-content:space-around;">'
-      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#F472B6;">' + (gameState.体力 || 0) + '</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">\u4f53\u529b</div></div>'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#F472B6;">' + (gameState['\u4f53\u529b'] || 0) + '</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">\u4f53\u529b</div></div>'
       + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#A78BFA;">' + (gameState.life || 100) + '%</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">\u751f\u547d</div></div>'
       + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#C9A96E;">' + (gameState.fame || 30) + '</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">\u540d\u6c14</div></div>'
       + '</div></div>'
-      + '<div onclick="document.getElementById(\'v5-me-overlay\').remove();goToPage(\'me\');" style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-align:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6);font-weight:300;">\u67e5\u770b\u5b8c\u6574\u8d44\u6599</div>'
+      + '<div onclick="document.getElementById(\'v6-me-overlay\').remove();goToPage(\'me\');" style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-align:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6);font-weight:300;">\u67e5\u770b\u5b8c\u6574\u8d44\u6599</div>'
       + '</div></div>';
-    var old = document.getElementById('v5-me-overlay');
+    var old = document.getElementById('v6-me-overlay');
     if (old) old.remove();
     var el = document.createElement('div');
-    el.id = 'v5-me-overlay';
+    el.id = 'v6-me-overlay';
     el.innerHTML = html;
     el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
     document.body.appendChild(el);
   };
 
-  // ========== Fix 10: _navigateScene确保场景模式 ==========
-  var _origNavScene = window._navigateScene;
-  if (typeof _origNavScene === 'function') {
-    window._navigateScene = function(sceneId) {
-      _origNavScene.apply(this, arguments);
-      window._inSceneMode = true;
-      window._sceneModePending = false;
-      window._sceneModeScene = '';
-      var bn = document.getElementById('bottomNav');
-      if (bn) bn.style.display = 'none';
+  // ========== 12. _v270ShowPersonalStory: 支线剧情(确保window上有) ==========
+  if (typeof window._v270ShowPersonalStory !== 'function') {
+    window._v270ShowPersonalStory = function(npcKey) {
+      var NPC_KEY_MAP = { haeun: '\u590f\u6069', soah: '\u7d20\u96c5', jiwon: '\u667a\u5a9b', junho: '\u4fca\u660a', seokhyun: '\u745e\u8d24' };
+      var NPC_COLOR_MAP = { haeun: '#F472B6', soah: '#A78BFA', jiwon: '#FBBF24', junho: '#60A5FA', seokhyun: '#34D399' };
+      var npcName = NPC_KEY_MAP[npcKey] || npcKey;
+      var color = NPC_COLOR_MAP[npcKey] || '#C9A96E';
+      var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+      var hearts = Math.floor(love / 50);
+      var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
+        + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
+        + '<div onclick="document.getElementById(\'v2-personal-story\').remove();document.body.style.overflow=\'\';" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">\u5173\u95ed</div>'
+        + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">' + npcName + ' \u00b7 \u4e2a\u4eba\u7ebf</div>'
+        + '<div style="width:50px;"></div>'
+        + '</div><div style="padding:24px 20px 80px;text-align:center;">'
+        + '<div style="width:64px;height:64px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;margin:0 auto 16px;">' + npcName.charAt(0) + '</div>'
+        + '<div style="font-size:20px;font-weight:300;color:#FFF;margin-bottom:8px;">' + npcName + '</div>'
+        + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:24px;">\u597d\u611f\u5ea6 ' + love + ' \u00b7 ' + hearts + '\u2665</div>'
+        + '<div style="padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-align:left;">'
+        + '<div style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.8;font-weight:300;">\u4e2a\u4eba\u7ebf\u5267\u60c5\u6b63\u5728\u5f00\u53d1\u4e2d\uff0c\u656c\u8bf7\u671f\u5f85\u3002</div>'
+        + '</div>'
+        + '</div></div>';
+      var old = document.getElementById('v2-personal-story');
+      if (old) old.remove();
+      var el = document.createElement('div');
+      el.id = 'v2-personal-story';
+      el.innerHTML = html;
+      el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
+      document.body.appendChild(el);
     };
   }
 
-  // ========== Fix 11: 场景CSS补全 ==========
-  if (!document.getElementById('v2-hotfix-v5-scene-css')) {
+  // ========== 13. 场景CSS补全 ==========
+  if (!document.getElementById('v2-hotfix-v6-scene-css')) {
     var s = document.createElement('style');
-    s.id = 'v2-hotfix-v5-scene-css';
+    s.id = 'v2-hotfix-v6-scene-css';
     s.textContent = '.v221-scene{position:fixed;top:0;left:0;width:100vw;height:100vh;overflow:hidden;z-index:100;background:#000;}'
       + '.v221-scene-bg{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;transition:opacity 0.4s;}'
       + '.v221-scene-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.45) 100%);z-index:1;pointer-events:none;}'
@@ -23673,5 +23495,6 @@ function _v2EnterChapter(chNum) {
     document.head.appendChild(s);
   }
 
-  console.log('[V2-hotfix-v5] applied — scene mode fully protected, story buttons fixed, flow stabilized');
+  window.V2_VERSION = 'v2.0-hotfix-v6';
+  console.log('[V2-hotfix-v6] applied — root cause fixed, story button added, scene mode preserved');
 })();
