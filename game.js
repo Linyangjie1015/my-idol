@@ -24491,3 +24491,105 @@ function _v2EnterChapter(chNum) {
 
   console.log('[V10r2] applied — _v23StoryChoose try-catch + _v23CompleteNode protection + dorm entry safeguard');
 })();
+// V2.0-hotfix-v11: 修复故事overlay手机边框露出 + 点击稳定性提升
+(function() {
+  if (window._v2HotfixV11Applied) return;
+  window._v2HotfixV11Applied = true;
+
+  // ========== 1. 故事overlay全屏覆盖修复 ==========
+  // 问题：1.2剧情时手机浏览器边框/导航栏露出，破坏沉浸感
+  // 根因：overlay渐变底部透明度0.92，页面内容透过；wrapper没有overflow:hidden；body没有锁定滚动
+  // 修复：
+  //   a) 渐变底部改为1.0全黑，从上到下渐变：0.15→0.5→0.85→1.0
+  //   b) wrapper加overflow:hidden + 全屏覆盖
+  //   c) overlay加safe-area底部padding，内容区上推避开浏览器栏区域
+  //   d) 故事播放时body加overflow:hidden防滚动露出边框
+
+  // 移除旧的v10 overlay CSS，替换为更完善的版本
+  var oldCss = document.getElementById('v10-story-overlay-css');
+  if (oldCss && oldCss.parentNode) oldCss.parentNode.removeChild(oldCss);
+
+  var v11Css = document.createElement('style');
+  v11Css.id = 'v10-story-overlay-css'; // 保持同ID避免重复
+  v11Css.textContent = ''
+    // overlay渐变：上透明让场景背景透出，下全黑遮住浏览器栏
+    + '#v23-story-overlay{'
+    + 'background:linear-gradient(180deg,'
+    + 'rgba(13,11,30,0.15) 0%,'
+    + 'rgba(13,11,30,0.50) 35%,'
+    + 'rgba(13,11,30,0.85) 65%,'
+    + 'rgba(13,11,30,0.98) 85%,'
+    + 'rgba(13,11,30,1) 100%)!important;'
+    + 'padding-bottom:calc(env(safe-area-inset-bottom,0px) + 48px)!important;'
+    + '}'
+    // wrapper全屏 + overflow:hidden
+    + '#v23-story-wrapper{'
+    + 'position:fixed!important;'
+    + 'top:0!important;left:0!important;right:0!important;bottom:0!important;'
+    + 'width:100vw!important;height:100vh!important;height:100dvh!important;'
+    + 'z-index:10000!important;'
+    + 'overflow:hidden!important;'
+    + 'background:#0D0B1E!important;'
+    + '}'
+    // 故事内文本框上推，避开浏览器栏
+    + '#v23-story-overlay > div:last-child{'
+    + 'margin-bottom:max(20px,calc(env(safe-area-inset-bottom,0px) + 48px))!important;'
+    + '}';
+  document.head.appendChild(v11Css);
+
+  // ========== 2. 故事播放时锁定body滚动 ==========
+  var _v11OrigAdvance = window._v23StoryAdvance;
+  var _v11BodyOverflowSaved = '';
+
+  // 监听v23-story-wrapper的出现/消失
+  var _v11BodyLockObserver = new MutationObserver(function(mutations) {
+    var wrapper = document.getElementById('v23-story-wrapper');
+    if (wrapper) {
+      // 故事出现时锁定body
+      if (!document.body.dataset.v11Locked) {
+        _v11BodyOverflowSaved = document.body.style.overflow || '';
+        document.body.style.overflow = 'hidden';
+        document.body.dataset.v11Locked = '1';
+      }
+    } else {
+      // 故事消失时解锁body
+      if (document.body.dataset.v11Locked) {
+        document.body.style.overflow = _v11BodyOverflowSaved;
+        delete document.body.dataset.v11Locked;
+      }
+    }
+  });
+  _v11BodyLockObserver.observe(document.body, { childList: true });
+
+  // ========== 3. _v10SetStoryBg更新：场景背景图也覆盖safe-area ==========
+  // 由于wrapper现在有#0D0B1E背景（会遮住v10-story-bg），
+  // 需要把场景背景图放到wrapper内部，或者调整z-index
+  // 方案：让v10-story-bg的z-index高于wrapper，但低于overlay
+  // 不行——wrapper包含overlay，bg在wrapper外面
+  // 更好的方案：把bg的z-index提升到10001，但设pointer-events:none
+  function _v11UpdateStoryBg() {
+    var bg = document.getElementById('v10-story-bg');
+    if (bg) {
+      // 让场景背景图在wrapper之上
+      bg.style.zIndex = '10001';
+      bg.style.pointerEvents = 'none';
+    }
+  }
+
+  // 在_v10SetStoryBg之后调用
+  var _v11BgObserver = new MutationObserver(function(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      for (var j = 0; j < mutations[i].addedNodes.length; j++) {
+        if (mutations[i].addedNodes[j].id === 'v10-story-bg') {
+          _v11UpdateStoryBg();
+        }
+      }
+    }
+  });
+  _v11BgObserver.observe(document.body, { childList: true });
+
+  // 立即更新已有的bg
+  _v11UpdateStoryBg();
+
+  console.log('[V11] applied — story overlay fullscreen + body scroll lock + scene bg z-index fix');
+})();
