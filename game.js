@@ -24364,3 +24364,130 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.0-hotfix-v10';
   console.log('[V2-hotfix-v10] applied — consolidated v6/v7/v9, fixed advance lock, fixed chapter check, enhanced error logging');
 })();
+
+// V2.0-hotfix-v10-r2 — 安全加固：_v23StoryChoose try-catch + onComplete保护 + 场景修正
+(function() {
+  if (window._v2HotfixV10R2Applied) return;
+  window._v2HotfixV10R2Applied = true;
+
+  // ========== 1. _v23StoryChoose try-catch保护 ==========
+  // 1.1有选择场景，如果选择时抛出ReferenceError会导致整个故事系统卡死
+  var _v10r2OrigChoose = window._v23StoryChoose;
+  if (typeof _v10r2OrigChoose === 'function') {
+    window._v23StoryChoose = function(optIdx) {
+      try {
+        _v10r2OrigChoose(optIdx);
+      } catch(e) {
+        console.error('[V10r2] _v23StoryChoose error:', e.message);
+        // 尝试恢复：关闭当前对话框，推进到下一个场景
+        try {
+          var st = window._v23StoryState;
+          if (st) {
+            st.waitingChoice = false;
+          }
+          var w = document.getElementById('v23-story-wrapper');
+          if (w && w.parentNode) w.parentNode.removeChild(w);
+          setTimeout(function() {
+            if (typeof window._v23StoryAdvance === 'function') window._v23StoryAdvance();
+          }, 300);
+        } catch(e2) {
+          console.error('[V10r2] recovery failed:', e2.message);
+        }
+        if (typeof showToast === 'function') {
+          showToast('Error in choice: ' + (e.message || '').substring(0, 60));
+        }
+      }
+    };
+  }
+
+  // ========== 2. _v23CompleteNode try-catch保护 ==========
+  // onComplete可能抛出异常
+  var _v10r2OrigComplete = window._v23CompleteNode;
+  if (typeof _v10r2OrigComplete === 'function') {
+    window._v23CompleteNode = function(nodeId) {
+      try {
+        _v10r2OrigComplete(nodeId);
+      } catch(e) {
+        console.error('[V10r2] _v23CompleteNode error:', e.message);
+        // 强制标记完成
+        try {
+          if (typeof gameState !== 'undefined' && gameState.chapterState) {
+            gameState.chapterState.nodesCompleted[nodeId] = true;
+          }
+        } catch(e2) {}
+        if (typeof showToast === 'function') {
+          showToast('Error on complete: ' + (e.message || '').substring(0, 60));
+        }
+      }
+    };
+  }
+
+  // ========== 3. _v2EnterDorm加强：确保场景状态正确 ==========
+  var _v10r2OrigEnterDorm = window._v2EnterDorm;
+  window._v2EnterDorm = function() {
+    try {
+      // 清除所有故事/教程/背景残留
+      var cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper',
+                       'v2-story-overlay', 'v2-story-wrapper', 'v2-tutorial-overlay',
+                       'v2-chapter-list', 'v2-personal-story',
+                       'v9-story-bg', 'v10-story-bg', 'v10-npc-bubble'];
+      for (var i = 0; i < cleanIds.length; i++) {
+        var el = document.getElementById(cleanIds[i]);
+        if (el && el.parentNode) el.parentNode.removeChild(el);
+      }
+      document.body.style.overflow = '';
+      window._inSceneMode = true;
+      window.currentPage = 'home';
+      gameState._currentScene = 'dorm';
+      gameState._v260TutorialDone = true;
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      var app = document.getElementById('app');
+      if (app && typeof window.renderScenePage === 'function') {
+        window.renderScenePage(app);
+      } else if (typeof window.render === 'function') {
+        window.render();
+      }
+    } catch(e) {
+      console.error('[V10r2] _v2EnterDorm error:', e.message);
+      // 最后手段：直接渲染
+      window._inSceneMode = true;
+      window.currentPage = 'home';
+      gameState._currentScene = 'dorm';
+      if (typeof window.render === 'function') window.render();
+    }
+  };
+
+  // ========== 4. 1.0 onComplete加固：确保_v2EnterDorm一定执行 ==========
+  // 覆盖V2.0的_v23CompleteNode hook，确保1.0完成后进宿舍
+  var _v10r2OrigV2Complete = window._v23CompleteNode;
+  // 不需要再覆盖，因为1.0的onComplete已经调用了_v2EnterDorm
+  // 但需要确保_v2EnterDorm在1.0完成后被调用
+  // 用MutationObserver监听：当1.0的故事overlay消失后，如果没有进入宿舍，强制进入
+  var _v10r2Node1Done = false;
+  var _v10r2DormTimer = null;
+
+  var _v10r2StoryObserver = new MutationObserver(function(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      var m = mutations[i];
+      for (var k = 0; k < m.removedNodes.length; k++) {
+        if (m.removedNodes[k].id === 'v23-story-wrapper') {
+          // 故事对话框被移除了
+          // 如果1.0刚完成且还没进宿舍，2秒后强制进宿舍
+          if (gameState.chapterState && gameState.chapterState.nodesCompleted['1.0'] && !gameState.chapterState.nodesCompleted['1.1']) {
+            clearTimeout(_v10r2DormTimer);
+            _v10r2DormTimer = setTimeout(function() {
+              if (gameState._currentScene !== 'dorm' && !document.getElementById('v23-story-wrapper')) {
+                console.log('[V10r2] Forcing dorm entry after 1.0');
+                if (typeof window._v2EnterDorm === 'function') window._v2EnterDorm();
+              }
+            }, 2000);
+          }
+        }
+      }
+    }
+  });
+  _v10r2StoryObserver.observe(document.body, { childList: true });
+
+  console.log('[V10r2] applied — _v23StoryChoose try-catch + _v23CompleteNode protection + dorm entry safeguard');
+})();
