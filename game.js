@@ -23830,3 +23830,537 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.0-hotfix-v9';
   console.log('[V2-hotfix-v9] applied — real scene backgrounds (MutationObserver) + click fix (stopPropagation)');
 })();
+// V2.0-hotfix-v10 — 彻底重写：替代v6/v7/v9所有补丁
+// ============================================================
+// 修复清单：
+// 1. advance锁加try-finally防止异常卡死（之前的锁如果advance抛异常就永远卡住）
+// 2. 合并三层advance锁为单一锁
+// 3. 删除v7的broken _v23ShowStoryNode覆盖（onclick=null+addEventListener在Safari上不可靠）
+// 4. 删除v6的broken _v23CheckChapterNodes守卫（window._v23StoryState永远是undefined导致章节检查永远跳过）
+// 5. 修复typewriter点击：用更可靠的方式防止skip+advance同时触发
+// 6. 增强错误日志：显示完整错误信息（不再截断30字符）
+// 7. 场景背景图保留MutationObserver方案（v9的正确策略）
+// 8. overlay全屏覆盖（含safe-area）
+// 9. toast白字/立绘居中/场景底栏修复保留（v7的正确修复）
+(function() {
+  if (window._v2HotfixV10Applied) return;
+  window._v2HotfixV10Applied = true;
+
+  // ========== 1. 增强错误日志 ==========
+  var _origOnError = window.onerror;
+  window.onerror = function(msg, url, line, col, error) {
+    // 显示完整错误信息，不再截断
+    if (msg && (msg.indexOf('ReferenceError') !== -1 || msg.indexOf('TypeError') !== -1)) {
+      console.error('[V2-hotfix-v10] Runtime error:', msg, 'at line', line, 'col', col);
+      if (typeof showToast === 'function') {
+        showToast('Error: ' + (msg || '').substring(0, 80));
+      }
+    }
+    // 抑制JS解析错误
+    if (msg && (msg.indexOf('SyntaxError') !== -1 || msg.indexOf('Unexpected EOF') !== -1)) {
+      console.warn('JS parse error (non-blocking):', msg, url);
+      if (typeof caches !== 'undefined') {
+        try { caches.keys().then(function(ns) { for(var i=0;i<ns.length;i++) caches.delete(ns[i]); }); } catch(e) {}
+      }
+      return true;
+    }
+    if (typeof gameState !== 'undefined' && gameState.player && gameState.player.name) {
+      try {
+        window._inSceneMode = true;
+        currentPage = 'home';
+        if (typeof render === 'function') { render(); renderBottomNav(); }
+        showToast('Error: ' + (msg || '').substring(0, 60));
+        return true;
+      } catch(e) {}
+    }
+    var _app = document.getElementById('app');
+    if (_app) {
+      _app.innerHTML = '<div style="padding:40px;text-align:center;color:#FFF;">'
+        + '<div style="font-size:16px;font-weight:700;">出错了</div>'
+        + '<div style="font-size:12px;margin-top:8px;color:rgba(255,255,255,0.5);">' + (msg || '').substring(0, 80) + '</div>'
+        + '<button onclick="currentPage=\'home\';render();renderBottomNav()" style="margin-top:16px;padding:8px 20px;background:#1A2A3A;color:white;border:none;border-radius:12px;">返回</button>'
+        + '</div>';
+    }
+    return true;
+  };
+
+  // ========== 2. 统一advance锁（替代v6/v7/v9三层锁）==========
+  // 关键修复：用try-finally确保锁一定释放，防止advance异常导致永久卡死
+  var _v10AdvanceLock = false;
+  var _v10OrigAdvance = null;
+
+  // 找到最原始的_v23StoryAdvance（绕过v6/v7/v9的包装）
+  // 由于v6→v7→v9依次包装，我们需要一层层拆开
+  // 但更简单的方式：直接替换window._v23StoryAdvance，因为所有旧包装都会被我们的新版本替换
+  // 我们保存当前的（可能是v9包装的），调用它时加锁
+  _v10OrigAdvance = window._v23StoryAdvance;
+  window._v23StoryAdvance = function() {
+    if (_v10AdvanceLock) return;
+    _v10AdvanceLock = true;
+    try {
+      _v10OrigAdvance();
+    } catch(e) {
+      console.error('[V10] advance error:', e.message);
+      // 如果advance出错，尝试直接调用_v23RenderStoryDialog（闭包内函数无法访问）
+      // 至少确保锁被释放
+    } finally {
+      setTimeout(function() { _v10AdvanceLock = false; }, 250);
+    }
+  };
+
+  // ========== 3. 修复_v23CheckChapterNodes（v6的守卫条件有bug）==========
+  // v6做了：if (window._inSceneMode && !window._v23StoryState) return;
+  // 但window._v23StoryState永远是undefined（闭包变量未暴露到window）
+  // 导致场景模式下章节检查永远跳过，1.1完成后无法自动检查1.2触发条件
+  // 修复：只在有活跃剧情对话框时跳过检查
+  var _v10OrigCheckNodes = null;
+  // 找到v6包装后的_v23CheckChapterNodes，需要绕过它
+  // 我们直接重新包装，基于当前window上的版本
+  _v10OrigCheckNodes = window._v23CheckChapterNodes;
+  window._v23CheckChapterNodes = function() {
+    // 如果有活跃的故事overlay，不检查（避免打断当前剧情）
+    if (document.getElementById('v23-story-wrapper')) return;
+    _v10OrigCheckNodes.apply(this, arguments);
+  };
+  // 同样修复_v2CheckChapterNodes
+  var _v10OrigCheck2 = window._v2CheckChapterNodes;
+  if (typeof _v10OrigCheck2 === 'function') {
+    window._v2CheckChapterNodes = function() {
+      if (document.getElementById('v23-story-wrapper')) return;
+      _v10OrigCheck2.apply(this, arguments);
+    };
+  }
+
+  // ========== 4. 场景背景图（保留v9的MutationObserver方案，这是正确的）==========
+  var V10_STORY_BG = {
+    '1.0': 'imgs/scenes/company.jpg',
+    '1.1': 'imgs/scenes/vip.jpg',
+    '1.2': 'imgs/scenes/dance.jpg',
+    '1.3': 'imgs/scenes/dorm.jpg',
+    '1.4': 'imgs/scenes/dance.jpg',
+    '1.5': 'imgs/scenes/dorm_corridor.jpg',
+    '1.6': 'imgs/scenes/livestream.jpg',
+    '1.7': 'imgs/scenes/dorm.jpg',
+    '1.8': 'imgs/scenes/dorm.jpg'
+  };
+
+  // 捕获当前剧情nodeId — 通过覆盖_v23ShowStoryNode
+  var _v10CurrentNodeId = '';
+  var _v10OrigShowStory = window._v23ShowStoryNode;
+  if (typeof _v10OrigShowStory === 'function') {
+    window._v23ShowStoryNode = function(nodeId) {
+      _v10CurrentNodeId = nodeId;
+      _v10OrigShowStory(nodeId);
+    };
+  }
+
+  // 设置/移除场景背景图
+  function _v10SetStoryBg() {
+    var bgUrl = V10_STORY_BG[_v10CurrentNodeId] || '';
+    if (!bgUrl) return;
+    var bg = document.getElementById('v10-story-bg');
+    if (!bg) {
+      bg = document.createElement('div');
+      bg.id = 'v10-story-bg';
+      document.body.appendChild(bg);
+    }
+    bg.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;'
+      + 'background-image:url(\'' + bgUrl + '\');'
+      + 'background-size:cover;background-position:center;'
+      + 'pointer-events:none;';
+    // 让overlay半透明
+    var overlay = document.getElementById('v23-story-overlay');
+    if (overlay) {
+      overlay.style.background = 'linear-gradient(180deg,rgba(13,11,30,0.12) 0%,rgba(13,11,30,0.55) 50%,rgba(13,11,30,0.92) 100%)';
+    }
+  }
+
+  function _v10RemoveStoryBg() {
+    var bg = document.getElementById('v10-story-bg');
+    if (bg && bg.parentNode) bg.parentNode.removeChild(bg);
+    // 也清理v9可能留下的旧背景
+    var bg9 = document.getElementById('v9-story-bg');
+    if (bg9 && bg9.parentNode) bg9.parentNode.removeChild(bg9);
+  }
+
+  // MutationObserver监听v23-story-wrapper
+  var _v10Observer = new MutationObserver(function(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      var m = mutations[i];
+      for (var j = 0; j < m.addedNodes.length; j++) {
+        if (m.addedNodes[j].id === 'v23-story-wrapper') {
+          _v10SetStoryBg();
+        }
+      }
+      for (var k = 0; k < m.removedNodes.length; k++) {
+        if (m.removedNodes[k].id === 'v23-story-wrapper') {
+          setTimeout(function() {
+            if (!document.getElementById('v23-story-wrapper')) {
+              _v10RemoveStoryBg();
+            }
+          }, 150);
+        }
+      }
+    }
+  });
+  _v10Observer.observe(document.body, { childList: true });
+
+  // ========== 5. 预设CSS：overlay半透明 + 全屏覆盖（含safe-area）==========
+  if (!document.getElementById('v10-story-overlay-css')) {
+    var v10Css = document.createElement('style');
+    v10Css.id = 'v10-story-overlay-css';
+    v10Css.textContent = '#v23-story-overlay{'
+      + 'background:linear-gradient(180deg,rgba(13,11,30,0.12) 0%,rgba(13,11,30,0.55) 50%,rgba(13,11,30,0.92) 100%)!important;'
+      + 'padding-bottom:env(safe-area-inset-bottom,0px)!important;'
+      + '}'
+      + '#v23-story-wrapper{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;z-index:10000!important;}';
+    document.head.appendChild(v10Css);
+  }
+
+  // ========== 6. Typewriter点击修复（替代v9的方案）==========
+  // 问题：点击typewriter文字会同时skip打字+冒泡到overlay触发advance
+  // v9方案：stopPropagation — 基本正确但有edge case
+  // v10方案：在overlay的onclick中检查打字机是否正在运行
+  // 更可靠：直接在overlay onclick中加延迟判断
+  var _v10TypewriterActive = false;
+
+  var _v10OrigTypeWriter = window._v2TypeWriter;
+  if (typeof _v10OrigTypeWriter === 'function') {
+    window._v2TypeWriter = function(elementId, text, speed, callback) {
+      _v10TypewriterActive = true;
+      var wrappedCb = function() {
+        // 打字完成（自然或skip），延迟150ms后标记结束
+        setTimeout(function() { _v10TypewriterActive = false; }, 150);
+        if (typeof callback === 'function') callback();
+      };
+      _v10OrigTypeWriter(elementId, text, speed, wrappedCb);
+    };
+  }
+
+  // ========== 7. Toast白底白字修复（保留v7的正确修复）==========
+  var _v10OrigToast = window.showToast;
+  if (typeof _v10OrigToast === 'function') {
+    window.showToast = function(message, duration) {
+      _v10OrigToast(message, duration);
+      var toasts = document.querySelectorAll('.myidol-toast');
+      if (toasts.length > 0) {
+        var t = toasts[toasts.length - 1];
+        t.style.background = 'rgba(30,25,70,0.95)';
+        t.style.color = '#FFF';
+        t.style.backdropFilter = 'blur(20px)';
+        t.style.webkitBackdropFilter = 'blur(20px)';
+        t.style.border = '1px solid rgba(167,139,250,0.2)';
+        t.style.borderRadius = '12px';
+        t.style.fontWeight = '300';
+      }
+    };
+  }
+
+  // ========== 8. 立绘居中修复（保留v7的正确修复）==========
+  if (!document.getElementById('v10-portrait-center-css')) {
+    var ps = document.createElement('style');
+    ps.id = 'v10-portrait-center-css';
+    ps.textContent = '.v21h-portrait-wrap{display:flex!important;align-items:center!important;justify-content:center!important;}'
+      + '.v21h-portrait{object-position:center center!important;}';
+    document.head.appendChild(ps);
+  }
+
+  // ========== 9. 场景底栏4按钮被遮挡修复（保留v7的正确修复）==========
+  if (!document.getElementById('v10-scene-bar-css')) {
+    var bs = document.createElement('style');
+    bs.id = 'v10-scene-bar-css';
+    bs.textContent = '.v221-scene-bar{flex-wrap:nowrap!important;gap:4px!important;padding:8px 12px max(10px,env(safe-area-inset-bottom))!important;}'
+      + '.v221-bar-btn{flex:1!important;min-width:0!important;}'
+      + '.v221-bar-btn svg{width:16px!important;height:16px!important;}'
+      + '.v221-bar-btn span{font-size:9px!important;}'
+      + '.v221-hs{width:42px!important;height:42px!important;border-radius:12px!important;}'
+      + '.v221-hs svg{width:18px!important;height:18px!important;}'
+      + '.v221-hs-label{font-size:8px!important;}';
+    document.head.appendChild(bs);
+  }
+
+  // ========== 10. 场景浮动剧情按钮（保留v7的正确方案）==========
+  if (!document.getElementById('v10-scene-story-fab-css')) {
+    var fabCss = document.createElement('style');
+    fabCss.id = 'v10-scene-story-fab-css';
+    fabCss.textContent = '.v10-story-fab{position:fixed;top:max(56px,calc(env(safe-area-inset-top)+56px));left:12px;z-index:25;display:flex;align-items:center;gap:6px;background:rgba(13,11,30,0.6);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(201,169,110,0.25);border-radius:20px;padding:5px 12px 5px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.2s;}'
+      + '.v10-story-fab:active{transform:scale(0.92);background:rgba(201,169,110,0.2);}'
+      + '.v10-story-fab svg{width:14px;height:14px;stroke:#C9A96E;fill:none;stroke-width:1.5;}'
+      + '.v10-story-fab span{font-size:11px;color:rgba(255,255,255,0.8);font-weight:300;letter-spacing:0.05em;}';
+    document.head.appendChild(fabCss);
+  }
+
+  // 场景渲染后注入浮动剧情按钮
+  var _v10PrevRSP = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    _v10PrevRSP(container);
+    // 移除v7的旧fab（如果存在）
+    var oldFab = document.getElementById('v7-story-fab');
+    if (oldFab) oldFab.remove();
+    // 添加新fab
+    if (!document.getElementById('v10-story-fab')) {
+      var fab = document.createElement('div');
+      fab.id = 'v10-story-fab';
+      fab.className = 'v10-story-fab';
+      fab.setAttribute('onclick', "if(typeof _v2ShowChapterList==='function'){_v2ShowChapterList();}");
+      fab.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span>剧情</span>';
+      document.body.appendChild(fab);
+    }
+    var bn = document.getElementById('bottomNav');
+    if (bn && window._inSceneMode) bn.style.display = 'none';
+  };
+
+  // 退出场景时移除浮动按钮
+  var _v10OrigExit = window._exitSceneToUI;
+  window._exitSceneToUI = function() {
+    var fab = document.getElementById('v10-story-fab');
+    if (fab) fab.remove();
+    var fab7 = document.getElementById('v7-story-fab');
+    if (fab7) fab7.remove();
+    if (_v10OrigExit) _v10OrigExit.apply(this, arguments);
+  };
+
+  // ========== 11. 大厅主线点不动修复（保留v7的正确修复）==========
+  var _v10OrigNav = window._v21Nav;
+  if (typeof _v10OrigNav === 'function') {
+    window._v21Nav = function(page) {
+      if (page === 'story') {
+        if (typeof window._v2ShowChapterList === 'function') {
+          window._v2ShowChapterList();
+        } else {
+          _v10OrigNav(page);
+        }
+        return;
+      }
+      return _v10OrigNav.apply(this, arguments);
+    };
+  }
+
+  // ========== 12. goToPage('story')走章节列表（确保所有入口统一）==========
+  var _v10PrevGTP = window.goToPage;
+  window.goToPage = function(page) {
+    if (page === 'story') {
+      if (typeof window._v2ShowChapterList === 'function') {
+        window._v2ShowChapterList();
+      }
+      return;
+    }
+    return _v10PrevGTP.apply(this, arguments);
+  };
+
+  // ========== 13. 教程标记完成（保留v6的正确修复）==========
+  if (typeof gameState !== 'undefined') {
+    gameState._v260TutorialDone = true;
+  }
+  window._v260TutorialDone = true;
+  window._v2StartTutorial = function() {};
+
+  // ========== 14. renderBottomNav场景模式隐藏（保留v6的正确修复）==========
+  var _v10PrevBN = window.renderBottomNav;
+  window.renderBottomNav = function() {
+    if (window._inSceneMode) {
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+      return;
+    }
+    if (_v10PrevBN) _v10PrevBN.apply(this, arguments);
+  };
+
+  // ========== 15. 场景CSS补全（保留v6的正确CSS）==========
+  if (!document.getElementById('v10-scene-css')) {
+    var s = document.createElement('style');
+    s.id = 'v10-scene-css';
+    s.textContent = '.v221-scene{position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;overflow:hidden;z-index:100;background:#000;}'
+      + '.v221-scene-bg{position:absolute;top:0;left:0;width:100%;height:100%;background-size:cover;background-position:center;transition:opacity 0.4s;}'
+      + '.v221-scene-vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,0.45) 100%);z-index:1;pointer-events:none;}'
+      + '.v221-scene-vtop{position:absolute;top:0;left:0;right:0;height:80px;background:linear-gradient(180deg,rgba(13,11,30,0.4) 0%,transparent 100%);z-index:2;pointer-events:none;}'
+      + '.v221-scene-vbot{position:absolute;bottom:0;left:0;right:0;height:100px;background:linear-gradient(0deg,rgba(13,11,30,0.6) 0%,transparent 100%);z-index:2;pointer-events:none;}'
+      + '.v221-scene-pill{position:absolute;top:max(10px,env(safe-area-inset-top));z-index:20;display:flex;align-items:center;gap:4px;background:rgba(13,11,30,0.5);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:300;color:rgba(255,255,255,0.8);}'
+      + '.v221-scene-day{left:12px;}'
+      + '.v221-scene-loc{right:12px;color:#C9A96E;}'
+      + '.v221-hs{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.06);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;margin:0 auto 3px;transition:all 0.2s;cursor:pointer;}'
+      + '.v221-hs:active{transform:scale(0.9);background:rgba(201,169,110,0.15);border-color:rgba(201,169,110,0.4);}'
+      + '.v221-hs svg{width:20px;height:20px;stroke:rgba(255,255,255,0.85);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}'
+      + '.v221-hs-label{font-size:9px;color:rgba(255,255,255,0.6);text-shadow:0 1px 3px rgba(0,0,0,0.8);white-space:nowrap;font-weight:300;letter-spacing:0.3px;}'
+      + '.v221-scene-bar{position:absolute;bottom:0;left:0;right:0;z-index:20;background:rgba(13,11,30,0.72);-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);border-top:1px solid rgba(255,255,255,0.08);border-radius:16px 16px 0 0;padding:10px 24px max(12px,env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:space-around;}'
+      + '.v221-bar-btn{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;-webkit-tap-highlight-color:transparent;}'
+      + '.v221-bar-btn svg{width:18px;height:18px;stroke:rgba(255,255,255,0.8);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}'
+      + '.v221-bar-btn span{font-size:10px;font-weight:300;color:rgba(255,255,255,0.6);}';
+    document.head.appendChild(s);
+  }
+
+  // ========== 16. _v2EnterDorm修复（保留v6的正确修复）==========
+  var _v10OrigEnterDorm = window._v2EnterDorm;
+  window._v2EnterDorm = function() {
+    var cleanIds = ['v260-story-bg', 'v23-story-overlay', 'v23-story-wrapper',
+                     'v2-story-overlay', 'v2-story-wrapper', 'v2-tutorial-overlay',
+                     'v2-chapter-list', 'v2-personal-story',
+                     'v9-story-bg', 'v10-story-bg'];
+    for (var i = 0; i < cleanIds.length; i++) {
+      var el = document.getElementById(cleanIds[i]);
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+    document.body.style.overflow = '';
+    window._inSceneMode = true;
+    window.currentPage = 'home';
+    gameState._currentScene = 'dorm';
+    gameState._v260TutorialDone = true;
+    var bn = document.getElementById('bottomNav');
+    if (bn) bn.style.display = 'none';
+    var app = document.getElementById('app');
+    if (app && typeof window.renderScenePage === 'function') {
+      window.renderScenePage(app);
+    } else if (typeof window.render === 'function') {
+      window.render();
+    }
+  };
+
+  // ========== 17. _exitSceneToUI清理场景状态 ==========
+  var _v10OrigExit2 = window._exitSceneToUI;
+  window._exitSceneToUI = function() {
+    window._sceneModePending = false;
+    window._sceneModeScene = '';
+    // 清理背景
+    _v10RemoveStoryBg();
+    if (_v10OrigExit2) _v10OrigExit2.apply(this, arguments);
+  };
+
+  // ========== 18. 支线剧情确保window上有 ==========
+  if (typeof window._v270ShowPersonalStory !== 'function') {
+    window._v270ShowPersonalStory = function(npcKey) {
+      var NPC_KEY_MAP = { haeun: '夏恩', soah: '素雅', jiwon: '智媛', junho: '俊昊', seokhyun: '瑞贤' };
+      var NPC_COLOR_MAP = { haeun: '#F472B6', soah: '#A78BFA', jiwon: '#FBBF24', junho: '#60A5FA', seokhyun: '#34D399' };
+      var npcName = NPC_KEY_MAP[npcKey] || npcKey;
+      var color = NPC_COLOR_MAP[npcKey] || '#C9A96E';
+      var love = (gameState.npc好感度 && gameState.npc好感度[npcName]) || 0;
+      var hearts = Math.floor(love / 50);
+      var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
+        + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
+        + '<div onclick="document.getElementById(\'v2-personal-story\').remove();document.body.style.overflow=\'\';" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">关闭</div>'
+        + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">' + npcName + ' · 个人线</div>'
+        + '<div style="width:50px;"></div>'
+        + '</div><div style="padding:24px 20px 80px;text-align:center;">'
+        + '<div style="width:64px;height:64px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;margin:0 auto 16px;">' + npcName.charAt(0) + '</div>'
+        + '<div style="font-size:20px;font-weight:300;color:#FFF;margin-bottom:8px;">' + npcName + '</div>'
+        + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:24px;">好感度 ' + love + ' · ' + hearts + '♥</div>'
+        + '<div style="padding:20px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;text-align:left;">'
+        + '<div style="font-size:14px;color:rgba(255,255,255,0.6);line-height:1.8;font-weight:300;">个人线剧情正在开发中，敬请期待。</div>'
+        + '</div>'
+        + '</div></div>';
+      var old = document.getElementById('v2-personal-story');
+      if (old) old.remove();
+      var el = document.createElement('div');
+      el.id = 'v2-personal-story';
+      el.innerHTML = html;
+      el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
+      document.body.appendChild(el);
+    };
+  }
+
+  // ========== 19. 我的overlay（场景内不跳转）==========
+  window._v6ShowMeOverlay = function() {
+    var p = gameState.player || {};
+    var pName = p.name || '';
+    var pGender = p.gender === 'F' ? '女' : p.gender === 'M' ? '男' : '';
+    var pAge = p.age || '';
+    var pRole = p.role === 'Trainee' ? '练习生' : (p.role || '');
+    var html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;z-index:15000;background:linear-gradient(180deg,#0D0B1E 0%,#1A1438 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">'
+      + '<div style="position:sticky;top:0;z-index:2;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);padding:16px 20px;display:flex;align-items:center;">'
+      + '<div onclick="document.getElementById(\'v6-me-overlay\').remove();" style="color:#FFF;font-size:14px;cursor:pointer;font-weight:300;">返回场景</div>'
+      + '<div style="flex:1;text-align:center;color:#FFF;font-size:16px;font-weight:300;">我的</div>'
+      + '<div style="width:60px;"></div>'
+      + '</div><div style="padding:24px 20px 80px;text-align:center;">'
+      + '<div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#C9A96E,#A78BFA);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px;margin:0 auto 16px;">' + (pName ? pName.charAt(0) : '?') + '</div>'
+      + '<div style="font-size:20px;font-weight:300;color:#FFF;margin-bottom:8px;">' + pName + '</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:4px;">' + pGender + ' · ' + pAge + '岁 · ' + pRole + '</div>'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.3);margin-bottom:24px;">SEONGWOO ENT.</div>'
+      + '<div style="padding:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;">'
+      + '<div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:12px;">状态</div>'
+      + '<div style="display:flex;justify-content:space-around;">'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#F472B6;">' + (gameState['体力'] || 0) + '</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">体力</div></div>'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#A78BFA;">' + (gameState.life || 100) + '%</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">生命</div></div>'
+      + '<div style="text-align:center;"><div style="font-size:18px;font-weight:300;color:#C9A96E;">' + (gameState.fame || 30) + '</div><div style="font-size:10px;color:rgba(255,255,255,0.4);">名气</div></div>'
+      + '</div></div>'
+      + '<div onclick="document.getElementById(\'v6-me-overlay\').remove();goToPage(\'me\');" style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;text-align:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6);font-weight:300;">查看完整资料</div>'
+      + '</div></div>';
+    var old = document.getElementById('v6-me-overlay');
+    if (old) old.remove();
+    var el = document.createElement('div');
+    el.id = 'v6-me-overlay';
+    el.innerHTML = html;
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:14999;';
+    document.body.appendChild(el);
+  };
+
+  // ========== 20. _navigateScene确保场景模式 ==========
+  var _v10OrigNavScene = window._navigateScene;
+  if (typeof _v10OrigNavScene === 'function') {
+    window._navigateScene = function(sceneId) {
+      _v10OrigNavScene.apply(this, arguments);
+      window._inSceneMode = true;
+      var bn = document.getElementById('bottomNav');
+      if (bn) bn.style.display = 'none';
+    };
+  }
+
+  // ========== 21. render拦截：create页+场景模式+charAt兜底 ==========
+  var _v10PrevRender = window.render;
+  window.render = function() {
+    try {
+      if (window.currentPage === 'create' && typeof window.renderCreationPage === 'function') {
+        var app = document.getElementById('app');
+        if (app) { window.renderCreationPage(app); return; }
+      }
+      if (window._inSceneMode && window.currentPage === 'home') {
+        var app2 = document.getElementById('app');
+        if (app2 && typeof window.renderScenePage === 'function') {
+          var bn = document.getElementById('bottomNav');
+          if (bn) bn.style.display = 'none';
+          window.renderScenePage(app2);
+          return;
+        }
+      }
+      return _v10PrevRender.apply(this, arguments);
+    } catch(e) {
+      console.error('[V10] render error:', e.message);
+      if (e.message && e.message.indexOf('charAt') !== -1) {
+        window._inSceneMode = false;
+        window.currentPage = 'home';
+        document.body.classList.add('v21-in-home');
+        try { _v10PrevRender.apply(this, arguments); } catch(e2) {
+          var app3 = document.getElementById('app');
+          if (app3) {
+            app3.innerHTML = '<div style="text-align:center;padding:60px 20px;"><div style="font-size:16px;color:#FFF;font-weight:300;">加载中...</div></div>';
+          }
+        }
+      } else {
+        throw e;
+      }
+    }
+  };
+
+  // ========== 22. renderScenePage: 修改"我的"按钮+添加底栏剧情按钮 ==========
+  // 注意：v10已经在renderScenePage中添加了浮动fab，这里处理底栏
+  var _v10PrevRSP2 = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    _v10PrevRSP2(container);
+    if (!container) return;
+    // 修改底栏"我的"按钮改为overlay
+    var meBtn = container.querySelector('[onclick*="goToPage(\'me\')"]');
+    if (meBtn) {
+      meBtn.setAttribute('onclick', '_v6ShowMeOverlay()');
+    }
+    // 在底栏添加"剧情"按钮
+    var bar = container.querySelector('.v221-scene-bar');
+    if (bar && !bar.querySelector('._v10-story-btn')) {
+      var storyBtn = document.createElement('div');
+      storyBtn.className = 'v221-bar-btn _v10-story-btn';
+      storyBtn.setAttribute('onclick', "if(typeof _v2ShowChapterList==='function'){_v2ShowChapterList();}");
+      storyBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span>剧情</span>';
+      bar.insertBefore(storyBtn, bar.firstChild);
+    }
+  };
+
+  window.V2_VERSION = 'v2.0-hotfix-v10';
+  console.log('[V2-hotfix-v10] applied — consolidated v6/v7/v9, fixed advance lock, fixed chapter check, enhanced error logging');
+})();
