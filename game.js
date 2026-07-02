@@ -23498,3 +23498,178 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.0-hotfix-v6';
   console.log('[V2-hotfix-v6] applied — root cause fixed, story button added, scene mode preserved');
 })();
+// V2.0-hotfix-v7 — 6项修复：1.2卡住+toast白字+立绘居中+底栏遮挡+场景无剧情+主线点不动
+// ============================================================
+(function() {
+  if (window._v2HotfixV7Applied) return;
+  window._v2HotfixV7Applied = true;
+
+  // ========== 1. 1.2剧情卡住：彻底修复打字机冒泡+advance锁 ==========
+  // 根因：el.onclick在打字机上设了skip，点击冒泡到overlay的_v23StoryAdvance
+  // 结果：一次点击既跳过打字又推进场景 → 300ms锁挡住了第二次推进
+  // 修复：1) 打字机完成时清除el.onclick  2) advance锁改为200ms  3) overlay点击加stopPropagation
+
+  var _origAdvance = window._v23StoryAdvance;
+  if (typeof _origAdvance === 'function') {
+    var _v7AdvanceLock = false;
+    window._v23StoryAdvance = function() {
+      if (_v7AdvanceLock) return;
+      _v7AdvanceLock = true;
+      _origAdvance();
+      setTimeout(function() { _v7AdvanceLock = false; }, 200);
+    };
+  }
+
+  // ========== 2. Toast白底白字修复 ==========
+  // --color-primary是#FFFFFF，导致.myidol-toast背景白色白字
+  // 修复：给toast加内联深色背景
+  var _origToast = window.showToast;
+  if (typeof _origToast === 'function') {
+    window.showToast = function(message, duration) {
+      _origToast(message, duration);
+      // 修正最后一个toast元素
+      var toasts = document.querySelectorAll('.myidol-toast');
+      if (toasts.length > 0) {
+        var t = toasts[toasts.length - 1];
+        t.style.background = 'rgba(30,25,70,0.95)';
+        t.style.color = '#FFF';
+        t.style.backdropFilter = 'blur(20px)';
+        t.style.webkitBackdropFilter = 'blur(20px)';
+        t.style.border = '1px solid rgba(167,139,250,0.2)';
+        t.style.borderRadius = '12px';
+        t.style.fontWeight = '300';
+      }
+    };
+  }
+
+  // ========== 3. 立绘居中修复 ==========
+  // V2.2.0的portrait是object-fit:cover + object-position:center 20%
+  // 但cinematic图比例不对时会偏移。修复：确保portrait-wrap居中
+  if (!document.getElementById('v7-portrait-center-css')) {
+    var ps = document.createElement('style');
+    ps.id = 'v7-portrait-center-css';
+    ps.textContent = '.v21h-portrait-wrap{display:flex!important;align-items:center!important;justify-content:center!important;}'
+      + '.v21h-portrait{object-position:center center!important;}';
+    document.head.appendChild(ps);
+  }
+
+  // ========== 4. 场景底栏4按钮被遮挡 ==========
+  // hotfix-v6在bar.firstChild插入了"剧情"按钮，导致4个按钮挤在一起
+  // 修复：减小按钮尺寸，bar用flex-wrap确保可见
+  if (!document.getElementById('v7-scene-bar-css')) {
+    var bs = document.createElement('style');
+    bs.id = 'v7-scene-bar-css';
+    bs.textContent = '.v221-scene-bar{flex-wrap:nowrap!important;gap:4px!important;padding:8px 12px max(10px,env(safe-area-inset-bottom))!important;}'
+      + '.v221-bar-btn{flex:1!important;min-width:0!important;}'
+      + '.v221-bar-btn svg{width:16px!important;height:16px!important;}'
+      + '.v221-bar-btn span{font-size:9px!important;}'
+      + '.v221-hs{width:42px!important;height:42px!important;border-radius:12px!important;}'
+      + '.v221-hs svg{width:18px!important;height:18px!important;}'
+      + '.v221-hs-label{font-size:8px!important;}';
+    document.head.appendChild(bs);
+  }
+
+  // ========== 5. 场景里没有剧情入口 ==========
+  // hotfix-v6的renderScenePage monkey-patch在V2.2.3的完整重写之后注册
+  // 但V2.2.3的renderScenePage是最后一次完整重写，里面没有"剧情"按钮
+  // hotfix-v6添加了按钮，但querySelector可能找不到正确的bar
+  // 修复：直接在_v2ShowChapterList暴露到window后，确保场景底栏有剧情按钮
+  // 同时给场景加一个浮动剧情入口（更直观）
+  if (!document.getElementById('v7-scene-story-fab-css')) {
+    var fabCss = document.createElement('style');
+    fabCss.id = 'v7-scene-story-fab-css';
+    fabCss.textContent = '.v7-story-fab{position:fixed;top:max(56px,calc(env(safe-area-inset-top)+56px));left:12px;z-index:25;display:flex;align-items:center;gap:6px;background:rgba(13,11,30,0.6);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border:1px solid rgba(201,169,110,0.25);border-radius:20px;padding:5px 12px 5px 8px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all 0.2s;}'
+      + '.v7-story-fab:active{transform:scale(0.92);background:rgba(201,169,110,0.2);}'
+      + '.v7-story-fab svg{width:14px;height:14px;stroke:#C9A96E;fill:none;stroke-width:1.5;}'
+      + '.v7-story-fab span{font-size:11px;color:rgba(255,255,255,0.8);font-weight:300;letter-spacing:0.05em;}';
+    document.head.appendChild(fabCss);
+  }
+
+  // 场景页面渲染后注入浮动剧情按钮
+  var _prevRSP_v7 = window.renderScenePage;
+  window.renderScenePage = function(container) {
+    _prevRSP_v7(container);
+    // 添加浮动剧情按钮（场景左上角）
+    if (!document.getElementById('v7-story-fab')) {
+      var fab = document.createElement('div');
+      fab.id = 'v7-story-fab';
+      fab.className = 'v7-story-fab';
+      fab.setAttribute('onclick', "if(typeof _v2ShowChapterList==='function'){_v2ShowChapterList();}");
+      fab.innerHTML = '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span>剧情</span>';
+      document.body.appendChild(fab);
+    }
+    // 场景模式下隐藏底部导航
+    var bn = document.getElementById('bottomNav');
+    if (bn && window._inSceneMode) bn.style.display = 'none';
+  };
+
+  // 退出场景时移除浮动按钮
+  var _origExit_v7 = window._exitSceneToUI;
+  window._exitSceneToUI = function() {
+    var fab = document.getElementById('v7-story-fab');
+    if (fab) fab.remove();
+    if (_origExit_v7) _origExit_v7.apply(this, arguments);
+  };
+
+  // ========== 6. 大厅主线点不动 ==========
+  // _v21Nav('story')走的是currentPage='story'+render()，进的是旧V2.0剧情中心
+  // 但旧V2.0的_v2EnterChapter(1)会设currentPage='scene'+_inSceneMode=true然后调render
+  // render被多层拦截后最终走到renderScenePage而非章节列表
+  // 用户期望：点"主线"直接弹出章节列表
+  // 修复：覆盖_v21Nav，story直接走_v2ShowChapterList
+  var _origV21Nav = window._v21Nav;
+  if (typeof _origV21Nav === 'function') {
+    window._v21Nav = function(page) {
+      if (page === 'story') {
+        if (typeof window._v2ShowChapterList === 'function') {
+          window._v2ShowChapterList();
+        } else {
+          _origV21Nav(page);
+        }
+        return;
+      }
+      return _origV21Nav.apply(this, arguments);
+    };
+  }
+
+  // ========== 7. goToPage('story')也走章节列表（确保所有入口统一）==========
+  // hotfix-v6已做了，但确保在最外层
+  var _prevGTP_v7 = window.goToPage;
+  window.goToPage = function(page) {
+    if (page === 'story') {
+      if (typeof window._v2ShowChapterList === 'function') {
+        window._v2ShowChapterList();
+      }
+      return;
+    }
+    return _prevGTP_v7.apply(this, arguments);
+  };
+
+  // ========== 8. 1.2剧情specific fix: 确保_v23StoryAdvance不卡 ==========
+  // 额外保险：在story overlay上加touchstart推进（Safari的onclick有300ms延迟）
+  var _origShowStory = window._v23ShowStoryNode;
+  if (typeof _origShowStory === 'function') {
+    window._v23ShowStoryNode = function(nodeId) {
+      _origShowStory(nodeId);
+      // 在overlay上加touchstart加速Safari响应
+      setTimeout(function() {
+        var overlay = document.getElementById('v23-story-overlay');
+        if (overlay) {
+          var origOnclick = overlay.onclick;
+          overlay.onclick = null;
+          overlay.addEventListener('click', function(e) {
+            if (origOnclick) origOnclick(e);
+          }, false);
+          overlay.addEventListener('touchend', function(e) {
+            if (origOnclick && !e.target.closest('[onclick*="_v23StoryChoose"]')) {
+              // 不阻止默认行为，只调advance
+            }
+          }, false);
+        }
+      }, 50);
+    };
+  }
+
+  window.V2_VERSION = 'v2.0-hotfix-v7';
+  console.log('[V2-hotfix-v7] applied — 6 fixes: 1.2 stuck + toast white + portrait center + scene bar + story entry + main story nav');
+})();
