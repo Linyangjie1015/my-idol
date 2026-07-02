@@ -23673,7 +23673,7 @@ function _v2EnterChapter(chNum) {
   window.V2_VERSION = 'v2.0-hotfix-v7';
   console.log('[V2-hotfix-v7] applied — 6 fixes: 1.2 stuck + toast white + portrait center + scene bar + story entry + main story nav');
 })();
-// V2.0-hotfix-v8 — 剧情场景背景图+点击彻底修复
+// V2.0-hotfix-v8 — 剧情场景背景图+点击修复
 // ============================================================
 (function() {
   if (window._v2HotfixV8Applied) return;
@@ -23692,7 +23692,6 @@ function _v2EnterChapter(chNum) {
     '1.8': 'imgs/scenes/dorm.jpg'
   };
 
-  // 添加/更新背景层
   function _v8SetStoryBg(nodeId) {
     var bgUrl = V8_STORY_BG[nodeId] || '';
     if (!bgUrl) return;
@@ -23704,77 +23703,30 @@ function _v2EnterChapter(chNum) {
     }
     bg.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;'
       + 'background-image:url(\'' + bgUrl + '\');'
-      + 'background-size:cover;background-position:center;'
-      + '-webkit-transition:opacity 0.6s;transition:opacity 0.6s;opacity:0;';
-    setTimeout(function() { bg.style.opacity = '1'; }, 30);
+      + 'background-size:cover;background-position:center;';
   }
 
   function _v8RemoveStoryBg() {
     var bg = document.getElementById('v8-story-bg');
-    if (bg) {
-      bg.style.opacity = '0';
-      setTimeout(function() { if (bg.parentNode) bg.parentNode.removeChild(bg); }, 600);
-    }
+    if (bg && bg.parentNode) bg.parentNode.removeChild(bg);
   }
 
-  // ========== 2. advance锁 ==========
-  var _v8AdvanceLock = false;
-
-  function _v8DoAdvance() {
-    if (_v8AdvanceLock) return;
-    var st = window._v23StoryState;
-    if (!st || st.waitingChoice) return;
-    _v8AdvanceLock = true;
-    // 调原始渲染逻辑（通过_v23RenderStoryDialog）
-    if (typeof window._v23RenderStoryDialog === 'function') {
-      window._v23RenderStoryDialog();
-    }
-    setTimeout(function() { _v8AdvanceLock = false; }, 180);
-  }
-
-  // ========== 3. 覆盖_v23RenderStoryDialog ==========
-  // 每次渲染新场景时：1)显示背景 2)改overlay透明度 3)重新绑定事件
+  // ========== 2. 覆盖_v23RenderStoryDialog — 加背景+改overlay透明度 ==========
   var _origRenderDialog = window._v23RenderStoryDialog;
   if (typeof _origRenderDialog === 'function') {
     window._v23RenderStoryDialog = function() {
       var st = window._v23StoryState;
-      // 先显示背景
-      if (st && st.nodeId) {
-        _v8SetStoryBg(st.nodeId);
-      }
-      // 调原始渲染
+      if (st && st.nodeId) _v8SetStoryBg(st.nodeId);
       _origRenderDialog();
-      // 修改overlay让背景透出来
+      // 改overlay透明度让背景透出来
       var overlay = document.getElementById('v23-story-overlay');
       if (overlay) {
         overlay.style.background = 'linear-gradient(180deg,rgba(13,11,30,0.12) 0%,rgba(13,11,30,0.55) 50%,rgba(13,11,30,0.92) 100%)';
-        overlay.style.zIndex = '10001';
-        // 移除HTML中的onclick，改用addEventListener
-        overlay.onclick = null;
-        overlay.addEventListener('touchend', function(e) {
-          if (e.target && e.target.closest && e.target.closest('[onclick*="_v23StoryChoose"]')) return;
-          e.preventDefault();
-          _v8DoAdvance();
-        }, {passive: false});
-        overlay.addEventListener('click', function(e) {
-          if (e.target && e.target.closest && e.target.closest('[onclick*="_v23StoryChoose"]')) return;
-          e.preventDefault();
-          _v8DoAdvance();
-        }, false);
-      }
-      // 确保打字机el的onclick不冒泡
-      var textEl = document.getElementById('v23-story-text');
-      if (textEl && textEl.onclick) {
-        var origTextOnclick = textEl.onclick;
-        textEl.onclick = function(e) {
-          if (e) { e.stopPropagation(); }
-          origTextOnclick.call(this, e);
-        };
       }
     };
   }
 
-  // ========== 4. 覆盖_v23CloseStoryDialog — 清除背景 ==========
+  // ========== 3. 覆盖_v23CloseStoryDialog — 清除背景 ==========
   var _origCloseDialog = window._v23CloseStoryDialog;
   if (typeof _origCloseDialog === 'function') {
     window._v23CloseStoryDialog = function() {
@@ -23783,25 +23735,47 @@ function _v2EnterChapter(chNum) {
     };
   }
 
-  // ========== 5. 覆盖_v23StoryAdvance — 走v8的advance ==========
-  window._v23StoryAdvance = function() {
-    _v8DoAdvance();
-  };
+  // ========== 4. 点击推进修复 ==========
+  // 核心问题：打字机el.onclick(skip)冒泡到overlay onclick(advance)
+  // 方案：不改变overlay的onclick，而是在_v23StoryAdvance里加锁+检测是否正在打字
+  // 同时在打字机的el.onclick上加stopPropagation
 
-  // ========== 6. 打字机冒泡修复 ==========
-  // 每次打字机完成后清除el.onclick防止后续点击冒泡
-  var _origTypeWriterV8 = window._v2TypeWriter;
-  if (typeof _origTypeWriterV8 === 'function') {
+  var _v8AdvanceLock = false;
+  var _v8Typewriting = false; // 标记是否正在打字
+
+  // 覆盖_v23StoryAdvance
+  var _origAdvance = window._v23StoryAdvance;
+  if (typeof _origAdvance === 'function') {
+    window._v23StoryAdvance = function() {
+      if (_v8AdvanceLock) return;
+      var st = window._v23StoryState;
+      if (!st || st.waitingChoice) return;
+      _v8AdvanceLock = true;
+      _origAdvance();
+      setTimeout(function() { _v8AdvanceLock = false; }, 200);
+    };
+  }
+
+  // 覆盖_v2TypeWriter — stopPropagation + 标记打字状态
+  var _origTypeWriter = window._v2TypeWriter;
+  if (typeof _origTypeWriter === 'function') {
     window._v2TypeWriter = function(elementId, text, speed, callback) {
-      _origTypeWriterV8(elementId, text, speed, callback);
-      // el.onclick加stopPropagation
+      _v8Typewriting = true;
+      var wrappedCb = function() {
+        _v8Typewriting = false;
+        if (typeof callback === 'function') callback();
+      };
+      _origTypeWriter(elementId, text, speed, wrappedCb);
+      // 打字机的el.onclick加stopPropagation，防止冒泡到overlay
       var el = document.getElementById(elementId);
-      if (el && el.onclick) {
-        var origOnclick = el.onclick;
-        el.onclick = function(e) {
-          if (e) { e.stopPropagation(); }
-          origOnclick.call(this, e);
-        };
+      if (el) {
+        var origClick = el.onclick;
+        if (origClick) {
+          el.onclick = function(e) {
+            if (e) e.stopPropagation();
+            origClick.call(this, e);
+          };
+        }
       }
     };
   }
